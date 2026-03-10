@@ -1,117 +1,152 @@
 /**
  * KOAJ Access v2.0 — Permoda S.A.S.
  * ------------------------------------
- * Store de estado de la interfaz de usuario.
+ * Store de UI — estado visual global de la aplicación.
+ *
+ * Decisión de diseño:
+ * - SIN persist (Opción B del code review)
+ * - React.ReactNode NO es serializable — no puede ir en localStorage
+ * - Solo sidebarCollapsed merece persistirse, se maneja con
+ *   una clave directa en localStorage fuera de Zustand
+ * - Modal y Drawer usan un registro por tipo (drawerType/modalType)
+ *   en lugar de guardar el nodo React directamente
  *
  * Responsabilidades:
- * - Estado del sidebar (expandido / colapsado)
- * - Modal global (confirmaciones, alertas)
- * - Drawer global (paneles laterales de detalle)
- * - Estado de carga global
- *
- * Patrón:
- *   Los componentes que necesiten abrir un modal o drawer
- *   no lo manejan localmente — usan este store global.
- *   Así se evita prop drilling y se centraliza el UI state.
+ * - Estado del sidebar (colapsado/expandido)
+ * - Modal global (un solo modal activo a la vez)
+ * - Drawer global (un solo drawer activo a la vez)
+ * - Loading global (bloquea la UI durante operaciones críticas)
  */
 
 import { create } from 'zustand'
-import { devtools, persist } from 'zustand/middleware'
+import { devtools } from 'zustand/middleware'
 
-// ── Tipos de UI ───────────────────────────────────────────────────
+// ── Tipos de modal registrados ────────────────────────────────────
+// Agregar aquí cada nuevo tipo de modal que se necesite en el sistema
+export type ModalType =
+  | 'CONFIRMAR_ACCION'
+  | 'APROBAR_SOLICITUD'
+  | 'RECHAZAR_SOLICITUD'
+  | 'GENERAR_ENLACE'
+  | 'VER_FOTOS'
+  | 'CAMBIAR_SEDE'
 
+// ── Tipos de drawer registrados ───────────────────────────────────
+// Agregar aquí cada nuevo tipo de drawer que se necesite en el sistema
+export type DrawerType =
+  | 'PERSONA_DETALLE'
+  | 'VEHICULO_DETALLE'
+  | 'ALERTA_PANEL'
+  | 'AUTORIZACION_DETALLE'
+  | 'ACTIVO_DETALLE'
+
+// ── Configuración del modal ───────────────────────────────────────
 export interface ModalConfig {
-  title:       string
-  message:     string
-  confirmText?: string
-  cancelText?:  string
-  variant?:    'danger' | 'warning' | 'info'
-  onConfirm:   () => void | Promise<void>
-  onCancel?:   () => void
-}
-
-export interface DrawerConfig {
+  modalType: ModalType
   title:     string
-  width?:    'sm' | 'md' | 'lg' | 'xl'
-  content:   React.ReactNode
-  onClose?:  () => void
+  params?:   Record<string, unknown>
+  onConfirm?: () => void
+  onCancel?:  () => void
 }
 
+// ── Configuración del drawer ──────────────────────────────────────
+export interface DrawerConfig {
+  drawerType: DrawerType
+  title:      string
+  width?:     'sm' | 'md' | 'lg' | 'xl'
+  params?:    Record<string, unknown>
+  onClose?:   () => void
+}
+
+// ── Estado + acciones ─────────────────────────────────────────────
 interface UIState {
-  // ── Sidebar ───────────────────────────────────────────────────
+  // Sidebar
   sidebarCollapsed: boolean
+  toggleSidebar:    () => void
+  setSidebarCollapsed: (collapsed: boolean) => void
 
-  // ── Modal de confirmación global ──────────────────────────────
+  // Modal global
   modal:     ModalConfig | null
-  modalOpen: boolean
+  openModal: (config: ModalConfig) => void
+  closeModal: () => void
 
-  // ── Drawer global ─────────────────────────────────────────────
+  // Drawer global
   drawer:     DrawerConfig | null
-  drawerOpen: boolean
+  openDrawer: (config: DrawerConfig) => void
+  closeDrawer: () => void
 
-  // ── Loading global (para operaciones largas) ──────────────────
-  globalLoading: boolean
-
-  // ── Acciones ──────────────────────────────────────────────────
-  toggleSidebar:   () => void
-  setSidebar:      (collapsed: boolean) => void
-
-  openModal:       (config: ModalConfig) => void
-  closeModal:      () => void
-
-  openDrawer:      (config: DrawerConfig) => void
-  closeDrawer:     () => void
-
+  // Loading global — bloquea la UI durante operaciones críticas
+  globalLoading:    boolean
   setGlobalLoading: (loading: boolean) => void
 }
 
+// ── Helpers de persistencia manual ───────────────────────────────
+// Solo sidebarCollapsed se persiste — directamente en localStorage
+const SIDEBAR_KEY = 'koaj:sidebar-collapsed'
+
+function loadSidebarState(): boolean {
+  try {
+    return localStorage.getItem(SIDEBAR_KEY) === 'true'
+  } catch {
+    return false
+  }
+}
+
+function saveSidebarState(collapsed: boolean): void {
+  try {
+    localStorage.setItem(SIDEBAR_KEY, String(collapsed))
+  } catch {
+    // localStorage puede fallar en modo incógnito — ignorar
+  }
+}
+
+// ── Store ─────────────────────────────────────────────────────────
 export const useUIStore = create<UIState>()(
   devtools(
-    persist(
-      (set) => ({
-        // ── Estado inicial ───────────────────────────────────────
-        sidebarCollapsed: false,
-        modal:            null,
-        modalOpen:        false,
-        drawer:           null,
-        drawerOpen:       false,
-        globalLoading:    false,
+    (set) => ({
+      // ── Sidebar ──────────────────────────────────────────────
+      sidebarCollapsed: loadSidebarState(),
 
-        // ── Sidebar ──────────────────────────────────────────────
-        toggleSidebar: () =>
-          set(
-            (state) => ({ sidebarCollapsed: !state.sidebarCollapsed }),
-            false,
-            'ui/toggleSidebar',
-          ),
+      toggleSidebar: () =>
+        set(
+          (state) => {
+            const next = !state.sidebarCollapsed
+            saveSidebarState(next)
+            return { sidebarCollapsed: next }
+          },
+          false,
+          'ui/toggleSidebar',
+        ),
 
-        setSidebar: (sidebarCollapsed) =>
-          set({ sidebarCollapsed }, false, 'ui/setSidebar'),
-
-        // ── Modal ────────────────────────────────────────────────
-        openModal: (modal) =>
-          set({ modal, modalOpen: true }, false, 'ui/openModal'),
-
-        closeModal: () =>
-          set({ modalOpen: false }, false, 'ui/closeModal'),
-
-        // ── Drawer ───────────────────────────────────────────────
-        openDrawer: (drawer) =>
-          set({ drawer, drawerOpen: true }, false, 'ui/openDrawer'),
-
-        closeDrawer: () =>
-          set({ drawerOpen: false }, false, 'ui/closeDrawer'),
-
-        // ── Global loading ────────────────────────────────────────
-        setGlobalLoading: (globalLoading) =>
-          set({ globalLoading }, false, 'ui/setGlobalLoading'),
-      }),
-      {
-        name: 'koaj-ui-store',
-        // Solo persistir preferencia del sidebar
-        partialize: (state) => ({ sidebarCollapsed: state.sidebarCollapsed }),
+      setSidebarCollapsed: (collapsed) => {
+        saveSidebarState(collapsed)
+        set({ sidebarCollapsed: collapsed }, false, 'ui/setSidebarCollapsed')
       },
-    ),
-    { name: 'KOAJUIStore' },
+
+      // ── Modal ─────────────────────────────────────────────────
+      modal: null,
+
+      openModal: (config) =>
+        set({ modal: config }, false, 'ui/openModal'),
+
+      closeModal: () =>
+        set({ modal: null }, false, 'ui/closeModal'),
+
+      // ── Drawer ────────────────────────────────────────────────
+      drawer: null,
+
+      openDrawer: (config) =>
+        set({ drawer: config }, false, 'ui/openDrawer'),
+
+      closeDrawer: () =>
+        set({ drawer: null }, false, 'ui/closeDrawer'),
+
+      // ── Loading global ────────────────────────────────────────
+      globalLoading: false,
+
+      setGlobalLoading: (loading) =>
+        set({ globalLoading: loading }, false, 'ui/setGlobalLoading'),
+    }),
+    { name: 'koaj-ui' },
   ),
 )

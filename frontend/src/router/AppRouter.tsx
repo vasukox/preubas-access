@@ -34,7 +34,7 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/store'
-import type { RolNombre } from '@/types'
+// import { RoleRoute, PortalRoute } from './guards'  // ← descomentar en Sprint 2
 
 // ── Vistas activas ────────────────────────────────────────────────
 
@@ -132,45 +132,6 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
-/**
- * Ruta protegida por rol — requiere sesión + al menos uno de los roles.
- * ADMIN_GLOBAL siempre tiene acceso a todo.
- * Si no tiene el rol redirige al dashboard.
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function RoleRoute({
-  children,
-  roles,
-}: {
-  children: React.ReactNode
-  roles: RolNombre[]
-}) {
-  const { isAuthenticated, hasAnyRole, hasRole } = useAuthStore()
-  const location = useLocation()
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />
-  }
-
-  // ADMIN_GLOBAL siempre tiene acceso completo
-  if (hasRole('ADMIN_GLOBAL')) return <>{children}</>
-
-  if (!hasAnyRole(roles)) {
-    return <Navigate to="/dashboard" replace />
-  }
-
-  return <>{children}</>
-}
-
-/**
- * Ruta de portal público — accesible sin sesión con token UUID.
- * Usado para: portal autogestión HSE, Parking, GH.
- * La validación del token la hace el componente internamente.
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function PortalRoute({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
-}
 
 
 // ── Router principal ──────────────────────────────────────────────
