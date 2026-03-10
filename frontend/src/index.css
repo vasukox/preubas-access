@@ -1,0 +1,376 @@
+/* ═══════════════════════════════════════════════════════════════════
+   KOAJ Access v2.0 — Permoda S.A.S.
+   Design System — Industrial Luxury Dark
+   ═══════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+@import "tailwindcss";
+
+/* ── Tokens de color ──────────────────────────────────────────────── */
+:root {
+  /* Fondos */
+  --bg-base:        #0D0F12;   /* Fondo principal — carbón profundo    */
+  --bg-surface:     #141720;   /* Cards, paneles                       */
+  --bg-raised:      #1C2030;   /* Hover states, dropdowns              */
+  --bg-overlay:     #252A3A;   /* Modals, drawers                      */
+  --bg-glass:       rgba(20, 23, 32, 0.7); /* Glassmorphism           */
+
+  /* Bordes */
+  --border-subtle:  #1E2335;   /* Bordes muy sutiles                   */
+  --border-default: #252A3A;   /* Bordes estándar                      */
+  --border-strong:  #343B52;   /* Bordes con énfasis                   */
+
+  /* Primario — Ámbar/Dorado (moda + autoridad) */
+  --primary-50:     #FFFBEB;
+  --primary-100:    #FEF3C7;
+  --primary-200:    #FDE68A;
+  --primary-300:    #FCD34D;
+  --primary-400:    #FBBF24;
+  --primary-500:    #F59E0B;   /* ← Principal                         */
+  --primary-600:    #D97706;
+  --primary-700:    #B45309;
+  --primary-800:    #92400E;
+  --primary-900:    #78350F;
+
+  /* Secundario — Esmeralda (estados activos, éxito) */
+  --success-50:     #ECFDF5;
+  --success-400:    #34D399;
+  --success-500:    #10B981;   /* ← Principal                         */
+  --success-600:    #059669;
+  --success-700:    #047857;
+
+  /* Peligro — Rojo coral */
+  --danger-400:     #F87171;
+  --danger-500:     #EF4444;
+  --danger-600:     #DC2626;
+
+  /* Advertencia — Naranja */
+  --warning-400:    #FB923C;
+  --warning-500:    #F97316;
+  --warning-600:    #EA580C;
+
+  /* Información — Índigo */
+  --info-400:       #818CF8;
+  --info-500:       #6366F1;
+  --info-600:       #4F46E5;
+
+  /* Texto */
+  --text-primary:   #F1F5F9;   /* Texto principal                     */
+  --text-secondary: #94A3B8;   /* Texto secundario                    */
+  --text-muted:     #475569;   /* Texto deshabilitado / placeholders  */
+  --text-inverted:  #0D0F12;   /* Texto sobre fondos claros           */
+
+  /* Tipografía */
+  --font-ui:        'Sora', sans-serif;
+  --font-mono:      'Space Mono', monospace;
+
+  /* Espaciado base */
+  --radius-sm:      4px;
+  --radius-md:      8px;
+  --radius-lg:      12px;
+  --radius-xl:      16px;
+  --radius-2xl:     24px;
+  --radius-full:    9999px;
+
+  /* Sombras dramáticas */
+  --shadow-sm:      0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md:      0 4px 16px rgba(0,0,0,0.5);
+  --shadow-lg:      0 8px 32px rgba(0,0,0,0.6);
+  --shadow-xl:      0 16px 48px rgba(0,0,0,0.7);
+  --shadow-glow-primary: 0 0 20px rgba(245,158,11,0.25);
+  --shadow-glow-success: 0 0 20px rgba(16,185,129,0.25);
+  --shadow-glow-danger:  0 0 20px rgba(239,68,68,0.25);
+
+  /* Transiciones */
+  --transition-fast:   150ms ease;
+  --transition-base:   250ms ease;
+  --transition-slow:   400ms ease;
+  --transition-spring: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Sidebar */
+  --sidebar-width:          240px;
+  --sidebar-width-collapsed: 64px;
+  --topbar-height:           60px;
+}
+
+/* ── Reset base ───────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-ui);
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Scrollbar personalizado ──────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ── Selección de texto ───────────────────────────────────────────── */
+::selection {
+  background-color: rgba(245, 158, 11, 0.25);
+  color: var(--primary-300);
+}
+
+/* ── Tipografía ───────────────────────────────────────────────────── */
+.font-mono {
+  font-family: var(--font-mono) !important;
+  letter-spacing: 0.05em;
+}
+
+/* Clase especial para placas, UIDs NFC, timestamps */
+.data-display {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  letter-spacing: 0.1em;
+  color: var(--primary-400);
+}
+
+/* ── Animaciones ──────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+@keyframes pulseRing {
+  0%   { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2);   opacity: 0; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes bounceIn {
+  0%   { transform: scale(0.3); opacity: 0; }
+  50%  { transform: scale(1.05); }
+  70%  { transform: scale(0.9); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Clases de animación utilitarias */
+.animate-fade-up {
+  animation: fadeUp var(--transition-base) both;
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--transition-base) both;
+}
+
+.animate-slide-left {
+  animation: slideInLeft var(--transition-base) both;
+}
+
+.animate-slide-right {
+  animation: slideInRight var(--transition-base) both;
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--bg-surface) 25%,
+    var(--bg-raised) 50%,
+    var(--bg-surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* Stagger delays para listas animadas */
+.stagger-1 { animation-delay: 50ms; }
+.stagger-2 { animation-delay: 100ms; }
+.stagger-3 { animation-delay: 150ms; }
+.stagger-4 { animation-delay: 200ms; }
+.stagger-5 { animation-delay: 250ms; }
+.stagger-6 { animation-delay: 300ms; }
+
+/* ── Estados de acceso (colores semánticos del negocio) ───────────── */
+.status-authorized   { color: var(--success-400); }
+.status-pending      { color: var(--primary-400); }
+.status-denied       { color: var(--danger-400); }
+.status-inside       { color: var(--info-400); }
+.status-not-found    { color: var(--text-muted); }
+
+/* ── Dot de estado con pulso ──────────────────────────────────────── */
+.status-dot {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  animation: pulseRing 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+.status-dot.active    { background-color: var(--success-500); }
+.status-dot.active::after  { background-color: var(--success-500); }
+.status-dot.warning   { background-color: var(--warning-500); }
+.status-dot.warning::after { background-color: var(--warning-500); }
+.status-dot.danger    { background-color: var(--danger-500); }
+.status-dot.danger::after  { background-color: var(--danger-500); }
+
+/* ── Glassmorphism ────────────────────────────────────────────────── */
+.glass {
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+}
+
+/* ── Glow effects ─────────────────────────────────────────────────── */
+.glow-primary { box-shadow: var(--shadow-glow-primary); }
+.glow-success { box-shadow: var(--shadow-glow-success); }
+.glow-danger  { box-shadow: var(--shadow-glow-danger); }
+
+/* ── Gradientes de fondo decorativos ──────────────────────────────── */
+.bg-gradient-radial-primary {
+  background: radial-gradient(
+    ellipse at top right,
+    rgba(245, 158, 11, 0.06) 0%,
+    transparent 60%
+  );
+}
+
+.bg-gradient-radial-success {
+  background: radial-gradient(
+    ellipse at top left,
+    rgba(16, 185, 129, 0.06) 0%,
+    transparent 60%
+  );
+}
+
+/* ── Patrón de fondo sutil (grid decorativo) ──────────────────────── */
+.bg-grid {
+  background-image:
+    linear-gradient(var(--border-subtle) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* ── Focus visible accesible ──────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Inputs base ──────────────────────────────────────────────────── */
+input, textarea, select {
+  font-family: var(--font-ui);
+  background-color: var(--bg-raised);
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-fast),
+              box-shadow var(--transition-fast);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+}
+
+/* ── Divider decorativo ───────────────────────────────────────────── */
+.divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--border-default),
+    transparent
+  );
+}
