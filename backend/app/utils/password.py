@@ -22,19 +22,15 @@ import secrets
 import string
 from dataclasses import dataclass
 
-from passlib.context import CryptContext
+import bcrypt
 
 logger = logging.getLogger(__name__)
 
-# ── Contexto de hashing ───────────────────────────────────────────────
+# ── Hashing con bcrypt ────────────────────────────────────────────────
 # bcrypt es el algoritmo recomendado para contraseñas.
-# deprecated="auto" migra automáticamente hashes viejos si cambiamos algoritmo.
-pwd_context = CryptContext(
-    schemes=["bcrypt"],
-    deprecated="auto",
-    bcrypt__rounds=12,  # Factor de costo. Más alto = más seguro pero más lento.
-                        # 12 rounds ≈ 250ms por hash en hardware moderno.
-)
+# Usamos un factor de costo (rounds) de 12.
+# 12 rounds ≈ 250ms por hash en hardware moderno.
+BCRYPT_ROUNDS = 12
 
 
 # ── Hash y verificación ───────────────────────────────────────────────
@@ -56,7 +52,9 @@ def hash_password(plain_password: str) -> str:
         db.add(usuario)
         db.commit()
     """
-    return pwd_context.hash(plain_password)
+    salt = bcrypt.gensalt(rounds=BCRYPT_ROUNDS)
+    hashed = bcrypt.hashpw(plain_password.encode("utf-8"), salt)
+    return hashed.decode("ascii")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -75,7 +73,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
             err("CREDENCIALES_INVALIDAS", "Email o contraseña incorrectos", 401)
     """
     try:
-        return pwd_context.verify(plain_password, hashed_password)
+        return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("ascii"))
     except Exception as e:
         logger.error(f"Error al verificar contraseña: {e}")
         return False
@@ -94,7 +92,8 @@ def needs_rehash(hashed_password: str) -> bool:
     Returns:
         True si el hash necesita ser actualizado
     """
-    return pwd_context.needs_update(hashed_password)
+    # Prefix de bcrypt con costo 12 es $2b$12$
+    return not hashed_password.startswith(f"$2b${BCRYPT_ROUNDS}$")
 
 
 # ── Validación de fortaleza ───────────────────────────────────────────

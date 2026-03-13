@@ -44,17 +44,6 @@ logger = logging.getLogger(__name__)
 # ── Ciclo de vida ─────────────────────────────────────────────────────
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Gestiona el startup y shutdown de la aplicación.
-
-    Startup:
-        - Verifica conexión a la BD
-        - Crea las tablas si estamos en desarrollo
-        - Registra información del entorno
-
-    Shutdown:
-        - Libera recursos (conexiones, etc.)
-    """
     # ── STARTUP ───────────────────────────────────────────────────
     logger.info("=" * 60)
     logger.info(f"  {settings.APP_NAME} v{settings.APP_VERSION}")
@@ -62,35 +51,24 @@ async def lifespan(app: FastAPI):
     logger.info(f"  Debug   : {settings.DEBUG}")
     logger.info("=" * 60)
 
-    # Verificar conexión a la base de datos
     logger.info("Verificando conexión a la base de datos...")
-    if not check_db_connection():
+    if not await check_db_connection():
         logger.error("No se pudo conectar a la base de datos.")
-        logger.error(f"DATABASE_URL configurada: {settings.DATABASE_URL[:30]}...")
-        logger.error("Verifica que MySQL esté corriendo y las credenciales sean correctas.")
         raise RuntimeError(
             "No se pudo conectar a la base de datos. "
             "Verifica DATABASE_URL en el archivo .env"
         )
 
-    # En desarrollo crear tablas automáticamente
-    # En producción SIEMPRE usar Alembic
     if settings.is_development:
         logger.info("Modo desarrollo: creando tablas si no existen...")
         try:
-            # Importar modelos para que Base los registre
-            # Se irán agregando sprint a sprint:
-            # from app.models import usuario  # Sprint 1
-            # from app.models import parking  # Sprint 3
-            # etc.
-            create_all_tables()
+            from app.models import usuario, sede, persona  # noqa: F401
+            await create_all_tables()
             logger.info("Tablas verificadas correctamente.")
         except Exception as e:
             logger.warning(f"No se pudieron crear las tablas: {e}")
 
     logger.info("Aplicación lista para recibir peticiones.")
-    logger.info("Documentación disponible en /docs (solo en desarrollo)")
-    logger.info("Health check disponible en /health")
 
     yield
 
@@ -229,8 +207,8 @@ async def global_exception_handler(
 # ── Routers ───────────────────────────────────────────────────────────
 # Se registran sprint a sprint conforme se desarrollan.
 # Sprint 1:
-# from app.routers import auth
-# app.include_router(auth.router, prefix="/api/v1", tags=["🔐 Autenticación"])
+from app.routers import auth
+app.include_router(auth.router, prefix="/api/v1")
 #
 # Sprint 2:
 # from app.routers import personas, accesos
@@ -278,20 +256,16 @@ async def root():
 
 @app.get("/health", tags=["Sistema"], summary="Health check del sistema")
 async def health_check():
-    """
-    Verifica el estado del sistema.
-    Usado por monitoreo y el frontend para el indicador del Topbar.
-    """
-    db_ok = check_db_connection()
+    db_ok = await check_db_connection()
     return ok(
         data={
-            "status": "ok" if db_ok else "degraded",
-            "app": settings.APP_NAME,
-            "version": settings.APP_VERSION,
+            "status":      "ok" if db_ok else "degraded",
+            "app":         settings.APP_NAME,
+            "version":     settings.APP_VERSION,
             "environment": settings.ENVIRONMENT,
             "services": {
                 "database": "ok" if db_ok else "error",
-                "api": "ok",
+                "api":      "ok",
             },
         }
     )

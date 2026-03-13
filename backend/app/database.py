@@ -1,133 +1,129 @@
 """
 KOAJ Access v2.0 — Permoda S.A.S.
---------------------------------------
-Configuración de la base de datos.
+Configuración de la capa de persistencia asíncrona.
 
-Responsabilidades:
-- Crear el engine de SQLAlchemy con connection pooling
-- Proveer la clase Base para todos los modelos ORM
-- Proveer la sesión de BD como dependencia de FastAPI (get_db)
-- Verificar la conectividad al arrancar la aplicación
-
-Patrón: todos los modelos importan Base desde aquí.
-        todos los routers usan get_db() como dependencia.
+Este módulo centraliza la configuración de SQLAlchemy para interactuar con 
+MySQL de forma no bloqueante, gestionando el ciclo de vida de las conexiones 
+y las sesiones de la base de datos.
 """
 
 import logging
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker, DeclarativeBase, Session
-from sqlalchemy.pool import QueuePool
+from typing import AsyncGenerator
+
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.pool import AsyncAdaptedQueuePool
 
 from app.config import settings
 
+# Configuración del registrador de eventos (logs)
 logger = logging.getLogger(__name__)
 
 
-# ── Base declarativa ──────────────────────────────────────────────────
+# ── BASE DECLARATIVA ──────────────────────────────────────────────
 class Base(DeclarativeBase):
     """
-    Clase base para todos los modelos ORM del sistema.
-
-    Todos los modelos en app/models/ heredan de esta clase.
-    Ejemplo:
-        from app.database import Base
-        class Usuario(Base):
-            __tablename__ = "usuarios"
+    Clase base para el mapeo objeto-relacional (ORM).
+    
+    Todos los modelos definidos en 'app/models/' deben heredar de esta clase
+    para que SQLAlchemy pueda rastrear los metadatos y generar las tablas.
     """
     pass
 
 
-# ── Engine con connection pooling ─────────────────────────────────────
-engine = create_engine(
-    settings.DATABASE_URL,
-    poolclass=QueuePool,
+# ── CONFIGURACIÓN DEL MOTOR (ENGINE) ──────────────────────────────
+# Transformamos la URL de conexión para usar el driver asíncrono 'aiomysql'
+DATABASE_URL_ASYNC = settings.DATABASE_URL.replace(
+    "mysql+pymysql://", "mysql+aiomysql://"
+)
 
-    # Número de conexiones permanentes en el pool
-    pool_size=10,
-
-    # Conexiones extra permitidas cuando el pool está lleno
-    max_overflow=20,
-
-    # Verifica que la conexión sigue viva antes de usarla
-    # Previene el error "MySQL server has gone away"
-    pool_pre_ping=True,
-
-    # Recicla conexiones cada 1 hora para evitar conexiones muertas
-    pool_recycle=3600,
-
-    # Tiempo máximo de espera para obtener una conexión del pool (segundos)
-    pool_timeout=30,
-
-    # Muestra el SQL generado solo en desarrollo (muy útil para debug)
-    echo=settings.DEBUG,
+# El Engine es el punto de entrada real a la base de datos
+engine = create_async_engine(
+    DATABASE_URL_ASYNC,
+    poolclass      = AsyncAdaptedQueuePool,  # Manejo de cola de conexiones asíncronas
+    pool_size      = 10,     # Mantener hasta 10 conexiones abiertas constantes
+    max_overflow   = 20,     # Permitir hasta 20 conexiones adicionales en picos de tráfico
+    pool_pre_ping  = True,   # Verifica la salud de la conexión antes de usarla
+    pool_recycle   = 3600,   # Reinicia conexiones cada hora para evitar timeouts del servidor
+    pool_timeout   = 30,     # Tiempo máximo de espera para obtener una conexión del pool
+    echo           = settings.DEBUG,  # Si es True, imprime todas las consultas SQL en consola
 )
 
 
-# ── Session factory ───────────────────────────────────────────────────
-SessionLocal = sessionmaker(
-    bind=engine,
-    autocommit=False,   # Siempre usar transacciones explícitas
-    autoflush=False,    # No hacer flush automático antes de cada query
+# ── FÁBRICA DE SESIONES ───────────────────────────────────────────
+# AsyncSessionLocal actúa como un constructor de sesiones bajo demanda
+AsyncSessionLocal = async_sessionmaker(
+    bind             = engine,
+    class_           = AsyncSession,
+    autocommit       = False,
+    autoflush        = False,
+    expire_on_commit = False,  # Evita que los objetos queden obsoletos tras el commit
 )
 
 
-# ── Dependencia de FastAPI ────────────────────────────────────────────
-def get_db():
+# ── DEPENDENCIAS DE FASTAPI ───────────────────────────────────────
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """
-    Dependencia de FastAPI que provee una sesión de base de datos.
+    Generador asíncrono (Dependency Injection) para FastAPI.
+    
+    Provee una sesión de base de datos única por cada petición HTTP y
+    asegura su cierre o reversión (rollback) en caso de error.
 
-    Garantiza que:
-    - La sesión se abre al inicio del request
-    - Se hace rollback si ocurre cualquier excepción
-    - La sesión se cierra siempre al final del request
-
-    Uso en routers:
-        from app.database import get_db
-        from sqlalchemy.orm import Session
-        from fastapi import Depends
-
-        @router.get("/ejemplo")
-        def mi_endpoint(db: Session = Depends(get_db)):
-            ...
+    Yields:
+        AsyncSession: Sesión activa de SQLAlchemy.
     """
-    db: Session = SessionLocal()
-    try:
-        yield db
-        db.commit()
-    except Exception:
-        db.rollback()
-        raise
-    finally:
-        db.close()
+    async with AsyncSessionLocal() as db:
+        try:
+            yield db
+        except Exception as e:
+            # Si ocurre un error en el request, deshacemos los cambios
+            await db.rollback()
+            logger.error(f"Error en la transacción de DB: {e}")
+            raise
+        finally:
+            # La sesión se cierra automáticamente al salir del bloque 'async with'
+            pass
 
 
-# ── Health check de base de datos ─────────────────────────────────────
-def check_db_connection() -> bool:
+# ── UTILIDADES DE MANTENIMIENTO ──────────────────────────────────
+async def check_db_connection() -> bool:
     """
-    Verifica que la base de datos esté accesible.
-
-    Usado en el startup de la app (lifespan) y en el
-    endpoint /health para monitoreo.
+    Realiza una prueba de conectividad con la base de datos.
+    
+    Se utiliza típicamente durante el inicio de la aplicación (startup) 
+    o en endpoints de monitoreo (/health).
 
     Returns:
-        True si la conexión es exitosa, False si falla.
+        bool: True si la conexión es exitosa, False en caso contrario.
     """
     try:
-        with engine.connect() as conn:
-            conn.execute(text("SELECT 1"))
+        async with engine.connect() as conn:
+            # Ejecutamos una consulta mínima de validación
+            await conn.execute(text("SELECT 1"))
         logger.info("Conexión a base de datos verificada correctamente.")
         return True
     except Exception as e:
-        logger.error(f"Error al conectar con la base de datos: {e}")
+        logger.error(f"Fallo crítico en health check de base de datos: {e}")
         return False
 
 
-def create_all_tables() -> None:
+async def create_all_tables() -> None:
     """
-    Crea todas las tablas definidas en los modelos ORM.
-
-    Solo para desarrollo/testing. En producción usar Alembic.
-    Se llama desde el startup solo si ENVIRONMENT=development.
+    Sincroniza los modelos de Python con el esquema de la base de datos.
+    
+    ¡IMPORTANTE!: Este método solo debe usarse en entornos locales de desarrollo.
+    Para entornos de producción, se recomienda usar Alembic para migraciones controladas.
     """
-    Base.metadata.create_all(bind=engine)
-    logger.info("Tablas creadas correctamente (modo desarrollo).")
+    try:
+        async with engine.begin() as conn:
+            # run_sync permite ejecutar funciones síncronas (como create_all)
+            # dentro del contexto asíncrono del motor.
+            await conn.run_sync(Base.metadata.create_all)
+        logger.info("Esquema de tablas sincronizado exitosamente (Modo Desarrollo).")
+    except Exception as e:
+        logger.error(f"Error al intentar crear tablas: {e}")

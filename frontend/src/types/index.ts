@@ -105,10 +105,10 @@ export type RolNombre =
   | 'ADMIN_GLOBAL'
   | 'ADMIN_PARKING'
   | 'ADMIN_HSE'
-  | 'COORD_HSE'
   | 'ADMIN_NFC'
   | 'ADMIN_GH'
-  | 'VIGILANTE'
+  | 'VIGILANTE_HSE'
+  | 'VIGILANTE_PARKING'
   | 'VISUALIZADOR'
 
 export interface ChangePasswordRequest {
