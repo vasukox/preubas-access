@@ -61,14 +61,19 @@ export interface PaginationParams {
 // ═══════════════════════════════════════════════════════════════════
 
 export interface LoginRequest {
-  email: string
+  email:    string
   password: string
 }
 
+export interface TokenResponse {
+  access_token:          string
+  refresh_token:         string
+  token_type:            'bearer'
+  debe_cambiar_password: boolean
+}
+
 export interface LoginResponse {
-  access_token: string
-  refresh_token: string
-  token_type: 'bearer'
+  tokens:  TokenResponse
   usuario: UsuarioMe
 }
 
@@ -77,30 +82,21 @@ export interface RefreshRequest {
 }
 
 export interface UsuarioMe {
-  id: number
-  email: string
-  nombre_completo: string
-  activo: boolean
-  primer_login: boolean
-  roles: RolUsuario[]
-  sede_activa?: SedeBasica
-  avatar_url?: string
-  created_at: string
+  id:                    number
+  email:                 string
+  nombre_completo:       string
+  activo:                boolean
+  debe_cambiar_password: boolean
+  ultimo_login:          string | null
+  roles:                 RolResponse[]
 }
 
-export interface RolUsuario {
-  id: number
-  rol: Rol
-  sede_id?: number
-}
-
-export interface Rol {
-  id: number
+export interface RolResponse {
+  id:     number
   nombre: RolNombre
-  descripcion: string
 }
 
-/** Roles del sistema — alineados con los definidos en el seeder */
+/** Roles del sistema */
 export type RolNombre =
   | 'ADMIN_GLOBAL'
   | 'ADMIN_PARKING'
@@ -113,8 +109,7 @@ export type RolNombre =
 
 export interface ChangePasswordRequest {
   password_actual: string
-  password_nuevo: string
-  password_confirmacion: string
+  password_nueva:  string
 }
 
 // ═══════════════════════════════════════════════════════════════════

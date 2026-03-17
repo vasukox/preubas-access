@@ -44,9 +44,9 @@ const LoginView = lazy(() => import('@/views/auth/LoginView'))
 // Layout principal
 const AppLayout = lazy(() => import('@/components/layout/AppLayout'))
 
-// ⏳ Sprint 1 — descomentar cuando existan
-// const DashboardView       = lazy(() => import('@/views/dashboard/DashboardView'))
-// const CambiarPasswordView = lazy(() => import('@/views/auth/CambiarPasswordView'))
+// ✅ Sprint 1
+const DashboardView       = lazy(() => import('@/views/dashboard/DashboardView'))
+const CambiarPasswordView = lazy(() => import('@/views/auth/CambiarPasswordView'))
 
 // ⏳ Sprint 3-4 — Parking
 // const ParkingDashboardView   = lazy(() => import('@/views/parking/ParkingDashboardView'))
@@ -167,9 +167,9 @@ export function AppRouter() {
           {/* Redirect raíz → dashboard */}
           <Route index element={<Navigate to="/dashboard" replace />} />
 
-          {/* ⏳ Sprint 1 */}
-          {/* <Route path="dashboard"        element={<DashboardView />} /> */}
-          {/* <Route path="cambiar-password" element={<CambiarPasswordView />} /> */}
+          {/* ✅ Sprint 1 */}
+          <Route path="dashboard"        element={<DashboardView />} />
+          <Route path="cambiar-password" element={<CambiarPasswordView />} />
 
           {/* ⏳ Sprint 3-4 — Parking */}
           {/* <Route path="parking" element={<RoleRoute roles={['ADMIN_PARKING','VIGILANTE','VISUALIZADOR']}><ParkingDashboardView /></RoleRoute>} /> */}

@@ -69,13 +69,13 @@ export const useAuthStore = create<AuthState>()(
       hasRole: (role) => {
         const { usuario } = get()
         if (!usuario) return false
-        return usuario.roles.some((r) => r.rol.nombre === role)
+        return usuario.roles.some((r) => r.nombre === role)
       },
 
       hasAnyRole: (roles) => {
         const { usuario } = get()
         if (!usuario) return false
-        const userRoles = new Set(usuario.roles.map((r) => r.rol.nombre))
+        const userRoles = new Set(usuario.roles.map((r) => r.nombre))
         return roles.some((role) => userRoles.has(role))
       },
 

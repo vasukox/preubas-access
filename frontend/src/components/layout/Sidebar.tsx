@@ -324,7 +324,7 @@ export function Sidebar({ collapsed, onToggle, usuario, sedeActiva, onLogout, fi
                   {usuario.nombre_completo}
                 </div>
                 <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {usuario.roles[0]?.rol.nombre.replace(/_/g, ' ')}
+                  {usuario.roles?.[0]?.nombre?.replace(/_/g, ' ') || 'Sin Rol'}
                 </div>
               </div>
               <button

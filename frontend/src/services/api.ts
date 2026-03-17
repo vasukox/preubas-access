@@ -156,7 +156,7 @@ api.interceptors.response.use(
         )
 
         const { access_token, refresh_token: newRefreshToken } =
-          response.data.data
+          response.data.data.tokens
 
         // Guardar los nuevos tokens
         tokenStorage.setTokens(access_token, newRefreshToken)

@@ -17,7 +17,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Eye, EyeOff, ShieldCheck, AlertCircle, ArrowRight, Lock, Mail } from 'lucide-react'
 import { useAuthStore } from '@/store'
-import { post, tokenStorage, getErrorMessage } from '@/services/api'
+import { post, getErrorMessage } from '@/services/api'
 import type { LoginResponse } from '@/types'
 
 // ── Schema de validación ──────────────────────────────────────────
@@ -61,8 +61,18 @@ export default function LoginView() {
 
     try {
       const response = await post<LoginResponse>('/auth/login', data)
-      setUsuario(response.usuario, response.access_token, response.refresh_token)
-      navigate(from, { replace: true })
+      setUsuario(
+        response.usuario,
+        response.tokens.access_token,
+        response.tokens.refresh_token,
+      )
+
+      // Si debe cambiar password → redirigir a cambiar-password
+      if (response.tokens.debe_cambiar_password) {
+        navigate('/cambiar-password', { replace: true })
+      } else {
+        navigate(from, { replace: true })
+      }
     } catch (error) {
       setErrorMsg(getErrorMessage(error))
     } finally {

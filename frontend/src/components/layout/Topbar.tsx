@@ -149,7 +149,7 @@ export function Topbar({ usuario, noLeidas, paginaActual, onMenuClick }: TopbarP
                 {usuario.nombre_completo.split(' ')[0]}
               </span>
               <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                {usuario.roles[0]?.rol.nombre.replace(/_/g, ' ')}
+                {usuario.roles?.[0]?.nombre?.replace(/_/g, ' ') || 'Sin Rol'}
               </span>
             </div>
           </div>
