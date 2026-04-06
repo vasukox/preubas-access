@@ -221,4 +221,3 @@ Revisa:
 - Usar backend/.env.example y frontend/.env.example como plantilla.
 - Mantener backend y frontend en terminales separadas.
 - Ejecutar npm ci (no npm install) para respetar lockfile.
-
