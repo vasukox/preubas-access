@@ -23,7 +23,7 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, status
-from fastapi.exceptions import RequestValidationError
+from fastapi.exceptions import HTTPException, RequestValidationError, ResponseValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
@@ -62,7 +62,9 @@ async def lifespan(app: FastAPI):
     if settings.is_development:
         logger.info("Modo desarrollo: creando tablas si no existen...")
         try:
-            from app.models import usuario, sede, persona  # noqa: F401
+            from app.models import usuario, sede, persona, hse  # noqa: F401 — registra todos los modelos en Base.metadata
+            # Asegurar que UsuarioPermiso y AuditLog estén registrados
+            from app.models.usuario import UsuarioPermiso, AuditLog  # noqa: F401
             await create_all_tables()
             logger.info("Tablas verificadas correctamente.")
         except Exception as e:
@@ -114,6 +116,7 @@ Authorization: Bearer <access_token>
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origins_list,
+    allow_origin_regex=(r"^https?://(localhost|127\.0\.0\.1)(:\\d+)?$" if settings.is_development else None),
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
@@ -129,6 +132,31 @@ if settings.is_production:
 
 
 # ── Manejadores de excepciones globales ───────────────────────────────
+@app.exception_handler(HTTPException)
+async def http_exception_handler(
+    request: Request,
+    exc: HTTPException,
+) -> JSONResponse:
+    """
+    Convierte HTTPException al formato estándar del sistema.
+
+    FastAPI por defecto envuelve el detail en {"detail": ...}.
+    Este handler lo entrega directamente como {"success": false, "error": {...}}
+    para que getErrorMessage() del frontend pueda leerlo correctamente.
+    """
+    if isinstance(exc.detail, dict) and "error" in exc.detail:
+        content = exc.detail
+    else:
+        content = {
+            "success": False,
+            "error": {
+                "code": "HTTP_ERROR",
+                "message": str(exc.detail),
+            },
+        }
+    return JSONResponse(status_code=exc.status_code, content=content)
+
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(
     request: Request,
@@ -186,7 +214,9 @@ async def global_exception_handler(
     Siempre loguea el error completo para debugging.
     """
     logger.exception(
-        f"Error no manejado en {request.method} {request.url}: {exc}"
+        "Error no manejado en %s %s",
+        request.method,
+        request.url,
     )
 
     return JSONResponse(
@@ -195,7 +225,7 @@ async def global_exception_handler(
             "success": False,
             "error": {
                 "code": "ERROR_INTERNO",
-                "message": str(exc) if settings.DEBUG else (
+                "message": repr(exc) if settings.DEBUG else (
                     "Ocurrió un error interno. Por favor intenta de nuevo "
                     "o contacta al administrador."
                 ),
@@ -204,11 +234,44 @@ async def global_exception_handler(
     )
 
 
+@app.exception_handler(ResponseValidationError)
+async def response_validation_exception_handler(
+    request: Request,
+    exc: ResponseValidationError,
+) -> JSONResponse:
+    """
+    Maneja errores de validación de respuesta sin forzar str(exc),
+    evitando cascadas por __repr__ de objetos ORM expirados.
+    """
+    logger.exception(
+        "Error de validación de respuesta en %s %s",
+        request.method,
+        request.url,
+    )
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={
+            "success": False,
+            "error": {
+                "code": "RESPONSE_VALIDATION_ERROR",
+                "message": "Error interno serializando la respuesta.",
+            },
+        },
+    )
+
+
 # ── Routers ───────────────────────────────────────────────────────────
 # Se registran sprint a sprint conforme se desarrollan.
 # Sprint 1:
-from app.routers import auth
-app.include_router(auth.router, prefix="/api/v1")
+from app.routers.auth import router as auth_router
+from app.routers.hse import router as hse_router
+from app.routers.herramientas import router as herramientas_router
+from app.routers.ws import router as ws_router
+
+app.include_router(auth_router,          prefix="/api/v1")
+app.include_router(hse_router,           prefix="/api/v1")
+app.include_router(herramientas_router)  # prefix ya definido en el router
+app.include_router(ws_router)            # Sin prefijo: ws://host/ws/{sede_id}
 #
 # Sprint 2:
 # from app.routers import personas, accesos
@@ -236,9 +299,6 @@ app.include_router(auth.router, prefix="/api/v1")
 # app.include_router(reportes.router, prefix="/api/v1", tags=["📊 Reportes"])
 # app.include_router(config.router,   prefix="/api/v1", tags=["⚙️ Configuración"])
 #
-# WebSocket (Sprint 1):
-# from app.routers import ws
-# app.include_router(ws.router, prefix="/api/v1", tags=["🔌 WebSocket"])
 
 
 # ── Endpoints del sistema ─────────────────────────────────────────────

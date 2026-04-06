@@ -27,13 +27,30 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { useAuthStore, useUIStore, useWSStore, useAlertsStore, useSedeStore } from '@/store'
 import { Sidebar, NAV_ITEMS } from './Sidebar'
 import { Topbar } from './Topbar'
+import { hseService } from '@/services/hse.service'
 
 export default function AppLayout() {
-  const { usuario, hasAnyRole, clearSession } = useAuthStore()
-  const { sidebarCollapsed, toggleSidebar }   = useUIStore()
-  const { noLeidas }                          = useAlertsStore()
-  const { sedeActiva }                        = useSedeStore()
-  const location                              = useLocation()
+  const { usuario, hasAnyRole, clearSession }          = useAuthStore()
+  const { sidebarCollapsed, toggleSidebar }            = useUIStore()
+  const { noLeidas }                                   = useAlertsStore()
+  const { sedeActiva, sedes, setSedes, setSedeActiva } = useSedeStore()
+  const location                                       = useLocation()
+
+  // Cargar sedes disponibles al montar el layout
+  useEffect(() => {
+    hseService.getSedes().then(data => {
+      setSedes(data)
+
+      // Normalizar sede activa persistida: si no existe en catálogo permitido,
+      // usar la primera sede disponible para evitar 403 silenciosos en HSE.
+      const sedePersistidaValida = !!sedeActiva && data.some(s => s.id === sedeActiva.id)
+
+      if (!sedePersistidaValida) {
+        if (data.length > 0) setSedeActiva(data[0])
+      }
+    }).catch(() => {})
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Fix code review: connect y disconnect como referencias estables del store
   const connect    = useWSStore((s) => s.connect)
@@ -79,6 +96,9 @@ export default function AppLayout() {
           noLeidas={noLeidas}
           paginaActual={paginaActual}
           onMenuClick={toggleSidebar}
+          sedes={sedes}
+          sedeActiva={sedeActiva}
+          onSedeChange={setSedeActiva}
         />
 
         <main

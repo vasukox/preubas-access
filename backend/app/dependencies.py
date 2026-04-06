@@ -9,10 +9,11 @@ Responsabilidades:
   - Validar API Keys para hardware externo (cámara LPR, lector NFC)
 
 Jerarquía de dependencias:
-    get_current_user     → Cualquier usuario autenticado
-    require_role(...)    → Usuario con rol específico
-    get_lpr_api_key      → Hardware externo LPR
-    get_nfc_api_key      → Hardware externo NFC
+    get_current_user          → Cualquier usuario autenticado
+    require_role(...)         → Usuario con rol específico
+    require_permiso(operacion)→ Usuario con permiso granular (ver/crear/editar/eliminar)
+    get_lpr_api_key           → Hardware externo LPR
+    get_nfc_api_key           → Hardware externo NFC
 """
 
 import logging
@@ -109,8 +110,9 @@ async def get_current_user(
         401 — Usuario no encontrado en BD.
         403 — Usuario inactivo.
     """
-    from app.models.usuario import Usuario
+    from app.models.usuario import Usuario, UsuarioRol
     from app.utils.jwt import verify_access_token
+    from sqlalchemy.orm import selectinload
 
     payload = verify_access_token(credentials.credentials)
     if payload is None:
@@ -139,8 +141,12 @@ async def get_current_user(
             },
         )
 
-    result  = await db.execute(
-        select(Usuario).where(
+    result = await db.execute(
+        select(Usuario)
+        .options(
+            selectinload(Usuario.roles).selectinload(UsuarioRol.rol)
+        )
+        .where(
             Usuario.id         == usuario_id,
             Usuario.deleted_at.is_(None),
         )
@@ -211,6 +217,72 @@ def require_role(*roles: str) -> Callable:
         return usuario
 
     return _check_role
+
+
+# ── Control de permisos granulares ───────────────────────────────
+def require_permiso(operacion: str) -> Callable:
+    """
+    Factory de dependencias para control de acceso por permiso granular.
+
+    Verifica que el usuario tenga el permiso para la operación dada.
+    Operaciones válidas: "ver", "crear", "editar", "eliminar"
+    ADMIN_GLOBAL siempre tiene acceso completo (bypass automático).
+
+    Uso:
+        @router.delete(
+            "/hse/autorizaciones/{id}",
+            dependencies=[
+                Depends(require_role("ADMIN_HSE", "GESTION_HSE")),
+                Depends(require_permiso("eliminar")),
+            ]
+        )
+    """
+    async def _check_permiso(
+        usuario: "Usuario" = Depends(get_current_user),
+        db:      "AsyncSession" = Depends(get_db),
+    ):
+        from app.models.usuario import RolNombre, UsuarioPermiso
+        from sqlalchemy import select
+
+        roles_del_usuario = {r.rol.nombre for r in usuario.roles}
+
+        # ADMIN_GLOBAL siempre pasa
+        if RolNombre.ADMIN_GLOBAL in roles_del_usuario:
+            return usuario
+
+        result = await db.execute(
+            select(UsuarioPermiso).where(UsuarioPermiso.usuario_id == usuario.id)
+        )
+        permiso = result.scalar_one_or_none()
+
+        if not permiso:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={
+                    "success": False,
+                    "error": {
+                        "code":    "SIN_PERMISOS_CONFIGURADOS",
+                        "message": "Tu cuenta no tiene permisos configurados. Contacta al administrador.",
+                    },
+                },
+            )
+
+        campo = f"puede_{operacion}"
+        if not getattr(permiso, campo, False):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={
+                    "success": False,
+                    "error": {
+                        "code":    "PERMISO_DENEGADO",
+                        "message": f"No tienes permiso para '{operacion}' en este módulo.",
+                    },
+                },
+            )
+
+        return usuario
+
+    return _check_permiso
 
 
 # ── API Keys hardware ─────────────────────────────────────────────

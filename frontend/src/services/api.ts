@@ -25,7 +25,7 @@ import axios, {
 import type { ApiResponse, ApiError, LoginResponse } from '@/types'
 
 // ── Constantes ────────────────────────────────────────────────────
-const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
+const BASE_URL = import.meta.env.VITE_API_URL || ''
 const API_PREFIX = '/api/v1'
 
 // ── Instancia principal ───────────────────────────────────────────
@@ -283,4 +283,13 @@ export function getErrorCode(error: unknown): string | null {
     return data?.error?.code ?? null
   }
   return null
+}
+
+// ── Descarga de archivos con autenticación ────────────────────────
+// Para endpoints que retornan archivos binarios (PDFs, imágenes)
+// protegidos por Bearer token.
+
+export async function fetchBlob(url: string): Promise<Blob> {
+  const response = await api.get(url, { responseType: 'blob' })
+  return response.data as Blob
 }

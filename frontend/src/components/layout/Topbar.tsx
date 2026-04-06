@@ -4,22 +4,126 @@
  * Topbar — barra superior del layout autenticado.
  * Responsabilidades:
  * - Título de la página actual
+ * - Selector de sede activa
  * - Botón de alertas con badge de no leídas
  * - Avatar y nombre del usuario activo
  * - Botón menú mobile
  */
 
-import { Bell, Menu } from 'lucide-react'
-import type { UsuarioMe } from '@/types'
+import { Bell, Menu, Building2, ChevronDown } from 'lucide-react'
+import { useState, useRef, useEffect } from 'react'
+import type { UsuarioMe, SedeBasica } from '@/types'
 
 interface TopbarProps {
-  usuario:      UsuarioMe | null
-  noLeidas:     number
-  paginaActual: string | undefined
-  onMenuClick:  () => void
+  usuario:        UsuarioMe | null
+  noLeidas:       number
+  paginaActual:   string | undefined
+  onMenuClick:    () => void
+  sedes:          SedeBasica[]
+  sedeActiva:     SedeBasica | null
+  onSedeChange:   (sede: SedeBasica) => void
 }
 
-export function Topbar({ usuario, noLeidas, paginaActual, onMenuClick }: TopbarProps) {
+function SedeSelectorDropdown({
+  sedes,
+  sedeActiva,
+  onSedeChange,
+}: {
+  sedes:        SedeBasica[]
+  sedeActiva:   SedeBasica | null
+  onSedeChange: (sede: SedeBasica) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          display:        'flex',
+          alignItems:     'center',
+          gap:            '6px',
+          padding:        '6px 10px',
+          background:     'var(--bg-elevated)',
+          border:         '1px solid var(--border-default)',
+          borderRadius:   'var(--radius-md)',
+          color:          sedeActiva ? 'var(--text-primary)' : 'var(--text-muted)',
+          cursor:         'pointer',
+          fontSize:       '0.78rem',
+          fontWeight:     500,
+          whiteSpace:     'nowrap',
+          transition:     'all var(--transition-fast)',
+        }}
+        onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--primary-400)')}
+        onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border-default)')}
+      >
+        <Building2 size={13} color="var(--primary-400)" />
+        {sedeActiva ? sedeActiva.nombre : 'Seleccionar sede'}
+        <ChevronDown size={12} style={{ opacity: 0.6, transform: open ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.15s' }} />
+      </button>
+
+      {open && (
+        <div style={{
+          position:   'absolute',
+          top:        'calc(100% + 6px)',
+          left:       0,
+          minWidth:   '200px',
+          background: 'var(--bg-elevated)',
+          border:     '1px solid var(--border-default)',
+          borderRadius: 'var(--radius-md)',
+          boxShadow:  'var(--shadow-lg)',
+          zIndex:     200,
+          overflow:   'hidden',
+        }}>
+          {sedes.length === 0 && (
+            <div style={{ padding: '10px 12px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+              Sin sedes disponibles
+            </div>
+          )}
+          {sedes.map(sede => (
+            <button
+              key={sede.id}
+              onClick={() => { onSedeChange(sede); setOpen(false) }}
+              style={{
+                display:    'block',
+                width:      '100%',
+                textAlign:  'left',
+                padding:    '9px 12px',
+                background: sedeActiva?.id === sede.id ? 'rgba(245,158,11,0.1)' : 'transparent',
+                border:     'none',
+                color:      sedeActiva?.id === sede.id ? 'var(--primary-400)' : 'var(--text-secondary)',
+                cursor:     'pointer',
+                fontSize:   '0.78rem',
+                fontWeight: sedeActiva?.id === sede.id ? 600 : 400,
+                transition: 'background var(--transition-fast)',
+              }}
+              onMouseEnter={e => { if (sedeActiva?.id !== sede.id) e.currentTarget.style.background = 'var(--bg-surface)' }}
+              onMouseLeave={e => { if (sedeActiva?.id !== sede.id) e.currentTarget.style.background = 'transparent' }}
+            >
+              {sede.nombre}
+              {sede.ciudad && (
+                <span style={{ display: 'block', fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '1px' }}>
+                  {sede.ciudad}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export function Topbar({ usuario, noLeidas, paginaActual, onMenuClick, sedes, sedeActiva, onSedeChange }: TopbarProps) {
   return (
     <header
       style={{
@@ -68,6 +172,13 @@ export function Topbar({ usuario, noLeidas, paginaActual, onMenuClick }: TopbarP
           </h1>
         )}
       </div>
+
+      {/* Selector de sede */}
+      <SedeSelectorDropdown
+        sedes={sedes}
+        sedeActiva={sedeActiva}
+        onSedeChange={onSedeChange}
+      />
 
       {/* Acciones */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

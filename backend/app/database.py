@@ -50,7 +50,7 @@ engine = create_async_engine(
     max_overflow   = 20,     # Permitir hasta 20 conexiones adicionales en picos de tráfico
     pool_pre_ping  = True,   # Verifica la salud de la conexión antes de usarla
     pool_recycle   = 3600,   # Reinicia conexiones cada hora para evitar timeouts del servidor
-    pool_timeout   = 30,     # Tiempo máximo de espera para obtener una conexión del pool
+    pool_timeout   = 10,     # Tiempo máximo de espera para obtener una conexión del pool (falla rápido)
     echo           = settings.DEBUG,  # Si es True, imprime todas las consultas SQL en consola
 )
 
@@ -83,7 +83,7 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
         except Exception as e:
             # Si ocurre un error en el request, deshacemos los cambios
             await db.rollback()
-            logger.error(f"Error en la transacción de DB: {e}")
+            logger.exception("Error en la transacción de DB.")
             raise
         finally:
             # La sesión se cierra automáticamente al salir del bloque 'async with'

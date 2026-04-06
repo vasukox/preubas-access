@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv run python -c \":*)",
+      "Bash(npx tsc:*)",
+      "Bash(cmd /c \"cd \"\"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\frontend\"\" && npx tsc --noEmit 2>&1\")",
+      "Bash(npx --yes tsc --noEmit --project \"c:/Users/andresdb/OneDrive - PERMODA LTDA/Escritorio/Koaj_access/frontend/tsconfig.app.json\")",
+      "Bash(python -c \"from app.models.usuario import UsuarioPermiso, AuditLog; print\\(''Modelos OK:'', UsuarioPermiso.__tablename__, AuditLog.__tablename__\\)\")"
+    ]
+  }
+}

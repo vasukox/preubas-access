@@ -101,6 +101,7 @@ export type RolNombre =
   | 'ADMIN_GLOBAL'
   | 'ADMIN_PARKING'
   | 'ADMIN_HSE'
+  | 'GESTION_HSE'
   | 'ADMIN_NFC'
   | 'ADMIN_GH'
   | 'VIGILANTE_HSE'
@@ -361,7 +362,6 @@ export type ConceptoExamenMedico =
 export type TipoPlanillaPILA =
   | 'PLANILLA_INTEGRADA'
   | 'PLANILLA_MANUAL'
-  | 'NO_APLICA'
 
 export interface ActividadHSE {
   id: number

@@ -16,7 +16,7 @@ import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { BrowserRouter } from 'react-router-dom'
-import { Toaster } from 'react-hot-toast'
+import { Toaster, ToastBar } from 'react-hot-toast'
 
 import { AppRouter } from '@/router/AppRouter'
 import { SessionProvider } from '@/components/providers/SessionProvider'
@@ -95,7 +95,19 @@ createRoot(container).render(
       <Toaster
         position="top-right"
         toastOptions={toastOptions}
-      />
+      >
+        {(t) => (
+          <ToastBar
+            toast={t}
+            style={{
+              ...t.style,
+              animation: t.visible
+                ? 'toast-enter-right 320ms var(--transition-spring) both'
+                : 'toast-exit-right 220ms ease-in forwards',
+            }}
+          />
+        )}
+      </Toaster>
 
       {/* DevTools solo en desarrollo */}
       {import.meta.env.DEV && (

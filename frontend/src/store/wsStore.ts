@@ -42,6 +42,7 @@ interface WSState {
 let socket:           WebSocket | null = null
 let heartbeatTimer:   ReturnType<typeof setInterval> | null = null
 let reconnectTimer:   ReturnType<typeof setTimeout>  | null = null
+let intentionalClose = false
 const handlers = new Map<WSMessageType, Set<MessageHandler>>()
 
 function clearTimers(): void {
@@ -64,7 +65,11 @@ export const useWSStore = create<WSState>()(
         if (!token) return
 
         // Cerrar conexión anterior si existe
-        socket?.close()
+        intentionalClose = true
+        if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
+          socket.close(1000, 'Reconnecting')
+        }
+        intentionalClose = false
         clearTimers()
 
         set({ status: 'RECONECTANDO', sedeId }, false, 'ws/connect')
@@ -102,11 +107,13 @@ export const useWSStore = create<WSState>()(
         }
 
         socket.onerror = () => {
+          if (intentionalClose) return
           set({ status: 'ERROR' }, false, 'ws/error')
         }
 
         socket.onclose = () => {
           clearTimers()
+          if (intentionalClose) return
           const { reconnectCount, sedeId: currentSede } = get()
 
           if (!currentSede) return // Desconexión intencional
@@ -130,10 +137,14 @@ export const useWSStore = create<WSState>()(
 
       // ── Desconectar ────────────────────────────────────────────
       disconnect: () => {
+        intentionalClose = true
         clearTimers()
-        socket?.close()
+        if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
+          socket.close(1000, 'Client disconnect')
+        }
         socket = null
         handlers.clear()
+        intentionalClose = false
         set(
           { status: 'DESCONECTADO', sedeId: null, reconnectCount: 0 },
           false,

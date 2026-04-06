@@ -9,8 +9,16 @@ todos los modelos en Base.metadata antes de create_all().
 
 from app.models.base import BaseModel
 from app.models.sede import Sede
-from app.models.persona import Persona
-from app.models.usuario import Rol, Usuario, UsuarioRol, RefreshToken
+from app.models.persona import Persona, Proveedor
+from app.models.usuario import Rol, Usuario, UsuarioRol, RefreshToken, Perfil
+from app.models.hse import (
+    CatEPS, CatARL, CatAFP, CatNormaSeguridad,
+    HseAutorizacion, HseContratista,
+    HseClasificacion, HseSegSocial, HseCertificaciones,
+    HseExamenMedico, HseContactoEmergencia, HseAceptacionNormas,
+    HseAcceso, HseCumplimiento, HseCumplimientoItem,
+    HseExcepcion, HseHistorial,
+)
 
 __all__ = [
     # Base
@@ -19,9 +27,33 @@ __all__ = [
     "Sede",
     # Persona
     "Persona",
+    "Proveedor",
     # Usuario / Auth
     "Rol",
     "Usuario",
     "UsuarioRol",
     "RefreshToken",
+    "Perfil",
+    # HSE — Catálogos
+    "CatEPS",
+    "CatARL",
+    "CatAFP",
+    "CatNormaSeguridad",
+    # HSE — Núcleo
+    "HseAutorizacion",
+    "HseContratista",
+    # HSE — Autogestión
+    "HseClasificacion",
+    "HseSegSocial",
+    "HseCertificaciones",
+    "HseExamenMedico",
+    "HseContactoEmergencia",
+    "HseAceptacionNormas",
+    # HSE — Operación
+    "HseAcceso",
+    "HseCumplimiento",
+    "HseCumplimientoItem",
+    # HSE — Control
+    "HseExcepcion",
+    "HseHistorial",
 ]

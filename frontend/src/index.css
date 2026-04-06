@@ -220,6 +220,49 @@ body {
   100% { transform: scale(1); opacity: 1; }
 }
 
+@keyframes toast-enter-right {
+  0% {
+    opacity: 0;
+    transform: translateX(22px) translateY(-6px) scale(0.96);
+    filter: blur(1.5px);
+  }
+  65% {
+    opacity: 1;
+    transform: translateX(-2px) translateY(0) scale(1.01);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes toast-exit-right {
+  0% {
+    opacity: 1;
+    transform: translateX(0) translateY(0) scale(1);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(24px) translateY(-2px) scale(0.96);
+    filter: blur(1px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @keyframes toast-enter-right {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  @keyframes toast-exit-right {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+  }
+}
+
 /* Clases de animación utilitarias */
 .animate-fade-up {
   animation: fadeUp var(--transition-base) both;
@@ -356,6 +399,17 @@ textarea::placeholder {
   color: var(--text-muted);
 }
 
+/* ── Select options — forzar tema oscuro en el dropdown nativo ─────── */
+select option {
+  background-color: var(--bg-raised);
+  color: var(--text-primary);
+}
+
+select option:disabled,
+select option[value=""] {
+  color: var(--text-muted);
+}
+
 input:focus,
 textarea:focus,
 select:focus {
@@ -373,4 +427,243 @@ select:focus {
     var(--border-default),
     transparent
   );
+}
+
+/* ── Keyframes adicionales ────────────────────────────────────────── */
+@keyframes pressDown {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(0.96); }
+  100% { transform: scale(1); }
+}
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(245,158,11,0.25); }
+  50%       { box-shadow: 0 0 28px rgba(245,158,11,0.55); }
+}
+
+@keyframes glowPulseDanger {
+  0%, 100% { box-shadow: 0 0 12px rgba(239,68,68,0.2); }
+  50%       { box-shadow: 0 0 28px rgba(239,68,68,0.5); }
+}
+
+@keyframes glowPulseSuccess {
+  0%, 100% { box-shadow: 0 0 12px rgba(16,185,129,0.2); }
+  50%       { box-shadow: 0 0 28px rgba(16,185,129,0.5); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes ripple {
+  0%   { transform: scale(0); opacity: 0.4; }
+  100% { transform: scale(4); opacity: 0; }
+}
+
+/* ── Clases utilitarias de botones ────────────────────────────────── */
+
+/* Botón primario — ámbar */
+.btn-primary {
+  display:         inline-flex;
+  align-items:     center;
+  gap:             6px;
+  padding:         9px 20px;
+  background:      var(--primary-500);
+  border:          none;
+  border-radius:   var(--radius-md);
+  color:           var(--text-inverted);
+  font-family:     var(--font-ui);
+  font-size:       0.83rem;
+  font-weight:     600;
+  cursor:          pointer;
+  box-shadow:      var(--shadow-glow-primary);
+  transition:      background var(--transition-fast),
+                   box-shadow  var(--transition-fast),
+                   transform   var(--transition-fast);
+  position:        relative;
+  overflow:        hidden;
+  user-select:     none;
+}
+.btn-primary:hover:not(:disabled) {
+  background:  var(--primary-400);
+  box-shadow:  0 0 32px rgba(245,158,11,0.45);
+  transform:   translateY(-1px);
+}
+.btn-primary:active:not(:disabled) {
+  transform:   translateY(0) scale(0.97);
+  box-shadow:  var(--shadow-glow-primary);
+}
+.btn-primary:disabled {
+  opacity:    0.5;
+  cursor:     not-allowed;
+  box-shadow: none;
+}
+
+/* Botón danger — rojo */
+.btn-danger {
+  display:         inline-flex;
+  align-items:     center;
+  gap:             6px;
+  padding:         9px 20px;
+  background:      var(--danger-500);
+  border:          none;
+  border-radius:   var(--radius-md);
+  color:           white;
+  font-family:     var(--font-ui);
+  font-size:       0.83rem;
+  font-weight:     600;
+  cursor:          pointer;
+  box-shadow:      var(--shadow-glow-danger);
+  transition:      background var(--transition-fast),
+                   box-shadow  var(--transition-fast),
+                   transform   var(--transition-fast);
+  position:        relative;
+  overflow:        hidden;
+  user-select:     none;
+}
+.btn-danger:hover:not(:disabled) {
+  background:  var(--danger-400);
+  box-shadow:  0 0 32px rgba(239,68,68,0.45);
+  transform:   translateY(-1px);
+}
+.btn-danger:active:not(:disabled) {
+  transform:   translateY(0) scale(0.97);
+  box-shadow:  var(--shadow-glow-danger);
+}
+.btn-danger:disabled {
+  opacity:    0.5;
+  cursor:     not-allowed;
+  box-shadow: none;
+}
+
+/* Botón ghost — borde sutil */
+.btn-ghost {
+  display:         inline-flex;
+  align-items:     center;
+  gap:             6px;
+  padding:         9px 18px;
+  background:      transparent;
+  border:          1px solid var(--border-default);
+  border-radius:   var(--radius-md);
+  color:           var(--text-secondary);
+  font-family:     var(--font-ui);
+  font-size:       0.83rem;
+  font-weight:     500;
+  cursor:          pointer;
+  transition:      background    var(--transition-fast),
+                   border-color  var(--transition-fast),
+                   color         var(--transition-fast),
+                   transform     var(--transition-fast);
+  user-select:     none;
+}
+.btn-ghost:hover:not(:disabled) {
+  background:    var(--bg-raised);
+  border-color:  var(--border-strong);
+  color:         var(--text-primary);
+  transform:     translateY(-1px);
+}
+.btn-ghost:active:not(:disabled) {
+  transform: translateY(0) scale(0.97);
+}
+.btn-ghost:disabled {
+  opacity: 0.4;
+  cursor:  not-allowed;
+}
+
+/* Botón ícono cuadrado */
+.btn-icon {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  width:           36px;
+  height:          36px;
+  background:      var(--bg-surface);
+  border:          1px solid var(--border-subtle);
+  border-radius:   var(--radius-md);
+  color:           var(--text-muted);
+  cursor:          pointer;
+  transition:      background    var(--transition-fast),
+                   border-color  var(--transition-fast),
+                   color         var(--transition-fast),
+                   transform     var(--transition-fast);
+  flex-shrink:     0;
+}
+.btn-icon:hover {
+  background:    var(--bg-raised);
+  border-color:  var(--border-strong);
+  color:         var(--text-primary);
+  transform:     rotate(12deg) scale(1.08);
+}
+.btn-icon:active {
+  transform: scale(0.94);
+}
+
+/* Botón ícono peligro */
+.btn-icon-danger {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  padding:         5px 12px;
+  background:      rgba(239,68,68,0.06);
+  border:          1px solid rgba(239,68,68,0.15);
+  border-radius:   var(--radius-md);
+  color:           var(--danger-400);
+  font-size:       0.72rem;
+  font-weight:     500;
+  font-family:     var(--font-ui);
+  cursor:          pointer;
+  transition:      background   var(--transition-fast),
+                   border-color var(--transition-fast),
+                   transform    var(--transition-fast),
+                   box-shadow   var(--transition-fast);
+}
+.btn-icon-danger:hover:not(:disabled) {
+  background:  rgba(239,68,68,0.14);
+  border-color: rgba(239,68,68,0.35);
+  box-shadow:  0 0 12px rgba(239,68,68,0.2);
+  transform:   scale(1.04);
+}
+.btn-icon-danger:active:not(:disabled) {
+  transform: scale(0.96);
+}
+.btn-icon-danger:disabled {
+  opacity: 0.4;
+  cursor:  not-allowed;
+}
+
+/* Animación de entrada de modales */
+.modal-enter {
+  animation: scaleIn 0.2s var(--transition-spring) both;
+}
+
+/* Animación slide down para submenús / paneles */
+.slide-down {
+  animation: slideDown 0.2s ease both;
+}
+
+/* Animaciones de tarjetas stat */
+.stat-card {
+  transition: transform var(--transition-fast),
+              box-shadow var(--transition-fast),
+              border-color var(--transition-fast);
+}
+.stat-card:hover {
+  transform:    translateY(-2px);
+  box-shadow:   var(--shadow-md);
+  border-color: var(--border-strong);
+}
+
+/* Fila de tabla con hover suave */
+.table-row {
+  transition: background var(--transition-fast);
+  cursor: default;
+}
+.table-row:hover {
+  background: var(--bg-elevated, var(--bg-raised)) !important;
 }

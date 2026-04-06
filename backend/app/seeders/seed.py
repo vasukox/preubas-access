@@ -25,14 +25,53 @@ from app.database import AsyncSessionLocal, engine
 from app.models.base import Base
 from app.models.usuario import Rol, RolNombre, Usuario, UsuarioRol
 from app.models.sede import Sede
+from app.models.hse import CatEPS, CatARL, CatAFP
 from app.utils.password import hash_password
 
 
 # ── Datos iniciales ───────────────────────────────────────────────
 
+EPS_COLOMBIA = [
+    {"nombre": "Sura EPS",                  "codigo": "EPS001"},
+    {"nombre": "Compensar",                  "codigo": "EPS002"},
+    {"nombre": "Nueva EPS",                  "codigo": "EPS003"},
+    {"nombre": "Sanitas",                    "codigo": "EPS004"},
+    {"nombre": "Salud Total",                "codigo": "EPS005"},
+    {"nombre": "Famisanar",                  "codigo": "EPS006"},
+    {"nombre": "Coosalud",                   "codigo": "EPS007"},
+    {"nombre": "Mutual Ser",                 "codigo": "EPS008"},
+    {"nombre": "Aliansalud",                 "codigo": "EPS009"},
+    {"nombre": "Medimás",                    "codigo": "EPS010"},
+    {"nombre": "Comfenalco Valle",           "codigo": "EPS011"},
+    {"nombre": "Cajacopi Atlántico",         "codigo": "EPS012"},
+    {"nombre": "Capresoca",                  "codigo": "EPS013"},
+    {"nombre": "Comfachocó",                 "codigo": "EPS014"},
+    {"nombre": "Magisterio (Fiduprevisora)", "codigo": "EPS015"},
+]
+
+ARL_COLOMBIA = [
+    {"nombre": "Sura ARL",           "codigo": "ARL001"},
+    {"nombre": "Positiva",           "codigo": "ARL002"},
+    {"nombre": "Colmena Seguros",    "codigo": "ARL003"},
+    {"nombre": "Bolívar ARL",        "codigo": "ARL004"},
+    {"nombre": "Equidad Seguros",    "codigo": "ARL005"},
+    {"nombre": "Liberty Seguros",    "codigo": "ARL006"},
+    {"nombre": "Axxa Colpatria",     "codigo": "ARL007"},
+    {"nombre": "Seguros del Estado", "codigo": "ARL008"},
+]
+
+AFP_COLOMBIA = [
+    {"nombre": "Porvenir",        "codigo": "AFP001"},
+    {"nombre": "Protección",      "codigo": "AFP002"},
+    {"nombre": "Colfondos",       "codigo": "AFP003"},
+    {"nombre": "Old Mutual",      "codigo": "AFP004"},
+    {"nombre": "Colpensiones",    "codigo": "AFP005"},
+]
+
 ROLES_INICIALES: list[str] = [
     RolNombre.ADMIN_GLOBAL,
     RolNombre.ADMIN_HSE,
+    RolNombre.GESTION_HSE,
     RolNombre.ADMIN_PARKING,
     RolNombre.ADMIN_NFC,
     RolNombre.ADMIN_GH,
@@ -42,9 +81,9 @@ ROLES_INICIALES: list[str] = [
 ]
 
 ADMIN_INICIAL = {
-    "email":           "admin@permoda.com",
-    "password":        "Admin2026!",
-    "nombre_completo": "Administrador Global KOAJ",
+    "email":           "andres@permoda.com.co",
+    "password":        "123456Thomas*",
+    "nombre_completo": "Andrés Administrador Global",
 }
 
 SEDE_INICIAL = {
@@ -144,6 +183,28 @@ async def seed_admin(db: AsyncSession, roles: dict[str, Rol]) -> None:
         print(f"  ⏭️  Admin ya existe: {usuario.email}")
 
 
+async def seed_catalogos_hse(db: AsyncSession) -> None:
+    """
+    Carga EPS, ARL y AFP colombianas si las tablas están vacías.
+    """
+    for Model, datos, nombre_cat in [
+        (CatEPS, EPS_COLOMBIA, "EPS"),
+        (CatARL, ARL_COLOMBIA, "ARL"),
+        (CatAFP, AFP_COLOMBIA, "AFP"),
+    ]:
+        for item in datos:
+            result = await db.execute(
+                select(Model).where(Model.codigo == item["codigo"])  # type: ignore[attr-defined]
+            )
+            existing = result.scalar_one_or_none()
+            if not existing:
+                db.add(Model(nombre=item["nombre"], codigo=item["codigo"], activa=True))  # type: ignore[call-arg]
+                print(f"  ✅ {nombre_cat}: {item['nombre']}")
+            else:
+                print(f"  ⏭️  {nombre_cat} ya existe: {item['nombre']}")
+        await db.flush()
+
+
 # ── Runner principal ──────────────────────────────────────────────
 
 async def run_seed() -> None:
@@ -162,6 +223,9 @@ async def run_seed() -> None:
 
             print("\n👤 Creando administrador inicial...")
             await seed_admin(db, roles)
+
+            print("\n🏥 Cargando catálogos HSE (EPS / ARL / AFP)...")
+            await seed_catalogos_hse(db)
 
             await db.commit()
             print("\n✅ Seed completado exitosamente.")

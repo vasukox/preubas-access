@@ -1,16 +1,14 @@
 """
 KOAJ Access v2.0 — Permoda S.A.S.
---------------------------------------
-Modelos de persona y empresa.
+Modelos de persona y proveedor.
 
 Tablas:
-  empresas   → razones sociales de contratistas y proveedores
-  personas   → personas naturales que ingresan a las instalaciones
+  proveedores → empresas/proveedores de contratistas
+  personas    → personas naturales que ingresan a instalaciones
 
-Las personas son el núcleo del módulo HSE. Una persona
-puede pertenecer a una empresa o ser independiente.
-Una persona puede tener múltiples autorizaciones HSE
-a lo largo del tiempo (historial completo).
+Relación clave:
+  Un contratista viene en nombre de un proveedor.
+  proveedor → personas (contratistas) → autorizaciones HSE
 """
 
 from sqlalchemy import Boolean, Date, Enum, ForeignKey, String, Text
@@ -18,14 +16,15 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import BaseModel
 
 
-# ── Empresa ───────────────────────────────────────────────────────
-class Empresa(BaseModel):
+# ── Proveedor ─────────────────────────────────────────────────────
+class Proveedor(BaseModel):
     """
-    Razón social de un contratista, proveedor o empresa externa.
+    Empresa o proveedor del que vienen los contratistas.
 
-    Una empresa puede tener múltiples personas asociadas.
-    Los datos de la empresa se pre-cargan en el wizard de autogestión
-    cuando el coordinador la selecciona al crear la autorización.
+    Un proveedor puede tener múltiples contratistas asociados.
+    Los datos del proveedor se pre-cargan en el wizard de
+    autogestión cuando el admin lo selecciona al crear
+    la autorización HSE.
 
     Ejemplos:
       - Empresa contratista de mantenimiento eléctrico
@@ -33,20 +32,51 @@ class Empresa(BaseModel):
       - Firma auditora
     """
 
-    __tablename__ = "empresas"
+    __tablename__ = "proveedores"
 
-    razon_social: Mapped[str] = mapped_column(
+    nom_proveedor: Mapped[str] = mapped_column(
         String(200),
         nullable=False,
-        comment="Razón social o nombre comercial",
+        comment="Razón social o nombre comercial del proveedor",
     )
 
-    nit: Mapped[str] = mapped_column(
+    nit_proveedor: Mapped[str] = mapped_column(
         String(20),
         unique=True,
         nullable=False,
         index=True,
-        comment="NIT de la empresa con dígito verificador (ej: 900123456-1)",
+        comment="NIT con dígito verificador (ej: 900123456-1)",
+    )
+
+    tipo_identificacion_prov: Mapped[str | None] = mapped_column(
+        Enum(
+            'NIT',
+            'CC',
+            'CE',
+            'PASAPORTE',
+            name='tipo_ident_proveedor_enum',
+        ),
+        nullable=True,
+        comment="Tipo de identificación del proveedor",
+    )
+
+    estado_prov: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        nullable=False,
+        comment="Si el proveedor está activo en el sistema",
+    )
+
+    direccion_prov: Mapped[str | None] = mapped_column(
+        String(200),
+        nullable=True,
+        comment="Dirección del proveedor",
+    )
+
+    telefono_prov: Mapped[str | None] = mapped_column(
+        String(20),
+        nullable=True,
+        comment="Teléfono de contacto",
     )
 
     email_contacto: Mapped[str | None] = mapped_column(
@@ -55,45 +85,33 @@ class Empresa(BaseModel):
         comment="Email principal de contacto",
     )
 
-    telefono: Mapped[str | None] = mapped_column(
-        String(20),
-        nullable=True,
-        comment="Teléfono de contacto",
-    )
-
     ciudad: Mapped[str | None] = mapped_column(
         String(80),
         nullable=True,
         comment="Ciudad de operación principal",
     )
 
-    direccion: Mapped[str | None] = mapped_column(
-        String(200),
-        nullable=True,
-        comment="Dirección de la empresa",
-    )
-
-    activa: Mapped[bool] = mapped_column(
+    tratamiento_datos: Mapped[bool] = mapped_column(
         Boolean,
-        default=True,
+        default=False,
         nullable=False,
-        comment="Si la empresa está activa en el sistema",
+        comment="Aceptación de tratamiento de datos",
     )
 
     notas: Mapped[str | None] = mapped_column(
         Text,
         nullable=True,
-        comment="Notas internas sobre la empresa",
+        comment="Notas internas sobre el proveedor",
     )
 
     # Relaciones
     personas: Mapped[list["Persona"]] = relationship(
-        back_populates="empresa",
+        back_populates="proveedor",
         lazy="select",
     )
 
     def __repr__(self) -> str:
-        return f"<Empresa {self.nit} — {self.razon_social}>"
+        return f"<Proveedor {self.nit_proveedor} — {self.nom_proveedor}>"
 
 
 # ── Persona ───────────────────────────────────────────────────────
@@ -102,18 +120,18 @@ class Persona(BaseModel):
     Persona natural que ingresa a las instalaciones de Permoda.
 
     Usada por:
-      - HSE: contratistas, técnicos, proveedores, inspectores,
-             funcionarios públicos
-      - Parking: empleados que solicitan cupo
-      - GH: colaboradores con citas
+      - HSE: contratistas que vienen en nombre de un proveedor
+      - Parking: empleados que solicitan cupo de vehículo
+      - GH: colaboradores con citas programadas
+      - GH: visitantes externos
 
     Una persona se registra una sola vez y puede tener
     múltiples autorizaciones HSE, solicitudes de parking
     y citas de GH a lo largo del tiempo.
 
     Tipologías HSE:
-      CONTRATISTA_EMPRESA   → empresa contratista con cuadrilla
-      TECNICO_INDEPENDIENTE → persona natural con contrato
+      CONTRATISTA_EMPRESA   → viene en nombre de un proveedor
+      TECNICO_INDEPENDIENTE → persona natural con contrato directo
       PROVEEDOR_SERVICIOS   → proveedor sin actividades de riesgo
       INSPECTOR_AUDITOR     → visita de inspección o auditoría
       FUNCIONARIO_PUBLICO   → entidad gubernamental
@@ -124,11 +142,11 @@ class Persona(BaseModel):
     # ── Identificación ────────────────────────────────────────────
     tipo_documento: Mapped[str] = mapped_column(
         Enum(
-            'CC',           # Cédula de ciudadanía
-            'CE',           # Cédula de extranjería
-            'PASAPORTE',    # Pasaporte
-            'TI',           # Tarjeta de identidad
-            'NIT',          # NIT (para representantes legales)
+            'CC',
+            'CE',
+            'PASAPORTE',
+            'TI',
+            'NIT',
             name='tipo_documento_enum',
         ),
         nullable=False,
@@ -192,12 +210,19 @@ class Persona(BaseModel):
         comment="Fecha de nacimiento",
     )
 
-    # ── Empresa / tipología ───────────────────────────────────────
-    empresa_id: Mapped[int | None] = mapped_column(
-        ForeignKey("empresas.id", ondelete="SET NULL"),
+    tratamiento_datos: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        nullable=False,
+        comment="Aceptación de tratamiento de datos personales",
+    )
+
+    # ── Proveedor / tipología ─────────────────────────────────────
+    proveedor_id: Mapped[int | None] = mapped_column(
+        ForeignKey("proveedores.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
-        comment="FK a la empresa — null si es técnico independiente",
+        comment="FK al proveedor — null si es técnico independiente",
     )
 
     tipologia_hse: Mapped[str | None] = mapped_column(
@@ -247,10 +272,10 @@ class Persona(BaseModel):
     emergencia_telefono_fijo: Mapped[str | None] = mapped_column(
         String(20),
         nullable=True,
-        comment="Teléfono fijo del contacto de emergencia (opcional)",
+        comment="Teléfono fijo del contacto de emergencia",
     )
 
-    # ── Estado general ────────────────────────────────────────────
+    # ── Estado ────────────────────────────────────────────────────
     activo: Mapped[bool] = mapped_column(
         Boolean,
         default=True,
@@ -265,7 +290,7 @@ class Persona(BaseModel):
     )
 
     # ── Relaciones ────────────────────────────────────────────────
-    empresa: Mapped["Empresa | None"] = relationship(
+    proveedor: Mapped["Proveedor | None"] = relationship(
         back_populates="personas",
     )
 

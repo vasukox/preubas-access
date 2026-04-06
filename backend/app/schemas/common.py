@@ -15,7 +15,7 @@ Regla de oro:
 """
 
 import math
-from typing import Generic, TypeVar, Optional, Any
+from typing import Generic, TypeVar, Optional, Any, NoReturn
 from pydantic import BaseModel, Field
 from fastapi import HTTPException, status
 
@@ -136,7 +136,7 @@ def ok_paginated(
     }
 
 
-def err(code: str, message: str, status_code: int = status.HTTP_400_BAD_REQUEST) -> None:
+def err(code: str, message: str, status_code: int = status.HTTP_400_BAD_REQUEST) -> NoReturn:
     """
     Lanza un HTTPException con el envelope de error estándar.
 

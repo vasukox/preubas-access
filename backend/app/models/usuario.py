@@ -4,10 +4,13 @@ KOAJ Access v2.0 — Permoda S.A.S.
 Modelos de usuario, rol y autenticación.
 
 Tablas:
-  cat_roles       → catálogo de roles del sistema
-  usuarios        → cuentas de acceso al sistema
-  usuario_roles   → relación N:M usuario ↔ rol
-  refresh_tokens  → tokens de refresco activos por usuario
+  cat_roles         → catálogo de roles del sistema
+  usuarios          → cuentas de acceso al sistema
+  usuario_roles     → relación N:M usuario ↔ rol
+  usuario_permisos  → permisos granulares por usuario (ver/crear/editar/eliminar)
+  refresh_tokens    → tokens de refresco activos por usuario
+  perfiles          → perfil extendido del usuario
+  audit_log         → registro de auditoría de cambios
 """
 
 from datetime import datetime
@@ -32,6 +35,7 @@ class RolNombre:
     ADMIN_GLOBAL      = "ADMIN_GLOBAL"
     ADMIN_PARKING     = "ADMIN_PARKING"
     ADMIN_HSE         = "ADMIN_HSE"
+    GESTION_HSE       = "GESTION_HSE"
     ADMIN_NFC         = "ADMIN_NFC"
     ADMIN_GH          = "ADMIN_GH"
     VIGILANTE_HSE     = "VIGILANTE_HSE"
@@ -62,6 +66,7 @@ class Rol(BaseModel):
             'ADMIN_GLOBAL',
             'ADMIN_PARKING',
             'ADMIN_HSE',
+            'GESTION_HSE',
             'ADMIN_NFC',
             'ADMIN_GH',
             'VIGILANTE_HSE',
@@ -180,6 +185,20 @@ class Usuario(BaseModel):
         cascade="all, delete-orphan",
     )
 
+    perfil: Mapped["Perfil"] = relationship(
+        back_populates="usuario",
+        cascade="all, delete-orphan",
+        uselist=False,
+    )
+
+    permisos: Mapped["UsuarioPermiso | None"] = relationship(
+        back_populates="usuario",
+        cascade="all, delete-orphan",
+        uselist=False,
+        lazy="select",
+        foreign_keys="[UsuarioPermiso.usuario_id]",
+    )
+
     def __repr__(self) -> str:
         return f"<Usuario {self.email}>"
 
@@ -288,3 +307,216 @@ class RefreshToken(BaseModel):
 
     def __repr__(self) -> str:
         return f"<RefreshToken jti={self.jti} revocado={self.revocado}>"
+
+
+# ── Perfil de usuario ─────────────────────────────────────────────
+class Perfil(BaseModel):
+    """
+    Perfil extendido del usuario del sistema.
+
+    Complementa la tabla usuarios con:
+      - Información personal adicional
+      - Configuración de sedes asignadas por módulo
+      - Foto de perfil
+      - Biografía y ubicación
+
+    Relación 1:1 con Usuario.
+    Se crea automáticamente al crear un usuario.
+    """
+
+    __tablename__ = "perfiles"
+
+    usuario_id: Mapped[int] = mapped_column(
+        ForeignKey("usuarios.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,
+        index=True,
+        comment="FK al usuario — relación 1:1",
+    )
+
+    foto_perfil: Mapped[str | None] = mapped_column(
+        String(500),
+        nullable=True,
+        comment="URL de la foto de perfil",
+    )
+
+    biografia: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+        comment="Descripción o cargo del usuario",
+    )
+
+    ubicacion: Mapped[str | None] = mapped_column(
+        String(150),
+        nullable=True,
+        comment="Ubicación o sede principal del usuario",
+    )
+
+    telefono: Mapped[str | None] = mapped_column(
+        String(20),
+        nullable=True,
+        comment="Teléfono de contacto del usuario",
+    )
+
+    # Configuración de sedes asignadas por módulo
+    # Se gestiona desde la tabla usuario_sedes
+    # Este campo guarda la sede activa por defecto
+    sede_default_id: Mapped[int | None] = mapped_column(
+        ForeignKey("sedes.id", ondelete="SET NULL"),
+        nullable=True,
+        comment="Sede activa por defecto del usuario",
+    )
+
+    # Preferencias UI
+    tema: Mapped[str] = mapped_column(
+        String(20),
+        default="dark",
+        nullable=False,
+        comment="Tema de la interfaz: dark/light",
+    )
+
+    notificaciones_email: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        nullable=False,
+        comment="Si recibe notificaciones por email",
+    )
+
+    # Relaciones
+    usuario: Mapped["Usuario"] = relationship(back_populates="perfil")
+
+    def __repr__(self) -> str:
+        return f"<Perfil usuario={self.usuario_id}>"
+
+
+# ── Permisos granulares por usuario ───────────────────────────────
+class UsuarioPermiso(BaseModel):
+    """
+    Permisos operativos granulares por usuario.
+
+    Complementa el sistema de roles con control fino de operaciones.
+    Un usuario puede tener un rol pero con operaciones restringidas.
+
+    Ejemplo:
+      ADMIN_HSE con puede_eliminar=False → no puede eliminar registros
+      GESTION_HSE con puede_crear=True   → puede crear autorizaciones
+
+    El ADMIN_GLOBAL siempre bypasea esta tabla.
+    Se crea automáticamente al crear el usuario vía Herramientas.
+    """
+
+    __tablename__ = "usuario_permisos"
+    __table_args__ = (
+        UniqueConstraint("usuario_id", name="uq_usuario_permisos_unico"),
+    )
+
+    usuario_id: Mapped[int] = mapped_column(
+        ForeignKey("usuarios.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,
+        index=True,
+        comment="FK al usuario — relación 1:1",
+    )
+
+    puede_ver: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        nullable=False,
+        comment="Puede consultar y visualizar registros",
+    )
+
+    puede_crear: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        nullable=False,
+        comment="Puede crear nuevos registros",
+    )
+
+    puede_editar: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        nullable=False,
+        comment="Puede editar registros existentes",
+    )
+
+    puede_eliminar: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        nullable=False,
+        comment="Puede eliminar o anular registros",
+    )
+
+    asignado_por: Mapped[int | None] = mapped_column(
+        ForeignKey("usuarios.id", ondelete="SET NULL"),
+        nullable=True,
+        comment="FK al admin que configuró estos permisos",
+    )
+
+    # Relaciones
+    usuario: Mapped["Usuario"] = relationship(
+        back_populates="permisos",
+        foreign_keys="[UsuarioPermiso.usuario_id]",
+    )
+
+    def __repr__(self) -> str:
+        return (
+            f"<UsuarioPermiso usuario={self.usuario_id} "
+            f"ver={self.puede_ver} crear={self.puede_crear} "
+            f"editar={self.puede_editar} eliminar={self.puede_eliminar}>"
+        )
+
+
+# ── Registro de auditoría ─────────────────────────────────────────
+class AuditLog(BaseModel):
+    """
+    Registro inmutable de todas las acciones administrativas del sistema.
+
+    Cada vez que un ADMIN_GLOBAL realiza una acción en Herramientas
+    (crear usuario, asignar rol, cambiar permisos, etc.) se registra
+    aquí con el actor, la acción y el detalle.
+
+    Este registro NO tiene soft delete — es permanente por diseño.
+    """
+
+    __tablename__ = "audit_log"
+
+    actor_id: Mapped[int | None] = mapped_column(
+        ForeignKey("usuarios.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+        comment="FK al usuario que realizó la acción",
+    )
+
+    actor_nombre: Mapped[str] = mapped_column(
+        String(150),
+        nullable=False,
+        comment="Nombre del actor en el momento de la acción (desnormalizado para historial)",
+    )
+
+    accion: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        index=True,
+        comment="Código de la acción: CREAR_USUARIO, ASIGNAR_ROL, etc.",
+    )
+
+    entidad: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        comment="Entidad afectada: Usuario, UsuarioRol, UsuarioPermiso",
+    )
+
+    entidad_id: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+        comment="ID de la entidad afectada",
+    )
+
+    descripcion: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+        comment="Descripción legible de la acción realizada",
+    )
+
+    def __repr__(self) -> str:
+        return f"<AuditLog actor={self.actor_id} accion={self.accion}>"

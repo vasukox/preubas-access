@@ -34,7 +34,7 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/store'
-// import { RoleRoute, PortalRoute } from './guards'  // ← descomentar en Sprint 2
+import { RoleRoute } from './guards'
 
 // ── Vistas activas ────────────────────────────────────────────────
 
@@ -56,7 +56,16 @@ const CambiarPasswordView = lazy(() => import('@/views/auth/CambiarPasswordView'
 // const ParkingPortalView      = lazy(() => import('@/views/parking/ParkingPortalView'))
 
 // ⏳ Sprint 5-6 — HSE
-// const HSEDashboardView       = lazy(() => import('@/views/hse/HSEDashboardView'))
+const HSEDashboardView       = lazy(() => import('@/views/hse/HSEDashboardView'))
+const PanelGeneralView       = lazy(() => import('@/views/hse/PanelGeneralView'))
+const GestionHSEView         = lazy(() => import('@/views/hse/GestionHSEView'))
+const VigilanteView          = lazy(() => import('@/views/hse/VigilanteView'))
+const ExcepcionesView        = lazy(() => import('@/views/hse/ExcepcionesView'))
+const CumplimientoView       = lazy(() => import('@/views/hse/CumplimientoView'))
+const AutogestionView        = lazy(() => import('@/views/hse/AutogestionView'))
+
+// Herramientas — admin global
+const HerramientasView = lazy(() => import('@/views/herramientas/HerramientasView'))
 // const HSEAutorizacionesView  = lazy(() => import('@/views/hse/HSEAutorizacionesView'))
 // const HSEAutorizacionDetalle = lazy(() => import('@/views/hse/HSEAutorizacionDetalle'))
 // const HSEVigilanteView       = lazy(() => import('@/views/hse/HSEVigilanteView'))
@@ -75,7 +84,7 @@ const CambiarPasswordView = lazy(() => import('@/views/auth/CambiarPasswordView'
 // const GHPortalView       = lazy(() => import('@/views/gh/GHPortalView'))
 
 // ⏳ Sprint 9 — Reportes + Config
-// const ReportesView = lazy(() => import('@/views/reportes/ReportesView'))
+const ReportesView = lazy(() => import('@/views/reportes/ReportesView'))
 // const ConfigView   = lazy(() => import('@/views/config/ConfigView'))
 
 
@@ -152,7 +161,7 @@ export function AppRouter() {
 
         {/* ── Portales públicos — Sprint 3, 5 y 8 ─────────────── */}
         {/* <Route path="/portal/parking" element={<PortalRoute><ParkingPortalView /></PortalRoute>} /> */}
-        {/* <Route path="/portal/hse"     element={<PortalRoute><HSEPortalView /></PortalRoute>} />     */}
+        <Route path="/portal/hse/:token" element={<AutogestionView />} />
         {/* <Route path="/portal/gh"      element={<PortalRoute><GHPortalView /></PortalRoute>} />      */}
 
         {/* ── Rutas privadas (dentro del AppLayout) ────────────── */}
@@ -178,6 +187,15 @@ export function AppRouter() {
           {/* <Route path="parking/lpr"   element={<RoleRoute roles={['ADMIN_PARKING']}><ParkingLPRView /></RoleRoute>} /> */}
 
           {/* ⏳ Sprint 5-6 — HSE */}
+          <Route path="hse"               element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE','VIGILANTE_HSE','VISUALIZADOR']}><HSEDashboardView /></RoleRoute>} />
+          <Route path="hse/panel-general" element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE','VISUALIZADOR']}><PanelGeneralView /></RoleRoute>} />
+          <Route path="hse/gestion"       element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE']}><GestionHSEView /></RoleRoute>} />
+          <Route path="hse/vigilante"     element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','VIGILANTE_HSE']}><VigilanteView /></RoleRoute>} />
+          <Route path="hse/excepciones"   element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE']}><ExcepcionesView /></RoleRoute>} />
+          <Route path="hse/cumplimiento"  element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE']}><CumplimientoView /></RoleRoute>} />
+
+          {/* Herramientas — solo ADMIN_GLOBAL */}
+          <Route path="herramientas" element={<RoleRoute roles={['ADMIN_GLOBAL']}><HerramientasView /></RoleRoute>} />
           {/* <Route path="hse" element={<RoleRoute roles={['ADMIN_HSE','COORD_HSE','VIGILANTE','VISUALIZADOR']}><HSEDashboardView /></RoleRoute>} /> */}
           {/* <Route path="hse/autorizaciones"    element={<RoleRoute roles={['ADMIN_HSE','COORD_HSE']}><HSEAutorizacionesView /></RoleRoute>} /> */}
           {/* <Route path="hse/autorizaciones/:id" element={<RoleRoute roles={['ADMIN_HSE','COORD_HSE']}><HSEAutorizacionDetalle /></RoleRoute>} /> */}
@@ -195,7 +213,7 @@ export function AppRouter() {
           {/* <Route path="gh/importacion"  element={<RoleRoute roles={['ADMIN_GH']}><GHImportacionView /></RoleRoute>} /> */}
 
           {/* ⏳ Sprint 9 — Reportes + Config */}
-          {/* <Route path="reportes" element={<RoleRoute roles={['ADMIN_GLOBAL','VISUALIZADOR']}><ReportesView /></RoleRoute>} /> */}
+          <Route path="reportes" element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','VISUALIZADOR']}><ReportesView /></RoleRoute>} />
           {/* <Route path="config"   element={<RoleRoute roles={['ADMIN_GLOBAL']}><ConfigView /></RoleRoute>} /> */}
 
         </Route>

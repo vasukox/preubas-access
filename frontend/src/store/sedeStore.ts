@@ -15,17 +15,17 @@
 
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
-import type { Sede } from '@/types'
+import type { SedeBasica } from '@/types'
 
 interface SedeState {
   // ── Estado ──────────────────────────────────────────────────────
-  sedeActiva:  Sede | null
-  sedes:       Sede[]
+  sedeActiva:  SedeBasica | null
+  sedes:       SedeBasica[]
   isLoading:   boolean
 
   // ── Acciones ─────────────────────────────────────────────────────
-  setSedeActiva: (sede: Sede) => void
-  setSedes:      (sedes: Sede[]) => void
+  setSedeActiva: (sede: SedeBasica) => void
+  setSedes:      (sedes: SedeBasica[]) => void
   setLoading:    (loading: boolean) => void
   clearSede:     () => void
 }
