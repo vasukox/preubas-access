@@ -22,7 +22,7 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from 'axios'
-import type { ApiResponse, ApiError, LoginResponse } from '@/types'
+import type { ApiResponse, ApiError, TokenResponse } from '@/types'
 
 // ── Constantes ────────────────────────────────────────────────────
 const BASE_URL = import.meta.env.VITE_API_URL || ''
@@ -150,13 +150,13 @@ api.interceptors.response.use(
       try {
         // Llamar al endpoint de refresh con una instancia limpia
         // (sin interceptores para evitar loops)
-        const response = await axios.post<ApiResponse<LoginResponse>>(
+        const response = await axios.post<ApiResponse<TokenResponse>>(
           `${BASE_URL}${API_PREFIX}/auth/refresh`,
           { refresh_token: refreshToken },
         )
 
         const { access_token, refresh_token: newRefreshToken } =
-          response.data.data.tokens
+          response.data.data
 
         // Guardar los nuevos tokens
         tokenStorage.setTokens(access_token, newRefreshToken)

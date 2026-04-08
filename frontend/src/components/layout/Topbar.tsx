@@ -10,15 +10,18 @@
  * - Botón menú mobile
  */
 
-import { Bell, Menu, Building2, ChevronDown } from 'lucide-react'
+import { Bell, Menu, Building2, ChevronDown, Moon, Sun } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import type { UsuarioMe, SedeBasica } from '@/types'
+import type { ThemeMode } from '@/store/uiStore'
 
 interface TopbarProps {
   usuario:        UsuarioMe | null
   noLeidas:       number
   paginaActual:   string | undefined
   onMenuClick:    () => void
+  themeMode:      ThemeMode
+  onToggleTheme:  () => void
   sedes:          SedeBasica[]
   sedeActiva:     SedeBasica | null
   onSedeChange:   (sede: SedeBasica) => void
@@ -123,7 +126,7 @@ function SedeSelectorDropdown({
   )
 }
 
-export function Topbar({ usuario, noLeidas, paginaActual, onMenuClick, sedes, sedeActiva, onSedeChange }: TopbarProps) {
+export function Topbar({ usuario, noLeidas, paginaActual, onMenuClick, themeMode, onToggleTheme, sedes, sedeActiva, onSedeChange }: TopbarProps) {
   return (
     <header
       style={{
@@ -182,6 +185,35 @@ export function Topbar({ usuario, noLeidas, paginaActual, onMenuClick, sedes, se
 
       {/* Acciones */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+
+        {/* Toggle tema */}
+        <button
+          onClick={onToggleTheme}
+          title={themeMode === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+          style={{
+            position:       'relative',
+            background:     'transparent',
+            border:         '1px solid var(--border-default)',
+            borderRadius:   'var(--radius-md)',
+            color:          'var(--text-secondary)',
+            cursor:         'pointer',
+            padding:        '7px',
+            display:        'flex',
+            alignItems:     'center',
+            justifyContent: 'center',
+            transition:     'all var(--transition-fast)',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = 'var(--border-strong)'
+            e.currentTarget.style.color       = 'var(--primary-500)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = 'var(--border-default)'
+            e.currentTarget.style.color       = 'var(--text-secondary)'
+          }}
+        >
+          {themeMode === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+        </button>
 
         {/* Botón alertas */}
         <button

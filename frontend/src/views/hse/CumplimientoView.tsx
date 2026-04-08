@@ -10,9 +10,11 @@ import {
   Clock, AlertTriangle,
   PenLine, Lock,
 } from 'lucide-react'
-import { useSedeStore } from '@/store'
+import { useSedeStore } from '@/store/sedeStore'
 import { hseService } from '@/services/hse.service'
 import { getErrorMessage } from '@/services/api'
+import { usePagination } from '@/hooks/usePagination'
+import { Pagination } from '@/components/ui/Pagination'
 import type {
   AutorizacionListResponse,
   CumplimientoListadoResponse,
@@ -541,7 +543,7 @@ function ModalIniciar({
                             background: tone.bg,
                             whiteSpace: 'nowrap',
                           }}>
-                            {item.estado.replaceAll('_', ' ')}
+                            {item.estado.replace(/_/g, ' ')}
                           </span>
                           <button
                             onClick={() => handleIniciar(item.id)}
@@ -733,6 +735,8 @@ export default function CumplimientoView() {
       (h.autorizacion_codigo || '').toLowerCase().includes(term)
     )
   })
+
+  const historialPagination = usePagination(historialFiltrado, 5)
 
   return (
     <div style={{ padding: '36px', maxWidth: '1280px' }}>
@@ -931,7 +935,7 @@ export default function CumplimientoView() {
                 No hay verificaciones para esta pestaña.
               </div>
             ) : (
-              historialFiltrado.map((h, idx) => (
+              historialPagination.paginatedData.map((h, idx) => (
                 <div
                   key={h.id}
                   style={{
@@ -984,6 +988,14 @@ export default function CumplimientoView() {
                 </div>
               ))
             )}
+            <Pagination
+              currentPage={historialPagination.currentPage}
+              totalPages={historialPagination.totalPages}
+              onNext={historialPagination.nextPage}
+              onPrev={historialPagination.prevPage}
+              onGoTo={historialPagination.goToPage}
+              totalItems={historialPagination.totalItems}
+            />
           </div>
         </div>
       )}

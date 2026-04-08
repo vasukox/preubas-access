@@ -31,7 +31,7 @@ import { hseService } from '@/services/hse.service'
 
 export default function AppLayout() {
   const { usuario, hasAnyRole, clearSession }          = useAuthStore()
-  const { sidebarCollapsed, toggleSidebar }            = useUIStore()
+  const { sidebarCollapsed, toggleSidebar, themeMode, toggleTheme } = useUIStore()
   const { noLeidas }                                   = useAlertsStore()
   const { sedeActiva, sedes, setSedes, setSedeActiva } = useSedeStore()
   const location                                       = useLocation()
@@ -48,7 +48,7 @@ export default function AppLayout() {
       if (!sedePersistidaValida) {
         if (data.length > 0) setSedeActiva(data[0])
       }
-    }).catch(() => {})
+    }).catch((e) => { console.error('[AppLayout] Error al cargar sedes:', e) })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -73,6 +73,11 @@ export default function AppLayout() {
     location.pathname.startsWith(item.path)
   )?.label
 
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', themeMode)
+    document.documentElement.style.colorScheme = themeMode
+  }, [themeMode])
+
   return (
     <div
       style={{
@@ -96,6 +101,8 @@ export default function AppLayout() {
           noLeidas={noLeidas}
           paginaActual={paginaActual}
           onMenuClick={toggleSidebar}
+          themeMode={themeMode}
+          onToggleTheme={toggleTheme}
           sedes={sedes}
           sedeActiva={sedeActiva}
           onSedeChange={setSedeActiva}

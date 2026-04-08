@@ -15,15 +15,15 @@ import logging
 import re
 from datetime import datetime, timezone, timedelta
 
-
-class HseNotFoundError(ValueError):
-    """Recurso HSE no encontrado — el router lo mapea a HTTP 404."""
-
 from fastapi import UploadFile
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
+
+
+class HseNotFoundError(ValueError):
+    """Recurso HSE no encontrado — el router lo mapea a HTTP 404."""
 
 from app.models.hse import (
     HseAutorizacion,
@@ -40,6 +40,7 @@ from app.models.hse import (
     HseExcepcion,
 )
 from app.models.persona import Persona, Proveedor
+from app.models.sede import Sede
 from app.repositories.hse_repository import (
     AutorizacionRepository,
     ContratistaRepository,
@@ -803,6 +804,11 @@ class HseService:
             if proveedor:
                 empresa_proveedor = proveedor.nom_proveedor
 
+        sede_nombre = f"Sede #{autorizacion.sede_id}"
+        sede = await self._db.get(Sede, autorizacion.sede_id)
+        if sede:
+            sede_nombre = sede.nombre
+
         return AutogestionValidarTokenResponse(
             contratista_id        = contratista.id,
             autorizacion_id       = contratista.autorizacion_id,
@@ -815,6 +821,7 @@ class HseService:
             es_extranjero         = contratista.es_extranjero,
             estado                = contratista.estado,
             sede_id               = autorizacion.sede_id,
+            sede_nombre           = sede_nombre,
             tipo_contratista      = autorizacion.tipo_contratista,
             empresa_proveedor     = empresa_proveedor,
             descripcion_actividad = autorizacion.descripcion_actividad,
@@ -1501,12 +1508,18 @@ class HseService:
         if autorizacion.sede_id != data.sede_id:
             raise ValueError("El contratista no pertenece a la sede indicada.")
 
-        tiene_excepcion_activa = await self._tiene_excepcion_activa_por_documento(
-            contratista.numero_documento,
-            data.sede_id,
-        )
-        if contratista.estado != "APROBADO" and not tiene_excepcion_activa:
-            raise ValueError("Solo contratistas APROBADOS o con excepción activa pueden registrar accesos.")
+        # Si es una salida y el contratista está actualmente dentro, se permite
+        # siempre sin importar su estado de autorización.
+        esta_dentro = await self._acceso_repo.esta_dentro(contratista.id)
+        if data.tipo == "SALIDA" and esta_dentro:
+            pass  # permitir salida incondicionalmente
+        else:
+            tiene_excepcion_activa = await self._tiene_excepcion_activa_por_documento(
+                contratista.numero_documento,
+                data.sede_id,
+            )
+            if contratista.estado != "APROBADO" and not tiene_excepcion_activa:
+                raise ValueError("Solo contratistas APROBADOS o con excepción activa pueden registrar accesos.")
 
         acceso = HseAcceso(
             contratista_id = data.contratista_id,
@@ -1999,7 +2012,7 @@ class HseService:
 
         persona = await self._db.get(Persona, excepcion.persona_id)
         if persona and persona.numero_documento:
-            contratista = await self._contratista_repo.get_aprobado_por_documento(
+            contratista = await self._contratista_repo.get_by_documento_y_sede(
                 numero_documento=persona.numero_documento,
                 sede_id=excepcion.sede_id,
             )

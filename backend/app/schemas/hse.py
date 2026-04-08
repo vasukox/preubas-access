@@ -433,6 +433,7 @@ class CertificacionesRequest(BaseModel):
     permiso_archivo:       str | None = None
 
 
+
 class CertificacionesResponse(BaseModel):
     id:                    int
     contratista_id:        int
@@ -537,6 +538,7 @@ class AutogestionValidarTokenResponse(BaseModel):
     es_extranjero:    bool
     estado:           str
     sede_id:          int
+    sede_nombre:      str
     tipo_contratista: str
     empresa_proveedor: str | None = None
     descripcion_actividad: str

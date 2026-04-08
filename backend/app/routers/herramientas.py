@@ -70,7 +70,8 @@ class UsuarioCreateRequest(BaseModel):
     apellidos:             str = Field(min_length=2, max_length=150)
     numero:                str = Field(min_length=7, max_length=20)
     direccion:             str = Field(min_length=5, max_length=150)
-    rol_nombre:            str
+    rol_nombre:            str | None = None
+    roles_nombres:         list[str] | None = None
     password:              str = Field(min_length=8)
     password_confirmacion: str = Field(min_length=8)
     firma_creador:         str | None = Field(default=None, max_length=150)
@@ -93,6 +94,12 @@ class ActualizarPermisosRequest(BaseModel):
 
 class AsignarRolRequest(BaseModel):
     rol_nombre: str
+
+
+class ResetPasswordRequest(BaseModel):
+    password_nueva:        str = Field(min_length=8)
+    password_confirmacion: str = Field(min_length=8)
+    forzar_cambio:         bool = True
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -407,12 +414,23 @@ async def crear_usuario(
     if existe.scalar_one_or_none():
         err("EMAIL_DUPLICADO", f"Ya existe un usuario con el email {body.email}", 409)
 
-    rol_result = await db.execute(
-        select(Rol).where(Rol.nombre == body.rol_nombre, Rol.activo == True)
+    roles_solicitados = list(dict.fromkeys([
+        *((body.roles_nombres or [])),
+        *([body.rol_nombre] if body.rol_nombre else []),
+    ]))
+
+    if not roles_solicitados:
+        err("ROL_REQUERIDO", "Debes asignar al menos un rol al usuario.", 400)
+
+    roles_result = await db.execute(
+        select(Rol).where(Rol.nombre.in_(roles_solicitados), Rol.activo == True)
     )
-    rol = rol_result.scalar_one_or_none()
-    if not rol:
-        err("ROL_NO_ENCONTRADO", f"El rol '{body.rol_nombre}' no existe o está inactivo", 404)
+    roles_validos = list(roles_result.scalars().all())
+    roles_validos_map = {r.nombre: r for r in roles_validos}
+
+    roles_no_encontrados = [r for r in roles_solicitados if r not in roles_validos_map]
+    if roles_no_encontrados:
+        err("ROL_NO_ENCONTRADO", f"Los roles {roles_no_encontrados} no existen o están inactivos", 404)
 
     # ── Crear usuario ─────────────────────────────────────────────
     nuevo = Usuario(
@@ -439,7 +457,7 @@ async def crear_usuario(
         "creado_por_id":       current.id,
         "creado_por_nombre":   nombre_creador,
         "firma_creador":       firma,
-        "rol_inicial":         body.rol_nombre,
+        "roles_iniciales":     roles_solicitados,
         "sede_default_heredada": sede_default_creador,
         "fecha_creacion_utc":  datetime.now(timezone.utc).isoformat(),
     }
@@ -464,12 +482,14 @@ async def crear_usuario(
     )
     db.add(permiso)
 
-    # ── Asignar rol inicial ───────────────────────────────────────
-    db.add(UsuarioRol(
-        usuario_id   = nuevo.id,
-        rol_id       = rol.id,
-        asignado_por = current.id,
-    ))
+    # ── Asignar roles iniciales ───────────────────────────────────
+    for rol_nombre in roles_solicitados:
+        rol_obj = roles_validos_map[rol_nombre]
+        db.add(UsuarioRol(
+            usuario_id   = nuevo.id,
+            rol_id       = rol_obj.id,
+            asignado_por = current.id,
+        ))
 
     # ── Audit log ─────────────────────────────────────────────────
     await _registrar_auditoria(
@@ -479,7 +499,7 @@ async def crear_usuario(
         entidad_id  = nuevo.id,
         descripcion = (
             f"Creó usuario '{nuevo.nombre_completo}' ({body.email}) "
-            f"con rol '{body.rol_nombre}'. "
+            f"con roles {roles_solicitados}. "
             f"Permisos: ver={permisos_data.get('ver', True)} "
             f"crear={permisos_data.get('crear', False)} "
             f"editar={permisos_data.get('editar', False)} "
@@ -596,6 +616,54 @@ async def actualizar_permisos(
     return ok(_serialize_usuario(usuario_actualizado), "Permisos actualizados correctamente")
 
 
+@router.delete(
+    "/usuarios/{usuario_id}",
+    response_model=ApiResponse[dict],
+    summary="Eliminar un usuario (Soft Delete)",
+)
+async def eliminar_usuario(
+    usuario_id: int,
+    db:          AsyncSession = Depends(get_db),
+    current:     Usuario      = Depends(get_current_user),
+):
+    usuario = await _get_usuario_con_roles(usuario_id, db)
+    if not usuario:
+        err("USUARIO_NO_ENCONTRADO", "El usuario no existe", 404)
+
+    if usuario.id == current.id:
+        err("ACCION_NO_PERMITIDA", "No puedes eliminar tu propia cuenta")
+
+    # Si es ADMIN_GLOBAL, verificar que no quede vacío
+    es_admin_global = any(ur.rol.nombre == RolNombre.ADMIN_GLOBAL for ur in usuario.roles)
+    if es_admin_global:
+        conteo = await db.execute(
+            select(UsuarioRol)
+            .join(Rol)
+            .join(Usuario)
+            .where(
+                Rol.nombre == RolNombre.ADMIN_GLOBAL,
+                Usuario.id != usuario_id,
+                Usuario.deleted_at.is_(None),
+            )
+        )
+        if len(conteo.scalars().all()) == 0:
+            err("ACCION_NO_PERMITIDA", "Debe existir al menos un ADMIN_GLOBAL activo", 403)
+
+    usuario.deleted_at = datetime.now(timezone.utc)
+    usuario.activo = False
+
+    await _registrar_auditoria(
+        db, current,
+        accion      = "ELIMINAR_USUARIO",
+        entidad     = "Usuario",
+        entidad_id  = usuario_id,
+        descripcion = f"Eliminó el usuario '{usuario.nombre_completo}' ({usuario.email}).",
+    )
+
+    await db.commit()
+    return ok({}, "Usuario eliminado correctamente")
+
+
 # ═══════════════════════════════════════════════════════════════════
 # GESTIÓN DE ROLES
 # ═══════════════════════════════════════════════════════════════════
@@ -697,6 +765,47 @@ async def quitar_rol(
     await db.commit()
     usuario_actualizado = await _get_usuario_con_roles(usuario_id, db)
     return ok(_serialize_usuario(usuario_actualizado), f"Rol '{rol_nombre}' removido correctamente")
+
+
+@router.put(
+    "/usuarios/{usuario_id}/password",
+    response_model=ApiResponse[dict],
+    summary="Resetear contraseña de un usuario",
+)
+async def resetear_password_usuario(
+    usuario_id: int,
+    body:        ResetPasswordRequest,
+    db:          AsyncSession = Depends(get_db),
+    current:     Usuario      = Depends(get_current_user),
+):
+    usuario = await _get_usuario_con_roles(usuario_id, db)
+    if not usuario:
+        err("USUARIO_NO_ENCONTRADO", "El usuario no existe", 404)
+
+    password_error = _validar_password_fuerte(body.password_nueva)
+    if password_error:
+        err("PASSWORD_DEBIL", password_error, 400)
+
+    if body.password_nueva != body.password_confirmacion:
+        err("PASSWORD_NO_COINCIDE", "La confirmación de contraseña no coincide.", 400)
+
+    usuario.password_hash = hash_password(body.password_nueva)
+    usuario.debe_cambiar_password = bool(body.forzar_cambio)
+
+    await _registrar_auditoria(
+        db, current,
+        accion      = "RESETEAR_PASSWORD",
+        entidad     = "Usuario",
+        entidad_id  = usuario_id,
+        descripcion = (
+            f"Reseteó contraseña de '{usuario.nombre_completo}' ({usuario.email}). "
+            f"forzar_cambio={bool(body.forzar_cambio)}"
+        ),
+    )
+
+    await db.commit()
+    usuario_actualizado = await _get_usuario_con_roles(usuario_id, db)
+    return ok(_serialize_usuario(usuario_actualizado), "Contraseña actualizada correctamente")
 
 
 # ═══════════════════════════════════════════════════════════════════

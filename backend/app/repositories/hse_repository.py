@@ -308,6 +308,7 @@ class ContratistaRepository(BaseRepository[HseContratista]):
                 HseAutorizacion.deleted_at      == None,   # noqa
             )
             .order_by(HseContratista.created_at.desc())
+            .limit(1)
         )
         return result.scalar_one_or_none()
 

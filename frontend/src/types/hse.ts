@@ -227,6 +227,7 @@ export interface AutogestionTokenResponse {
   es_extranjero:         boolean
   estado:                EstadoContratista
   sede_id:               number
+  sede_nombre:           string
   tipo_contratista:      TipoContratista
   empresa_proveedor:     string | null
   descripcion_actividad: string

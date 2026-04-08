@@ -6,14 +6,16 @@
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import {
-  Plus, AlertTriangle, CheckCircle2,
-  XCircle, RefreshCw, User, Trash2, ChevronDown, ChevronRight, Eye, Pencil,
+  Plus, AlertTriangle,
+  RefreshCw, User, Trash2, ChevronDown, ChevronRight, Eye, Pencil,
 } from 'lucide-react'
-import { useSedeStore } from '@/store'
+import { useSedeStore } from '@/store/sedeStore'
 import { useAuthStore } from '@/store/authStore'
 import { hseService } from '@/services/hse.service'
 import { getErrorMessage } from '@/services/api'
-import type { ExcepcionResponse, ProveedorHSEOption } from '@/types/hse'
+import { usePagination } from '@/hooks/usePagination'
+import { Pagination } from '@/components/ui/Pagination'
+import type { ExcepcionResponse, ExcepcionUpdateRequest, ProveedorHSEOption } from '@/types/hse'
 import { ConfirmActionModal } from '@/components/feedback/ConfirmActionModal'
 
 function formatDisplayName(e: ExcepcionResponse): string {
@@ -139,7 +141,16 @@ function ModalEditarExcepcion({
   onClose: () => void
   onSaved: () => void
 }) {
-  const [tipoDocumento, setTipoDocumento] = useState<ExcepcionResponse['tipo_documento']>(excepcion.tipo_documento || 'CC')
+  const normalizeTipoDocumento = (value: string | null | undefined): ExcepcionUpdateRequest['tipo_documento'] => {
+    if (value === 'CC' || value === 'CE' || value === 'PASAPORTE' || value === 'TI' || value === 'NIT') {
+      return value
+    }
+    return 'CC'
+  }
+
+  const [tipoDocumento, setTipoDocumento] = useState<ExcepcionUpdateRequest['tipo_documento']>(
+    normalizeTipoDocumento(excepcion.tipo_documento),
+  )
   const [numeroDocumento, setNumeroDocumento] = useState(excepcion.numero_documento || '')
   const [nombreCompleto, setNombreCompleto] = useState(formatDisplayName(excepcion))
   const [proveedorId, setProveedorId] = useState<string>(excepcion.proveedor_id ? String(excepcion.proveedor_id) : '')
@@ -175,7 +186,7 @@ function ModalEditarExcepcion({
     setError(null)
     try {
       await hseService.actualizarExcepcion(excepcion.id, {
-        tipo_documento: (tipoDocumento || 'CC'),
+        tipo_documento: tipoDocumento,
         numero_documento: numeroDocumento.trim(),
         nombre_completo: nombreCompleto.trim(),
         proveedor_id: proveedorId ? Number(proveedorId) : null,
@@ -250,7 +261,7 @@ function ModalEditarExcepcion({
           <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '10px' }}>
             <div>
               <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '5px' }}>TIPO DOC</label>
-              <select value={tipoDocumento || 'CC'} onChange={(e) => setTipoDocumento(e.target.value as ExcepcionResponse['tipo_documento'])} style={inputStyle}>
+              <select value={tipoDocumento} onChange={(e) => setTipoDocumento(normalizeTipoDocumento(e.target.value))} style={inputStyle}>
                 {['CC', 'CE', 'PASAPORTE', 'TI', 'NIT'].map((t) => (<option key={t} value={t}>{t}</option>))}
               </select>
             </div>
@@ -940,8 +951,8 @@ export default function ExcepcionesView() {
     if (!groupedByProveedor[key]) {
       groupedByProveedor[key] = {
         label: tieneProveedor
-          ? `Empresa: ${ex.proveedor_nombre || 'Sin proveedor'}`
-          : 'Sin proveedor (normales)',
+          ? (ex.proveedor_nombre || 'Proveedor sin nombre')
+          : 'Sin proveedor asignado',
         isEmpresa: tieneProveedor,
         items: [],
       }
@@ -953,6 +964,8 @@ export default function ExcepcionesView() {
     if (a[1].isEmpresa === b[1].isEmpresa) return a[1].label.localeCompare(b[1].label)
     return a[1].isEmpresa ? -1 : 1
   })
+
+  const gruposPagination = usePagination(gruposOrdenados, 5)
 
   useEffect(() => {
     setExpandedGroups((prev) => {
@@ -1172,20 +1185,31 @@ export default function ExcepcionesView() {
             No hay resultados para tu búsqueda.
           </div>
         ) : (
-          gruposOrdenados.map(([groupKey, group]) => {
+          gruposPagination.paginatedData.map(([groupKey, group], groupIndex) => {
             const isExpanded = expandedGroups[groupKey] ?? true
             const activosGrupo = group.items.filter(i => i.activa).length
 
             return (
-              <div
-                key={groupKey}
-                style={{
-                  background:   'var(--bg-surface)',
-                  border:       '1px solid var(--border-subtle)',
-                  borderRadius: 'var(--radius-lg)',
-                  overflow:     'hidden',
-                }}
-              >
+              <div key={groupKey}>
+                {groupIndex > 0 && (
+                  <div
+                    style={{
+                      height: '1px',
+                      width: '100%',
+                      margin: '4px 0 8px',
+                      background: 'linear-gradient(90deg, transparent 0%, var(--border-strong) 16%, var(--border-strong) 84%, transparent 100%)',
+                    }}
+                  />
+                )}
+                <div
+                  style={{
+                    background:   'var(--bg-surface)',
+                    border:       '1px solid var(--border-subtle)',
+                    borderLeft:   group.isEmpresa ? '4px solid rgba(99,102,241,0.5)' : '4px solid rgba(148,163,184,0.55)',
+                    borderRadius: 'var(--radius-lg)',
+                    overflow:     'hidden',
+                  }}
+                >
                 <button
                   type="button"
                   onClick={() => setExpandedGroups(prev => ({ ...prev, [groupKey]: !isExpanded }))}
@@ -1201,11 +1225,16 @@ export default function ExcepcionesView() {
                     cursor: 'pointer',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
                     {isExpanded ? <ChevronDown size={15} color="var(--text-muted)" /> : <ChevronRight size={15} color="var(--text-muted)" />}
-                    <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                      {group.label}
-                    </span>
+                    <div style={{ display: 'grid', gap: '1px', minWidth: 0 }}>
+                      <span style={{ fontSize: '0.66rem', color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', textAlign: 'left' }}>
+                        Empresa / proveedor
+                      </span>
+                      <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-primary)', textAlign: 'left' }}>
+                        {group.label}
+                      </span>
+                    </div>
                     <span style={{
                       padding: '2px 8px',
                       borderRadius: '999px',
@@ -1357,10 +1386,19 @@ export default function ExcepcionesView() {
                     ))}
                   </div>
                 )}
+                </div>
               </div>
             )
           })
         )}
+        <Pagination
+          currentPage={gruposPagination.currentPage}
+          totalPages={gruposPagination.totalPages}
+          onNext={gruposPagination.nextPage}
+          onPrev={gruposPagination.prevPage}
+          onGoTo={gruposPagination.goToPage}
+          totalItems={gruposPagination.totalItems}
+        />
       </div>
 
       {showModal && (

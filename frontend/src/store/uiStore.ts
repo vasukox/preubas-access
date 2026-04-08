@@ -21,6 +21,8 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 
+export type ThemeMode = 'dark' | 'light'
+
 // ── Tipos de modal registrados ────────────────────────────────────
 // Agregar aquí cada nuevo tipo de modal que se necesite en el sistema
 export type ModalType =
@@ -65,6 +67,11 @@ interface UIState {
   toggleSidebar:    () => void
   setSidebarCollapsed: (collapsed: boolean) => void
 
+  // Tema global
+  themeMode: ThemeMode
+  toggleTheme: () => void
+  setThemeMode: (mode: ThemeMode) => void
+
   // Modal global
   modal:     ModalConfig | null
   openModal: (config: ModalConfig) => void
@@ -83,6 +90,7 @@ interface UIState {
 // ── Helpers de persistencia manual ───────────────────────────────
 // Solo sidebarCollapsed se persiste — directamente en localStorage
 const SIDEBAR_KEY = 'koaj:sidebar-collapsed'
+const THEME_KEY = 'koaj:theme-mode'
 
 function loadSidebarState(): boolean {
   try {
@@ -95,6 +103,24 @@ function loadSidebarState(): boolean {
 function saveSidebarState(collapsed: boolean): void {
   try {
     localStorage.setItem(SIDEBAR_KEY, String(collapsed))
+  } catch {
+    // localStorage puede fallar en modo incógnito — ignorar
+  }
+}
+
+function loadThemeMode(): ThemeMode {
+  try {
+    const raw = localStorage.getItem(THEME_KEY)
+    if (raw === 'dark' || raw === 'light') return raw
+  } catch {
+    // Ignorar fallos de lectura y caer a default
+  }
+  return 'dark'
+}
+
+function saveThemeMode(mode: ThemeMode): void {
+  try {
+    localStorage.setItem(THEME_KEY, mode)
   } catch {
     // localStorage puede fallar en modo incógnito — ignorar
   }
@@ -121,6 +147,25 @@ export const useUIStore = create<UIState>()(
       setSidebarCollapsed: (collapsed) => {
         saveSidebarState(collapsed)
         set({ sidebarCollapsed: collapsed }, false, 'ui/setSidebarCollapsed')
+      },
+
+      // ── Tema global ─────────────────────────────────────────
+      themeMode: loadThemeMode(),
+
+      toggleTheme: () =>
+        set(
+          (state) => {
+            const next: ThemeMode = state.themeMode === 'dark' ? 'light' : 'dark'
+            saveThemeMode(next)
+            return { themeMode: next }
+          },
+          false,
+          'ui/toggleTheme',
+        ),
+
+      setThemeMode: (mode) => {
+        saveThemeMode(mode)
+        set({ themeMode: mode }, false, 'ui/setThemeMode')
       },
 
       // ── Modal ─────────────────────────────────────────────────

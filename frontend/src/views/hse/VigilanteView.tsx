@@ -29,7 +29,7 @@ function formatMinutos(min: number): string {
 // ── Tarjeta de resultado de escaneo ──────────────────────────────
 function ResultadoCard({ resultado }: { resultado: VerificarAccesoResponse }) {
   const config: Record<EstadoAccesoVigilante, {
-    bg: string; border: string; icon: React.ElementType; iconColor: string; title: string
+    bg: string; border: string; icon: React.ComponentType<{ size?: number; color?: string }>; iconColor: string; title: string
   }> = {
     AUTORIZADO:    { bg: 'rgba(16,185,129,0.06)',  border: 'rgba(16,185,129,0.3)',  icon: UserCheck,    iconColor: 'var(--success-400)', title: 'AUTORIZADO' },
     NO_AUTORIZADO: { bg: 'rgba(239,68,68,0.06)',   border: 'rgba(239,68,68,0.3)',   icon: UserX,        iconColor: 'var(--danger-400)',  title: 'NO AUTORIZADO' },
@@ -412,7 +412,7 @@ export default function VigilanteView() {
               <ResultadoCard resultado={resultado} />
 
               {/* Botones de acción */}
-              {(resultado.estado === 'AUTORIZADO' || resultado.estado === 'EXCEPCION') && resultado.contratista_id && (
+              {(resultado.estado === 'AUTORIZADO' || resultado.estado === 'EXCEPCION' || (resultado.estado === 'NO_AUTORIZADO' && resultado.dentro_actualmente)) && resultado.contratista_id && (
                 <div style={{
                   display:        'grid',
                   gridTemplateColumns: '1fr 1fr',

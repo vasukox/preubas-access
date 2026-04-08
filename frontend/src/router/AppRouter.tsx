@@ -85,7 +85,7 @@ const HerramientasView = lazy(() => import('@/views/herramientas/HerramientasVie
 
 // ⏳ Sprint 9 — Reportes + Config
 const ReportesView = lazy(() => import('@/views/reportes/ReportesView'))
-// const ConfigView   = lazy(() => import('@/views/config/ConfigView'))
+const ConfigView   = lazy(() => import('@/views/config/ConfigView'))
 
 
 // ── Fallback de carga ─────────────────────────────────────────────
@@ -124,7 +124,15 @@ function PageLoader() {
  */
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
-  return isAuthenticated ? <Navigate to="/dashboard" replace /> : <>{children}</>
+  const usuario = useAuthStore((s) => s.usuario)
+  
+  if (isAuthenticated) {
+    if (usuario?.debe_cambiar_password) {
+      return <Navigate to="/cambiar-password" replace />
+    }
+    return <Navigate to="/dashboard" replace />
+  }
+  return <>{children}</>
 }
 
 /**
@@ -133,11 +141,18 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
  */
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
+  const usuario         = useAuthStore((s) => s.usuario)
   const location        = useLocation()
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
+
+  // Verificar si se le exige cambiar contraseña y no está en esa vista
+  if (usuario?.debe_cambiar_password && location.pathname !== '/cambiar-password') {
+    return <Navigate to="/cambiar-password" replace />
+  }
+
   return <>{children}</>
 }
 
@@ -214,7 +229,7 @@ export function AppRouter() {
 
           {/* ⏳ Sprint 9 — Reportes + Config */}
           <Route path="reportes" element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','VISUALIZADOR']}><ReportesView /></RoleRoute>} />
-          {/* <Route path="config"   element={<RoleRoute roles={['ADMIN_GLOBAL']}><ConfigView /></RoleRoute>} /> */}
+          <Route path="config"   element={<RoleRoute roles={['ADMIN_GLOBAL']}><ConfigView /></RoleRoute>} />
 
         </Route>
 

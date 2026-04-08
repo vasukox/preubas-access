@@ -13,6 +13,7 @@
   --bg-base:        #0D0F12;   /* Fondo principal — carbón profundo    */
   --bg-surface:     #141720;   /* Cards, paneles                       */
   --bg-raised:      #1C2030;   /* Hover states, dropdowns              */
+  --bg-elevated:    #1C2030;   /* Alias para compatibilidad            */
   --bg-overlay:     #252A3A;   /* Modals, drawers                      */
   --bg-glass:       rgba(20, 23, 32, 0.7); /* Glassmorphism           */
 
@@ -92,6 +93,37 @@
   --sidebar-width:          240px;
   --sidebar-width-collapsed: 64px;
   --topbar-height:           60px;
+}
+
+/* ── Tema claro ─────────────────────────────────────────────────── */
+html[data-theme='light'] {
+  /* Fondos */
+  --bg-base:        #F5F7FB;
+  --bg-surface:     #FFFFFF;
+  --bg-raised:      #EEF2F8;
+  --bg-elevated:    #EEF2F8;
+  --bg-overlay:     #FFFFFF;
+  --bg-glass:       rgba(255, 255, 255, 0.78);
+
+  /* Bordes */
+  --border-subtle:  #E2E8F0;
+  --border-default: #CBD5E1;
+  --border-strong:  #94A3B8;
+
+  /* Texto */
+  --text-primary:   #0F172A;
+  --text-secondary: #334155;
+  --text-muted:     #64748B;
+  --text-inverted:  #FFFFFF;
+
+  /* Sombras */
+  --shadow-sm:      0 1px 3px rgba(15, 23, 42, 0.12);
+  --shadow-md:      0 4px 16px rgba(15, 23, 42, 0.14);
+  --shadow-lg:      0 8px 28px rgba(15, 23, 42, 0.18);
+  --shadow-xl:      0 16px 44px rgba(15, 23, 42, 0.2);
+  --shadow-glow-primary: 0 0 18px rgba(245, 158, 11, 0.2);
+  --shadow-glow-success: 0 0 18px rgba(16, 185, 129, 0.2);
+  --shadow-glow-danger:  0 0 18px rgba(239, 68, 68, 0.18);
 }
 
 /* ── Reset base ───────────────────────────────────────────────────── */

@@ -39,6 +39,10 @@ function TokenTimer({ expiraEn }: { expiraEn: string | null }) {
   const [tiempo, setTiempo] = useState(calcular)
 
   useEffect(() => {
+    setTiempo(calcular())
+  }, [calcular])
+
+  useEffect(() => {
     const id = setInterval(() => setTiempo(calcular()), 60000)
     return () => clearInterval(id)
   }, [calcular])
@@ -1208,7 +1212,7 @@ export default function GestionHSEView() {
 
   const autorizacionesNormales = autorizaciones.filter(a => !esExcepcion(a))
   const excepciones = autorizaciones.filter(esExcepcion)
-  const excepcionesPorGrupo = excepciones.reduce<Record<string, { label: string; items: AutorizacionListResponse[] }>>((acc, a) => {
+  const excepcionesPorGrupo = excepciones.reduce<Record<string, { label: string; items: AutorizacionListResponse[]; esSinEmpresa: boolean }>>((acc, a) => {
     const proveedorId = resolverProveedorId(a)
     const key = proveedorId ? `prov-${proveedorId}` : 'sin-proveedor'
     if (!acc[key]) {
@@ -1217,13 +1221,14 @@ export default function GestionHSEView() {
           ? `Empresa: ${proveedoresMap[proveedorId] || `Proveedor #${proveedorId}`}`
           : 'Personas normales (sin empresa)',
         items: [],
+        esSinEmpresa: proveedorId === null,
       }
     }
     acc[key].items.push(a)
     return acc
   }, {})
 
-  const normalesPorGrupo = autorizacionesNormales.reduce<Record<string, { label: string; items: AutorizacionListResponse[]; tone: string }>>((acc, a) => {
+  const normalesPorGrupo = autorizacionesNormales.reduce<Record<string, { label: string; items: AutorizacionListResponse[]; tone: string; esSinEmpresa: boolean }>>((acc, a) => {
     const proveedorId = a.proveedor_id ?? null
     const key = proveedorId ? `prov-${proveedorId}` : 'sin-proveedor'
     if (!acc[key]) {
@@ -1233,6 +1238,7 @@ export default function GestionHSEView() {
           : 'Sin empresa asignada',
         items: [],
         tone: proveedorId ? 'rgba(99, 102, 241, 0.06)' : 'var(--bg-surface)',
+        esSinEmpresa: proveedorId === null,
       }
     }
     acc[key].items.push(a)
@@ -1240,10 +1246,20 @@ export default function GestionHSEView() {
   }, {})
 
   const seccionesNormales = Object.values(normalesPorGrupo)
+    .sort((a, b) => {
+      if (a.esSinEmpresa && !b.esSinEmpresa) return -1
+      if (!a.esSinEmpresa && b.esSinEmpresa) return 1
+      return a.label.localeCompare(b.label)
+    })
     .map(g => ({ title: `Flujo estándar · ${g.label}`, items: g.items, tone: g.tone }))
     .filter(s => s.items.length > 0)
 
   const seccionesExcepciones = Object.values(excepcionesPorGrupo)
+    .sort((a, b) => {
+      if (a.esSinEmpresa && !b.esSinEmpresa) return -1
+      if (!a.esSinEmpresa && b.esSinEmpresa) return 1
+      return a.label.localeCompare(b.label)
+    })
     .map(g => ({ title: `Excepciones · ${g.label}`, items: g.items, tone: 'rgba(245, 158, 11, 0.06)' }))
     .filter(s => s.items.length > 0)
 
@@ -1541,29 +1557,66 @@ export default function GestionHSEView() {
             {filtroEstado !== 'todos' ? ` con estado "${ESTADOS_GESTION.find(e => e.value === filtroEstado)?.label}"` : ''}.
           </div>
         ) : (
-          seccionesRender.map((section, sectionIndex) => (
-            <div
-              key={`${section.title}-${sectionIndex}`}
-              style={{
-                background: 'var(--bg-surface)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: 'var(--radius-lg)',
-                overflow: 'hidden',
-              }}
-            >
-              <div style={{
-                padding: '10px 16px',
-                borderBottom: '1px solid var(--border-subtle)',
-                background: section.tone,
-                fontSize: '0.76rem',
-                color: 'var(--text-secondary)',
-                fontWeight: 700,
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-              }}>
-                {section.title} ({section.items.reduce((acc, item) => acc + (item.contratistas?.length || 0), 0)} contratistas)
-              </div>
-              {section.items.map(a => (
+          seccionesRender.map((section, sectionIndex) => {
+            const totalContratistasSeccion = section.items.reduce((acc, item) => acc + (item.contratistas?.length || 0), 0)
+            const empresaLabel = section.title.includes('·')
+              ? section.title.split('·').slice(1).join('·').trim()
+              : section.title
+
+            return (
+            <div key={`${section.title}-${sectionIndex}`}>
+              {sectionIndex > 0 && (
+                <div
+                  style={{
+                    height: '1px',
+                    width: '100%',
+                    margin: '4px 0 8px',
+                    background: 'linear-gradient(90deg, transparent 0%, var(--border-strong) 16%, var(--border-strong) 84%, transparent 100%)',
+                  }}
+                />
+              )}
+              <div
+                style={{
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border-subtle)',
+                  borderLeft: paginaActiva === 'normales'
+                    ? '4px solid rgba(99,102,241,0.5)'
+                    : '4px solid rgba(245,158,11,0.5)',
+                  borderRadius: 'var(--radius-lg)',
+                  overflow: 'hidden',
+                }}
+              >
+                <div style={{
+                  padding: '10px 16px',
+                  borderBottom: '1px solid var(--border-subtle)',
+                  background: section.tone,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '10px',
+                  flexWrap: 'wrap',
+                }}>
+                  <div style={{ display: 'grid', gap: '2px' }}>
+                    <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                      Empresa / proveedor
+                    </span>
+                    <span style={{ fontSize: '0.82rem', color: 'var(--text-primary)', fontWeight: 700 }}>
+                      {empresaLabel}
+                    </span>
+                  </div>
+                  <span style={{
+                    fontSize: '0.72rem',
+                    color: 'var(--text-secondary)',
+                    border: '1px solid var(--border-default)',
+                    background: 'var(--bg-elevated)',
+                    borderRadius: '999px',
+                    padding: '3px 10px',
+                    fontFamily: 'var(--font-mono)',
+                  }}>
+                    {section.items.length} autorizacione{section.items.length !== 1 ? 's' : ''} · {totalContratistasSeccion} contratista{totalContratistasSeccion !== 1 ? 's' : ''}
+                  </span>
+                </div>
+                {section.items.map(a => (
               <div
                 key={a.id}
                 style={{
@@ -1763,7 +1816,9 @@ export default function GestionHSEView() {
               </div>
               ))}
             </div>
-          ))
+            </div>
+            )
+          })
         )}
       </div>
 

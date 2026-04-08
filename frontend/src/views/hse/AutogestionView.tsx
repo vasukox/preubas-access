@@ -309,7 +309,7 @@ function Paso1Sede({ data }: { data: AutogestionTokenResponse }) {
           SEDE DE LA AUTORIZACIÓN
         </div>
         <div style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--primary-400)' }}>
-          Sede ID: {data.sede_id}
+          {data.sede_nombre}
         </div>
       </div>
 

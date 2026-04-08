@@ -195,6 +195,7 @@ class RefreshTokenRepository(BaseRepository[RefreshToken]):
         """Revoca un token específico por JTI."""
         await self._db.execute(
             update(RefreshToken)
+            .execution_options(synchronize_session=False)
             .where(RefreshToken.jti == jti)
             .values(revocado=True)
         )
@@ -206,6 +207,7 @@ class RefreshTokenRepository(BaseRepository[RefreshToken]):
         """
         await self._db.execute(
             update(RefreshToken)
+            .execution_options(synchronize_session=False)
             .where(
                 RefreshToken.usuario_id == usuario_id,
                 RefreshToken.revocado   == False,  # noqa: E712
@@ -215,18 +217,17 @@ class RefreshTokenRepository(BaseRepository[RefreshToken]):
 
     async def limpiar_expirados(self, usuario_id: int) -> None:
         """
-        Soft-delete de tokens expirados de un usuario.
+        Soft-delete de tokens expirados de un usuario en una sola query bulk.
         Se llama después de cada login exitoso.
         """
         now = datetime.now(timezone.utc)
-        result = await self._db.execute(
-            select(RefreshToken).where(
+        await self._db.execute(
+            update(RefreshToken)
+            .execution_options(synchronize_session=False)
+            .where(
                 RefreshToken.usuario_id == usuario_id,
                 RefreshToken.expira_en  <  now,
                 RefreshToken.deleted_at == None,  # noqa: E711
             )
+            .values(deleted_at=now)
         )
-        tokens = result.scalars().all()
-        for token in tokens:
-            token.deleted_at = now
-            self._db.add(token)

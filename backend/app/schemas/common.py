@@ -15,7 +15,7 @@ Regla de oro:
 """
 
 import math
-from typing import Generic, TypeVar, Optional, Any, NoReturn
+from typing import Generic, TypeVar, Optional, Any
 from pydantic import BaseModel, Field
 from fastapi import HTTPException, status
 
@@ -136,7 +136,7 @@ def ok_paginated(
     }
 
 
-def err(code: str, message: str, status_code: int = status.HTTP_400_BAD_REQUEST) -> NoReturn:
+def err(code: str, message: str, status_code: int = status.HTTP_400_BAD_REQUEST) -> None:
     """
     Lanza un HTTPException con el envelope de error estándar.
 
@@ -191,3 +191,8 @@ class PaginationParams(BaseModel):
     def offset(self) -> int:
         """Calcula el offset para la query SQL."""
         return (self.page - 1) * self.per_page
+
+
+
+
+    

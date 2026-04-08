@@ -29,6 +29,8 @@ import {
 } from '@/types/hse'
 import { getErrorMessage } from '@/services/api'
 import { ConfirmActionModal } from '@/components/feedback/ConfirmActionModal'
+import { usePagination } from '@/hooks/usePagination'
+import { Pagination } from '@/components/ui/Pagination'
 
 // ── Badge de estado ───────────────────────────────────────────────
 function EstadoBadge({ estado }: { estado: EstadoAutorizacion }) {
@@ -216,6 +218,8 @@ function ModalGestionProveedores({
   const [confirmDeleteProviderId, setConfirmDeleteProviderId] = useState<number | null>(null)
   const [error,      setError]      = useState<string | null>(null)
 
+  const pagination = usePagination(proveedores, 6)
+
   const handleEliminar = async (id: number) => {
     setEliminando(id); setError(null)
     try {
@@ -258,7 +262,7 @@ function ModalGestionProveedores({
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {proveedores.map(p => (
+              {pagination.paginatedData.map(p => (
                 <div key={p.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <Building2 size={14} color={p.activo ? 'var(--primary-400)' : 'var(--text-muted)'} />
@@ -289,6 +293,14 @@ function ModalGestionProveedores({
             </div>
           )}
         </div>
+        <Pagination
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          onNext={pagination.nextPage}
+          onPrev={pagination.prevPage}
+          onGoTo={pagination.goToPage}
+          totalItems={pagination.totalItems}
+        />
       </div>
 
       {creando && (
@@ -1196,6 +1208,8 @@ export default function PanelGeneralView() {
       a.codigo.toLowerCase().includes(busqueda.toLowerCase())
     )
 
+  const autorizacionesPagination = usePagination(autorizacionesNormales, 10)
+
   const handleEliminar = async (id: number) => {
     try {
       await hseService.eliminarAutorizacion(id)
@@ -1355,17 +1369,17 @@ export default function PanelGeneralView() {
         overflow:     'hidden',
       }}>
         <div style={{ overflowX: 'auto' }}>
-          {/* Encabezados */}
-          <div style={{
-            display:             'grid',
-            gridTemplateColumns: '240px 130px 130px 210px 140px 170px 100px',
-            minWidth:            '1120px',
-            columnGap:           '14px',
-            padding:             '10px 20px',
-            borderBottom:        '1px solid var(--border-subtle)',
-            background:          'var(--bg-elevated)',
-          }}>
-            {['Nombre', 'Código', 'Tipo', 'Vigencia', 'Contratistas', 'Estado', 'Acciones'].map(h => (
+          <div style={{ minWidth: '960px' }}>
+            {/* Encabezados */}
+            <div style={{
+              display:             'grid',
+              gridTemplateColumns: 'minmax(240px, 1fr) 130px 210px 140px 170px 100px',
+              columnGap:           '14px',
+              padding:             '10px 20px',
+              borderBottom:        '1px solid var(--border-subtle)',
+              background:          'var(--bg-elevated)',
+            }}>
+              {['Nombre', 'Tipo', 'Vigencia', 'Contratistas', 'Estado', 'Acciones'].map(h => (
               <div key={h} style={{
                 fontSize:      '0.68rem',
                 fontWeight:    600,
@@ -1409,13 +1423,12 @@ export default function PanelGeneralView() {
               {busqueda ? 'No se encontraron resultados.' : 'No hay autorizaciones estándar. Crea la primera.'}
             </div>
           ) : (
-            autorizacionesNormales.map((a, i) => (
+            autorizacionesPagination.paginatedData.map((a, i) => (
               <div
                 key={a.id}
                 style={{
                   display:             'grid',
-                  gridTemplateColumns: '240px 130px 130px 210px 140px 170px 100px',
-                  minWidth:            '1120px',
+                  gridTemplateColumns: 'minmax(240px, 1fr) 130px 210px 140px 170px 100px',
                   columnGap:           '14px',
                   padding:             '14px 20px',
                   borderBottom:        i < autorizacionesNormales.length - 1 ? '1px solid var(--border-subtle)' : 'none',
@@ -1448,21 +1461,11 @@ export default function PanelGeneralView() {
                   textOverflow:  'ellipsis',
                   whiteSpace:    'nowrap',
                 }}>
-                  {a.contratistas?.[0]
+                  <span style={{ color: 'var(--primary-400)', fontWeight: 600 }}>{a.codigo}</span> · {a.contratistas?.[0]
                     ? `${a.contratistas[0].tipo_documento} ${a.contratistas[0].numero_documento}`
                     : '—'}
                   {(a.total_contratistas ?? 0) > 1 ? `  +${(a.total_contratistas ?? 1) - 1}` : ''}
                 </div>
-              </div>
-
-              {/* Código */}
-              <div style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize:   '0.78rem',
-                color:      'var(--primary-400)',
-                fontWeight: 600,
-              }}>
-                {a.codigo}
               </div>
 
               {/* Tipo */}
@@ -1557,7 +1560,16 @@ export default function PanelGeneralView() {
             </div>
             ))
           )}
+          </div>
         </div>
+        <Pagination
+          currentPage={autorizacionesPagination.currentPage}
+          totalPages={autorizacionesPagination.totalPages}
+          onNext={autorizacionesPagination.nextPage}
+          onPrev={autorizacionesPagination.prevPage}
+          onGoTo={autorizacionesPagination.goToPage}
+          totalItems={autorizacionesPagination.totalItems}
+        />
       </div>
 
       {/* Modal nueva autorización */}

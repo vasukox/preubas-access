@@ -258,7 +258,7 @@ export default function DashboardView() {
     )
   }
 
-  // ── Vista ADMIN_GLOBAL ────────────────────────────────────────
+  // ── Vista General (ADMIN_GLOBAL o Roles Restantes) ────────────
   const modulos = [
     {
       icon:        ShieldCheck,
@@ -267,6 +267,7 @@ export default function DashboardView() {
       color:       'var(--success-400)',
       bg:          'rgba(16,185,129,0.08)',
       border:      'rgba(16,185,129,0.15)',
+      visible:     esAdminGlobal || hasAnyRole(['ADMIN_HSE','GESTION_HSE','VIGILANTE_HSE','VISUALIZADOR']),
       disponible:  true,
       path:        '/hse',
     },
@@ -277,6 +278,7 @@ export default function DashboardView() {
       color:       'var(--primary-400)',
       bg:          'rgba(245,158,11,0.08)',
       border:      'rgba(245,158,11,0.15)',
+      visible:     esAdminGlobal || hasAnyRole(['ADMIN_PARKING','VIGILANTE_PARKING','VISUALIZADOR']),
       disponible:  false,
       path:        null,
     },
@@ -287,6 +289,7 @@ export default function DashboardView() {
       color:       '#6366F1',
       bg:          'rgba(99,102,241,0.08)',
       border:      'rgba(99,102,241,0.15)',
+      visible:     esAdminGlobal || hasAnyRole(['ADMIN_NFC','VISUALIZADOR']),
       disponible:  false,
       path:        null,
     },
@@ -297,10 +300,11 @@ export default function DashboardView() {
       color:       '#EC4899',
       bg:          'rgba(236,72,153,0.08)',
       border:      'rgba(236,72,153,0.15)',
+      visible:     esAdminGlobal || hasAnyRole(['ADMIN_GH','VISUALIZADOR']),
       disponible:  false,
       path:        null,
     },
-  ]
+  ].filter(mod => mod.visible)
 
   return (
     <div style={{ padding: '32px', maxWidth: '1200px' }}>
@@ -390,65 +394,67 @@ export default function DashboardView() {
       </div>
 
       {/* Resumen HSE */}
-      <div
-        style={{ marginTop: '28px', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}
-        className="animate-fade-up stagger-5"
-      >
-        <div style={{
-          padding: '14px 20px', borderBottom: '1px solid var(--border-subtle)',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <ShieldCheck size={14} color="var(--success-400)" />
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--success-400)', letterSpacing: '0.1em' }}>HSE</span>
-            <span style={{ fontSize: '0.83rem', fontWeight: 600, color: 'var(--text-primary)' }}>Resumen operativo</span>
-          </div>
-          <button
-            onClick={() => navigate('/hse')}
-            style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'transparent', border: 'none', color: 'var(--success-400)', fontSize: '0.75rem', fontWeight: 500, cursor: 'pointer', fontFamily: 'var(--font-ui)' }}
-          >
-            Ver dashboard <ArrowRight size={12} />
-          </button>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', padding: '16px 20px', gap: '12px' }}>
-          {[
-            { label: 'Activas',      value: hseMetrics?.autorizaciones_activas   ?? '—', icon: UserCheck,     color: 'var(--success-400)', bg: 'rgba(16,185,129,0.08)' },
-            { label: 'En revisión',  value: hseMetrics?.autorizaciones_pendientes ?? '—', icon: LayoutGrid,    color: '#6366F1',             bg: 'rgba(99,102,241,0.08)' },
-            { label: 'Dentro ahora', value: hseMetrics?.contratistas_dentro_ahora ?? '—', icon: Users,         color: 'var(--primary-400)',  bg: 'rgba(245,158,11,0.08)' },
-            { label: 'Alertas',      value: hseMetrics?.alertas_activas           ?? '—', icon: AlertTriangle, color: hseMetrics?.alertas_activas ? 'var(--danger-400)' : 'var(--text-muted)', bg: hseMetrics?.alertas_activas ? 'rgba(239,68,68,0.08)' : 'var(--bg-elevated)' },
-          ].map((stat) => (
-            <div key={stat.label} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ width: '36px', height: '36px', background: stat.bg, borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <stat.icon size={16} color={stat.color} />
-              </div>
-              <div>
-                <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', lineHeight: 1 }}>{stat.value}</div>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '2px' }}>{stat.label}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {hseMetrics && hseMetrics.autorizaciones_vencidas > 0 && (
+      {(esAdminGlobal || hasAnyRole(['VISUALIZADOR', 'ADMIN_HSE', 'GESTION_HSE'])) && (
+        <div
+          style={{ marginTop: '28px', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}
+          className="animate-fade-up stagger-5"
+        >
           <div style={{
-            margin: '0 20px 16px', padding: '10px 14px',
-            background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)',
-            borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', gap: '8px',
+            padding: '14px 20px', borderBottom: '1px solid var(--border-subtle)',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           }}>
-            <UserX size={13} color="var(--danger-400)" />
-            <span style={{ fontSize: '0.78rem', color: 'var(--danger-400)', fontWeight: 500 }}>
-              {hseMetrics.autorizaciones_vencidas} autorización{hseMetrics.autorizaciones_vencidas > 1 ? 'es' : ''} vencida{hseMetrics.autorizaciones_vencidas > 1 ? 's' : ''}
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <ShieldCheck size={14} color="var(--success-400)" />
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--success-400)', letterSpacing: '0.1em' }}>HSE</span>
+              <span style={{ fontSize: '0.83rem', fontWeight: 600, color: 'var(--text-primary)' }}>Resumen operativo</span>
+            </div>
             <button
-              onClick={() => navigate('/hse/gestion')}
-              style={{ marginLeft: 'auto', background: 'transparent', border: 'none', color: 'var(--danger-400)', fontSize: '0.73rem', cursor: 'pointer', fontFamily: 'var(--font-ui)', display: 'flex', alignItems: 'center', gap: '4px' }}
+              onClick={() => navigate('/hse')}
+              style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'transparent', border: 'none', color: 'var(--success-400)', fontSize: '0.75rem', fontWeight: 500, cursor: 'pointer', fontFamily: 'var(--font-ui)' }}
             >
-              Gestionar <ArrowRight size={11} />
+              Ver dashboard <ArrowRight size={12} />
             </button>
           </div>
-        )}
-      </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', padding: '16px 20px', gap: '12px' }}>
+            {[
+              { label: 'Activas',      value: hseMetrics?.autorizaciones_activas   ?? '—', icon: UserCheck,     color: 'var(--success-400)', bg: 'rgba(16,185,129,0.08)' },
+              { label: 'En revisión',  value: hseMetrics?.autorizaciones_pendientes ?? '—', icon: LayoutGrid,    color: '#6366F1',             bg: 'rgba(99,102,241,0.08)' },
+              { label: 'Dentro ahora', value: hseMetrics?.contratistas_dentro_ahora ?? '—', icon: Users,         color: 'var(--primary-400)',  bg: 'rgba(245,158,11,0.08)' },
+              { label: 'Alertas',      value: hseMetrics?.alertas_activas           ?? '—', icon: AlertTriangle, color: hseMetrics?.alertas_activas ? 'var(--danger-400)' : 'var(--text-muted)', bg: hseMetrics?.alertas_activas ? 'rgba(239,68,68,0.08)' : 'var(--bg-elevated)' },
+            ].map((stat) => (
+              <div key={stat.label} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: '36px', height: '36px', background: stat.bg, borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <stat.icon size={16} color={stat.color} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', lineHeight: 1 }}>{stat.value}</div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '2px' }}>{stat.label}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {hseMetrics && hseMetrics.autorizaciones_vencidas > 0 && (
+            <div style={{
+              margin: '0 20px 16px', padding: '10px 14px',
+              background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)',
+              borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', gap: '8px',
+            }}>
+              <UserX size={13} color="var(--danger-400)" />
+              <span style={{ fontSize: '0.78rem', color: 'var(--danger-400)', fontWeight: 500 }}>
+                {hseMetrics.autorizaciones_vencidas} autorización{hseMetrics.autorizaciones_vencidas > 1 ? 'es' : ''} vencida{hseMetrics.autorizaciones_vencidas > 1 ? 's' : ''}
+              </span>
+              <button
+                onClick={() => navigate('/hse/gestion')}
+                style={{ marginLeft: 'auto', background: 'transparent', border: 'none', color: 'var(--danger-400)', fontSize: '0.73rem', cursor: 'pointer', fontFamily: 'var(--font-ui)', display: 'flex', alignItems: 'center', gap: '4px' }}
+              >
+                Gestionar <ArrowRight size={11} />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Info usuario */}
       <div

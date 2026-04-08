@@ -264,12 +264,14 @@ async def response_validation_exception_handler(
 # Se registran sprint a sprint conforme se desarrollan.
 # Sprint 1:
 from app.routers.auth import router as auth_router
+from app.routers.config import router as config_router
 from app.routers.hse import router as hse_router
 from app.routers.herramientas import router as herramientas_router
 from app.routers.ws import router as ws_router
 
 app.include_router(auth_router,          prefix="/api/v1")
 app.include_router(hse_router,           prefix="/api/v1")
+app.include_router(config_router)
 app.include_router(herramientas_router)  # prefix ya definido en el router
 app.include_router(ws_router)            # Sin prefijo: ws://host/ws/{sede_id}
 #

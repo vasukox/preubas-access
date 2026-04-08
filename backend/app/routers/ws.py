@@ -16,6 +16,11 @@ import json
 import logging
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
+
+from app.database import AsyncSessionLocal
+from app.models.usuario import Perfil, Usuario, UsuarioRol
 from app.utils.jwt import verify_access_token
 
 logger = logging.getLogger(__name__)
@@ -36,12 +41,41 @@ async def websocket_endpoint(
         return
 
     usuario_id = payload.get("sub")
-    roles      = payload.get("roles", [])
+    if not isinstance(usuario_id, int):
+        await websocket.close(code=4001, reason="Token malformado")
+        return
+
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(
+            select(Usuario)
+            .options(selectinload(Usuario.roles).selectinload(UsuarioRol.rol))
+            .where(Usuario.id == usuario_id, Usuario.deleted_at.is_(None))
+        )
+        usuario = result.scalar_one_or_none()
+
+        if not usuario or not usuario.activo:
+            await websocket.close(code=4003, reason="Usuario inactivo o no encontrado")
+            return
+
+        roles = {r.rol.nombre for r in usuario.roles}
+        if "ADMIN_GLOBAL" not in roles and "ADMIN_HSE" not in roles:
+            sede_result = await db.execute(
+                select(Perfil.sede_default_id)
+                .where(
+                    Perfil.usuario_id == usuario.id,
+                    Perfil.deleted_at.is_(None),
+                )
+            )
+            sede_default = sede_result.scalar_one_or_none()
+
+            if sede_default is None or sede_default != sede_id:
+                await websocket.close(code=4003, reason="Sin permisos para esta sede")
+                return
 
     await websocket.accept()
     logger.info(
         "[WS] Conexión aceptada — usuario_id=%s sede_id=%s roles=%s",
-        usuario_id, sede_id, roles,
+        usuario_id, sede_id, list(roles),
     )
 
     try:
