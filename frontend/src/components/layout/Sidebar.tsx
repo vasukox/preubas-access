@@ -6,7 +6,7 @@
  * - Nav items filtrados por rol
  * - Estado activo por ruta
  * - Indicador sede activa + WS
- * - Avatar + logout del usuario
+ * - Avatar informativo del usuario
  * - Botón colapsar/expandir
  */
 
@@ -15,9 +15,10 @@ import { NavLink, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, Car, ShieldCheck, Cpu, Users,
   BarChart3, Settings, ChevronLeft, ChevronRight,
-  LogOut, Building2, Wifi, WifiOff, Loader2,
+  Building2, Wifi, WifiOff, Loader2,
   ChevronDown, Wrench,
   LayoutGrid, ClipboardList, Eye, AlertTriangle, ClipboardCheck,
+  Globe, BookOpen, ListChecks, Hammer,
 } from 'lucide-react'
 import { useWSStore } from '@/store'
 import type { RolNombre, UsuarioMe, SedeBasica } from '@/types'
@@ -46,7 +47,6 @@ interface SidebarProps {
   onToggle:       () => void
   usuario:        UsuarioMe | null
   sedeActiva:     SedeBasica | null
-  onLogout:       () => void
   filteredNav:    NavItem[]
 }
 
@@ -145,6 +145,43 @@ export const NAV_ITEMS: NavItem[] = [
     path:  '/config',
     icon:  <Settings size={18} />,
     roles: ['ADMIN_GLOBAL'],
+    children: [
+      {
+        id:    'config-sistema',
+        label: 'Sistema',
+        path:  '/config/sistema',
+        icon:  <Globe size={14} />,
+        roles: ['ADMIN_GLOBAL'],
+      },
+      {
+        id:    'config-estructura',
+        label: 'Estructura',
+        path:  '/config/estructura',
+        icon:  <Building2 size={14} />,
+        roles: ['ADMIN_GLOBAL'],
+      },
+      {
+        id:    'config-catalogos',
+        label: 'Catálogos HSE',
+        path:  '/config/catalogos',
+        icon:  <ListChecks size={14} />,
+        roles: ['ADMIN_GLOBAL'],
+      },
+      {
+        id:    'config-normas',
+        label: 'Normas HSE',
+        path:  '/config/normas',
+        icon:  <BookOpen size={14} />,
+        roles: ['ADMIN_GLOBAL'],
+      },
+      {
+        id:    'config-actividades',
+        label: 'Actividades HSE',
+        path:  '/config/actividades',
+        icon:  <Hammer size={14} />,
+        roles: ['ADMIN_GLOBAL'],
+      },
+    ],
   },
   {
     id:    'herramientas',
@@ -349,7 +386,7 @@ function NavGroup({
 }
 
 // ── Sidebar ───────────────────────────────────────────────────────
-export function Sidebar({ collapsed, onToggle, usuario, sedeActiva, onLogout, filteredNav }: SidebarProps) {
+export function Sidebar({ collapsed, onToggle, usuario, sedeActiva, filteredNav }: SidebarProps) {
   const location       = useLocation()
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const userRoles = (usuario?.roles?.map(r => r.nombre) ?? []) as RolNombre[]
@@ -419,38 +456,40 @@ export function Sidebar({ collapsed, onToggle, usuario, sedeActiva, onLogout, fi
             a la derecha del logo cuando expandido.
             Color amber diferenciado para que siempre se distinga.
           */}
-          <button
-            onClick={onToggle}
-            title={collapsed ? 'Expandir menú' : 'Colapsar menú'}
-            style={{
-              flexShrink:     0,
-              width:          collapsed ? '40px' : '26px',
-              height:         collapsed ? '40px' : '26px',
-              borderRadius:   'var(--radius-md)',
-              background:     collapsed ? 'rgba(245,158,11,0.12)' : 'transparent',
-              border:         collapsed
-                ? '1px solid rgba(245,158,11,0.3)'
-                : '1px solid transparent',
-              color:          collapsed ? 'var(--primary-400)' : 'var(--text-muted)',
-              cursor:         'pointer',
-              display:        'flex',
-              alignItems:     'center',
-              justifyContent: 'center',
-              transition:     'width var(--transition-base), height var(--transition-base), background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background  = 'rgba(245,158,11,0.2)'
-              e.currentTarget.style.color       = 'var(--primary-300)'
-              e.currentTarget.style.borderColor = 'rgba(245,158,11,0.5)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background  = collapsed ? 'rgba(245,158,11,0.12)' : 'transparent'
-              e.currentTarget.style.color       = collapsed ? 'var(--primary-400)' : 'var(--text-muted)'
-              e.currentTarget.style.borderColor = collapsed ? 'rgba(245,158,11,0.3)' : 'transparent'
-            }}
-          >
-            {collapsed ? <ChevronRight size={15} /> : <ChevronLeft size={14} />}
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+            <button
+              onClick={onToggle}
+              title={collapsed ? 'Expandir menú' : 'Colapsar menú'}
+              style={{
+                flexShrink:     0,
+                width:          collapsed ? '40px' : '26px',
+                height:         collapsed ? '40px' : '26px',
+                borderRadius:   'var(--radius-md)',
+                background:     collapsed ? 'rgba(245,158,11,0.12)' : 'transparent',
+                border:         collapsed
+                  ? '1px solid rgba(245,158,11,0.3)'
+                  : '1px solid transparent',
+                color:          collapsed ? 'var(--primary-400)' : 'var(--text-muted)',
+                cursor:         'pointer',
+                display:        'flex',
+                alignItems:     'center',
+                justifyContent: 'center',
+                transition:     'width var(--transition-base), height var(--transition-base), background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background  = 'rgba(245,158,11,0.2)'
+                e.currentTarget.style.color       = 'var(--primary-300)'
+                e.currentTarget.style.borderColor = 'rgba(245,158,11,0.5)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background  = collapsed ? 'rgba(245,158,11,0.12)' : 'transparent'
+                e.currentTarget.style.color       = collapsed ? 'var(--primary-400)' : 'var(--text-muted)'
+                e.currentTarget.style.borderColor = collapsed ? 'rgba(245,158,11,0.3)' : 'transparent'
+              }}
+            >
+              {collapsed ? <ChevronRight size={15} /> : <ChevronLeft size={14} />}
+            </button>
+          </div>
         </div>
 
         {/* Sede activa */}
@@ -577,56 +616,35 @@ export function Sidebar({ collapsed, onToggle, usuario, sedeActiva, onLogout, fi
         </nav>
 
         {/* Footer — usuario */}
-        {usuario && (
+        {usuario && !collapsed && (
           <div style={{ padding: '12px 8px', borderTop: '1px solid var(--border-subtle)', flexShrink: 0 }}>
-            {!collapsed ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px', borderRadius: 'var(--radius-md)' }}>
-                <div
-                  style={{
-                    width:          '32px',
-                    height:         '32px',
-                    borderRadius:   'var(--radius-full)',
-                    background:     'linear-gradient(135deg, var(--primary-600), var(--primary-400))',
-                    display:        'flex',
-                    alignItems:     'center',
-                    justifyContent: 'center',
-                    fontSize:       '0.75rem',
-                    fontWeight:     700,
-                    color:          'var(--text-inverted)',
-                    flexShrink:     0,
-                  }}
-                >
-                  {usuario.nombre_completo.charAt(0).toUpperCase()}
-                </div>
-                <div style={{ flex: 1, overflow: 'hidden' }}>
-                  <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {usuario.nombre_completo}
-                  </div>
-                  <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {usuario.roles?.[0]?.nombre?.replace(/_/g, ' ') || 'Sin Rol'}
-                  </div>
-                </div>
-                <button
-                  onClick={onLogout}
-                  title="Cerrar sesión"
-                  style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px', borderRadius: 'var(--radius-sm)', display: 'flex' }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--danger-400)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
-                >
-                  <LogOut size={15} />
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={onLogout}
-                title="Cerrar sesión"
-                style={{ width: '100%', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '10px', borderRadius: 'var(--radius-md)', display: 'flex', justifyContent: 'center' }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--danger-400)')}
-                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px', borderRadius: 'var(--radius-md)' }}>
+              <div
+                style={{
+                  width:          '32px',
+                  height:         '32px',
+                  borderRadius:   'var(--radius-full)',
+                  background:     'linear-gradient(135deg, var(--primary-600), var(--primary-400))',
+                  display:        'flex',
+                  alignItems:     'center',
+                  justifyContent: 'center',
+                  fontSize:       '0.75rem',
+                  fontWeight:     700,
+                  color:          'var(--text-inverted)',
+                  flexShrink:     0,
+                }}
               >
-                <LogOut size={16} />
-              </button>
-            )}
+                {usuario.nombre_completo.charAt(0).toUpperCase()}
+              </div>
+              <div style={{ flex: 1, overflow: 'hidden' }}>
+                <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {usuario.nombre_completo}
+                </div>
+                <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {usuario.roles?.[0]?.nombre?.replace(/_/g, ' ') || 'Sin Rol'}
+                </div>
+              </div>
+            </div>
           </div>
         )}
     </aside>

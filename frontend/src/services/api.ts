@@ -23,6 +23,7 @@ import axios, {
   InternalAxiosRequestConfig,
 } from 'axios'
 import type { ApiResponse, ApiError, TokenResponse } from '@/types'
+import { useWSStore } from '@/store'
 
 // ── Constantes ────────────────────────────────────────────────────
 const BASE_URL = import.meta.env.VITE_API_URL || ''
@@ -163,6 +164,9 @@ api.interceptors.response.use(
 
         // Actualizar el header de la instancia para futuros requests
         api.defaults.headers.common.Authorization = `Bearer ${access_token}`
+
+        // Avisar al WS que ahora hay un token válido para que se conecte
+        useWSStore.getState().reconnectWithNewToken()
 
         // Resolver todos los requests encolados con el nuevo token
         processQueue(null, access_token)

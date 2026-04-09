@@ -172,6 +172,21 @@ class Usuario(BaseModel):
         comment="Cuenta bloqueada hasta esta fecha por intentos fallidos",
     )
 
+    sede_asignada_id: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey("sedes.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+        comment="Sede fija asignada. Si está presente, el usuario está restringido a operar solo en esta sede (ej: Vigilantes)",
+    )
+
+    # Soft delete
+    deleted_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        comment="Fecha de eliminación lógica. NULL = activo",
+    )
+
     # Relaciones
     roles: Mapped[list["UsuarioRol"]] = relationship(
         back_populates="usuario",
@@ -189,14 +204,21 @@ class Usuario(BaseModel):
         back_populates="usuario",
         cascade="all, delete-orphan",
         uselist=False,
+        lazy="selectin",
     )
 
     permisos: Mapped["UsuarioPermiso | None"] = relationship(
         back_populates="usuario",
         cascade="all, delete-orphan",
         uselist=False,
-        lazy="select",
+        lazy="selectin",
         foreign_keys="[UsuarioPermiso.usuario_id]",
+    )
+
+    sede_asignada: Mapped["Sede | None"] = relationship(
+        "Sede",
+        foreign_keys=[sede_asignada_id],
+        lazy="selectin",
     )
 
     def __repr__(self) -> str:

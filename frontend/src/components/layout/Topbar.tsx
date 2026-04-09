@@ -10,7 +10,7 @@
  * - Botón menú mobile
  */
 
-import { Bell, Menu, Building2, ChevronDown, Moon, Sun } from 'lucide-react'
+import { Bell, Menu, Building2, ChevronDown, Moon, Sun, LogOut } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import type { UsuarioMe, SedeBasica } from '@/types'
 import type { ThemeMode } from '@/store/uiStore'
@@ -25,6 +25,8 @@ interface TopbarProps {
   sedes:          SedeBasica[]
   sedeActiva:     SedeBasica | null
   onSedeChange:   (sede: SedeBasica) => void
+  onLogout:       () => void
+  sedeIsLocked:   boolean   // true si el usuario tiene sede fija (vigilante)
 }
 
 function SedeSelectorDropdown({
@@ -126,7 +128,159 @@ function SedeSelectorDropdown({
   )
 }
 
-export function Topbar({ usuario, noLeidas, paginaActual, onMenuClick, themeMode, onToggleTheme, sedes, sedeActiva, onSedeChange }: TopbarProps) {
+function UserMenuDropdown({
+  usuario,
+  onLogout,
+}: {
+  usuario: UsuarioMe | null
+  onLogout: () => void
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  if (!usuario) return null
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          display:        'flex',
+          alignItems:     'center',
+          gap:            '8px',
+          background:     open ? 'var(--bg-elevated)' : 'transparent',
+          border:         `1px solid ${open ? 'var(--border-strong)' : 'transparent'}`,
+          borderRadius:   'var(--radius-md)',
+          color:          'var(--text-secondary)',
+          cursor:         'pointer',
+          padding:        '4px 8px 4px 4px',
+          transition:     'all var(--transition-fast)',
+        }}
+        onMouseEnter={(e) => {
+          if (!open) {
+            e.currentTarget.style.background = 'var(--bg-elevated)'
+            e.currentTarget.style.borderColor = 'var(--border-default)'
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!open) {
+            e.currentTarget.style.background = 'transparent'
+            e.currentTarget.style.borderColor = 'transparent'
+          }
+        }}
+      >
+        <div
+          style={{
+            width:          '32px',
+            height:         '32px',
+            borderRadius:   'var(--radius-full)',
+            background:     'linear-gradient(135deg, var(--primary-600), var(--primary-400))',
+            display:        'flex',
+            alignItems:     'center',
+            justifyContent: 'center',
+            fontSize:       '0.75rem',
+            fontWeight:     700,
+            color:          'var(--text-inverted)',
+            boxShadow:      'var(--shadow-glow-primary)',
+            flexShrink:     0,
+          }}
+        >
+          {usuario.nombre_completo.charAt(0).toUpperCase()}
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+          <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.2 }}>
+            {usuario.nombre_completo.split(' ')[0]}
+          </span>
+          <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+            {usuario.roles?.[0]?.nombre?.replace(/_/g, ' ') || 'Sin Rol'}
+          </span>
+        </div>
+        <ChevronDown
+          size={13}
+          style={{
+            opacity:    0.65,
+            transform:  open ? 'rotate(180deg)' : 'rotate(0deg)',
+            transition: 'transform 0.18s ease',
+          }}
+        />
+      </button>
+
+      <div
+        style={{
+          position:      'absolute',
+          right:         0,
+          top:           'calc(100% + 8px)',
+          width:         '240px',
+          background:    'var(--bg-elevated)',
+          border:        '1px solid var(--border-default)',
+          borderRadius:  'var(--radius-lg)',
+          boxShadow:     'var(--shadow-lg)',
+          overflow:      'hidden',
+          zIndex:        210,
+          opacity:       open ? 1 : 0,
+          transform:     open ? 'translateY(0px) scale(1)' : 'translateY(-6px) scale(0.98)',
+          pointerEvents: open ? 'auto' : 'none',
+          transition:    'opacity 0.18s ease, transform 0.18s ease',
+          transformOrigin: 'top right',
+          backdropFilter:  'blur(8px)',
+        }}
+      >
+        <div style={{ padding: '12px', borderBottom: '1px solid var(--border-subtle)' }}>
+          <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '2px' }}>
+            {usuario.nombre_completo}
+          </div>
+          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}>
+            {usuario.roles?.[0]?.nombre?.replace(/_/g, ' ') || 'SIN ROL'}
+          </div>
+        </div>
+
+        <div style={{ padding: '8px' }}>
+          <button
+            onClick={onLogout}
+            style={{
+              width:          '100%',
+              display:        'flex',
+              alignItems:     'center',
+              gap:            '8px',
+              border:         '1px solid transparent',
+              background:     'transparent',
+              color:          'var(--text-secondary)',
+              borderRadius:   'var(--radius-md)',
+              padding:        '9px 10px',
+              cursor:         'pointer',
+              transition:     'all var(--transition-fast)',
+              fontSize:       '0.8rem',
+              fontWeight:     500,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(248,113,113,0.1)'
+              e.currentTarget.style.color = 'var(--danger-400)'
+              e.currentTarget.style.borderColor = 'rgba(248,113,113,0.35)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent'
+              e.currentTarget.style.color = 'var(--text-secondary)'
+              e.currentTarget.style.borderColor = 'transparent'
+            }}
+          >
+            <LogOut size={15} />
+            Cerrar sesión
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function Topbar({ usuario, noLeidas, paginaActual, onMenuClick, themeMode, onToggleTheme, sedes, sedeActiva, onSedeChange, onLogout, sedeIsLocked }: TopbarProps) {
   return (
     <header
       style={{
@@ -177,11 +331,34 @@ export function Topbar({ usuario, noLeidas, paginaActual, onMenuClick, themeMode
       </div>
 
       {/* Selector de sede */}
-      <SedeSelectorDropdown
-        sedes={sedes}
-        sedeActiva={sedeActiva}
-        onSedeChange={onSedeChange}
-      />
+      {sedeIsLocked ? (
+        // Badge fijo para vigilantes — no pueden cambiarlo
+        <div style={{
+          display:      'flex',
+          alignItems:   'center',
+          gap:          '6px',
+          padding:      '6px 10px',
+          background:   'rgba(245,158,11,0.08)',
+          border:       '1px solid rgba(245,158,11,0.35)',
+          borderRadius: 'var(--radius-md)',
+          fontSize:     '0.78rem',
+          fontWeight:   600,
+          color:        'var(--primary-400)',
+          whiteSpace:   'nowrap',
+        }}>
+          <Building2 size={13} />
+          {sedeActiva?.nombre ?? 'Sede asignada'}
+          <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', background: 'var(--bg-elevated)', padding: '1px 5px', borderRadius: '999px', marginLeft: '2px' }}>
+            fija
+          </span>
+        </div>
+      ) : (
+        <SedeSelectorDropdown
+          sedes={sedes}
+          sedeActiva={sedeActiva}
+          onSedeChange={onSedeChange}
+        />
+      )}
 
       {/* Acciones */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -266,37 +443,7 @@ export function Topbar({ usuario, noLeidas, paginaActual, onMenuClick, themeMode
         {/* Divider */}
         <div style={{ width: '1px', height: '24px', background: 'var(--border-default)' }} />
 
-        {/* Avatar usuario */}
-        {usuario && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div
-              style={{
-                width:          '32px',
-                height:         '32px',
-                borderRadius:   'var(--radius-full)',
-                background:     'linear-gradient(135deg, var(--primary-600), var(--primary-400))',
-                display:        'flex',
-                alignItems:     'center',
-                justifyContent: 'center',
-                fontSize:       '0.75rem',
-                fontWeight:     700,
-                color:          'var(--text-inverted)',
-                cursor:         'pointer',
-                boxShadow:      'var(--shadow-glow-primary)',
-              }}
-            >
-              {usuario.nombre_completo.charAt(0).toUpperCase()}
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.2 }}>
-                {usuario.nombre_completo.split(' ')[0]}
-              </span>
-              <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                {usuario.roles?.[0]?.nombre?.replace(/_/g, ' ') || 'Sin Rol'}
-              </span>
-            </div>
-          </div>
-        )}
+        <UserMenuDropdown usuario={usuario} onLogout={onLogout} />
       </div>
     </header>
   )

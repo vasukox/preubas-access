@@ -41,10 +41,18 @@ export default function AppLayout() {
     hseService.getSedes().then(data => {
       setSedes(data)
 
-      // Normalizar sede activa persistida: si no existe en catálogo permitido,
-      // usar la primera sede disponible para evitar 403 silenciosos en HSE.
-      const sedePersistidaValida = !!sedeActiva && data.some(s => s.id === sedeActiva.id)
+      // Si es vigilante con sede asignada, forzar esa sede y no dejar cambiarla
+      const sedeAsignadaId = usuario?.sede_asignada_id
+      if (sedeAsignadaId) {
+        const sedeDelVigilante = data.find(s => s.id === sedeAsignadaId)
+        if (sedeDelVigilante) {
+          setSedeActiva(sedeDelVigilante)
+          return  // salir sin permitir otro setSedeActiva
+        }
+      }
 
+      // Para no-vigilantes: normalizar sede activa persistida
+      const sedePersistidaValida = !!sedeActiva && data.some(s => s.id === sedeActiva.id)
       if (!sedePersistidaValida) {
         if (data.length > 0) setSedeActiva(data[0])
       }
@@ -91,7 +99,6 @@ export default function AppLayout() {
         onToggle={toggleSidebar}
         usuario={usuario}
         sedeActiva={sedeActiva}
-        onLogout={clearSession}
         filteredNav={filteredNav}
       />
 
@@ -106,6 +113,8 @@ export default function AppLayout() {
           sedes={sedes}
           sedeActiva={sedeActiva}
           onSedeChange={setSedeActiva}
+          onLogout={clearSession}
+          sedeIsLocked={!!usuario?.sede_asignada_id}
         />
 
         <main

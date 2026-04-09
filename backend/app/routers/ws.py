@@ -59,16 +59,19 @@ async def websocket_endpoint(
 
         roles = {r.rol.nombre for r in usuario.roles}
         if "ADMIN_GLOBAL" not in roles and "ADMIN_HSE" not in roles:
-            sede_result = await db.execute(
-                select(Perfil.sede_default_id)
-                .where(
-                    Perfil.usuario_id == usuario.id,
-                    Perfil.deleted_at.is_(None),
-                )
-            )
-            sede_default = sede_result.scalar_one_or_none()
+            sede_permitida = usuario.sede_asignada_id
 
-            if sede_default is None or sede_default != sede_id:
+            if sede_permitida is None:
+                sede_result = await db.execute(
+                    select(Perfil.sede_default_id)
+                    .where(
+                        Perfil.usuario_id == usuario.id,
+                        Perfil.deleted_at.is_(None),
+                    )
+                )
+                sede_permitida = sede_result.scalar_one_or_none()
+
+            if sede_permitida is None or sede_permitida != sede_id:
                 await websocket.close(code=4003, reason="Sin permisos para esta sede")
                 return
 

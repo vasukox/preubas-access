@@ -854,8 +854,8 @@ function ModalCrear({
 // ── Vista principal ───────────────────────────────────────────────
 export default function ExcepcionesView() {
   const sedeActiva = useSedeStore(s => s.sedeActiva)
-  const hasRole = useAuthStore(s => s.hasRole)
-  const isAdminGlobal = hasRole('ADMIN_GLOBAL')
+  const hasAnyRole = useAuthStore(s => s.hasAnyRole)
+  const canManageProviders = hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_HSE'])
 
   const [excepciones, setExcepciones] = useState<ExcepcionResponse[]>([])
   const [proveedores, setProveedores] = useState<ProveedorHSEOption[]>([])
@@ -1038,7 +1038,7 @@ export default function ExcepcionesView() {
           >
             <RefreshCw size={14} />
           </button>
-          {isAdminGlobal && (
+          {canManageProviders && (
             <button
               onClick={() => setShowProveedorModal(true)}
               className="btn-ghost"

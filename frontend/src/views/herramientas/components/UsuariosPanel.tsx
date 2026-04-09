@@ -1,19 +1,20 @@
 import { useMemo, useState } from 'react'
-import { Check, ChevronLeft, MoreVertical, Search, Shield, Trash2, UserCog, UserX } from 'lucide-react'
+import { Check, ChevronLeft, Search, Shield, Trash2, UserCog, UserX } from 'lucide-react'
 import { toast } from 'react-hot-toast'
+import { useQueryClient } from '@tanstack/react-query'
 import type { RolSistema, UsuarioSistema } from '@/services/herramientas.service'
 import { herramientasService } from '@/services/herramientas.service'
 import { usePagination } from '@/hooks/usePagination'
 import { Pagination } from '@/components/ui/Pagination'
 import { badgeColor, type VistaHerramientas } from '../constants'
 import { UsuarioGestionModal } from './UsuarioGestionModal'
+import { HERRAMIENTAS_KEYS } from '../HerramientasView'
 
 interface UsuariosPanelProps {
   usuarios: UsuarioSistema[]
   roles: RolSistema[]
   loading: boolean
   setVistaActiva: (vista: VistaHerramientas) => void
-  setUsuarios: React.Dispatch<React.SetStateAction<UsuarioSistema[]>>
 }
 
 export function UsuariosPanel({
@@ -21,8 +22,8 @@ export function UsuariosPanel({
   roles,
   loading,
   setVistaActiva,
-  setUsuarios,
 }: UsuariosPanelProps) {
+  const queryClient = useQueryClient()
   const [filtro, setFiltro] = useState('')
   const [usuarioGestionando, setUsuarioGestionando] = useState<UsuarioSistema | null>(null)
 
@@ -43,9 +44,8 @@ export function UsuariosPanel({
   const handleToggleActivo = async (u: UsuarioSistema) => {
     try {
       await herramientasService.actualizarUsuario(u.id, { activo: !u.activo })
-      setUsuarios((prev) =>
-        prev.map((x) => (x.id === u.id ? { ...x, activo: !x.activo } : x)),
-      )
+      // Invalida la caché para que React Query re-fetche la lista actualizada
+      queryClient.invalidateQueries({ queryKey: HERRAMIENTAS_KEYS.usuarios })
       toast.success(
         `Usuario ${u.nombre_completo} ${u.activo ? 'desactivado' : 'activado'}.`,
       )
@@ -60,11 +60,11 @@ export function UsuariosPanel({
     }
     try {
       await herramientasService.eliminarUsuario(u.id)
-      setUsuarios((prev) => prev.filter((x) => x.id !== u.id))
+      // Invalida la caché — React Query re-sincroniza la lista
+      queryClient.invalidateQueries({ queryKey: HERRAMIENTAS_KEYS.usuarios })
       toast.success(`Usuario ${u.nombre_completo} eliminado.`)
-      // Refresh paginator edge case if last user on page deleted
       if (usuariosPagination.paginatedData.length === 1 && usuariosPagination.currentPage > 1) {
-          usuariosPagination.prevPage()
+        usuariosPagination.prevPage()
       }
     } catch (e: any) {
       if (e?.response?.data?.error?.message) {
@@ -365,7 +365,8 @@ export function UsuariosPanel({
           roles={roles}
           onClose={() => setUsuarioGestionando(null)}
           onUserUpdated={(updated) => {
-            setUsuarios((prev) => prev.map((x) => (x.id === updated.id ? updated : x)))
+            // Invalida la caché en lugar de mutar el estado local
+            queryClient.invalidateQueries({ queryKey: HERRAMIENTAS_KEYS.usuarios })
             setUsuarioGestionando(updated)
           }}
         />

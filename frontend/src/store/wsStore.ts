@@ -18,8 +18,24 @@ import { devtools } from 'zustand/middleware'
 import type { WSStatus, WSMessage, WSMessageType } from '@/types'
 import { tokenStorage } from '@/services/api'
 
-const WS_BASE_URL    = import.meta.env.VITE_WS_URL ?? 'ws://localhost:8000'
-const HEARTBEAT_MS   = 30_000
+function resolveWSBaseUrl(): string {
+  const configured = import.meta.env.VITE_WS_URL
+  if (configured && configured.trim().length > 0) {
+    return configured
+  }
+
+  // En dev con túnel (trycloudflare), usar mismo host del frontend
+  // para aprovechar el proxy /ws de Vite y evitar localhost remoto.
+  if (typeof window !== 'undefined') {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+    return `${protocol}//${window.location.host}`
+  }
+
+  return 'ws://localhost:8000'
+}
+
+const WS_BASE_URL    = resolveWSBaseUrl()
+const HEARTBEAT_MS   = 15_000
 const BACKOFF_DELAYS = [1000, 2000, 4000, 8000, 30_000]
 
 type MessageHandler = (payload: unknown) => void
@@ -36,6 +52,7 @@ interface WSState {
   disconnect:  () => void
   subscribe:   (type: WSMessageType, handler: MessageHandler) => () => void
   sendMessage: (message: unknown) => void
+  reconnectWithNewToken: () => void
 }
 
 // Instancias fuera del store (no son estado reactivo)
@@ -111,12 +128,28 @@ export const useWSStore = create<WSState>()(
           set({ status: 'ERROR' }, false, 'ws/error')
         }
 
-        socket.onclose = () => {
+        socket.onclose = (event: CloseEvent) => {
+          // Si el onclose viene de un socket antiguo o fantasma, lo ignoramos de inmediato
+          if (socket !== event.target) return
+
           clearTimers()
           if (intentionalClose) return
           const { reconnectCount, sedeId: currentSede } = get()
 
           if (!currentSede) return // Desconexión intencional
+
+          // Si el servidor expulsó al WS por token vencido, frenamos la reconexión ciega.
+          // Esperaremos a que Axios lo reviva.
+          if (event.code === 4001) {
+            set({ status: 'DESCONECTADO' }, false, 'ws/auth_failed')
+            return
+          }
+
+          // Si no hay permisos para la sede, no reconectar en bucle.
+          if (event.code === 4003) {
+            set({ status: 'ERROR' }, false, 'ws/forbidden_sede')
+            return
+          }
 
           // Reconexión con backoff exponencial
           const delay = BACKOFF_DELAYS[
@@ -169,6 +202,14 @@ export const useWSStore = create<WSState>()(
       sendMessage: (message) => {
         if (socket?.readyState === WebSocket.OPEN) {
           socket.send(JSON.stringify(message))
+        }
+      },
+
+      // ── Reconectar con Nuevo Token ─────────────────────────────
+      reconnectWithNewToken: () => {
+        const { sedeId } = get()
+        if (sedeId) {
+          get().connect(sedeId)
         }
       },
     }),

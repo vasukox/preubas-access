@@ -1,6 +1,8 @@
 /**
  * KOAJ Access v2.0 — Permoda S.A.S.
+ * ------------------------------------
  * Vista de cambio de contraseña obligatorio.
+ * Diseño: Industrial Luxury Dark — mismo layout que LoginView.
  * Se muestra cuando debe_cambiar_password = true.
  */
 
@@ -9,7 +11,10 @@ import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { ShieldCheck, Lock, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react'
+import {
+  ShieldCheck, Lock, Eye, EyeOff, AlertCircle,
+  CheckCircle2, ArrowRight, ArrowLeft, KeyRound,
+} from 'lucide-react'
 import { useAuthStore } from '@/store'
 import { post, getErrorMessage } from '@/services/api'
 import type { UsuarioMe } from '@/types'
@@ -22,8 +27,8 @@ const schema = z
     password_nueva_confirm: z.string().min(1, 'Requerido'),
   })
   .refine((d) => d.password_nueva === d.password_nueva_confirm, {
-    message:  'Las contraseñas no coinciden',
-    path:     ['password_nueva_confirm'],
+    message: 'Las contraseñas no coinciden',
+    path:    ['password_nueva_confirm'],
   })
 
 type FormData = z.infer<typeof schema>
@@ -31,18 +36,20 @@ type FormData = z.infer<typeof schema>
 // ── Requisitos de contraseña ──────────────────────────────────────
 function getRequisitos(pwd: string) {
   return [
-    { label: 'Mínimo 8 caracteres',       ok: pwd.length >= 8 },
-    { label: 'Una letra mayúscula',        ok: /[A-Z]/.test(pwd) },
-    { label: 'Una letra minúscula',        ok: /[a-z]/.test(pwd) },
-    { label: 'Un número',                  ok: /\d/.test(pwd) },
-    { label: 'Un carácter especial',       ok: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd) },
+    { label: 'Mínimo 8 caracteres',  ok: pwd.length >= 8 },
+    { label: 'Una letra mayúscula',  ok: /[A-Z]/.test(pwd) },
+    { label: 'Una letra minúscula',  ok: /[a-z]/.test(pwd) },
+    { label: 'Un número',            ok: /\d/.test(pwd) },
+    { label: 'Un carácter especial', ok: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd) },
   ]
 }
 
+// ═════════════════════════════════════════════════════════════════
 export default function CambiarPasswordView() {
-  const navigate   = useNavigate()
-  const usuario    = useAuthStore((s) => s.usuario)
-  const setUsuario = useAuthStore((s) => s.setUsuario)
+  const navigate     = useNavigate()
+  const usuario      = useAuthStore((s) => s.usuario)
+  const setUsuario   = useAuthStore((s) => s.setUsuario)
+  const clearSession = useAuthStore((s) => s.clearSession)
 
   const [showActual,  setShowActual]  = useState(false)
   const [showNueva,   setShowNueva]   = useState(false)
@@ -59,28 +66,22 @@ export default function CambiarPasswordView() {
 
   const passwordNueva = watch('password_nueva', '')
   const requisitos    = getRequisitos(passwordNueva)
+  const todosOk       = requisitos.every((r) => r.ok)
 
   const onSubmit = async (data: FormData) => {
     setIsLoading(true)
     setErrorMsg(null)
-
     try {
       await post('/auth/cambiar-password', {
         password_actual: data.password_actual,
         password_nueva:  data.password_nueva,
       })
-
-      // Actualizar usuario en el store con debe_cambiar_password = false
       if (usuario) {
-        const usuarioActualizado: UsuarioMe = {
-          ...usuario,
-          debe_cambiar_password: false,
-        }
-        const accessToken  = localStorage.getItem('koaj_access_token') ?? ''
-        const refreshToken = localStorage.getItem('koaj_refresh_token') ?? ''
-        setUsuario(usuarioActualizado, accessToken, refreshToken)
+        const updated: UsuarioMe = { ...usuario, debe_cambiar_password: false }
+        const access  = localStorage.getItem('koaj_access_token')  ?? ''
+        const refresh = localStorage.getItem('koaj_refresh_token') ?? ''
+        setUsuario(updated, access, refresh)
       }
-
       navigate('/dashboard', { replace: true })
     } catch (error) {
       setErrorMsg(getErrorMessage(error))
@@ -89,227 +90,233 @@ export default function CambiarPasswordView() {
     }
   }
 
-  return (
-    <div
-      style={{
-        display:        'flex',
-        minHeight:      '100vh',
-        background:     'var(--bg-base)',
-        alignItems:     'center',
-        justifyContent: 'center',
-        padding:        '24px',
-      }}
-    >
-      {/* Fondo decorativo */}
-      <div
-        style={{
-          position:      'fixed',
-          inset:         0,
-          background:    `
-            radial-gradient(ellipse at 30% 40%, rgba(245,158,11,0.06) 0%, transparent 60%),
-            radial-gradient(ellipse at 70% 60%, rgba(99,102,241,0.04) 0%, transparent 50%)
-          `,
-          pointerEvents: 'none',
-        }}
-      />
+  const handleVolverLogin = () => {
+    clearSession()
+    navigate('/login', { replace: true })
+  }
 
+  // ─────────────────────────────────────────────────────────────
+  return (
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-base)', overflow: 'hidden' }}>
+
+      {/* ══ PANEL IZQUIERDO — Branding ═══════════════════════════ */}
       <div
         style={{
-          width:        '100%',
-          maxWidth:     '440px',
-          background:   'var(--bg-surface)',
-          border:       '1px solid var(--border-subtle)',
-          borderRadius: 'var(--radius-xl)',
-          padding:      '40px',
-          position:     'relative',
-          zIndex:       1,
+          flex: '1', display: 'flex', flexDirection: 'column',
+          justifyContent: 'center', alignItems: 'flex-start',
+          padding: '64px', position: 'relative', overflow: 'hidden',
         }}
-        className="animate-fade-up"
+        className="animate-fade-in"
       >
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-          <div
-            style={{
-              width:          '40px',
-              height:         '40px',
-              background:     'rgba(245,158,11,0.1)',
-              border:         '1px solid rgba(245,158,11,0.2)',
-              borderRadius:   'var(--radius-md)',
-              display:        'flex',
-              alignItems:     'center',
-              justifyContent: 'center',
-              flexShrink:     0,
-            }}
-          >
-            <ShieldCheck size={20} color="var(--primary-500)" />
+        {/* Gradiente decorativo */}
+        <div style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          background: `
+            radial-gradient(ellipse at 20% 50%, rgba(245,158,11,0.08) 0%, transparent 60%),
+            radial-gradient(ellipse at 80% 20%, rgba(99,102,241,0.06) 0%, transparent 50%)
+          `,
+        }} />
+        <div className="bg-grid" style={{ position: 'absolute', inset: 0, opacity: 0.4, pointerEvents: 'none' }} />
+        <div style={{
+          position: 'absolute', right: 0, top: 0, bottom: 0, width: '1px',
+          background: 'linear-gradient(to bottom, transparent, var(--border-default), transparent)',
+        }} />
+
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: '480px' }}>
+
+          {/* Logo */}
+          <div className="animate-fade-up stagger-1" style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '64px' }}>
+            <div style={{
+              width: '44px', height: '44px', background: 'var(--primary-500)',
+              borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center',
+              justifyContent: 'center', boxShadow: 'var(--shadow-glow-primary)',
+            }}>
+              <ShieldCheck size={24} color="var(--text-inverted)" strokeWidth={2.5} />
+            </div>
+            <div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '0.15em' }}>
+                KOAJ ACCESS
+              </div>
+              <div style={{ fontFamily: 'var(--font-ui)', fontSize: '0.7rem', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>
+                Permoda S.A.S.
+              </div>
+            </div>
           </div>
-          <div>
-            <h1
-              style={{
-                fontSize:     '1.2rem',
-                fontWeight:   700,
-                color:        'var(--text-primary)',
-                letterSpacing: '-0.01em',
-              }}
-            >
+
+          {/* Título */}
+          <h1 className="animate-fade-up stagger-2" style={{
+            fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 800, lineHeight: 1.1,
+            color: 'var(--text-primary)', marginBottom: '24px', letterSpacing: '-0.02em',
+          }}>
+            Configura tu{' '}
+            <span style={{
+              color: 'transparent',
+              backgroundImage: 'linear-gradient(135deg, var(--primary-400), var(--primary-600))',
+              WebkitBackgroundClip: 'text', backgroundClip: 'text',
+            }}>
+              contraseña
+            </span>
+            <br />
+            segura.
+          </h1>
+
+          <p className="animate-fade-up stagger-3" style={{
+            fontSize: '0.95rem', color: 'var(--text-secondary)', lineHeight: 1.7,
+            marginBottom: '48px', maxWidth: '380px',
+          }}>
+            Es tu primer acceso al sistema. Por seguridad, debes establecer
+            una contraseña personal antes de continuar.
+          </p>
+
+          {/* Requisitos como features */}
+          <div className="animate-fade-up stagger-4" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {requisitos.map((r) => (
+              <div key={r.label} style={{ display: 'flex', alignItems: 'center', gap: '10px', transition: 'all 0.2s' }}>
+                <CheckCircle2
+                  size={15}
+                  color={r.ok ? 'var(--success-400)' : 'var(--border-default)'}
+                  style={{ flexShrink: 0, transition: 'color 0.2s' }}
+                />
+                <span style={{ fontSize: '0.83rem', color: r.ok ? 'var(--text-secondary)' : 'var(--text-muted)', transition: 'color 0.2s' }}>
+                  {r.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ══ PANEL DERECHO — Formulario ════════════════════════════ */}
+      <div
+        style={{
+          width: '480px', display: 'flex', flexDirection: 'column',
+          justifyContent: 'center', padding: '64px 48px',
+          background: 'var(--bg-surface)', borderLeft: '1px solid var(--border-subtle)',
+          position: 'relative',
+        }}
+        className="animate-slide-right"
+      >
+        {/* Gradiente sutil */}
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: '300px', pointerEvents: 'none',
+          background: 'radial-gradient(ellipse at 50% 0%, rgba(245,158,11,0.04) 0%, transparent 70%)',
+        }} />
+
+        <div style={{ position: 'relative', zIndex: 1 }}>
+
+          {/* Header */}
+          <div style={{ marginBottom: '36px' }}>
+            {/* Ícono */}
+            <div style={{
+              width: '48px', height: '48px', marginBottom: '20px',
+              background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)',
+              borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <KeyRound size={22} color="var(--primary-500)" />
+            </div>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px', letterSpacing: '-0.01em' }}>
               Cambio de contraseña
-            </h1>
-            <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>
-              Requerido en el primer acceso
+            </h2>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+              Requerido en el primer acceso al sistema
             </p>
           </div>
-        </div>
 
-        {/* Aviso */}
-        <div
-          style={{
-            padding:      '10px 14px',
-            background:   'rgba(245,158,11,0.06)',
-            border:       '1px solid rgba(245,158,11,0.15)',
-            borderRadius: 'var(--radius-md)',
-            margin:       '20px 0',
-            fontSize:     '0.8rem',
-            color:        'var(--primary-400)',
-            lineHeight:   1.5,
-          }}
-        >
-          Por seguridad, debes cambiar tu contraseña antes de continuar.
-        </div>
-
-        {/* Error */}
-        {errorMsg && (
-          <div
-            style={{
-              display:      'flex',
-              alignItems:   'center',
-              gap:          '8px',
-              padding:      '10px 14px',
-              background:   'rgba(239,68,68,0.08)',
-              border:       '1px solid rgba(239,68,68,0.2)',
-              borderRadius: 'var(--radius-md)',
-              marginBottom: '20px',
-            }}
-          >
-            <AlertCircle size={14} color="var(--danger-400)" style={{ flexShrink: 0 }} />
-            <span style={{ fontSize: '0.8rem', color: 'var(--danger-400)' }}>{errorMsg}</span>
+          {/* Aviso */}
+          <div style={{
+            padding: '10px 14px', marginBottom: '28px',
+            background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)',
+            borderRadius: 'var(--radius-md)', fontSize: '0.8rem', color: 'var(--primary-400)', lineHeight: 1.5,
+          }}>
+            Por seguridad, debes cambiar tu contraseña antes de continuar.
           </div>
-        )}
 
-        {/* Formulario */}
-        <form onSubmit={handleSubmit(onSubmit)} noValidate>
-
-          {/* Contraseña actual */}
-          {renderCampo({
-            label:       'CONTRASEÑA ACTUAL',
-            name:        'password_actual',
-            register,
-            error:       errors.password_actual?.message,
-            show:        showActual,
-            onToggle:    () => setShowActual((v) => !v),
-          })}
-
-          {/* Contraseña nueva */}
-          {renderCampo({
-            label:       'CONTRASEÑA NUEVA',
-            name:        'password_nueva',
-            register,
-            error:       errors.password_nueva?.message,
-            show:        showNueva,
-            onToggle:    () => setShowNueva((v) => !v),
-          })}
-
-          {/* Requisitos */}
-          {passwordNueva.length > 0 && (
-            <div style={{ marginBottom: '16px', marginTop: '-8px' }}>
-              {requisitos.map((req) => (
-                <div
-                  key={req.label}
-                  style={{
-                    display:    'flex',
-                    alignItems: 'center',
-                    gap:        '6px',
-                    marginBottom: '4px',
-                  }}
-                >
-                  <CheckCircle2
-                    size={12}
-                    color={req.ok ? 'var(--success-400)' : 'var(--text-muted)'}
-                  />
-                  <span
-                    style={{
-                      fontSize: '0.73rem',
-                      color:    req.ok ? 'var(--success-400)' : 'var(--text-muted)',
-                    }}
-                  >
-                    {req.label}
-                  </span>
-                </div>
-              ))}
+          {/* Error */}
+          {errorMsg && (
+            <div style={{
+              display: 'flex', alignItems: 'flex-start', gap: '10px',
+              padding: '12px 14px', marginBottom: '20px',
+              background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)',
+              borderRadius: 'var(--radius-md)', animation: 'fadeUp 0.2s ease both',
+            }}>
+              <AlertCircle size={16} color="var(--danger-400)" style={{ flexShrink: 0, marginTop: '1px' }} />
+              <span style={{ fontSize: '0.83rem', color: 'var(--danger-400)', lineHeight: 1.5 }}>{errorMsg}</span>
             </div>
           )}
 
-          {/* Confirmar nueva */}
-          {renderCampo({
-            label:       'CONFIRMAR CONTRASEÑA',
-            name:        'password_nueva_confirm',
-            register,
-            error:       errors.password_nueva_confirm?.message,
-            show:        showConfirm,
-            onToggle:    () => setShowConfirm((v) => !v),
-          })}
+          {/* Formulario */}
+          <form onSubmit={handleSubmit(onSubmit)} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
 
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={isLoading}
-            style={{
-              width:          '100%',
-              padding:        '12px',
-              marginTop:      '8px',
-              background:     isLoading ? 'var(--primary-700)' : 'var(--primary-500)',
-              border:         'none',
-              borderRadius:   'var(--radius-md)',
-              color:          'var(--text-inverted)',
-              fontSize:       '0.875rem',
-              fontWeight:     600,
-              fontFamily:     'var(--font-ui)',
-              cursor:         isLoading ? 'not-allowed' : 'pointer',
-              display:        'flex',
-              alignItems:     'center',
-              justifyContent: 'center',
-              gap:            '8px',
-              boxShadow:      isLoading ? 'none' : 'var(--shadow-glow-primary)',
-              transition:     'all var(--transition-fast)',
-            }}
-          >
-            {isLoading ? (
-              <>
-                <div
-                  style={{
-                    width:        '14px',
-                    height:       '14px',
-                    border:       '2px solid rgba(0,0,0,0.3)',
-                    borderTop:    '2px solid var(--text-inverted)',
-                    borderRadius: '50%',
-                    animation:    'spin 1s linear infinite',
-                  }}
-                />
-                Guardando...
-              </>
-            ) : (
-              'Cambiar contraseña'
-            )}
-          </button>
-        </form>
+            <Campo label="CONTRASEÑA ACTUAL"   name="password_actual"        register={register} error={errors.password_actual?.message}        show={showActual}  onToggle={() => setShowActual(v => !v)} />
+            <Campo label="CONTRASEÑA NUEVA"    name="password_nueva"         register={register} error={errors.password_nueva?.message}         show={showNueva}   onToggle={() => setShowNueva(v => !v)} />
+            <Campo label="CONFIRMAR CONTRASEÑA" name="password_nueva_confirm" register={register} error={errors.password_nueva_confirm?.message} show={showConfirm} onToggle={() => setShowConfirm(v => !v)} />
+
+            {/* Botón submit */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              style={{
+                width: '100%', padding: '13px 24px', marginTop: '4px',
+                background: isLoading ? 'var(--primary-700)' : todosOk ? 'var(--primary-500)' : 'var(--primary-700)',
+                border: 'none', borderRadius: 'var(--radius-md)',
+                color: 'var(--text-inverted)', fontSize: '0.875rem', fontWeight: 600,
+                fontFamily: 'var(--font-ui)', cursor: isLoading ? 'not-allowed' : 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                transition: 'all var(--transition-fast)',
+                boxShadow: todosOk && !isLoading ? 'var(--shadow-glow-primary)' : 'none',
+                letterSpacing: '0.02em',
+              }}
+              onMouseEnter={(e) => { if (!isLoading && todosOk) e.currentTarget.style.background = 'var(--primary-600)' }}
+              onMouseLeave={(e) => { if (!isLoading) e.currentTarget.style.background = todosOk ? 'var(--primary-500)' : 'var(--primary-700)' }}
+            >
+              {isLoading ? (
+                <>
+                  <div style={{ width: '16px', height: '16px', border: '2px solid rgba(0,0,0,0.3)', borderTop: '2px solid var(--text-inverted)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                  Guardando...
+                </>
+              ) : (
+                <>
+                  Cambiar contraseña
+                  <ArrowRight size={16} />
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Footer */}
+          <div style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid var(--border-subtle)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+            <button
+              onClick={handleVolverLogin}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '6px',
+                background: 'transparent', border: 'none',
+                color: 'var(--text-muted)', fontSize: '0.82rem',
+                cursor: 'pointer', fontFamily: 'var(--font-ui)',
+                padding: '4px 8px', borderRadius: 'var(--radius-sm)',
+                transition: 'color var(--transition-fast)',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
+            >
+              <ArrowLeft size={14} />
+              Volver al inicio de sesión
+            </button>
+            <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textAlign: 'center', lineHeight: 1.6 }}>
+              Sistema de uso exclusivo para personal autorizado de{' '}
+              <span style={{ color: 'var(--text-secondary)' }}>Permoda S.A.S.</span>
+              <br />
+              v2.0.0 — {new Date().getFullYear()}
+            </p>
+          </div>
+        </div>
       </div>
+
     </div>
   )
 }
 
-// ── Helper para campos de password ────────────────────────────────
-function renderCampo({
-  label, name, register, error, show, onToggle,
-}: {
+// ── Campo de contraseña reutilizable ─────────────────────────────
+function Campo({ label, name, register, error, show, onToggle }: {
   label:    string
   name:     string
   register: any
@@ -318,65 +325,26 @@ function renderCampo({
   onToggle: () => void
 }) {
   return (
-    <div style={{ marginBottom: '16px' }}>
-      <label
-        style={{
-          display:       'block',
-          fontSize:      '0.72rem',
-          fontWeight:    500,
-          color:         'var(--text-secondary)',
-          marginBottom:  '6px',
-          letterSpacing: '0.04em',
-        }}
-      >
+    <div>
+      <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px', letterSpacing: '0.03em' }}>
         {label}
       </label>
       <div style={{ position: 'relative' }}>
-        <Lock
-          size={14}
-          style={{
-            position:      'absolute',
-            left:          '12px',
-            top:           '50%',
-            transform:     'translateY(-50%)',
-            color:         error ? 'var(--danger-400)' : 'var(--text-muted)',
-            pointerEvents: 'none',
-          }}
-        />
+        <Lock size={15} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: error ? 'var(--danger-400)' : 'var(--text-muted)', pointerEvents: 'none' }} />
         <input
           {...register(name)}
           type={show ? 'text' : 'password'}
-          style={{
-            width:       '100%',
-            padding:     '10px 40px 10px 36px',
-            fontSize:    '0.875rem',
-            borderColor: error ? 'var(--danger-500)' : undefined,
-          }}
+          style={{ width: '100%', padding: '11px 44px 11px 40px', fontSize: '0.875rem', borderColor: error ? 'var(--danger-500)' : undefined }}
         />
         <button
           type="button"
           onClick={onToggle}
-          style={{
-            position:   'absolute',
-            right:      '10px',
-            top:        '50%',
-            transform:  'translateY(-50%)',
-            background: 'transparent',
-            border:     'none',
-            color:      'var(--text-muted)',
-            cursor:     'pointer',
-            padding:    '4px',
-            display:    'flex',
-          }}
+          style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px', display: 'flex' }}
         >
-          {show ? <EyeOff size={14} /> : <Eye size={14} />}
+          {show ? <EyeOff size={15} /> : <Eye size={15} />}
         </button>
       </div>
-      {error && (
-        <p style={{ fontSize: '0.73rem', color: 'var(--danger-400)', marginTop: '4px' }}>
-          {error}
-        </p>
-      )}
+      {error && <p style={{ fontSize: '0.75rem', color: 'var(--danger-400)', marginTop: '6px' }}>{error}</p>}
     </div>
   )
 }

@@ -84,8 +84,13 @@ const HerramientasView = lazy(() => import('@/views/herramientas/HerramientasVie
 // const GHPortalView       = lazy(() => import('@/views/gh/GHPortalView'))
 
 // ⏳ Sprint 9 — Reportes + Config
-const ReportesView = lazy(() => import('@/views/reportes/ReportesView'))
-const ConfigView   = lazy(() => import('@/views/config/ConfigView'))
+const ReportesView    = lazy(() => import('@/views/reportes/ReportesView'))
+const ConfigLayout      = lazy(() => import('@/views/config/ConfigLayout'))
+const ConfigSistema     = lazy(() => import('@/views/config/ConfigSistema'))
+const ConfigEstructura  = lazy(() => import('@/views/config/ConfigEstructura'))
+const ConfigCatalogos   = lazy(() => import('@/views/config/ConfigCatalogos'))
+const ConfigNormas      = lazy(() => import('@/views/config/ConfigNormas'))
+const ConfigActividades = lazy(() => import('@/views/config/ConfigActividades'))
 
 
 // ── Fallback de carga ─────────────────────────────────────────────
@@ -179,6 +184,16 @@ export function AppRouter() {
         <Route path="/portal/hse/:token" element={<AutogestionView />} />
         {/* <Route path="/portal/gh"      element={<PortalRoute><GHPortalView /></PortalRoute>} />      */}
 
+        {/* ── Rutas privadas separadas (sin layout) ──────────── */}
+        <Route
+          path="/cambiar-password"
+          element={
+            <PrivateRoute>
+              <CambiarPasswordView />
+            </PrivateRoute>
+          }
+        />
+
         {/* ── Rutas privadas (dentro del AppLayout) ────────────── */}
         <Route
           path="/"
@@ -192,8 +207,7 @@ export function AppRouter() {
           <Route index element={<Navigate to="/dashboard" replace />} />
 
           {/* ✅ Sprint 1 */}
-          <Route path="dashboard"        element={<DashboardView />} />
-          <Route path="cambiar-password" element={<CambiarPasswordView />} />
+          <Route path="dashboard" element={<DashboardView />} />
 
           {/* ⏳ Sprint 3-4 — Parking */}
           {/* <Route path="parking" element={<RoleRoute roles={['ADMIN_PARKING','VIGILANTE','VISUALIZADOR']}><ParkingDashboardView /></RoleRoute>} /> */}
@@ -229,7 +243,16 @@ export function AppRouter() {
 
           {/* ⏳ Sprint 9 — Reportes + Config */}
           <Route path="reportes" element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','VISUALIZADOR']}><ReportesView /></RoleRoute>} />
-          <Route path="config"   element={<RoleRoute roles={['ADMIN_GLOBAL']}><ConfigView /></RoleRoute>} />
+
+          {/* Config — sub-rutas por área */}
+          <Route path="config" element={<RoleRoute roles={['ADMIN_GLOBAL']}><ConfigLayout /></RoleRoute>}>
+            <Route index element={<Navigate to="sistema" replace />} />
+            <Route path="sistema"    element={<ConfigSistema />} />
+            <Route path="estructura" element={<ConfigEstructura />} />
+            <Route path="catalogos"  element={<ConfigCatalogos />} />
+            <Route path="normas"     element={<ConfigNormas />} />
+            <Route path="actividades" element={<ConfigActividades />} />
+          </Route>
 
         </Route>
 

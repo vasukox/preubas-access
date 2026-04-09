@@ -1135,8 +1135,8 @@ export default function PanelGeneralView() {
   const navigate = useNavigate()
   const sedeActiva = useSedeStore(s => s.sedeActiva)
   const sedesStore = useSedeStore(s => s.sedes)
-  const hasRole    = useAuthStore(s => s.hasRole)
-  const isAdmin    = hasRole('ADMIN_GLOBAL')
+  const hasAnyRole = useAuthStore(s => s.hasAnyRole)
+  const canManageProviders = hasAnyRole(['ADMIN_GLOBAL', 'ADMIN_HSE'])
 
   const [autorizaciones, setAutorizaciones] = useState<AutorizacionListResponse[]>([])
   const [loading,        setLoading]        = useState(true)
@@ -1262,7 +1262,7 @@ export default function PanelGeneralView() {
           >
             <RefreshCw size={14} />
           </button>
-          {isAdmin && (
+          {canManageProviders && (
             <button
               onClick={() => setShowGestionProv(true)}
               className="btn-ghost"

@@ -142,6 +142,16 @@ async def _ensure_sede_access(
     if "ADMIN_GLOBAL" in roles or "ADMIN_HSE" in roles:
         return
 
+    # Para usuarios operativos (vigilantes), la sede efectiva vive en Usuario.sede_asignada_id.
+    if current_user.sede_asignada_id is not None:
+        if current_user.sede_asignada_id != sede_id:
+            err(
+                "SIN_PERMISOS_SEDE",
+                "No tienes permisos para operar sobre esta sede.",
+                403,
+            )
+        return
+
     result = await db.execute(
         select(Perfil.sede_default_id)
         .where(
@@ -221,7 +231,7 @@ async def catalogo_proveedores(
     response_model=ApiResponse[ProveedorHSEOptionResponse],
     status_code=status.HTTP_201_CREATED,
     summary="Crear proveedor para flujo HSE",
-    dependencies=[Depends(require_role("ADMIN_GLOBAL"))],
+    dependencies=[Depends(require_role("ADMIN_GLOBAL", "ADMIN_HSE"))],
 )
 async def crear_proveedor_hse(
     body: ProveedorHSECreateRequest,
@@ -241,7 +251,7 @@ async def crear_proveedor_hse(
     "/catalogos/proveedores/{proveedor_id}",
     response_model=ApiResponse[ProveedorHSEOptionResponse],
     summary="Actualizar proveedor HSE",
-    dependencies=[Depends(require_role("ADMIN_GLOBAL"))],
+    dependencies=[Depends(require_role("ADMIN_GLOBAL", "ADMIN_HSE"))],
 )
 async def actualizar_proveedor_hse(
     proveedor_id: int,
@@ -262,7 +272,7 @@ async def actualizar_proveedor_hse(
     "/catalogos/proveedores/{proveedor_id}",
     response_model=ApiResponse[None],
     summary="Eliminar (soft-delete) proveedor HSE",
-    dependencies=[Depends(require_role("ADMIN_GLOBAL"))],
+    dependencies=[Depends(require_role("ADMIN_GLOBAL", "ADMIN_HSE"))],
 )
 async def eliminar_proveedor_hse(
     proveedor_id: int,
@@ -320,6 +330,9 @@ async def listar_sedes(
     # ADMIN_GLOBAL y ADMIN_HSE pueden operar transversalmente en todas las sedes.
     if "ADMIN_GLOBAL" in roles or "ADMIN_HSE" in roles:
         return ok(sedes)
+
+    if current_user.sede_asignada_id is not None:
+        return ok([s for s in sedes if s.id == current_user.sede_asignada_id])
 
     result = await db.execute(
         select(Perfil.sede_default_id).where(

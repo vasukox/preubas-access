@@ -1,18 +1,22 @@
 import { useEffect, useState } from 'react'
-import { Check, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Check, ChevronLeft, ChevronRight, Building2, Lock, ChevronDown, Eye, EyeOff, X } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { herramientasService, type RolSistema } from '@/services/herramientas.service'
+import { hseService } from '@/services/hse.service'
 import { useAuthStore } from '@/store/authStore'
-import type { RolNombre } from '@/types'
+import type { RolNombre, SedeBasica } from '@/types'
 import {
   DEFAULT_PERMISOS,
-  HSE_ROLES_ACTIVOS,
-  HSE_SUBMODULO_ROLES,
   HSE_SUBROLES_POR_ROL,
+  HSE_SUBMODULO_ROLES,
   PERMISSION_META,
   PERMISOS_LABELS,
+  ROL_AREAS_POR_CATEGORIA,
+  ROL_CATEGORIAS,
+  resolverRolFinal,
   roleCapabilities,
   validarPassword,
+  type RolCategoria,
   type VistaHerramientas,
 } from '../constants'
 
@@ -25,7 +29,8 @@ interface CrearUsuarioWizardProps {
 export function CrearUsuarioWizard({ roles, setVistaActiva, onUserCreated }: CrearUsuarioWizardProps) {
   const [wizardStep, setWizardStep] = useState(1)
   const [savingUser, setSavingUser] = useState(false)
-  
+  const [sedesDisponibles, setSedesDisponibles] = useState<SedeBasica[]>([])
+
   const usuarioActual = useAuthStore((s) => s.usuario)
   const nombreFirmante = usuarioActual?.nombre_completo ?? ''
 
@@ -41,7 +46,21 @@ export function CrearUsuarioWizard({ roles, setVistaActiva, onUserCreated }: Cre
     password_confirmacion: '',
     firma_creador: '',
     permisos: { ...DEFAULT_PERMISOS },
+    sede_asignada_id: null as number | null,
   })
+
+  // Estado del selector en cascada (no necesita persistirse en nuevoUsuario)
+  const [rolCategoria, setRolCategoria] = useState<RolCategoria | ''>('')
+  const [rolArea,      setRolArea]      = useState<RolNombre | ''  >('')
+
+  // Toggle visibilidad de contraseña
+  const [showPassword,    setShowPassword]    = useState(false)
+  const [showPasswordConf, setShowPasswordConf] = useState(false)
+
+  // Cargar sedes al montar
+  useEffect(() => {
+    hseService.getSedes().then(setSedesDisponibles).catch(() => {})
+  }, [])
 
   // Autofill firma cuando se entra al paso 3
   useEffect(() => {
@@ -80,9 +99,17 @@ export function CrearUsuarioWizard({ roles, setVistaActiva, onUserCreated }: Cre
     return true
   }
 
+  const ROLES_VIGILANTE: RolNombre[] = ['VIGILANTE_HSE', 'VIGILANTE_PARKING']
+  const esVigilante = nuevoUsuario.roles_nombres.some(r => ROLES_VIGILANTE.includes(r))
+    || ROLES_VIGILANTE.includes(nuevoUsuario.rol_nombre as RolNombre)
+
   const validarPaso2 = () => {
     if (nuevoUsuario.roles_nombres.length === 0 && !nuevoUsuario.rol_nombre) {
       toast.error('Selecciona al menos un subrol para continuar.')
+      return false
+    }
+    if (esVigilante && !nuevoUsuario.sede_asignada_id) {
+      toast.error('Los vigilantes deben tener una sede asignada. Selecciona una sede.')
       return false
     }
     return true
@@ -104,6 +131,21 @@ export function CrearUsuarioWizard({ roles, setVistaActiva, onUserCreated }: Cre
       roles_nombres: rol ? [rol] : [],
       permisos: rol ? { ...roleCapabilities[rol as RolNombre] } : { ...DEFAULT_PERMISOS },
     }))
+  }
+
+  // Handler principal del selector en cascada
+  const handleCategoriaChange = (cat: RolCategoria | '') => {
+    setRolCategoria(cat)
+    setRolArea('')
+    // Si la categoría ya resuelve un rol directamente (ADMIN_GLOBAL / VISUALIZADOR) lo aplicamos ya
+    const rolResuelto = resolverRolFinal(cat, '')
+    aplicarRolInicial(rolResuelto)
+  }
+
+  const handleAreaChange = (area: RolNombre | '') => {
+    setRolArea(area)
+    const rolResuelto = resolverRolFinal(rolCategoria, area)
+    aplicarRolInicial(rolResuelto)
   }
 
   const toggleSubrolWizard = (subrol: RolNombre) => {
@@ -128,26 +170,24 @@ export function CrearUsuarioWizard({ roles, setVistaActiva, onUserCreated }: Cre
   const handleCrearUsuarioFinal = async () => {
     if (!validarPaso1() || !validarPaso2() || !validarPaso3()) return
     const firmaFinal = (nuevoUsuario.firma_creador || nombreFirmante).trim()
-    const rolesFinales = Array.from(
-      new Set([
-        ...nuevoUsuario.roles_nombres,
-        ...(nuevoUsuario.rol_nombre ? [nuevoUsuario.rol_nombre] : []),
-      ]),
-    )
+    // Con el selector en cascada, solo hay un rol resuelto — limpio y sin subroles extra
+    const rolFinal = nuevoUsuario.rol_nombre
+    if (!rolFinal) return
     try {
       setSavingUser(true)
       await herramientasService.crearUsuario({
-        email: nuevoUsuario.email,
-        nombres: nuevoUsuario.nombres,
-        apellidos: nuevoUsuario.apellidos,
-        numero: nuevoUsuario.numero,
-        direccion: nuevoUsuario.direccion,
-        rol_nombre: rolesFinales[0] ?? undefined,
-        roles_nombres: rolesFinales as RolNombre[],
-        password: nuevoUsuario.password,
+        email:                 nuevoUsuario.email,
+        nombres:               nuevoUsuario.nombres,
+        apellidos:             nuevoUsuario.apellidos,
+        numero:                nuevoUsuario.numero,
+        direccion:             nuevoUsuario.direccion,
+        rol_nombre:            rolFinal,
+        roles_nombres:         [rolFinal] as RolNombre[],
+        password:              nuevoUsuario.password,
         password_confirmacion: nuevoUsuario.password_confirmacion,
-        firma_creador: firmaFinal,
-        permisos: nuevoUsuario.permisos,
+        firma_creador:         firmaFinal,
+        permisos:              nuevoUsuario.permisos,
+        sede_asignada_id:      esVigilante ? nuevoUsuario.sede_asignada_id : null,
       })
       toast.success(`Usuario ${nuevoUsuario.nombres} ${nuevoUsuario.apellidos} creado correctamente.`)
       onUserCreated()
@@ -369,35 +409,160 @@ export function CrearUsuarioWizard({ roles, setVistaActiva, onUserCreated }: Cre
                 />
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '5px' }}>
-                  CONTRASEÑA INICIAL
-                </label>
-                <input
-                  type="password"
-                  value={nuevoUsuario.password}
-                  onChange={(e) => setNuevoUsuario((p) => ({ ...p, password: e.target.value }))}
-                  placeholder="Mínimo 8 caracteres"
-                  style={fieldStyle}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '5px' }}>
-                  CONFIRMAR CONTRASEÑA
-                </label>
-                <input
-                  type="password"
-                  value={nuevoUsuario.password_confirmacion}
-                  onChange={(e) => setNuevoUsuario((p) => ({ ...p, password_confirmacion: e.target.value }))}
-                  placeholder="Repite la contraseña"
-                  style={fieldStyle}
-                />
-              </div>
-            </div>
-            <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-              Debe contener mínimo 8 caracteres, mayúscula, minúscula, número y carácter especial.
-            </p>
+            {/* ── Contraseña con indicador premium ──────────────────────── */}
+            {(() => {
+              const pwd = nuevoUsuario.password
+              const rules = [
+                { key: 'len',     label: 'Mínimo 8 caracteres',   ok: pwd.length >= 8 },
+                { key: 'upper',   label: 'Una mayúscula',          ok: /[A-Z]/.test(pwd) },
+                { key: 'lower',   label: 'Una minúscula',          ok: /[a-z]/.test(pwd) },
+                { key: 'digit',   label: 'Un número',              ok: /\d/.test(pwd) },
+                { key: 'special', label: 'Carácter especial',      ok: /[^A-Za-z0-9]/.test(pwd) },
+              ]
+              const passed   = rules.filter((r) => r.ok).length
+              const strength = pwd.length === 0 ? 0 : passed
+              const strengthConfig = [
+                { label: '',          color: 'var(--border-subtle)' },
+                { label: 'Muy débil', color: '#ef4444' },
+                { label: 'Débil',     color: '#f97316' },
+                { label: 'Regular',   color: '#eab308' },
+                { label: 'Fuerte',    color: '#22c55e' },
+                { label: 'Perfecta',  color: '#10b981' },
+              ][strength]
+
+              const confirm  = nuevoUsuario.password_confirmacion
+              const matches  = confirm.length > 0 && pwd === confirm
+              const mismatch = confirm.length > 0 && pwd !== confirm
+
+              return (
+                <div style={{ display: 'grid', gap: '12px' }}>
+
+                  {/* Campo contraseña */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '5px', letterSpacing: '0.04em' }}>
+                      CONTRASEÑA INICIAL
+                    </label>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={pwd}
+                        onChange={(e) => setNuevoUsuario((p) => ({ ...p, password: e.target.value }))}
+                        placeholder="Mínimo 8 caracteres"
+                        style={{
+                          ...fieldStyle,
+                          paddingRight: '38px',
+                          borderColor: pwd.length > 0
+                            ? passed === 5 ? '#22c55e66'
+                            : passed >= 3  ? '#eab30866'
+                            : '#ef444466'
+                            : 'var(--border-default)',
+                          transition: 'border-color 0.3s ease',
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((v) => !v)}
+                        style={{
+                          position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
+                          background: 'none', border: 'none', cursor: 'pointer',
+                          color: 'var(--text-muted)', padding: '4px', display: 'flex',
+                        }}
+                        tabIndex={-1}
+                      >
+                        {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                      </button>
+                    </div>
+
+                    {/* Barra de fuerza */}
+                    {pwd.length > 0 && (
+                      <div style={{ marginTop: '8px' }}>
+                        <div style={{ display: 'flex', gap: '4px', marginBottom: '5px' }}>
+                          {[1,2,3,4,5].map((i) => (
+                            <div
+                              key={i}
+                              style={{
+                                flex: 1, height: '3px', borderRadius: '2px',
+                                background: i <= strength ? strengthConfig.color : 'var(--border-subtle)',
+                                transition: 'background 0.3s ease',
+                              }}
+                            />
+                          ))}
+                        </div>
+                        <div style={{ fontSize: '0.68rem', color: strengthConfig.color, fontWeight: 600, fontFamily: 'var(--font-mono)' }}>
+                          {strengthConfig.label}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Chips de requisitos */}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '8px' }}>
+                      {rules.map((rule) => (
+                        <span
+                          key={rule.key}
+                          style={{
+                            display: 'inline-flex', alignItems: 'center', gap: '4px',
+                            padding: '3px 8px', borderRadius: '999px', fontSize: '0.67rem', fontWeight: 600,
+                            border: `1px solid ${rule.ok ? 'rgba(16,185,129,0.35)' : 'var(--border-subtle)'}`,
+                            background: rule.ok ? 'rgba(16,185,129,0.08)' : 'var(--bg-raised)',
+                            color: rule.ok ? 'var(--success-400)' : 'var(--text-muted)',
+                            transition: 'all 0.25s ease',
+                          }}
+                        >
+                          {rule.ok
+                            ? <Check size={10} color="var(--success-400)" />
+                            : <X size={10} color="var(--text-muted)" />}
+                          {rule.label}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Campo confirmación */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '5px', letterSpacing: '0.04em' }}>
+                      CONFIRMAR CONTRASEÑA
+                    </label>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        type={showPasswordConf ? 'text' : 'password'}
+                        value={confirm}
+                        onChange={(e) => setNuevoUsuario((p) => ({ ...p, password_confirmacion: e.target.value }))}
+                        placeholder="Repite la contraseña"
+                        style={{
+                          ...fieldStyle,
+                          paddingRight: '38px',
+                          borderColor: matches ? '#22c55e66' : mismatch ? '#ef444466' : 'var(--border-default)',
+                          transition: 'border-color 0.3s ease',
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPasswordConf((v) => !v)}
+                        style={{
+                          position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
+                          background: 'none', border: 'none', cursor: 'pointer',
+                          color: 'var(--text-muted)', padding: '4px', display: 'flex',
+                        }}
+                        tabIndex={-1}
+                      >
+                        {showPasswordConf ? <EyeOff size={15} /> : <Eye size={15} />}
+                      </button>
+                    </div>
+                    {matches && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '6px', fontSize: '0.7rem', color: 'var(--success-400)', fontWeight: 600 }}>
+                        <Check size={12} /> Las contraseñas coinciden
+                      </div>
+                    )}
+                    {mismatch && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '6px', fontSize: '0.7rem', color: 'var(--danger-400)', fontWeight: 600 }}>
+                        <X size={12} /> No coinciden
+                      </div>
+                    )}
+                  </div>
+
+                </div>
+              )
+            })()}
           </div>
 
           {/* PASO 2 */}
@@ -408,103 +573,159 @@ export function CrearUsuarioWizard({ roles, setVistaActiva, onUserCreated }: Cre
               animation: 'fadeIn 0.3s ease-out forwards',
             }}
           >
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '12px' }}>
-              <div style={{ ...panelStyle, padding: '12px', boxShadow: 'none' }}>
-                <div style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
-                  Guía de asignación
-                </div>
-                <div style={{ display: 'grid', gap: '6px' }}>
-                  <div style={{ fontSize: '0.71rem', color: 'var(--text-secondary)' }}>1. Selecciona el rol principal.</div>
-                  <div style={{ fontSize: '0.71rem', color: 'var(--text-secondary)' }}>
-                    2. Marca los subroles secundarios.
-                  </div>
-                  <div style={{ fontSize: '0.71rem', color: 'var(--text-secondary)' }}>
-                    3. Revisa los permisos asignados.
-                  </div>
-                </div>
-              </div>
+            {/* ── Selector en cascada ────────────────────────────────────── */}
+            <div style={{ display: 'grid', gap: '14px' }}>
 
-              <div style={{ ...panelStyle, padding: '12px', boxShadow: 'none' }}>
-                <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '6px' }}>
-                  ROL PRINCIPAL
+              {/* Nivel 1 — Categoría */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '6px', letterSpacing: '0.06em' }}>
+                  TIPO DE ROL
                 </label>
-                <select
-                  value={nuevoUsuario.rol_nombre}
-                  onChange={(e) => aplicarRolInicial(e.target.value as RolNombre | '')}
-                  style={fieldStyle}
-                >
-                  <option value="">Seleccionar rol...</option>
-                  {HSE_ROLES_ACTIVOS.map((rol) => (
-                    <option key={`wizard-main-rol-${rol}`} value={rol}>
-                      {rol}
-                    </option>
-                  ))}
-                </select>
-                <p style={{ margin: '7px 0 0', fontSize: '0.68rem', color: 'var(--text-muted)' }}>
-                  Este rol se asigna siempre de base.
-                </p>
+                <div style={{ display: 'grid', gap: '8px' }}>
+                  {ROL_CATEGORIAS.map((cat) => {
+                    const selected = rolCategoria === cat.value
+                    return (
+                      <button
+                        key={cat.value}
+                        type="button"
+                        onClick={() => handleCategoriaChange(cat.value)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px',
+                          padding: '12px 14px',
+                          borderRadius: 'var(--radius-md)',
+                          border: `1px solid ${selected ? 'var(--primary-400)' : 'var(--border-default)'}`,
+                          background: selected ? 'rgba(245,158,11,0.07)' : 'var(--bg-raised)',
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                          transition: 'all 0.18s ease',
+                          width: '100%',
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: '10px', height: '10px', borderRadius: '50%', flexShrink: 0,
+                            background: selected ? 'var(--primary-500)' : 'var(--border-default)',
+                            border: `2px solid ${selected ? 'var(--primary-400)' : 'var(--border-subtle)'}`,
+                            transition: 'all 0.18s',
+                          }}
+                        />
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: '0.84rem', fontWeight: selected ? 700 : 500, color: selected ? 'var(--primary-400)' : 'var(--text-primary)' }}>
+                            {cat.label}
+                          </div>
+                          <div style={{ fontSize: '0.71rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                            {cat.descripcion}
+                          </div>
+                        </div>
+                        {selected && <Check size={14} color="var(--primary-500)" style={{ flexShrink: 0 }} />}
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
-            </div>
 
-            {nuevoUsuario.rol_nombre && (
-              <div style={{ ...panelStyle, padding: '12px', boxShadow: 'none' }}>
-                <label
+              {/* Nivel 2 — Área (aparece si la categoría tiene sub-opciones) */}
+              {rolCategoria && ROL_AREAS_POR_CATEGORIA[rolCategoria] && (
+                <div
                   style={{
-                    display: 'block',
-                    fontSize: '0.7rem',
-                    color: 'var(--text-secondary)',
-                    marginBottom: '7px',
+                    borderLeft: '2px solid var(--primary-500)',
+                    paddingLeft: '14px',
+                    animation: 'fadeIn 0.25s ease-out',
                   }}
                 >
-                  SUBROLES PERMITIDOS PARA {nuevoUsuario.rol_nombre}
-                </label>
-                {subrolesDisponibles.length === 0 ? (
-                  <p style={{ margin: 0, fontSize: '0.7rem', color: 'var(--text-muted)' }}>
-                    Este rol principal no tiene subroles configurados.
-                  </p>
-                ) : (
-                  <div style={{ display: 'grid', gap: '7px' }}>
-                    {subrolesDisponibles.map((subrol) => {
-                      const activo = nuevoUsuario.roles_nombres.includes(subrol)
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '8px', letterSpacing: '0.06em' }}>
+                    <ChevronDown size={12} color="var(--primary-400)" />
+                    ÁREA DE OPERACIÓN
+                  </label>
+                  <div style={{ display: 'grid', gap: '6px' }}>
+                    {ROL_AREAS_POR_CATEGORIA[rolCategoria]!.map((area) => {
+                      const selected = rolArea === area.value
                       return (
-                        <label
-                          key={`wizard-subrol-${subrol}`}
+                        <button
+                          key={area.value}
+                          type="button"
+                          onClick={() => handleAreaChange(area.value)}
                           style={{
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'space-between',
-                            gap: '8px',
-                            padding: '10px 14px',
+                            gap: '10px',
+                            padding: '10px 12px',
                             borderRadius: 'var(--radius-md)',
-                            border: `1px solid ${activo ? 'var(--primary-400)' : 'var(--border-default)'}`,
-                            background: activo ? 'rgba(99, 102, 241, 0.05)' : 'var(--bg-raised)',
+                            border: `1px solid ${selected ? 'var(--primary-400)' : 'var(--border-subtle)'}`,
+                            background: selected ? 'rgba(245,158,11,0.06)' : 'transparent',
                             cursor: 'pointer',
-                            transition: 'all 0.2s ease',
+                            textAlign: 'left',
+                            transition: 'all 0.18s ease',
+                            width: '100%',
                           }}
                         >
-                          <span
+                          <div
                             style={{
-                              fontSize: '0.76rem',
-                              color: activo ? 'var(--primary-500)' : 'var(--text-secondary)',
-                              fontFamily: 'var(--font-mono)',
-                              fontWeight: activo ? 700 : 500,
+                              width: '8px', height: '8px', borderRadius: '50%', flexShrink: 0,
+                              background: selected ? 'var(--primary-500)' : 'var(--border-default)',
+                              transition: 'all 0.18s',
                             }}
-                          >
-                            {subrol}
-                          </span>
-                          <input
-                            type="checkbox"
-                            checked={activo}
-                            onChange={() => toggleSubrolWizard(subrol)}
-                            style={{ width: '16px', height: '16px', accentColor: 'var(--primary-500)', cursor: 'pointer' }}
                           />
-                        </label>
+                          <span style={{ fontSize: '0.8rem', fontWeight: selected ? 600 : 400, color: selected ? 'var(--primary-400)' : 'var(--text-secondary)', flex: 1 }}>
+                            {area.label}
+                          </span>
+                          {selected && <Check size={12} color="var(--primary-500)" style={{ flexShrink: 0 }} />}
+                        </button>
                       )
                     })}
                   </div>
-                )}
+                </div>
+              )}
+
+              {/* Confirmación visual del rol resuelto */}
+              {nuevoUsuario.rol_nombre && (
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  padding: '10px 14px', borderRadius: 'var(--radius-md)',
+                  background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.25)',
+                }}>
+                  <Check size={14} color="var(--success-400)" />
+                  <span style={{ fontSize: '0.77rem', color: 'var(--success-400)', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
+                    {nuevoUsuario.rol_nombre}
+                  </span>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>asignado como rol base</span>
+                </div>
+              )}
+            </div>
+
+            {/* Selector de sede — solo para vigilantes */}
+            {esVigilante && (
+              <div style={{ ...panelStyle, padding: '14px', boxShadow: 'none', border: '1px solid rgba(245,158,11,0.4)', background: 'rgba(245,158,11,0.04)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                  <Lock size={13} color="var(--primary-400)" />
+                  <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--primary-400)' }}>
+                    Sede operativa fija — requerida
+                  </div>
+                </div>
+                <p style={{ margin: '0 0 10px', fontSize: '0.72rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                  Los vigilantes quedan atados a una única sede. No podrán cambiarlo una vez creada la cuenta.
+                </p>
+                <select
+                  value={nuevoUsuario.sede_asignada_id ?? ''}
+                  onChange={(e) => setNuevoUsuario((p) => ({
+                    ...p,
+                    sede_asignada_id: e.target.value ? Number(e.target.value) : null,
+                  }))}
+                  style={{ ...fieldStyle, borderColor: nuevoUsuario.sede_asignada_id ? 'var(--primary-400)' : 'rgba(245,158,11,0.6)' }}
+                >
+                  <option value="">Selecciona la sede fija del vigilante...</option>
+                  {sedesDisponibles.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      <Building2 size={11} /> {s.nombre} {s.ciudad ? `— ${s.ciudad}` : ''}
+                    </option>
+                  ))}
+                </select>
               </div>
             )}
+
+            {/* Subroles eliminados: el nuevo selector en cascada resuelve un único rol */}
 
             {/* Permisos */}
             {nuevoUsuario.rol_nombre && (

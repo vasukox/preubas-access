@@ -15,15 +15,17 @@ export interface PermisosUsuario {
 }
 
 export interface UsuarioSistema {
-  id:              number
-  email:           string
-  nombre_completo: string
-  numero?:         string | null
-  direccion?:      string | null
-  activo:          boolean
-  ultimo_login:    string | null
-  roles:           { id: number; nombre: RolNombre }[]
-  permisos:        PermisosUsuario
+  id:               number
+  email:            string
+  nombre_completo:  string
+  numero?:          string | null
+  direccion?:       string | null
+  activo:           boolean
+  ultimo_login:     string | null
+  roles:            { id: number; nombre: RolNombre }[]
+  permisos:         PermisosUsuario
+  sede_asignada_id: number | null
+  sede_asignada:    { id: number; nombre: string; ciudad: string } | null
 }
 
 export interface RolSistema {
@@ -51,6 +53,7 @@ export interface UsuarioCreateRequest {
   password:              string
   password_confirmacion: string
   firma_creador:         string
+  sede_asignada_id?:     number | null
   permisos?: {
     ver:      boolean
     crear:    boolean

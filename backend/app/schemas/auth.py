@@ -58,6 +58,8 @@ class UsuarioMeResponse(BaseModel):
     debe_cambiar_password: bool
     ultimo_login:          datetime | None
     roles:                 list[RolResponse]
+    sede_asignada_id:      int | None = None
+    sede_asignada:         SedeAsignadaResponse | None = None
 
     model_config = {"from_attributes": True}
 

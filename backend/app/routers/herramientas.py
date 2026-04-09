@@ -76,6 +76,7 @@ class UsuarioCreateRequest(BaseModel):
     password_confirmacion: str = Field(min_length=8)
     firma_creador:         str | None = Field(default=None, max_length=150)
     permisos:              dict[str, bool] | None = None
+    sede_asignada_id:      int | None = None  # Obligatorio para vigilantes
 
 
 class UsuarioUpdateRequest(BaseModel):
@@ -119,15 +120,20 @@ def _serialize_permisos(p: UsuarioPermiso | None) -> dict:
 
 def _serialize_usuario(u: Usuario) -> dict:
     return {
-        "id":              u.id,
-        "email":           u.email,
-        "nombre_completo": u.nombre_completo,
-        "numero":          u.perfil.telefono if u.perfil else None,
-        "direccion":       u.perfil.ubicacion if u.perfil else None,
-        "activo":          u.activo,
-        "ultimo_login":    u.ultimo_login.isoformat() if u.ultimo_login else None,
-        "roles":           [{"id": ur.rol.id, "nombre": ur.rol.nombre} for ur in u.roles],
-        "permisos":        _serialize_permisos(u.permisos),
+        "id":               u.id,
+        "email":            u.email,
+        "nombre_completo":  u.nombre_completo,
+        "numero":           u.perfil.telefono if u.perfil else None,
+        "direccion":        u.perfil.ubicacion if u.perfil else None,
+        "activo":           u.activo,
+        "ultimo_login":     u.ultimo_login.isoformat() if u.ultimo_login else None,
+        "roles":            [{"id": ur.rol.id, "nombre": ur.rol.nombre} for ur in u.roles],
+        "permisos":         _serialize_permisos(u.permisos),
+        "sede_asignada_id": u.sede_asignada_id,
+        "sede_asignada":    (
+            {"id": u.sede_asignada.id, "nombre": u.sede_asignada.nombre, "ciudad": u.sede_asignada.ciudad}
+            if u.sede_asignada else None
+        ),
     }
 
 
@@ -432,6 +438,12 @@ async def crear_usuario(
     if roles_no_encontrados:
         err("ROL_NO_ENCONTRADO", f"Los roles {roles_no_encontrados} no existen o están inactivos", 404)
 
+    # ── Validar obligatoriedad de sede para vigilantes ─────────────
+    ROLES_VIGILANTE = {RolNombre.VIGILANTE_HSE, RolNombre.VIGILANTE_PARKING}
+    es_vigilante = bool(set(roles_solicitados) & ROLES_VIGILANTE)
+    if es_vigilante and not body.sede_asignada_id:
+        err("SEDE_REQUERIDA", "Los vigilantes deben tener una sede asignada obligatoriamente.", 400)
+
     # ── Crear usuario ─────────────────────────────────────────────
     nuevo = Usuario(
         email                 = body.email,
@@ -439,6 +451,7 @@ async def crear_usuario(
         password_hash         = hash_password(body.password),
         activo                = True,
         debe_cambiar_password = True,
+        sede_asignada_id      = body.sede_asignada_id if es_vigilante else None,
     )
     db.add(nuevo)
     await db.flush()

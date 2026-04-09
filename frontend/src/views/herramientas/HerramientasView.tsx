@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Clock, Plus, RefreshCw, Shield, UserCheck, UserCog } from 'lucide-react'
-import { toast } from 'react-hot-toast'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import type { RolSistema, UsuarioSistema } from '@/services/herramientas.service'
 import { herramientasService } from '@/services/herramientas.service'
 import { type VistaHerramientas } from './constants'
@@ -9,31 +9,41 @@ import { AuditoriaPanel } from './components/AuditoriaPanel'
 import { UsuariosPanel } from './components/UsuariosPanel'
 import { CrearUsuarioWizard } from './components/CrearUsuarioWizard'
 
+// ── Query Keys ── (claves únicas para que React Query identifique cada caché)
+export const HERRAMIENTAS_KEYS = {
+  roles:    ['herramientas', 'roles']    as const,
+  usuarios: ['herramientas', 'usuarios'] as const,
+}
+
 export default function HerramientasView() {
-  const [loading, setLoading] = useState(true)
-  const [usuarios, setUsuarios] = useState<UsuarioSistema[]>([])
-  const [roles, setRoles] = useState<RolSistema[]>([])
+  const queryClient = useQueryClient()
   const [vistaActiva, setVistaActiva] = useState<VistaHerramientas>('inicio')
 
-  const cargarTodo = async () => {
-    setLoading(true)
-    try {
-      const [rolesData, usuariosData] = await Promise.all([
-        herramientasService.listarRoles(),
-        herramientasService.listarUsuarios(),
-      ])
-      setRoles(rolesData)
-      setUsuarios(usuariosData)
-    } catch {
-      toast.error('No se pudo cargar el módulo de herramientas.')
-    } finally {
-      setLoading(false)
-    }
-  }
+  // ── Datos desde caché + red (React Query)
+  const {
+    data: roles = [],
+    isLoading: loadingRoles,
+  } = useQuery<RolSistema[]>({
+    queryKey: HERRAMIENTAS_KEYS.roles,
+    queryFn:  () => herramientasService.listarRoles(),
+    staleTime: 5 * 60 * 1000, // 5 min — los roles cambian poco
+  })
 
-  useEffect(() => {
-    cargarTodo()
-  }, [])
+  const {
+    data: usuarios = [],
+    isLoading: loadingUsuarios,
+  } = useQuery<UsuarioSistema[]>({
+    queryKey: HERRAMIENTAS_KEYS.usuarios,
+    queryFn:  () => herramientasService.listarUsuarios(),
+    staleTime: 60 * 1000, // 1 min — los usuarios cambian más seguido
+  })
+
+  const loading = loadingRoles || loadingUsuarios
+
+  // Invalida ambas queries para forzar re-fetch manual
+  const cargarTodo = () => {
+    queryClient.invalidateQueries({ queryKey: ['herramientas'] })
+  }
 
   const panelStyle: React.CSSProperties = {
     background: 'var(--bg-surface)',
@@ -228,10 +238,10 @@ export default function HerramientasView() {
 
       {/* ── Delegación de Vistas a Componentes ───────────────────────────── */}
       {vistaActiva === 'crear' && (
-        <CrearUsuarioWizard 
-          roles={roles} 
-          setVistaActiva={setVistaActiva} 
-          onUserCreated={cargarTodo} 
+        <CrearUsuarioWizard
+          roles={roles}
+          setVistaActiva={setVistaActiva}
+          onUserCreated={() => queryClient.invalidateQueries({ queryKey: ['herramientas'] })}
         />
       )}
 
@@ -245,7 +255,6 @@ export default function HerramientasView() {
           roles={roles}
           loading={loading}
           setVistaActiva={setVistaActiva}
-          setUsuarios={setUsuarios}
         />
       )}
     </div>

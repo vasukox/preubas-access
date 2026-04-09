@@ -292,6 +292,7 @@ class Persona(BaseModel):
     # ── Relaciones ────────────────────────────────────────────────
     proveedor: Mapped["Proveedor | None"] = relationship(
         back_populates="personas",
+        lazy="selectin",
     )
 
     def __repr__(self) -> str:

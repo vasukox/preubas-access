@@ -89,6 +89,8 @@ export interface UsuarioMe {
   debe_cambiar_password: boolean
   ultimo_login:          string | null
   roles:                 RolResponse[]
+  sede_asignada_id:      number | null
+  sede_asignada:         { id: number; nombre: string; ciudad: string } | null
 }
 
 export interface RolResponse {

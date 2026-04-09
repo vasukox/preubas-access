@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import toast from 'react-hot-toast'
-import { Edit2, ShieldAlert, Trash2 } from 'lucide-react'
+import { Edit2, Trash2 } from 'lucide-react'
 import { configService, type NormaConfig, type SedeConfig } from '@/services/config.service'
 import { getErrorMessage } from '@/services/api'
 import { usePagination } from '@/hooks/usePagination'

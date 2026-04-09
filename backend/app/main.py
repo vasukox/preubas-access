@@ -116,7 +116,7 @@ Authorization: Bearer <access_token>
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origins_list,
-    allow_origin_regex=(r"^https?://(localhost|127\.0\.0\.1)(:\\d+)?$" if settings.is_development else None),
+    allow_origin_regex=(r"^(https?://(localhost|127\.0\.0\.1)(:\d+)?|https?://.*\.trycloudflare\.com|https?://.*\.pinggy\.link|https?://.*\.loca\.lt)$" if settings.is_development else None),
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],

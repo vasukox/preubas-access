@@ -89,9 +89,63 @@ export const HSE_ROLES_ACTIVOS: RolNombre[] = [
 ]
 
 export const HSE_SUBROLES_POR_ROL: Partial<Record<RolNombre, RolNombre[]>> = {
-  ADMIN_GLOBAL: ['ADMIN_HSE', 'GESTION_HSE', 'VIGILANTE_HSE', 'VISUALIZADOR'],
-  ADMIN_HSE: ['GESTION_HSE', 'VIGILANTE_HSE', 'VISUALIZADOR'],
-  GESTION_HSE: ['VISUALIZADOR'],
+  ADMIN_GLOBAL: ['ADMIN_HSE', 'VIGILANTE_HSE', 'ADMIN_PARKING', 'VIGILANTE_PARKING', 'ADMIN_NFC', 'ADMIN_GH', 'VISUALIZADOR'],
+  ADMIN_HSE: ['VIGILANTE_HSE', 'VISUALIZADOR'],
+  ADMIN_PARKING: ['VIGILANTE_PARKING', 'VISUALIZADOR'],
+  ADMIN_NFC: ['VISUALIZADOR'],
+  ADMIN_GH: ['VISUALIZADOR'],
+}
+
+// ── Selector cascarón por categoría de rol ─────────────────────────────────
+// Categoría que el usuario ve primero en el wizard
+export type RolCategoria = 'ADMIN_GLOBAL' | 'ADMIN_ESPECIFICO' | 'VIGILANTE' | 'VISUALIZADOR'
+
+export const ROL_CATEGORIAS: Array<{ value: RolCategoria; label: string; descripcion: string }> = [
+  {
+    value: 'ADMIN_GLOBAL',
+    label: 'Administrador Global',
+    descripcion: 'Acceso completo a todos los módulos y configuración del sistema.',
+  },
+  {
+    value: 'ADMIN_ESPECIFICO',
+    label: 'Administrador de Área',
+    descripcion: 'Administra un módulo específico: HSE, Parking, NFC o Gestión Humana.',
+  },
+  {
+    value: 'VIGILANTE',
+    label: 'Vigilante / Operario',
+    descripcion: 'Opera en portmería de un módulo específico. Requiere sede fija.',
+  },
+  {
+    value: 'VISUALIZADOR',
+    label: 'Visualizador',
+    descripcion: 'Solo lectura de reportes y dashboards. Sin capacidad de modificar datos.',
+  },
+]
+
+// Áreas disponibles por categoría (cuando aplica)
+export const ROL_AREAS_POR_CATEGORIA: Partial<Record<RolCategoria, Array<{ value: RolNombre; label: string }>>> = {
+  ADMIN_ESPECIFICO: [
+    { value: 'ADMIN_HSE',     label: 'HSE — Seguridad & Salud en el Trabajo' },
+    { value: 'ADMIN_PARKING', label: 'Parking — Control vehicular' },
+    { value: 'ADMIN_NFC',     label: 'Activos NFC — Inventario y trazabilidad' },
+    { value: 'ADMIN_GH',      label: 'Gestión Humana — Citas y colaboradores' },
+  ],
+  VIGILANTE: [
+    { value: 'VIGILANTE_HSE',     label: 'Vigilante HSE — Portería de seguridad' },
+    { value: 'VIGILANTE_PARKING', label: 'Vigilante Parking — Control vehicular' },
+  ],
+}
+
+// Resuelve el RolNombre final a partir de categoría + área
+export function resolverRolFinal(
+  categoria: RolCategoria | '',
+  area: RolNombre | '',
+): RolNombre | '' {
+  if (categoria === 'ADMIN_GLOBAL') return 'ADMIN_GLOBAL'
+  if (categoria === 'VISUALIZADOR') return 'VISUALIZADOR'
+  if ((categoria === 'ADMIN_ESPECIFICO' || categoria === 'VIGILANTE') && area) return area
+  return ''
 }
 
 export const HSE_SUBMODULO_ROLES: Array<{ submodulo: string; roles: RolNombre[] }> = [
