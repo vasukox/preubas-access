@@ -1149,6 +1149,17 @@ export default function PanelGeneralView() {
   const [showGestionProv,   setShowGestionProv]   = useState(false)
   const [showCrearProvModal, setShowCrearProvModal] = useState(false)
   const [autorizacionAEliminar, setAutorizacionAEliminar] = useState<number | null>(null)
+  const [isCompactTable, setIsCompactTable] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false
+    return window.innerWidth < 1100
+  })
+
+  useEffect(() => {
+    const onResize = () => setIsCompactTable(window.innerWidth < 1100)
+    onResize()
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
 
   useEffect(() => {
     const loadSedes = async () => {
@@ -1368,62 +1379,140 @@ export default function PanelGeneralView() {
         borderRadius: 'var(--radius-lg)',
         overflow:     'hidden',
       }}>
-        <div style={{ overflowX: 'auto' }}>
-          <div style={{ minWidth: '960px' }}>
-            {/* Encabezados */}
+        {loading ? (
+          <div style={{
+            padding:        '48px',
+            textAlign:      'center',
+            color:          'var(--text-muted)',
+            fontSize:       '0.83rem',
+            display:        'flex',
+            alignItems:     'center',
+            justifyContent: 'center',
+            gap:            '10px',
+          }}>
             <div style={{
-              display:             'grid',
-              gridTemplateColumns: 'minmax(240px, 1fr) 130px 210px 140px 170px 100px',
-              columnGap:           '14px',
-              padding:             '10px 20px',
-              borderBottom:        '1px solid var(--border-subtle)',
-              background:          'var(--bg-elevated)',
-            }}>
-              {['Nombre', 'Tipo', 'Vigencia', 'Contratistas', 'Estado', 'Acciones'].map(h => (
-              <div key={h} style={{
-                fontSize:      '0.68rem',
-                fontWeight:    600,
-                color:         'var(--text-muted)',
-                letterSpacing: '0.08em',
-              }}>
-                {h.toUpperCase()}
+              width:        '16px',
+              height:       '16px',
+              border:       '2px solid var(--border-default)',
+              borderTop:    '2px solid var(--primary-500)',
+              borderRadius: '50%',
+              animation:    'spin 1s linear infinite',
+            }} />
+            Cargando...
+          </div>
+        ) : autorizacionesNormales.length === 0 ? (
+          <div style={{
+            padding:   '48px',
+            textAlign: 'center',
+            color:     'var(--text-muted)',
+            fontSize:  '0.83rem',
+          }}>
+            {busqueda ? 'No se encontraron resultados.' : 'No hay autorizaciones estándar. Crea la primera.'}
+          </div>
+        ) : isCompactTable ? (
+          <div style={{ display: 'grid', gap: '10px', padding: '12px' }}>
+            {autorizacionesPagination.paginatedData.map((a) => (
+              <div
+                key={a.id}
+                style={{
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: 'var(--radius-md)',
+                  padding: '12px',
+                  background: 'var(--bg-elevated)',
+                  display: 'grid',
+                  gap: '8px',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: '0.82rem', color: 'var(--text-primary)', fontWeight: 700 }}>
+                      {a.contratistas?.[0]
+                        ? `${a.contratistas[0].nombres} ${a.contratistas[0].apellidos}`.trim()
+                        : 'Sin contratista'}
+                    </div>
+                    <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                      {a.codigo}
+                    </div>
+                  </div>
+                  <EstadoBadge estado={a.estado} />
+                </div>
+
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 8px', borderRadius: '20px',
+                    border: `1px solid ${a.tipo_contratista === 'ALTO_RIESGO' ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)'}`,
+                    background: a.tipo_contratista === 'ALTO_RIESGO' ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)',
+                    color: a.tipo_contratista === 'ALTO_RIESGO' ? 'var(--danger-400)' : 'var(--success-400)',
+                    fontSize: '0.7rem',
+                  }}>
+                    {a.tipo_contratista === 'ALTO_RIESGO' ? <AlertTriangle size={9} /> : <CheckCircle2 size={9} />}
+                    {TIPO_CONTRATISTA_LABEL[a.tipo_contratista]}
+                  </span>
+
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.72rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>
+                    <Calendar size={11} color="var(--text-muted)" />
+                    {a.fecha_inicio} → {a.fecha_fin}
+                  </span>
+
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
+                    <Users size={12} color="var(--text-muted)" />
+                    {a.total_contratistas}
+                    {a.aprobados > 0 ? ` (${a.aprobados} ✓)` : ''}
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={() => {
+                      const contratistaId = a.contratistas?.[0]?.id
+                      if (contratistaId) {
+                        navigate(`/hse/gestion?contratista_id=${contratistaId}&autorizacion_id=${a.id}`)
+                        return
+                      }
+                      navigate('/hse/gestion')
+                    }}
+                    className="btn-ghost"
+                    style={{ flex: 1, justifyContent: 'center' }}
+                  >
+                    <Eye size={13} /> Ver
+                  </button>
+                  <button
+                    onClick={() => setAutorizacionAEliminar(a.id)}
+                    className="btn-ghost"
+                    style={{ flex: 1, justifyContent: 'center', color: 'var(--danger-400)', borderColor: 'rgba(239,68,68,0.15)' }}
+                  >
+                    <Trash2 size={13} /> Eliminar
+                  </button>
+                </div>
               </div>
             ))}
           </div>
-
-          {/* Filas */}
-          {loading ? (
-            <div style={{
-              padding:        '48px',
-              textAlign:      'center',
-              color:          'var(--text-muted)',
-              fontSize:       '0.83rem',
-              display:        'flex',
-              alignItems:     'center',
-              justifyContent: 'center',
-              gap:            '10px',
-            }}>
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <div style={{ minWidth: '960px' }}>
+              {/* Encabezados */}
               <div style={{
-                width:        '16px',
-                height:       '16px',
-                border:       '2px solid var(--border-default)',
-                borderTop:    '2px solid var(--primary-500)',
-                borderRadius: '50%',
-                animation:    'spin 1s linear infinite',
-              }} />
-              Cargando...
+                display:             'grid',
+                gridTemplateColumns: 'minmax(240px, 1fr) 130px 210px 140px 170px 100px',
+                columnGap:           '14px',
+                padding:             '10px 20px',
+                borderBottom:        '1px solid var(--border-subtle)',
+                background:          'var(--bg-elevated)',
+              }}>
+                {['Nombre', 'Tipo', 'Vigencia', 'Contratistas', 'Estado', 'Acciones'].map(h => (
+                <div key={h} style={{
+                  fontSize:      '0.68rem',
+                  fontWeight:    600,
+                  color:         'var(--text-muted)',
+                  letterSpacing: '0.08em',
+                }}>
+                  {h.toUpperCase()}
+                </div>
+              ))}
             </div>
-          ) : autorizacionesNormales.length === 0 ? (
-            <div style={{
-              padding:   '48px',
-              textAlign: 'center',
-              color:     'var(--text-muted)',
-              fontSize:  '0.83rem',
-            }}>
-              {busqueda ? 'No se encontraron resultados.' : 'No hay autorizaciones estándar. Crea la primera.'}
-            </div>
-          ) : (
-            autorizacionesPagination.paginatedData.map((a, i) => (
+
+            {/* Filas */}
+            {autorizacionesPagination.paginatedData.map((a, i) => (
               <div
                 key={a.id}
                 style={{
@@ -1431,7 +1520,7 @@ export default function PanelGeneralView() {
                   gridTemplateColumns: 'minmax(240px, 1fr) 130px 210px 140px 170px 100px',
                   columnGap:           '14px',
                   padding:             '14px 20px',
-                  borderBottom:        i < autorizacionesNormales.length - 1 ? '1px solid var(--border-subtle)' : 'none',
+                  borderBottom:        i < autorizacionesPagination.paginatedData.length - 1 ? '1px solid var(--border-subtle)' : 'none',
                   alignItems:          'center',
                   transition:          'background var(--transition-fast)',
                 }}
@@ -1526,7 +1615,6 @@ export default function PanelGeneralView() {
 
               {/* Acciones */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: '6px' }}>
-                {/* Ver detalle */}
                 <button
                   onClick={() => {
                     const contratistaId = a.contratistas?.[0]?.id
@@ -1542,7 +1630,6 @@ export default function PanelGeneralView() {
                 >
                   <Eye size={13} />
                 </button>
-                {/* Eliminar */}
                 <button
                   onClick={() => setAutorizacionAEliminar(a.id)}
                   className="btn-icon"
@@ -1558,10 +1645,10 @@ export default function PanelGeneralView() {
                 </button>
               </div>
             </div>
-            ))
-          )}
+            ))}
+            </div>
           </div>
-        </div>
+        )}
         <Pagination
           currentPage={autorizacionesPagination.currentPage}
           totalPages={autorizacionesPagination.totalPages}

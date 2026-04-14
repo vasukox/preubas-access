@@ -29,10 +29,16 @@ export function UsuarioGestionModal({
   const [passwordConfirmacion, setPasswordConfirmacion] = useState('')
   const [forzarCambio, setForzarCambio] = useState(true)
   const [permisos, setPermisos] = useState<PermisosUsuario>(usuario.permisos)
+  const [nombreCompleto, setNombreCompleto] = useState(usuario.nombre_completo)
+  const [numero, setNumero] = useState(usuario.numero ?? '')
+  const [direccion, setDireccion] = useState(usuario.direccion ?? '')
 
   useEffect(() => {
     setUsuarioLocal(usuario)
     setPermisos(usuario.permisos)
+    setNombreCompleto(usuario.nombre_completo)
+    setNumero(usuario.numero ?? '')
+    setDireccion(usuario.direccion ?? '')
   }, [usuario])
 
   const actualizarLocal = (u: UsuarioSistema) => {
@@ -51,6 +57,40 @@ export function UsuarioGestionModal({
       toast.success(
         `Usuario ${updated.nombre_completo} ${updated.activo ? 'activado' : 'desactivado'}.`,
       )
+    } catch (e) {
+      toast.error(getErrorMessage(e))
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleGuardarDatosBasicos = async () => {
+    const payload = {
+      nombre_completo: nombreCompleto.trim(),
+      numero: numero.trim(),
+      direccion: direccion.trim(),
+    }
+
+    if (!payload.nombre_completo || payload.nombre_completo.length < 3) {
+      toast.error('El nombre completo debe tener al menos 3 caracteres.')
+      return
+    }
+
+    if (!/^\d{7,20}$/.test(payload.numero)) {
+      toast.error('El número debe contener solo dígitos (7 a 20).')
+      return
+    }
+
+    if (!payload.direccion || payload.direccion.length < 5) {
+      toast.error('La dirección debe tener al menos 5 caracteres.')
+      return
+    }
+
+    try {
+      setSaving(true)
+      const updated = await herramientasService.actualizarUsuario(usuarioLocal.id, payload)
+      actualizarLocal(updated)
+      toast.success('Datos básicos actualizados correctamente.')
     } catch (e) {
       toast.error(getErrorMessage(e))
     } finally {
@@ -188,6 +228,69 @@ export function UsuarioGestionModal({
         </div>
 
         <div style={{ padding: '16px 20px', overflowY: 'auto', display: 'grid', gap: '14px' }}>
+          <div
+            style={{
+              border: '1px solid var(--border-subtle)',
+              borderRadius: 'var(--radius-md)',
+              padding: '12px',
+              display: 'grid',
+              gap: '10px',
+            }}
+          >
+            <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+              Datos básicos
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <input
+                type="text"
+                value={nombreCompleto}
+                onChange={(e) => setNombreCompleto(e.target.value)}
+                placeholder="Nombre completo"
+                style={{
+                  padding: '8px 10px',
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px solid var(--border-default)',
+                  background: 'var(--bg-raised)',
+                  color: 'var(--text-primary)',
+                }}
+              />
+              <input
+                type="text"
+                value={numero}
+                onChange={(e) => setNumero(e.target.value.replace(/[^\d]/g, ''))}
+                placeholder="Número"
+                style={{
+                  padding: '8px 10px',
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px solid var(--border-default)',
+                  background: 'var(--bg-raised)',
+                  color: 'var(--text-primary)',
+                }}
+              />
+            </div>
+            <input
+              type="text"
+              value={direccion}
+              onChange={(e) => setDireccion(e.target.value)}
+              placeholder="Dirección"
+              style={{
+                padding: '8px 10px',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--border-default)',
+                background: 'var(--bg-raised)',
+                color: 'var(--text-primary)',
+              }}
+            />
+            <button
+              onClick={handleGuardarDatosBasicos}
+              disabled={saving}
+              className="btn-primary"
+              style={{ justifySelf: 'start', fontSize: '0.74rem' }}
+            >
+              {saving ? 'Guardando...' : 'Guardar datos'}
+            </button>
+          </div>
+
           <div
             style={{
               display: 'flex',

@@ -158,6 +158,12 @@ export interface ContratistaEliminarRequest {
   motivo: string
 }
 
+export interface ContratistaEliminarAdjuntoRequest {
+  modulo: 'clasificacion' | 'seg_social' | 'certificaciones' | 'examen'
+  campo: string
+  seg_social_id?: number
+}
+
 export interface ContratistaPreliminarRequest {
   tipo_documento:   TipoDocumentoHSE
   numero_documento: string

@@ -208,6 +208,12 @@ class ContratistaActualizarProveedorRequest(BaseModel):
     proveedor_id: int | None = None
 
 
+class ContratistaEliminarAdjuntoRequest(BaseModel):
+    modulo: str = Field(..., pattern="^(clasificacion|seg_social|certificaciones|examen)$")
+    campo: str = Field(..., min_length=1, max_length=100)
+    seg_social_id: int | None = None
+
+
 class ContratistaResumenResponse(BaseModel):
     """Vista resumida para el panel del admin."""
     id:               int

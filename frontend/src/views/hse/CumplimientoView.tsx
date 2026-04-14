@@ -8,7 +8,8 @@ import toast from 'react-hot-toast'
 import {
   ClipboardCheck, Search, CheckCircle2, XCircle,
   Clock, AlertTriangle,
-  PenLine, Lock,
+  PenLine, Lock, ChevronDown, ChevronUp,
+  Eye, Download, Trash2,
 } from 'lucide-react'
 import { useSedeStore } from '@/store/sedeStore'
 import { hseService } from '@/services/hse.service'
@@ -20,6 +21,7 @@ import type {
   CumplimientoListadoResponse,
   CumplimientoResponse,
   CumplimientoItemResponse,
+  ContratistaDetalleResponse,
   EstadoContratista,
   EstadoCumplimiento,
 } from '@/types/hse'
@@ -193,6 +195,90 @@ function ChecklistItem({
           />
         </div>
       )}
+    </div>
+  )
+}
+
+function DocumentoAccionRow({
+  label,
+  path,
+  removing,
+  onRemove,
+}: {
+  label: string
+  path: string | null | undefined
+  removing?: boolean
+  onRemove?: () => void
+}) {
+  const [cargando, setCargando] = useState<'ver' | 'bajar' | null>(null)
+
+  if (!path) return null
+
+  const nombreArchivo = path.split('/').pop() ?? 'archivo.pdf'
+
+  const handleVer = async () => {
+    setCargando('ver')
+    try {
+      const url = await hseService.previsualizarArchivo(path)
+      window.open(url, '_blank')
+      setTimeout(() => URL.revokeObjectURL(url), 15000)
+    } catch {
+      toast.error('No se pudo abrir el archivo.')
+    } finally {
+      setCargando(null)
+    }
+  }
+
+  const handleDescargar = async () => {
+    setCargando('bajar')
+    try {
+      await hseService.descargarArchivo(path, nombreArchivo)
+    } catch {
+      toast.error('No se pudo descargar el archivo.')
+    } finally {
+      setCargando(null)
+    }
+  }
+
+  return (
+    <div style={{
+      padding: '8px 10px',
+      border: '1px solid rgba(99,102,241,0.2)',
+      borderRadius: '8px',
+      background: 'rgba(99,102,241,0.06)',
+      display: 'grid',
+      gap: '6px',
+    }}>
+      <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{label}</div>
+      <div style={{ fontSize: '0.7rem', color: '#6366F1', fontFamily: 'var(--font-mono)' }}>{nombreArchivo}</div>
+      <div style={{ display: 'flex', gap: '6px' }}>
+        <button onClick={handleVer} disabled={!!cargando} className="btn-ghost" style={{ padding: '4px 8px', fontSize: '0.72rem' }}>
+          <Eye size={12} /> {cargando === 'ver' ? '...' : 'Ver'}
+        </button>
+        <button onClick={handleDescargar} disabled={!!cargando} className="btn-ghost" style={{ padding: '4px 8px', fontSize: '0.72rem' }}>
+          <Download size={12} /> {cargando === 'bajar' ? '...' : 'Descargar'}
+        </button>
+        {onRemove && (
+          <button
+            onClick={onRemove}
+            disabled={!!cargando || removing}
+            style={{
+              padding: '4px 8px',
+              borderRadius: '8px',
+              border: '1px solid rgba(239,68,68,0.35)',
+              background: 'rgba(239,68,68,0.1)',
+              color: 'var(--danger-400)',
+              fontSize: '0.72rem',
+              cursor: (!!cargando || removing) ? 'not-allowed' : 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+            }}
+          >
+            <Trash2 size={12} /> {removing ? 'Eliminando...' : 'Eliminar'}
+          </button>
+        )}
+      </div>
     </div>
   )
 }
@@ -599,6 +685,13 @@ export default function CumplimientoView() {
   const [errorHistorial,   setErrorHistorial]   = useState<string | null>(null)
   const [historialBusqueda, setHistorialBusqueda] = useState('')
   const [historialRefresh, setHistorialRefresh] = useState(0)
+  const [showPanelDerecho, setShowPanelDerecho] = useState(false)
+  const [contratistaDetalle, setContratistaDetalle] = useState<ContratistaDetalleResponse | null>(null)
+  const [removingAttachmentKey, setRemovingAttachmentKey] = useState<string | null>(null)
+  const [showDesgloseHistorial, setShowDesgloseHistorial] = useState(false)
+  const [desgloseCumplimiento, setDesgloseCumplimiento] = useState<CumplimientoResponse | null>(null)
+  const [desgloseContratista, setDesgloseContratista] = useState<ContratistaDetalleResponse | null>(null)
+  const [desgloseLoading, setDesgloseLoading] = useState(false)
 
   // Estado local de items para edición optimista
   const [itemsLocal, setItemsLocal] = useState<CumplimientoItemResponse[]>([])
@@ -606,7 +699,24 @@ export default function CumplimientoView() {
   const handleIniciado = (c: CumplimientoResponse) => {
     setCumplimiento(c)
     setItemsLocal(c.items)
+    setShowPanelDerecho(true)
   }
+
+  useEffect(() => {
+    const loadDetalle = async () => {
+      if (!cumplimiento?.contratista_id) {
+        setContratistaDetalle(null)
+        return
+      }
+      try {
+        const detalle = await hseService.getContratista(cumplimiento.contratista_id)
+        setContratistaDetalle(detalle)
+      } catch {
+        setContratistaDetalle(null)
+      }
+    }
+    void loadDetalle()
+  }, [cumplimiento?.contratista_id])
 
   useEffect(() => {
     const loadHistorial = async () => {
@@ -737,6 +847,97 @@ export default function CumplimientoView() {
   })
 
   const historialPagination = usePagination(historialFiltrado, 5)
+
+  const detalleDocsSource = showDesgloseHistorial ? desgloseContratista : contratistaDetalle
+
+  const documentosPanel = useMemo(() => {
+    if (!detalleDocsSource) return [] as Array<{ key: string; label: string; path: string | null | undefined; modulo: 'clasificacion' | 'seg_social' | 'certificaciones' | 'examen'; campo: string; segSocialId?: number }>
+
+    const docs: Array<{ key: string; label: string; path: string | null | undefined; modulo: 'clasificacion' | 'seg_social' | 'certificaciones' | 'examen'; campo: string; segSocialId?: number }> = []
+
+    const c = detalleDocsSource.clasificacion as any
+    if (c) {
+      docs.push({ key: 'clasif-alturas', label: 'Alturas', path: c.alturas_cert_archivo, modulo: 'clasificacion', campo: 'alturas_cert_archivo' })
+      docs.push({ key: 'clasif-confinados', label: 'Confinados', path: c.confinados_cert_archivo, modulo: 'clasificacion', campo: 'confinados_cert_archivo' })
+      docs.push({ key: 'clasif-electrico', label: 'Eléctrico', path: c.electrico_matricula_archivo, modulo: 'clasificacion', campo: 'electrico_matricula_archivo' })
+      docs.push({ key: 'clasif-caliente-ext', label: 'Caliente extintor', path: c.caliente_extintor_archivo, modulo: 'clasificacion', campo: 'caliente_extintor_archivo' })
+      docs.push({ key: 'clasif-caliente-permiso', label: 'Caliente permiso', path: c.caliente_permiso_archivo, modulo: 'clasificacion', campo: 'caliente_permiso_archivo' })
+      docs.push({ key: 'clasif-izaje-ins', label: 'Izaje inspección', path: c.izaje_inspeccion_archivo, modulo: 'clasificacion', campo: 'izaje_inspeccion_archivo' })
+      docs.push({ key: 'clasif-izaje-doc', label: 'Izaje doc legal', path: c.izaje_doc_legal_archivo, modulo: 'clasificacion', campo: 'izaje_doc_legal_archivo' })
+      docs.push({ key: 'clasif-izaje-lic', label: 'Izaje licencia', path: c.izaje_licencia_archivo, modulo: 'clasificacion', campo: 'izaje_licencia_archivo' })
+      docs.push({ key: 'clasif-extran', label: 'Póliza extranjero', path: c.extran_poliza_archivo, modulo: 'clasificacion', campo: 'extran_poliza_archivo' })
+      docs.push({ key: 'clasif-residuos', label: 'Plan residuos', path: c.residuos_plan_archivo, modulo: 'clasificacion', campo: 'residuos_plan_archivo' })
+    }
+
+    for (const ss of detalleDocsSource.seguridad_social || []) {
+      docs.push({
+        key: `seg-${ss.id}`,
+        label: `PILA${ss.es_titular ? ' titular' : ` ${ss.nombre_persona || ''}`}`.trim(),
+        path: ss.pila_archivo,
+        modulo: 'seg_social',
+        campo: 'pila_archivo',
+        segSocialId: ss.id,
+      })
+    }
+
+    if (detalleDocsSource.certificaciones) {
+      docs.push({ key: 'cert-art', label: 'ART', path: detalleDocsSource.certificaciones.art_archivo, modulo: 'certificaciones', campo: 'art_archivo' })
+      docs.push({ key: 'cert-permiso', label: 'Permiso', path: detalleDocsSource.certificaciones.permiso_archivo, modulo: 'certificaciones', campo: 'permiso_archivo' })
+    }
+
+    if (detalleDocsSource.examen_medico) {
+      docs.push({ key: 'examen', label: 'Examen médico', path: detalleDocsSource.examen_medico.archivo, modulo: 'examen', campo: 'archivo' })
+    }
+
+    return docs.filter(d => !!d.path)
+  }, [detalleDocsSource])
+
+  const handleEliminarAdjunto = async (
+    modulo: 'clasificacion' | 'seg_social' | 'certificaciones' | 'examen',
+    campo: string,
+    segSocialId?: number,
+  ) => {
+    const contratistaObjetivo = showDesgloseHistorial
+      ? desgloseCumplimiento?.contratista_id
+      : cumplimiento?.contratista_id
+    if (!contratistaObjetivo) return
+    if (!window.confirm('¿Eliminar este adjunto de la verificación?')) return
+
+    const key = `${modulo}:${campo}:${segSocialId ?? ''}`
+    setRemovingAttachmentKey(key)
+    try {
+      const updated = await hseService.eliminarAdjuntoContratista(contratistaObjetivo, {
+        modulo,
+        campo,
+        seg_social_id: segSocialId,
+      })
+      if (showDesgloseHistorial) setDesgloseContratista(updated)
+      else setContratistaDetalle(updated)
+      toast.success('Adjunto eliminado correctamente.')
+    } catch (e) {
+      toast.error(getErrorMessage(e))
+    } finally {
+      setRemovingAttachmentKey(null)
+    }
+  }
+
+  const handleAbrirDesgloseHistorial = async (cumplimientoId: number, contratistaId: number) => {
+    setShowDesgloseHistorial(true)
+    setDesgloseLoading(true)
+    try {
+      const [cumpl, detalle] = await Promise.all([
+        hseService.getCumplimiento(cumplimientoId),
+        hseService.getContratista(contratistaId),
+      ])
+      setDesgloseCumplimiento(cumpl)
+      setDesgloseContratista(detalle)
+    } catch (e) {
+      toast.error(getErrorMessage(e))
+      setShowDesgloseHistorial(false)
+    } finally {
+      setDesgloseLoading(false)
+    }
+  }
 
   return (
     <div style={{ padding: '36px', maxWidth: '1280px' }}>
@@ -973,17 +1174,26 @@ export default function CumplimientoView() {
                     </div>
                   </div>
 
-                  <div style={{
-                    padding: '6px 12px',
-                    borderRadius: '999px',
-                    fontSize: '0.78rem',
-                    fontWeight: 700,
-                    color: h.estado === 'COMPLETADO' ? 'var(--success-400)' : 'var(--danger-400)',
-                    background: h.estado === 'COMPLETADO' ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
-                    border: h.estado === 'COMPLETADO' ? '1px solid rgba(16,185,129,0.25)' : '1px solid rgba(239,68,68,0.25)',
-                    whiteSpace: 'nowrap',
-                  }}>
-                    {h.estado === 'COMPLETADO' ? 'Aprobada' : 'No aprobada'}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <button
+                      onClick={() => handleAbrirDesgloseHistorial(h.id, h.contratista_id)}
+                      className="btn-ghost"
+                      style={{ padding: '6px 10px', fontSize: '0.75rem' }}
+                    >
+                      <Eye size={12} /> Desglose
+                    </button>
+                    <div style={{
+                      padding: '6px 12px',
+                      borderRadius: '999px',
+                      fontSize: '0.78rem',
+                      fontWeight: 700,
+                      color: h.estado === 'COMPLETADO' ? 'var(--success-400)' : 'var(--danger-400)',
+                      background: h.estado === 'COMPLETADO' ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
+                      border: h.estado === 'COMPLETADO' ? '1px solid rgba(16,185,129,0.25)' : '1px solid rgba(239,68,68,0.25)',
+                      whiteSpace: 'nowrap',
+                    }}>
+                      {h.estado === 'COMPLETADO' ? 'Aprobada' : 'No aprobada'}
+                    </div>
                   </div>
                 </div>
               ))
@@ -1059,6 +1269,14 @@ export default function CumplimientoView() {
                 }} />
               </div>
             </div>
+            <button
+              onClick={() => setShowPanelDerecho(v => !v)}
+              className="btn-ghost"
+              style={{ whiteSpace: 'nowrap' }}
+            >
+              {showPanelDerecho ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+              {showPanelDerecho ? 'Ocultar panel derecho' : 'Ver panel derecho'}
+            </button>
           </div>
 
           {/* Mensajes */}
@@ -1080,16 +1298,88 @@ export default function CumplimientoView() {
             </div>
           )}
 
-          {/* Items checklist */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
-            {itemsLocal.map(item => (
-              <ChecklistItem
-                key={item.id}
-                item={item}
-                editable={editable}
-                onChange={handleItemChange}
-              />
-            ))}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: showPanelDerecho ? '1.5fr 1fr' : '1fr',
+            gap: '16px',
+            marginBottom: '20px',
+          }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {itemsLocal.map(item => (
+                <ChecklistItem
+                  key={item.id}
+                  item={item}
+                  editable={editable}
+                  onChange={handleItemChange}
+                />
+              ))}
+            </div>
+
+            {showPanelDerecho && (
+              <aside style={{
+                position: 'sticky',
+                top: '14px',
+                alignSelf: 'start',
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-subtle)',
+                borderRadius: 'var(--radius-lg)',
+                padding: '14px',
+                display: 'grid',
+                gap: '12px',
+              }}>
+                <div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                    Panel derecho
+                  </div>
+                  <div style={{ fontSize: '0.92rem', color: 'var(--text-primary)', fontWeight: 700 }}>
+                    Desglose de verificación
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gap: '6px' }}>
+                  <div style={{ fontSize: '0.76rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                    Casillas marcadas
+                  </div>
+                  {itemsLocal.map((item) => (
+                    <div key={`panel-${item.id}`} style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      gap: '8px',
+                      padding: '7px 9px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border-subtle)',
+                      background: item.cumple === true ? 'rgba(16,185,129,0.08)' : item.cumple === false ? 'rgba(239,68,68,0.08)' : 'var(--bg-elevated)',
+                    }}>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{item.orden}. {item.pregunta}</span>
+                      <span style={{ fontSize: '0.72rem', color: item.cumple === true ? 'var(--success-400)' : item.cumple === false ? 'var(--danger-400)' : 'var(--text-muted)', fontWeight: 700 }}>
+                        {item.cumple === true ? 'Sí' : item.cumple === false ? 'No' : 'Pendiente'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ display: 'grid', gap: '6px' }}>
+                  <div style={{ fontSize: '0.76rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                    Adjuntos de soporte
+                  </div>
+                  {documentosPanel.length === 0 ? (
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                      No hay adjuntos detectados para este contratista.
+                    </div>
+                  ) : (
+                    documentosPanel.map((doc) => (
+                      <DocumentoAccionRow
+                        key={doc.key}
+                        label={doc.label}
+                        path={doc.path}
+                        removing={removingAttachmentKey === `${doc.modulo}:${doc.campo}:${doc.segSocialId ?? ''}`}
+                        onRemove={() => handleEliminarAdjunto(doc.modulo, doc.campo, doc.segSocialId)}
+                      />
+                    ))
+                  )}
+                </div>
+              </aside>
+            )}
           </div>
 
           {/* Observación general */}
@@ -1254,6 +1544,89 @@ export default function CumplimientoView() {
           onClose={() => setShowModal(false)}
           onIniciado={handleIniciado}
         />
+      )}
+
+      {showDesgloseHistorial && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.75)',
+          zIndex: 1300,
+          display: 'flex',
+          justifyContent: 'flex-end',
+        }}>
+          <div style={{
+            width: 'min(560px, 100%)',
+            height: '100%',
+            background: 'var(--bg-surface)',
+            borderLeft: '1px solid var(--border-subtle)',
+            display: 'flex',
+            flexDirection: 'column',
+          }}>
+            <div style={{
+              padding: '16px 18px',
+              borderBottom: '1px solid var(--border-subtle)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}>
+              <div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                  Cumplimiento
+                </div>
+                <div style={{ fontSize: '0.94rem', color: 'var(--text-primary)', fontWeight: 700 }}>
+                  Desglose de verificación
+                </div>
+              </div>
+              <button className="btn-ghost" onClick={() => setShowDesgloseHistorial(false)}>Cerrar</button>
+            </div>
+
+            <div style={{ padding: '14px', overflowY: 'auto', display: 'grid', gap: '12px' }}>
+              {desgloseLoading ? (
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.84rem' }}>Cargando desglose...</div>
+              ) : (
+                <>
+                  <div style={{ display: 'grid', gap: '6px' }}>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Casillas de checklist</div>
+                    {(desgloseCumplimiento?.items || []).map((item) => (
+                      <div key={`hist-${item.id}`} style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        gap: '8px',
+                        padding: '8px 10px',
+                        borderRadius: '8px',
+                        border: '1px solid var(--border-subtle)',
+                        background: item.cumple === true ? 'rgba(16,185,129,0.08)' : item.cumple === false ? 'rgba(239,68,68,0.08)' : 'var(--bg-elevated)',
+                      }}>
+                        <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>{item.orden}. {item.pregunta}</span>
+                        <span style={{ fontSize: '0.74rem', fontWeight: 700, color: item.cumple === true ? 'var(--success-400)' : item.cumple === false ? 'var(--danger-400)' : 'var(--text-muted)' }}>
+                          {item.cumple === true ? 'Sí' : item.cumple === false ? 'No' : 'Pendiente'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{ display: 'grid', gap: '6px' }}>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Adjuntos de soporte</div>
+                    {documentosPanel.length === 0 ? (
+                      <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>Sin adjuntos.</div>
+                    ) : (
+                      documentosPanel.map((doc) => (
+                        <DocumentoAccionRow
+                          key={`hist-doc-${doc.key}`}
+                          label={doc.label}
+                          path={doc.path}
+                          removing={removingAttachmentKey === `${doc.modulo}:${doc.campo}:${doc.segSocialId ?? ''}`}
+                          onRemove={() => handleEliminarAdjunto(doc.modulo, doc.campo, doc.segSocialId)}
+                        />
+                      ))
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

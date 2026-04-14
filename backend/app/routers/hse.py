@@ -90,6 +90,7 @@ from app.schemas.hse import (
     ContratistaDenegarRequest,
     ContratistaEliminarRequest,
     ContratistaActualizarProveedorRequest,
+    ContratistaEliminarAdjuntoRequest,
     ContratistaDetalleResponse,
     ContratistaResumenResponse,
     # Autogestión
@@ -207,8 +208,7 @@ async def _ensure_contratista_access(
     summary="Listar EPS activas",
 )
 async def listar_eps(
-    db:           AsyncSession = Depends(get_db),
-    current_user: Usuario      = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
 ):
     service = HseService(db)
     return ok(await service.get_eps())
@@ -294,8 +294,7 @@ async def eliminar_proveedor_hse(
     summary="Listar ARL activas",
 )
 async def listar_arl(
-    db:           AsyncSession = Depends(get_db),
-    current_user: Usuario      = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
 ):
     service = HseService(db)
     return ok(await service.get_arl())
@@ -307,8 +306,7 @@ async def listar_arl(
     summary="Listar AFP activas",
 )
 async def listar_afp(
-    db:           AsyncSession = Depends(get_db),
-    current_user: Usuario      = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
 ):
     service = HseService(db)
     return ok(await service.get_afp())
@@ -603,6 +601,29 @@ async def actualizar_proveedor_contratista(
         await _ensure_contratista_access(service, db, current_user, contratista_id)
         result = await service.actualizar_proveedor_contratista(contratista_id, body)
         return ok(result, message="Proveedor del contratista actualizado correctamente.")
+    except HseNotFoundError as e:
+        err("HSE_ERROR", str(e), 404)
+    except ValueError as e:
+        err("HSE_ERROR", str(e), 400)
+
+
+@router.post(
+    "/contratistas/{contratista_id}/adjuntos/eliminar",
+    response_model=ApiResponse[ContratistaDetalleResponse],
+    summary="Eliminar adjunto del contratista en revisión HSE",
+    dependencies=[Depends(require_role("ADMIN_HSE", "GESTION_HSE"))],
+)
+async def eliminar_adjunto_contratista(
+    contratista_id: int,
+    body: ContratistaEliminarAdjuntoRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    try:
+        service = HseService(db)
+        await _ensure_contratista_access(service, db, current_user, contratista_id)
+        result = await service.eliminar_adjunto_contratista(contratista_id, body)
+        return ok(result, message="Adjunto eliminado correctamente.")
     except HseNotFoundError as e:
         err("HSE_ERROR", str(e), 404)
     except ValueError as e:
@@ -906,6 +927,26 @@ async def iniciar_cumplimiento(
         service = HseService(db)
         result  = await service.iniciar_cumplimiento(body, current_user.id)
         return ok(result, message="Registro de cumplimiento iniciado.")
+    except HseNotFoundError as e:
+        err("HSE_ERROR", str(e), 404)
+    except ValueError as e:
+        err("HSE_ERROR", str(e), 400)
+
+
+@router.get(
+    "/cumplimiento/{cumplimiento_id}",
+    response_model=ApiResponse[CumplimientoResponse],
+    summary="Obtener detalle de un cumplimiento",
+    dependencies=[Depends(require_role("ADMIN_HSE", "GESTION_HSE"))],
+)
+async def obtener_cumplimiento(
+    cumplimiento_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        service = HseService(db)
+        result = await service.get_cumplimiento_detalle(cumplimiento_id)
+        return ok(result)
     except HseNotFoundError as e:
         err("HSE_ERROR", str(e), 404)
     except ValueError as e:

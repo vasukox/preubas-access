@@ -22,6 +22,11 @@ function formatMinutos(min: number): string {
   return m > 0 ? `${h}h ${m}m` : `${h}h`
 }
 
+function pct(part: number, total: number): number {
+  if (!total) return 0
+  return Math.round((part / total) * 100)
+}
+
 // ── Componente MetricCard ─────────────────────────────────────────
 function MetricCard({
   label, value, icon: Icon, color, bg, border, onClick, badge,
@@ -131,6 +136,65 @@ export default function HSEDashboardView() {
   const [dentro,   setDentro]   = useState<PersonaDentroResponse[]>([])
   const [loading,  setLoading]  = useState(true)
   const [refresh,  setRefresh]  = useState(0)
+
+  const otrosEstados = Math.max(
+    0,
+    (metrics?.total_autorizaciones ?? 0)
+      - (metrics?.autorizaciones_activas ?? 0)
+      - (metrics?.autorizaciones_pendientes ?? 0)
+      - (metrics?.autorizaciones_vencidas ?? 0),
+  )
+
+  const estadoData = [
+    {
+      label: 'Aprobadas',
+      value: metrics?.autorizaciones_activas ?? 0,
+      color: 'var(--success-400)',
+      bg: 'rgba(16,185,129,0.12)',
+    },
+    {
+      label: 'En revisión',
+      value: metrics?.autorizaciones_pendientes ?? 0,
+      color: '#6366F1',
+      bg: 'rgba(99,102,241,0.12)',
+    },
+    {
+      label: 'Vencidas',
+      value: metrics?.autorizaciones_vencidas ?? 0,
+      color: 'var(--danger-400)',
+      bg: 'rgba(239,68,68,0.12)',
+    },
+    {
+      label: 'Otros estados',
+      value: otrosEstados,
+      color: 'var(--text-muted)',
+      bg: 'var(--bg-elevated)',
+    },
+  ]
+
+  const riesgoData = [
+    {
+      label: 'Alto riesgo activos',
+      value: metrics?.alto_riesgo_activos ?? 0,
+      color: 'var(--danger-400)',
+      bg: 'rgba(239,68,68,0.12)',
+    },
+    {
+      label: 'Normal activos',
+      value: metrics?.normal_activos ?? 0,
+      color: 'var(--success-400)',
+      bg: 'rgba(16,185,129,0.12)',
+    },
+    {
+      label: 'Dentro con alerta > 8h',
+      value: metrics?.alertas_activas ?? 0,
+      color: 'var(--warning-400)',
+      bg: 'rgba(245,158,11,0.12)',
+    },
+  ]
+
+  const totalAutorizaciones = metrics?.total_autorizaciones ?? 0
+  const totalRiesgo = (metrics?.alto_riesgo_activos ?? 0) + (metrics?.normal_activos ?? 0)
 
   useEffect(() => {
     const load = async () => {
@@ -328,10 +392,127 @@ export default function HSEDashboardView() {
         />
       </div>
 
+      {/* ── Gráficas resumen ─────────────────────────────────── */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gap: '20px',
+          marginBottom: '20px',
+        }}
+      >
+        <div
+          style={{
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: 'var(--radius-lg)',
+            padding: '18px 20px',
+          }}
+          className="animate-fade-up stagger-2"
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '14px' }}>
+            <div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                Distribución de autorizaciones
+              </div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                Estado actual de solicitudes HSE
+              </div>
+            </div>
+            <span style={{ fontSize: '0.76rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+              Total: {totalAutorizaciones}
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', height: '12px', borderRadius: '999px', overflow: 'hidden', border: '1px solid var(--border-subtle)' }}>
+            {estadoData.filter(s => s.value > 0).map((segmento) => (
+              <div
+                key={segmento.label}
+                style={{
+                  width: `${pct(segmento.value, totalAutorizaciones)}%`,
+                  background: segmento.color,
+                  minWidth: '6px',
+                }}
+                title={`${segmento.label}: ${segmento.value}`}
+              />
+            ))}
+          </div>
+
+          <div style={{ marginTop: '14px', display: 'grid', gap: '8px' }}>
+            {estadoData.map((item) => (
+              <div
+                key={item.label}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr auto auto',
+                  gap: '10px',
+                  alignItems: 'center',
+                  fontSize: '0.77rem',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)' }}>
+                  <span style={{ width: '9px', height: '9px', borderRadius: '50%', background: item.color, border: '1px solid var(--border-subtle)' }} />
+                  {item.label}
+                </div>
+                <span style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>{item.value}</span>
+                <span style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>{pct(item.value, totalAutorizaciones)}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div
+          style={{
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: 'var(--radius-lg)',
+            padding: '18px 20px',
+          }}
+          className="animate-fade-up stagger-3"
+        >
+          <div style={{ marginBottom: '14px' }}>
+            <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+              Riesgo operativo y alertas
+            </div>
+            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+              Contratistas aprobados por tipo y exposición de tiempo
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gap: '10px' }}>
+            {riesgoData.map((item) => (
+              <div key={item.label}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{item.label}</span>
+                  <span style={{ fontSize: '0.74rem', color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
+                    {item.value}
+                  </span>
+                </div>
+                <div style={{
+                  height: '10px',
+                  borderRadius: '999px',
+                  background: item.bg,
+                  border: '1px solid var(--border-subtle)',
+                  overflow: 'hidden',
+                }}>
+                  <div
+                    style={{
+                      width: `${pct(item.value, item.label.includes('alerta') ? (metrics?.contratistas_dentro_ahora ?? 0) : totalRiesgo)}%`,
+                      height: '100%',
+                      background: item.color,
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* ── Grid inferior ────────────────────────────────────── */}
       <div style={{
         display:             'grid',
-        gridTemplateColumns: '1fr 1fr',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
         gap:                 '20px',
       }}>
 

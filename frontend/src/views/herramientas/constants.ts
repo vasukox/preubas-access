@@ -74,6 +74,7 @@ export const ACCIONES_AUDITORIA: Record<string, string> = {
   CREAR_USUARIO:        'Crear usuario',
   ACTUALIZAR_USUARIO:   'Actualizar usuario',
   DESACTIVAR_USUARIO:   'Desactivar usuario',
+  ELIMINAR_USUARIO:     'Eliminar usuario',
   ASIGNAR_ROL:          'Asignar rol',
   QUITAR_ROL:           'Quitar rol',
   ACTUALIZAR_PERMISOS:  'Actualizar permisos',

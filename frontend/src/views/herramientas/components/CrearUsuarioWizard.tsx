@@ -3,6 +3,7 @@ import { Check, ChevronLeft, ChevronRight, Building2, Lock, ChevronDown, Eye, Ey
 import { toast } from 'react-hot-toast'
 import { herramientasService, type RolSistema } from '@/services/herramientas.service'
 import { hseService } from '@/services/hse.service'
+import { getErrorMessage } from '@/services/api'
 import { useAuthStore } from '@/store/authStore'
 import type { RolNombre, SedeBasica } from '@/types'
 import {
@@ -59,7 +60,12 @@ export function CrearUsuarioWizard({ roles, setVistaActiva, onUserCreated }: Cre
 
   // Cargar sedes al montar
   useEffect(() => {
-    hseService.getSedes().then(setSedesDisponibles).catch(() => {})
+    hseService
+      .getSedes()
+      .then(setSedesDisponibles)
+      .catch((e) => {
+        toast.error(getErrorMessage(e))
+      })
   }, [])
 
   // Autofill firma cuando se entra al paso 3
@@ -192,8 +198,8 @@ export function CrearUsuarioWizard({ roles, setVistaActiva, onUserCreated }: Cre
       toast.success(`Usuario ${nuevoUsuario.nombres} ${nuevoUsuario.apellidos} creado correctamente.`)
       onUserCreated()
       setVistaActiva('usuarios')
-    } catch {
-      toast.error('No se pudo crear el usuario.')
+    } catch (e) {
+      toast.error(getErrorMessage(e))
     } finally {
       setSavingUser(false)
     }
@@ -718,7 +724,7 @@ export function CrearUsuarioWizard({ roles, setVistaActiva, onUserCreated }: Cre
                   <option value="">Selecciona la sede fija del vigilante...</option>
                   {sedesDisponibles.map((s) => (
                     <option key={s.id} value={s.id}>
-                      <Building2 size={11} /> {s.nombre} {s.ciudad ? `— ${s.ciudad}` : ''}
+                      {s.nombre} {s.ciudad ? `— ${s.ciudad}` : ''}
                     </option>
                   ))}
                 </select>

@@ -73,6 +73,19 @@ type QueueItem = {
 let isRefreshing = false
 let failedQueue: QueueItem[] = []
 
+function isPublicAutogestionRequest(url?: string): boolean {
+  if (!url) return false
+
+  // Endpoints públicos consumidos por /portal/hse/:token
+  if (url.includes('/hse/autogestion/')) return true
+  if (url.includes('/hse/catalogos/normas/')) return true
+  if (url.includes('/hse/catalogos/eps')) return true
+  if (url.includes('/hse/catalogos/arl')) return true
+  if (url.includes('/hse/catalogos/afp')) return true
+
+  return false
+}
+
 function processQueue(error: unknown, token: string | null): void {
   failedQueue.forEach(({ resolve, reject }) => {
     if (error) {
@@ -109,6 +122,9 @@ api.interceptors.response.use(
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean
     }
+    const isPortalAutogestion =
+      window.location.pathname.startsWith('/portal/hse/') ||
+      isPublicAutogestionRequest(originalRequest.url)
 
     // Solo manejar 401 de requests que NO sean el propio login o refresh
     const isAuthEndpoint =
@@ -144,7 +160,9 @@ api.interceptors.response.use(
         tokenStorage.clearTokens()
         processQueue(error, null)
         isRefreshing = false
-        window.location.href = '/login'
+        if (!isPortalAutogestion) {
+          window.location.href = '/login'
+        }
         return Promise.reject(error)
       }
 
@@ -179,7 +197,9 @@ api.interceptors.response.use(
         // El refresh también falló — sesión expirada definitivamente
         processQueue(refreshError, null)
         tokenStorage.clearTokens()
-        window.location.href = '/login'
+        if (!isPortalAutogestion) {
+          window.location.href = '/login'
+        }
         return Promise.reject(refreshError)
 
       } finally {

@@ -411,7 +411,7 @@ function Paso2Datos({
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '12px', marginBottom: '12px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginBottom: '12px' }}>
         <div>
           <label style={labelStyle}>TIPO DOCUMENTO</label>
           <select
@@ -435,7 +435,7 @@ function Paso2Datos({
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px', marginBottom: '12px' }}>
         <div>
           <label style={labelStyle}>NOMBRES</label>
           <input
@@ -456,7 +456,7 @@ function Paso2Datos({
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px', marginBottom: '12px' }}>
         <div>
           <label style={labelStyle}>EMAIL</label>
           <input
@@ -478,7 +478,7 @@ function Paso2Datos({
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px', marginBottom: '12px' }}>
         <div>
           <label style={labelStyle}>CIUDAD</label>
           <input
@@ -512,7 +512,7 @@ function Paso2Datos({
         <div style={{ fontSize: '0.72rem', color: 'var(--primary-400)', marginBottom: '10px', fontWeight: 600, letterSpacing: '0.06em' }}>
           RESPONSABLE SST
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
           <div>
             <label style={labelStyle}>NOMBRE RESPONSABLE SST</label>
             <input
@@ -647,7 +647,7 @@ function Paso3Clasificacion({
       return (
         <div style={{ marginTop: '8px', padding: '14px', borderRadius: '10px', background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)' }}>
           <div style={{ marginBottom: '10px', fontSize: '0.8rem', color: 'var(--danger-400)', fontWeight: 600 }}>Requisitos — Trabajo en alturas</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
             <div>
               <label style={labelStyle}>NIVEL DEL CERTIFICADO <span style={{ color: 'var(--danger-400)' }}>*</span></label>
               <select value={form.alturas_nivel ?? ''} onChange={e => setForm((f: any) => ({ ...f, alturas_nivel: e.target.value || undefined }))} style={selectStyle}>
@@ -680,7 +680,7 @@ function Paso3Clasificacion({
         <div style={{ marginTop: '8px', padding: '14px', borderRadius: '10px', background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)' }}>
           <div style={{ marginBottom: '10px', fontSize: '0.8rem', color: 'var(--danger-400)', fontWeight: 600 }}>Requisitos — Espacios confinados</div>
           <div style={{ marginBottom: '10px', fontSize: '0.74rem', color: '#F59E0B' }}>Operación sugerida con roles diferenciados: supervisor, vigía y entrante según el alcance de la tarea.</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
             <div>
               <label style={labelStyle}>ROL EN EL TRABAJO <span style={{ color: 'var(--danger-400)' }}>*</span></label>
               <select value={form.confinados_rol ?? ''} onChange={e => setForm((f: any) => ({ ...f, confinados_rol: e.target.value || undefined }))} style={selectStyle}>
@@ -712,7 +712,7 @@ function Paso3Clasificacion({
       return (
         <div style={{ marginTop: '8px', padding: '14px', borderRadius: '10px', background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)' }}>
           <div style={{ marginBottom: '10px', fontSize: '0.8rem', color: 'var(--danger-400)', fontWeight: 600 }}>Requisitos — Trabajo eléctrico</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
             <div>
               <label style={labelStyle}>MATRÍCULA CONTEC <span style={{ color: 'var(--danger-400)' }}>*</span></label>
               <select value={form.electrico_matricula_contec ?? ''} onChange={e => setForm((f: any) => ({ ...f, electrico_matricula_contec: e.target.value || undefined }))} style={selectStyle}>
@@ -749,7 +749,7 @@ function Paso3Clasificacion({
         <div style={{ marginTop: '8px', padding: '14px', borderRadius: '10px', background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)' }}>
           <div style={{ marginBottom: '10px', fontSize: '0.8rem', color: 'var(--danger-400)', fontWeight: 600 }}>Requisitos — Trabajo en caliente</div>
           <div style={{ marginBottom: '10px', fontSize: '0.74rem', color: '#F59E0B' }}>Verifica control de chispas, material combustible en el entorno y extintor disponible durante toda la labor.</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
             <div>
               <label style={labelStyle}>FECHA EXTINTOR CO₂ 20Lbs <span style={{ color: 'var(--danger-400)' }}>*</span></label>
               <input type="date" value={form.caliente_extintor_fecha ?? ''} onChange={e => setForm((f: any) => ({ ...f, caliente_extintor_fecha: e.target.value || undefined }))} style={inputStyle} />
@@ -761,7 +761,7 @@ function Paso3Clasificacion({
               <VigenciaBadge fecha={form.caliente_permiso_fecha} />
             </div>
           </div>
-          <div style={{ marginTop: '12px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div style={{ marginTop: '12px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
             <PdfUploadField
               label="PDF certificado extintor"
               required
@@ -791,7 +791,7 @@ function Paso3Clasificacion({
             <label style={labelStyle}>TIPO DE EQUIPO <span style={{ color: 'var(--danger-400)' }}>*</span></label>
             <input type="text" value={form.izaje_tipo_equipo ?? ''} onChange={e => setForm((f: any) => ({ ...f, izaje_tipo_equipo: e.target.value }))} placeholder="Grúa, montacargas, etc." style={inputStyle} />
           </div>
-          <div style={{ marginTop: '12px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div style={{ marginTop: '12px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
             <PdfUploadField
               label="PDF inspección pre-operacional"
               required
@@ -825,7 +825,7 @@ function Paso3Clasificacion({
       return (
         <div style={{ marginTop: '8px', padding: '14px', borderRadius: '10px', background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.25)' }}>
           <div style={{ marginBottom: '10px', fontSize: '0.8rem', color: 'var(--success-400)', fontWeight: 600 }}>Requisitos — Personal extranjero</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
             <div>
               <label style={labelStyle}>ASEGURADORA <span style={{ color: 'var(--danger-400)' }}>*</span></label>
               <input type="text" value={form.extran_aseguradora ?? ''} onChange={e => setForm((f: any) => ({ ...f, extran_aseguradora: e.target.value }))} style={inputStyle} />
@@ -1034,7 +1034,7 @@ function Paso4SeguridadSocial({
         border: `1px solid ${estadoVigencia(form.eps_vigencia) === 'vencido' ? 'rgba(239,68,68,0.35)' : 'rgba(255,255,255,0.08)'}`,
         borderRadius: '10px',
       }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
           <div>
             <label style={labelStyle}>EPS</label>
             <select value={form.eps_id ?? ''} onChange={e => setForm((f: any) => ({ ...f, eps_id: e.target.value ? Number(e.target.value) : undefined }))} style={selectStyle}>
@@ -1058,7 +1058,7 @@ function Paso4SeguridadSocial({
         border: `1px solid ${estadoVigencia(form.arl_vigencia) === 'vencido' ? 'rgba(239,68,68,0.35)' : 'rgba(255,255,255,0.08)'}`,
         borderRadius: '10px',
       }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
           <div>
             <label style={labelStyle}>ARL</label>
             <select value={form.arl_id ?? ''} onChange={e => setForm((f: any) => ({ ...f, arl_id: e.target.value ? Number(e.target.value) : undefined }))} style={selectStyle}>
@@ -1082,7 +1082,7 @@ function Paso4SeguridadSocial({
         border: `1px solid ${estadoVigencia(form.afp_vigencia) === 'vencido' ? 'rgba(239,68,68,0.35)' : 'rgba(255,255,255,0.08)'}`,
         borderRadius: '10px',
       }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
           <div>
             <label style={labelStyle}>AFP</label>
             <select value={form.afp_id ?? ''} onChange={e => setForm((f: any) => ({ ...f, afp_id: e.target.value ? Number(e.target.value) : undefined }))} style={selectStyle}>
@@ -1100,7 +1100,7 @@ function Paso4SeguridadSocial({
       </div>
 
       {/* PILA */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
         <div>
           <label style={labelStyle}>TIPO PILA <span style={{ color: 'var(--danger-400)' }}>*</span></label>
           <select value={form.pila_tipo ?? ''} onChange={e => setForm((f: any) => ({ ...f, pila_tipo: e.target.value || undefined }))} style={selectStyle}>
@@ -1229,7 +1229,7 @@ function Paso6ExamenMedico({
         Este paso aplica para contratistas de alto riesgo.
       </p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px', marginBottom: '12px' }}>
         <div>
           <label style={labelStyle}>FECHA EXAMEN</label>
           <input
@@ -1307,7 +1307,7 @@ function Paso7Emergencia({ form, setForm }: { form: any; setForm: (f: any) => vo
           />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
           <div>
             <label style={labelStyle}>RELACIÓN</label>
             <select
@@ -1345,7 +1345,7 @@ function Paso7Emergencia({ form, setForm }: { form: any; setForm: (f: any) => vo
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
           <div>
             <label style={labelStyle}>TELÉFONO FIJO (opcional)</label>
             <input
@@ -2097,14 +2097,14 @@ export default function AutogestionView() {
     <div style={{
       minHeight:  '100vh',
       background: 'var(--bg-base)',
-      padding:    '32px 24px',
+      padding:    'clamp(12px, 3vw, 32px)',
       display:    'flex',
       alignItems: 'flex-start',
       justifyContent: 'center',
     }}>
       <div style={{
         width:     '100%',
-        maxWidth:  '620px',
+        maxWidth:  'min(620px, 100%)',
       }}>
 
         {/* Logo */}
@@ -2195,14 +2195,14 @@ export default function AutogestionView() {
           marginBottom: '16px',
         }}
         className="animate-fade-up">
-          <div style={{ padding: '32px' }}>
+          <div style={{ padding: 'clamp(14px, 3vw, 32px)' }}>
             {renderPaso()}
           </div>
 
           {/* Error */}
           {error && (
             <div style={{
-              margin:         '0 32px 20px',
+              margin:         '0 clamp(14px, 3vw, 32px) 20px',
               padding:        '10px 14px',
               background:     'rgba(245,158,11,0.08)',
               border:         '1px solid rgba(245,158,11,0.25)',
@@ -2237,11 +2237,13 @@ export default function AutogestionView() {
 
           {/* Navegación */}
           <div style={{
-            padding:        '16px 32px',
+            padding:        '12px clamp(14px, 3vw, 32px)',
             borderTop:      '1px solid var(--border-subtle)',
             display:        'flex',
             justifyContent: 'space-between',
             alignItems:     'center',
+            gap:            '10px',
+            flexWrap:       'wrap',
           }}>
             <button
               onClick={handleAnterior}

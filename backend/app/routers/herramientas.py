@@ -544,6 +544,22 @@ async def actualizar_usuario(
     if body.activo is False and usuario.id == current.id:
         err("ACCION_NO_PERMITIDA", "No puedes desactivar tu propia cuenta")
 
+    # Evita dejar el sistema sin ADMIN_GLOBAL activo
+    if body.activo is False and any(ur.rol.nombre == RolNombre.ADMIN_GLOBAL for ur in usuario.roles):
+        conteo = await db.execute(
+            select(UsuarioRol)
+            .join(Rol)
+            .join(Usuario)
+            .where(
+                Rol.nombre == RolNombre.ADMIN_GLOBAL,
+                Usuario.id != usuario_id,
+                Usuario.activo == True,
+                Usuario.deleted_at.is_(None),
+            )
+        )
+        if len(conteo.scalars().all()) == 0:
+            err("ACCION_NO_PERMITIDA", "Debe existir al menos un ADMIN_GLOBAL activo", 403)
+
     cambios = []
     if body.nombre_completo is not None:
         cambios.append(f"nombre='{body.nombre_completo}'")
@@ -656,6 +672,7 @@ async def eliminar_usuario(
             .where(
                 Rol.nombre == RolNombre.ADMIN_GLOBAL,
                 Usuario.id != usuario_id,
+                Usuario.activo == True,
                 Usuario.deleted_at.is_(None),
             )
         )
@@ -706,6 +723,10 @@ async def asignar_rol(
     ya_tiene = any(ur.rol.nombre == body.rol_nombre for ur in usuario.roles)
     if ya_tiene:
         err("ROL_DUPLICADO", f"El usuario ya tiene el rol '{body.rol_nombre}'", 409)
+
+    # Los roles de vigilante exigen sede fija asignada en el usuario
+    if body.rol_nombre in {RolNombre.VIGILANTE_HSE, RolNombre.VIGILANTE_PARKING} and not usuario.sede_asignada_id:
+        err("SEDE_REQUERIDA", "Los vigilantes deben tener una sede asignada obligatoriamente.", 400)
 
     db.add(UsuarioRol(
         usuario_id   = usuario_id,

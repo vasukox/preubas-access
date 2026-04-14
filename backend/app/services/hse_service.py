@@ -71,6 +71,7 @@ from app.schemas.hse import (
     ContratistaDenegarRequest,
     ContratistaEliminarRequest,
     ContratistaActualizarProveedorRequest,
+    ContratistaEliminarAdjuntoRequest,
     AutogestionValidarTokenResponse,
     DatosPersonalesRequest,
     ClasificacionRequest,
@@ -473,6 +474,74 @@ class HseService:
 
         return await self.get_contratista_detalle(contratista_id)
 
+    async def eliminar_adjunto_contratista(
+        self,
+        contratista_id: int,
+        data: ContratistaEliminarAdjuntoRequest,
+    ) -> HseContratista:
+        contratista = await self._contratista_repo.get_by_id(contratista_id)
+        if not contratista:
+            raise HseNotFoundError("Contratista no encontrado.")
+
+        modulo = (data.modulo or "").strip().lower()
+        campo = (data.campo or "").strip()
+
+        campos_validos = self._UPLOAD_FIELDS.get(modulo)
+        if not campos_validos:
+            raise ValueError("Módulo inválido para eliminar adjunto.")
+        if campo not in campos_validos:
+            raise ValueError("Campo inválido para el módulo seleccionado.")
+
+        target = None
+        if modulo == "clasificacion":
+            result = await self._db.execute(
+                select(HseClasificacion).where(
+                    HseClasificacion.contratista_id == contratista_id,
+                    HseClasificacion.deleted_at == None,  # noqa
+                )
+            )
+            target = result.scalar_one_or_none()
+        elif modulo == "seg_social":
+            if not data.seg_social_id:
+                raise ValueError("Para seguridad social debes indicar seg_social_id.")
+            result = await self._db.execute(
+                select(HseSegSocial).where(
+                    HseSegSocial.id == data.seg_social_id,
+                    HseSegSocial.contratista_id == contratista_id,
+                    HseSegSocial.deleted_at == None,  # noqa
+                )
+            )
+            target = result.scalar_one_or_none()
+        elif modulo == "certificaciones":
+            result = await self._db.execute(
+                select(HseCertificaciones).where(
+                    HseCertificaciones.contratista_id == contratista_id,
+                    HseCertificaciones.deleted_at == None,  # noqa
+                )
+            )
+            target = result.scalar_one_or_none()
+        elif modulo == "examen":
+            result = await self._db.execute(
+                select(HseExamenMedico).where(
+                    HseExamenMedico.contratista_id == contratista_id,
+                    HseExamenMedico.deleted_at == None,  # noqa
+                )
+            )
+            target = result.scalar_one_or_none()
+
+        if not target:
+            raise HseNotFoundError("No existe registro para eliminar el adjunto indicado.")
+
+        valor_actual = getattr(target, campo, None)
+        if not isinstance(valor_actual, str) and valor_actual is not None:
+            raise ValueError("El campo indicado no corresponde a un adjunto eliminable.")
+
+        setattr(target, campo, None)
+        await self._db.flush()
+        await self._db.commit()
+
+        return await self.get_contratista_detalle(contratista_id)
+
     async def _sincronizar_estado_autorizacion(self, autorizacion_id: int) -> None:
         """
         Recalcula y actualiza el estado de la autorización
@@ -753,6 +822,10 @@ class HseService:
         if not contratista:
             raise ValueError("El link de autogestión es inválido o ha expirado.")
 
+        # Capturar el id temprano para no depender de atributos ORM expirados
+        # después de un commit (evita MissingGreenlet en contexto async).
+        contratista_id = contratista.id
+
         if not allow_closed_states:
             if contratista.estado == "APROBADO":
                 raise ValueError("Tu autorización ya fue aprobada. No necesitas completar el formulario.")
@@ -767,13 +840,13 @@ class HseService:
         if advance_to_in_progress and contratista.estado == "PENDIENTE_AUTOGESTION":
             autorizacion_id = contratista.autorizacion_id  # capturar antes del flush (evita MissingGreenlet)
             await self._contratista_repo.cambiar_estado(
-                contratista.id, "AUTOGESTION_EN_PROGRESO"
+                contratista_id, "AUTOGESTION_EN_PROGRESO"
             )
             await self._db.flush()
             await self._sincronizar_estado_autorizacion(autorizacion_id)
             await self._db.commit()
 
-        return await self._contratista_repo.get_detalle_completo(contratista.id)
+        return await self._contratista_repo.get_detalle_completo(contratista_id)
 
     async def validar_token_autogestion_editable(self, token: str) -> HseContratista:
         """Valida token para endpoints que modifican información del wizard."""
@@ -1711,6 +1784,12 @@ class HseService:
             ))
 
         return result
+
+    async def get_cumplimiento_detalle(self, cumplimiento_id: int) -> HseCumplimiento:
+        cumplimiento = await self._cumplimiento_repo.get_with_items(cumplimiento_id)
+        if not cumplimiento:
+            raise HseNotFoundError("Registro de cumplimiento no encontrado.")
+        return cumplimiento
 
     async def actualizar_cumplimiento(
         self,

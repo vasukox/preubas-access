@@ -9,7 +9,7 @@ import { useSearchParams } from 'react-router-dom'
 import {
   ShieldCheck, Search, CheckCircle2, XCircle,
   Eye, User, RefreshCw, Copy, Clock, Download, FileText as FileIcon,
-  Trash2, AlertTriangle,
+  Trash2, AlertTriangle, ChevronDown, ChevronUp,
 } from 'lucide-react'
 import { useSedeStore } from '@/store'
 import { hseService } from '@/services/hse.service'
@@ -103,10 +103,16 @@ function DocLink({
   label,
   path,
   requerido = false,
+  canRemove = false,
+  removing = false,
+  onRemove,
 }: {
   label:     string
   path:      string | null | undefined
   requerido?: boolean
+  canRemove?: boolean
+  removing?: boolean
+  onRemove?: () => void
 }) {
   const [cargando, setCargando] = useState<'ver' | 'bajar' | null>(null)
   const [error,    setError]    = useState<string | null>(null)
@@ -211,6 +217,21 @@ function DocLink({
             <Download size={11} />
             {cargando === 'bajar' ? '...' : 'Descargar'}
           </button>
+          {canRemove && onRemove && (
+            <button
+              onClick={onRemove}
+              disabled={!!cargando || removing}
+              style={{
+                ...btnStyle(!!cargando || removing),
+                background: 'rgba(239,68,68,0.12)',
+                color: 'var(--danger-400)',
+              }}
+              title="Eliminar adjunto"
+            >
+              <Trash2 size={11} />
+              {removing ? 'Eliminando...' : 'Eliminar'}
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -239,6 +260,8 @@ function ModalDetalle({
   const [savingProveedor, setSavingProveedor] = useState(false)
   const [error,     setError]     = useState<string | null>(null)
   const [tab,       setTab]       = useState<'info' | 'docs' | 'historial'>('info')
+  const [showDesgloseDocs, setShowDesgloseDocs] = useState(false)
+  const [removingAttachmentKey, setRemovingAttachmentKey] = useState<string | null>(null)
   const [proveedorEditId, setProveedorEditId] = useState<string>('')
   const [catalogos, setCatalogos] = useState<{ eps: any[]; arl: any[]; afp: any[] }>({ eps: [], arl: [], afp: [] })
 
@@ -361,6 +384,36 @@ function ModalDetalle({
       toast.error(msg)
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleEliminarAdjunto = async (
+    modulo: 'clasificacion' | 'seg_social' | 'certificaciones' | 'examen',
+    campo: string,
+    segSocialId?: number,
+  ) => {
+    const okDelete = window.confirm('¿Seguro que quieres eliminar este adjunto? Esta acción impacta la revisión.')
+    if (!okDelete) return
+
+    const key = `${modulo}:${campo}:${segSocialId ?? ''}`
+    setRemovingAttachmentKey(key)
+    setError(null)
+
+    try {
+      const updated = await hseService.eliminarAdjuntoContratista(contratistaId, {
+        modulo,
+        campo,
+        seg_social_id: segSocialId,
+      })
+      setData(updated)
+      toast.success('Adjunto eliminado correctamente.')
+      onAction()
+    } catch (e) {
+      const msg = getErrorMessage(e)
+      setError(msg)
+      toast.error(msg)
+    } finally {
+      setRemovingAttachmentKey(null)
     }
   }
 
@@ -629,137 +682,286 @@ function ModalDetalle({
           ) : tab === 'docs' ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
-              {/* Alerta vencidos */}
-              {data.seguridad_social?.some(ss =>
-                estadoVig(ss.eps_vigencia) === 'vencido' ||
-                estadoVig(ss.arl_vigencia) === 'vencido' ||
-                estadoVig(ss.afp_vigencia) === 'vencido' ||
-                ss.pila_estado === 'VENCIDA'
-              ) && (
-                <div style={{ padding: '10px 14px', borderRadius: '10px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', fontSize: '0.78rem', color: 'var(--danger-400)' }}>
-                  ⚠ Este contratista tiene documentos vencidos. Considera denegar y solicitar actualización.
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '10px',
+                flexWrap: 'wrap',
+              }}>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                  Revisa adjuntos y usa el panel derecho para desglosar casillas marcadas.
                 </div>
-              )}
+                <button
+                  type="button"
+                  onClick={() => setShowDesgloseDocs(v => !v)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '7px 12px',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--border-default)',
+                    background: 'var(--bg-elevated)',
+                    color: 'var(--text-primary)',
+                    fontSize: '0.76rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {showDesgloseDocs ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                  {showDesgloseDocs ? 'Ocultar desglose' : 'Ver desglose de verificación'}
+                </button>
+              </div>
 
-              {/* ── Archivos de clasificación ─────────────────── */}
-              {data.clasificacion && (() => {
-                const c = data.clasificacion as any
-                const archivos = [
-                  { label: 'Certificado — Trabajo en alturas',     path: c.alturas_cert_archivo,          visible: c.trabajo_alturas },
-                  { label: 'Certificado — Espacios confinados',    path: c.confinados_cert_archivo,       visible: c.espacios_confinados },
-                  { label: 'Matrícula CONTEC — Trabajo eléctrico', path: c.electrico_matricula_archivo,   visible: c.trabajo_electrico },
-                  { label: 'Cert. extintor — Trabajo en caliente', path: c.caliente_extintor_archivo,     visible: c.trabajo_caliente },
-                  { label: 'Permiso — Trabajo en caliente',        path: c.caliente_permiso_archivo,      visible: c.trabajo_caliente },
-                  { label: 'Inspección pre-operacional — Izaje',   path: c.izaje_inspeccion_archivo,      visible: c.izaje_maquinaria },
-                  { label: 'Docs legales equipo — Izaje',          path: c.izaje_doc_legal_archivo,       visible: c.izaje_maquinaria },
-                  { label: 'Licencia operador — Izaje',            path: c.izaje_licencia_archivo,        visible: c.izaje_maquinaria },
-                  { label: 'Póliza — Personal extranjero',         path: c.extran_poliza_archivo,         visible: c.personal_extranjero },
-                  { label: 'Plan manejo de residuos',              path: c.residuos_plan_archivo,         visible: c.genera_residuos },
-                ].filter(a => a.visible)
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: showDesgloseDocs ? '1.6fr 1fr' : '1fr',
+                gap: '16px',
+              }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
-                if (!archivos.length) return null
-                return (
-                  <section>
-                    <h3 style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.08em', marginBottom: '10px' }}>CERTIFICADOS DE ACTIVIDAD</h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                      {archivos.map(a => (
-                        <DocLink key={a.label} label={a.label} path={a.path} requerido />
-                      ))}
+                  {/* Alerta vencidos */}
+                  {data.seguridad_social?.some(ss =>
+                    estadoVig(ss.eps_vigencia) === 'vencido' ||
+                    estadoVig(ss.arl_vigencia) === 'vencido' ||
+                    estadoVig(ss.afp_vigencia) === 'vencido' ||
+                    ss.pila_estado === 'VENCIDA'
+                  ) && (
+                    <div style={{ padding: '10px 14px', borderRadius: '10px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', fontSize: '0.78rem', color: 'var(--danger-400)' }}>
+                      ⚠ Este contratista tiene documentos vencidos. Considera denegar y solicitar actualización.
                     </div>
-                  </section>
-                )
-              })()}
+                  )}
 
-              {/* ── Seguridad social ──────────────────────────── */}
-              {data.seguridad_social?.length > 0 && data.seguridad_social.map((ss, i) => (
-                <section key={i}>
-                  <h3 style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.08em', marginBottom: '10px' }}>
-                    SEGURIDAD SOCIAL {!ss.es_titular && ss.nombre_persona ? `— ${ss.nombre_persona}` : '— TITULAR'}
-                  </h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginBottom: '8px' }}>
-                    {[
-                      { label: 'EPS', nombre: nombreCat(catalogos.eps, ss.eps_id), vigencia: ss.eps_vigencia },
-                      { label: 'ARL', nombre: nombreCat(catalogos.arl, ss.arl_id), vigencia: ss.arl_vigencia },
-                      { label: 'AFP', nombre: nombreCat(catalogos.afp, ss.afp_id), vigencia: ss.afp_vigencia },
-                    ].map(({ label, nombre, vigencia }) => (
-                      <div key={label} style={{
-                        padding: '10px 12px', background: 'var(--bg-surface)',
-                        borderRadius: '8px',
-                        border: `1px solid ${estadoVig(vigencia) === 'vencido' ? 'rgba(239,68,68,0.3)' : estadoVig(vigencia) === 'proximo' ? 'rgba(245,158,11,0.3)' : 'var(--border-subtle)'}`,
-                      }}>
-                        <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginBottom: '3px', letterSpacing: '0.06em' }}>{label}</div>
-                        <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>{nombre}</div>
-                        <VigBadge fecha={vigencia} />
+                  {/* ── Archivos de clasificación ─────────────────── */}
+                  {data.clasificacion && (() => {
+                    const c = data.clasificacion as any
+                    const archivos = [
+                      { label: 'Certificado — Trabajo en alturas', path: c.alturas_cert_archivo, visible: c.trabajo_alturas, campo: 'alturas_cert_archivo' },
+                      { label: 'Certificado — Espacios confinados', path: c.confinados_cert_archivo, visible: c.espacios_confinados, campo: 'confinados_cert_archivo' },
+                      { label: 'Matrícula CONTEC — Trabajo eléctrico', path: c.electrico_matricula_archivo, visible: c.trabajo_electrico, campo: 'electrico_matricula_archivo' },
+                      { label: 'Cert. extintor — Trabajo en caliente', path: c.caliente_extintor_archivo, visible: c.trabajo_caliente, campo: 'caliente_extintor_archivo' },
+                      { label: 'Permiso — Trabajo en caliente', path: c.caliente_permiso_archivo, visible: c.trabajo_caliente, campo: 'caliente_permiso_archivo' },
+                      { label: 'Inspección pre-operacional — Izaje', path: c.izaje_inspeccion_archivo, visible: c.izaje_maquinaria, campo: 'izaje_inspeccion_archivo' },
+                      { label: 'Docs legales equipo — Izaje', path: c.izaje_doc_legal_archivo, visible: c.izaje_maquinaria, campo: 'izaje_doc_legal_archivo' },
+                      { label: 'Licencia operador — Izaje', path: c.izaje_licencia_archivo, visible: c.izaje_maquinaria, campo: 'izaje_licencia_archivo' },
+                      { label: 'Póliza — Personal extranjero', path: c.extran_poliza_archivo, visible: c.personal_extranjero, campo: 'extran_poliza_archivo' },
+                      { label: 'Plan manejo de residuos', path: c.residuos_plan_archivo, visible: c.genera_residuos, campo: 'residuos_plan_archivo' },
+                    ].filter(a => a.visible)
+
+                    if (!archivos.length) return null
+                    return (
+                      <section>
+                        <h3 style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.08em', marginBottom: '10px' }}>CERTIFICADOS DE ACTIVIDAD</h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          {archivos.map(a => (
+                            <DocLink
+                              key={a.label}
+                              label={a.label}
+                              path={a.path}
+                              requerido
+                              canRemove
+                              removing={removingAttachmentKey === `clasificacion:${a.campo}:`}
+                              onRemove={() => handleEliminarAdjunto('clasificacion', a.campo)}
+                            />
+                          ))}
+                        </div>
+                      </section>
+                    )
+                  })()}
+
+                  {/* ── Seguridad social ──────────────────────────── */}
+                  {data.seguridad_social?.length > 0 && data.seguridad_social.map((ss, i) => (
+                    <section key={i}>
+                      <h3 style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.08em', marginBottom: '10px' }}>
+                        SEGURIDAD SOCIAL {!ss.es_titular && ss.nombre_persona ? `— ${ss.nombre_persona}` : '— TITULAR'}
+                      </h3>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginBottom: '8px' }}>
+                        {[
+                          { label: 'EPS', nombre: nombreCat(catalogos.eps, ss.eps_id), vigencia: ss.eps_vigencia },
+                          { label: 'ARL', nombre: nombreCat(catalogos.arl, ss.arl_id), vigencia: ss.arl_vigencia },
+                          { label: 'AFP', nombre: nombreCat(catalogos.afp, ss.afp_id), vigencia: ss.afp_vigencia },
+                        ].map(({ label, nombre, vigencia }) => (
+                          <div key={label} style={{
+                            padding: '10px 12px', background: 'var(--bg-surface)',
+                            borderRadius: '8px',
+                            border: `1px solid ${estadoVig(vigencia) === 'vencido' ? 'rgba(239,68,68,0.3)' : estadoVig(vigencia) === 'proximo' ? 'rgba(245,158,11,0.3)' : 'var(--border-subtle)'}`,
+                          }}>
+                            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginBottom: '3px', letterSpacing: '0.06em' }}>{label}</div>
+                            <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>{nombre}</div>
+                            <VigBadge fecha={vigencia} />
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                  <div style={{ marginBottom: '8px', display: 'flex', gap: '16px', fontSize: '0.75rem' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>
-                      PILA: <strong style={{ color: ss.pila_estado === 'PAGADA' ? 'var(--success-400)' : ss.pila_estado === 'VENCIDA' ? 'var(--danger-400)' : 'var(--text-secondary)' }}>
-                        {ss.pila_estado === 'PAGADA' ? '✓ Pagada' : ss.pila_estado === 'VENCIDA' ? '⚠ Vencida' : ss.pila_estado ?? '—'}
-                      </strong>
-                    </span>
-                    {ss.pila_tipo && <span style={{ color: 'var(--text-muted)' }}>Tipo: <strong style={{ color: 'var(--text-secondary)' }}>{ss.pila_tipo}</strong></span>}
-                  </div>
-                  <DocLink label="Planilla PILA" path={ss.pila_archivo} requerido />
-                </section>
-              ))}
+                      <div style={{ marginBottom: '8px', display: 'flex', gap: '16px', fontSize: '0.75rem' }}>
+                        <span style={{ color: 'var(--text-muted)' }}>
+                          PILA: <strong style={{ color: ss.pila_estado === 'PAGADA' ? 'var(--success-400)' : ss.pila_estado === 'VENCIDA' ? 'var(--danger-400)' : 'var(--text-secondary)' }}>
+                            {ss.pila_estado === 'PAGADA' ? '✓ Pagada' : ss.pila_estado === 'VENCIDA' ? '⚠ Vencida' : ss.pila_estado ?? '—'}
+                          </strong>
+                        </span>
+                        {ss.pila_tipo && <span style={{ color: 'var(--text-muted)' }}>Tipo: <strong style={{ color: 'var(--text-secondary)' }}>{ss.pila_tipo}</strong></span>}
+                      </div>
+                      <DocLink
+                        label="Planilla PILA"
+                        path={ss.pila_archivo}
+                        requerido
+                        canRemove
+                        removing={removingAttachmentKey === `seg_social:pila_archivo:${ss.id}`}
+                        onRemove={() => handleEliminarAdjunto('seg_social', 'pila_archivo', ss.id)}
+                      />
+                    </section>
+                  ))}
 
-              {/* ── Certificaciones (ART + permiso) ───────────── */}
-              {data.certificaciones && (
-                <section>
-                  <h3 style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.08em', marginBottom: '10px' }}>CERTIFICACIONES</h3>
-                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
-                    {data.certificaciones.permiso_tipo && (
-                      <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 600, background: 'rgba(99,102,241,0.1)', color: '#6366F1' }}>
-                        Permiso: {data.certificaciones.permiso_tipo}
-                      </span>
-                    )}
-                    {data.certificaciones.permiso_fecha && (
-                      <VigBadge fecha={data.certificaciones.permiso_fecha} />
-                    )}
-                  </div>
-                  {data.certificaciones.art_descripcion_tarea && (
-                    <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '10px' }}>
-                      <span style={{ color: 'var(--text-muted)', fontSize: '0.68rem', letterSpacing: '0.04em' }}>ART — </span>
-                      {data.certificaciones.art_descripcion_tarea}
+                  {/* ── Certificaciones (ART + permiso) ───────────── */}
+                  {data.certificaciones && (
+                    <section>
+                      <h3 style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.08em', marginBottom: '10px' }}>CERTIFICACIONES</h3>
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                        {data.certificaciones.permiso_tipo && (
+                          <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 600, background: 'rgba(99,102,241,0.1)', color: '#6366F1' }}>
+                            Permiso: {data.certificaciones.permiso_tipo}
+                          </span>
+                        )}
+                        {data.certificaciones.permiso_fecha && (
+                          <VigBadge fecha={data.certificaciones.permiso_fecha} />
+                        )}
+                      </div>
+                      {data.certificaciones.art_descripcion_tarea && (
+                        <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '10px' }}>
+                          <span style={{ color: 'var(--text-muted)', fontSize: '0.68rem', letterSpacing: '0.04em' }}>ART — </span>
+                          {data.certificaciones.art_descripcion_tarea}
+                        </div>
+                      )}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <DocLink
+                          label="ART diligenciada"
+                          path={data.certificaciones.art_archivo}
+                          requerido
+                          canRemove
+                          removing={removingAttachmentKey === 'certificaciones:art_archivo:'}
+                          onRemove={() => handleEliminarAdjunto('certificaciones', 'art_archivo')}
+                        />
+                        <DocLink
+                          label="Permiso de trabajo"
+                          path={data.certificaciones.permiso_archivo}
+                          requerido={!!data.certificaciones.permiso_tipo}
+                          canRemove
+                          removing={removingAttachmentKey === 'certificaciones:permiso_archivo:'}
+                          onRemove={() => handleEliminarAdjunto('certificaciones', 'permiso_archivo')}
+                        />
+                      </div>
+                    </section>
+                  )}
+
+                  {/* ── Examen médico ─────────────────────────────── */}
+                  {data.examen_medico && (
+                    <section>
+                      <h3 style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.08em', marginBottom: '10px' }}>EXAMEN MÉDICO OCUPACIONAL</h3>
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '8px' }}>
+                        <span style={{
+                          padding: '4px 10px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600,
+                          background: data.examen_medico.concepto === 'APTO' ? 'rgba(16,185,129,0.1)' : data.examen_medico.concepto === 'NO_APTO' ? 'rgba(239,68,68,0.1)' : 'rgba(245,158,11,0.1)',
+                          color: data.examen_medico.concepto === 'APTO' ? 'var(--success-400)' : data.examen_medico.concepto === 'NO_APTO' ? 'var(--danger-400)' : '#F59E0B',
+                        }}>
+                          {data.examen_medico.concepto ?? '—'}
+                        </span>
+                        <VigBadge fecha={data.examen_medico.fecha_examen} />
+                      </div>
+                      {data.examen_medico.descripcion_restriccion && (
+                        <div style={{ marginBottom: '8px', fontSize: '0.78rem', color: 'var(--danger-400)' }}>
+                          ⚠ Restricción: {data.examen_medico.descripcion_restriccion}
+                        </div>
+                      )}
+                      <DocLink
+                        label="Examen médico ocupacional (PDF)"
+                        path={data.examen_medico.archivo}
+                        requerido
+                        canRemove
+                        removing={removingAttachmentKey === 'examen:archivo:'}
+                        onRemove={() => handleEliminarAdjunto('examen', 'archivo')}
+                      />
+                    </section>
+                  )}
+
+                  {!data.seguridad_social?.length && !data.certificaciones && !data.examen_medico && !data.clasificacion && (
+                    <div style={{ textAlign: 'center', padding: '32px', color: 'var(--text-muted)', fontSize: '0.83rem' }}>
+                      No hay documentos registrados aún.
                     </div>
                   )}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <DocLink label="ART diligenciada" path={data.certificaciones.art_archivo} requerido />
-                    <DocLink label="Permiso de trabajo" path={data.certificaciones.permiso_archivo} requerido={!!data.certificaciones.permiso_tipo} />
-                  </div>
-                </section>
-              )}
-
-              {/* ── Examen médico ─────────────────────────────── */}
-              {data.examen_medico && (
-                <section>
-                  <h3 style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.08em', marginBottom: '10px' }}>EXAMEN MÉDICO OCUPACIONAL</h3>
-                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '8px' }}>
-                    <span style={{
-                      padding: '4px 10px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600,
-                      background: data.examen_medico.concepto === 'APTO' ? 'rgba(16,185,129,0.1)' : data.examen_medico.concepto === 'NO_APTO' ? 'rgba(239,68,68,0.1)' : 'rgba(245,158,11,0.1)',
-                      color: data.examen_medico.concepto === 'APTO' ? 'var(--success-400)' : data.examen_medico.concepto === 'NO_APTO' ? 'var(--danger-400)' : '#F59E0B',
-                    }}>
-                      {data.examen_medico.concepto ?? '—'}
-                    </span>
-                    <VigBadge fecha={data.examen_medico.fecha_examen} />
-                  </div>
-                  {data.examen_medico.descripcion_restriccion && (
-                    <div style={{ marginBottom: '8px', fontSize: '0.78rem', color: 'var(--danger-400)' }}>
-                      ⚠ Restricción: {data.examen_medico.descripcion_restriccion}
-                    </div>
-                  )}
-                  <DocLink label="Examen médico ocupacional (PDF)" path={data.examen_medico.archivo} requerido />
-                </section>
-              )}
-
-              {!data.seguridad_social?.length && !data.certificaciones && !data.examen_medico && !data.clasificacion && (
-                <div style={{ textAlign: 'center', padding: '32px', color: 'var(--text-muted)', fontSize: '0.83rem' }}>
-                  No hay documentos registrados aún.
                 </div>
-              )}
+
+                {showDesgloseDocs && (
+                  <aside style={{
+                    position: 'sticky',
+                    top: '8px',
+                    alignSelf: 'start',
+                    padding: '14px',
+                    borderRadius: 'var(--radius-lg)',
+                    border: '1px solid var(--border-subtle)',
+                    background: 'var(--bg-elevated)',
+                    display: 'grid',
+                    gap: '12px',
+                  }}>
+                    <div>
+                      <div style={{ fontSize: '0.72rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '6px' }}>
+                        Panel derecho
+                      </div>
+                      <div style={{ fontSize: '0.86rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                        Desglose de verificación
+                      </div>
+                    </div>
+
+                    {data.clasificacion && (
+                      <div>
+                        <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', marginBottom: '6px', fontWeight: 600 }}>
+                          Casillas marcadas
+                        </div>
+                        <div style={{ display: 'grid', gap: '6px' }}>
+                          {[
+                            { key: 'trabajo_alturas', label: 'Trabajo en alturas' },
+                            { key: 'espacios_confinados', label: 'Espacios confinados' },
+                            { key: 'trabajo_electrico', label: 'Trabajo eléctrico' },
+                            { key: 'trabajo_caliente', label: 'Trabajo en caliente' },
+                            { key: 'izaje_maquinaria', label: 'Izaje de maquinaria' },
+                            { key: 'visita_sin_riesgo', label: 'Visita sin riesgo' },
+                            { key: 'personal_extranjero', label: 'Personal extranjero' },
+                            { key: 'genera_residuos', label: 'Genera residuos' },
+                          ].map(({ key, label }) => {
+                            const activo = Boolean((data.clasificacion as any)[key])
+                            return (
+                              <div key={key} style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '7px 9px',
+                                borderRadius: '8px',
+                                background: activo ? 'rgba(239,68,68,0.08)' : 'var(--bg-surface)',
+                                border: `1px solid ${activo ? 'rgba(239,68,68,0.2)' : 'var(--border-subtle)'}`,
+                                fontSize: '0.74rem',
+                              }}>
+                                <span style={{ color: 'var(--text-secondary)' }}>{label}</span>
+                                <span style={{ color: activo ? 'var(--danger-400)' : 'var(--text-muted)', fontWeight: 700 }}>
+                                  {activo ? 'Sí' : 'No'}
+                                </span>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    <div style={{
+                      fontSize: '0.72rem',
+                      color: 'var(--text-muted)',
+                      lineHeight: 1.4,
+                      borderTop: '1px solid var(--border-subtle)',
+                      paddingTop: '10px',
+                    }}>
+                      Si algo se adjuntó por error, usa los botones Eliminar en cada documento y luego solicita al contratista volver a cargar el archivo correcto.
+                    </div>
+                  </aside>
+                )}
+              </div>
             </div>
 
           ) : (

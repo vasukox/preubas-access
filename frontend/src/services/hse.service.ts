@@ -9,6 +9,7 @@ import type { SedeBasica } from '@/types'
 import type {
   // Contratistas
   ContratistaEliminarRequest,
+  ContratistaEliminarAdjuntoRequest,
   // Catálogos
   CatItem,
   ProveedorHSEOption,
@@ -128,6 +129,9 @@ export const hseService = {
   eliminarContratista: (id: number, data: ContratistaEliminarRequest) =>
     post<null>(`/hse/contratistas/${id}/eliminar`, data),
 
+  eliminarAdjuntoContratista: (id: number, data: ContratistaEliminarAdjuntoRequest) =>
+    post<ContratistaDetalleResponse>(`/hse/contratistas/${id}/adjuntos/eliminar`, data),
+
   // ── Portal Autogestión (público) ───────────────────────────────
   validarToken: (token: string) =>
     get<AutogestionTokenResponse>(`/hse/autogestion/${token}`),
@@ -189,6 +193,9 @@ export const hseService = {
     if (params.estado) query.set('estado', params.estado)
     return get<CumplimientoListadoResponse[]>(`/hse/cumplimiento?${query.toString()}`)
   },
+
+  getCumplimiento: (id: number) =>
+    get<CumplimientoResponse>(`/hse/cumplimiento/${id}`),
 
   actualizarCumplimiento: (id: number, data: CumplimientoActualizarRequest) =>
     put<CumplimientoResponse>(`/hse/cumplimiento/${id}`, data),
