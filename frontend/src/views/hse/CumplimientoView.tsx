@@ -26,6 +26,19 @@ import type {
   EstadoCumplimiento,
 } from '@/types/hse'
 
+function formatDateTime(value: string | null | undefined): string {
+  if (!value) return 'No disponible'
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return value
+  return d.toLocaleString('es-CO', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
 // ── Badge estado cumplimiento ─────────────────────────────────────
 function CumplimientoBadge({ estado }: { estado: EstadoCumplimiento }) {
   const config = {
@@ -692,6 +705,7 @@ export default function CumplimientoView() {
   const [desgloseCumplimiento, setDesgloseCumplimiento] = useState<CumplimientoResponse | null>(null)
   const [desgloseContratista, setDesgloseContratista] = useState<ContratistaDetalleResponse | null>(null)
   const [desgloseLoading, setDesgloseLoading] = useState(false)
+  const [reverificandoDesdeDesglose, setReverificandoDesdeDesglose] = useState(false)
 
   // Estado local de items para edición optimista
   const [itemsLocal, setItemsLocal] = useState<CumplimientoItemResponse[]>([])
@@ -936,6 +950,36 @@ export default function CumplimientoView() {
       setShowDesgloseHistorial(false)
     } finally {
       setDesgloseLoading(false)
+    }
+  }
+
+  const handleReverificarPersonaDesdeDesglose = async () => {
+    if (!desgloseCumplimiento?.contratista_id) {
+      toast.error('No se encontró el contratista para iniciar la verificación.')
+      return
+    }
+
+    const sedeObjetivo = sedeActiva?.id ?? desgloseCumplimiento.sede_id
+    if (!sedeObjetivo) {
+      toast.error('No hay una sede válida para iniciar la verificación.')
+      return
+    }
+
+    setReverificandoDesdeDesglose(true)
+    try {
+      const nuevo = await hseService.iniciarCumplimiento({
+        contratista_id: desgloseCumplimiento.contratista_id,
+        sede_id: sedeObjetivo,
+      })
+      toast.success('Nueva verificación iniciada correctamente.')
+      setShowDesgloseHistorial(false)
+      setDesgloseCumplimiento(null)
+      setDesgloseContratista(null)
+      handleIniciado(nuevo)
+    } catch (e) {
+      toast.error(getErrorMessage(e))
+    } finally {
+      setReverificandoDesdeDesglose(false)
     }
   }
 
@@ -1358,6 +1402,62 @@ export default function CumplimientoView() {
                   ))}
                 </div>
 
+                <div style={{
+                  display: 'grid',
+                  gap: '8px',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: '10px',
+                  padding: '10px',
+                  background: 'var(--bg-elevated)',
+                }}>
+                  <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                    Detalle operativo
+                  </div>
+                  <div style={{ fontSize: '0.83rem', color: 'var(--text-primary)', fontWeight: 700 }}>
+                    {contratistaDetalle ? `${contratistaDetalle.nombres} ${contratistaDetalle.apellidos}` : 'Contratista no cargado'}
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                    <div style={{ fontSize: '0.73rem', color: 'var(--text-secondary)' }}>
+                      Documento: <strong style={{ color: 'var(--text-primary)' }}>
+                        {contratistaDetalle ? `${contratistaDetalle.tipo_documento} ${contratistaDetalle.numero_documento}` : 'N/A'}
+                      </strong>
+                    </div>
+                    <div style={{ fontSize: '0.73rem', color: 'var(--text-secondary)' }}>
+                      Estado contratista: <strong style={{ color: 'var(--text-primary)' }}>{contratistaDetalle?.estado || 'N/A'}</strong>
+                    </div>
+                    <div style={{ fontSize: '0.73rem', color: 'var(--text-secondary)' }}>
+                      Empresa: <strong style={{ color: 'var(--text-primary)' }}>{contratistaDetalle?.proveedor_nombre || 'Sin proveedor'}</strong>
+                    </div>
+                    <div style={{ fontSize: '0.73rem', color: 'var(--text-secondary)' }}>
+                      Encargado ID: <strong style={{ color: 'var(--text-primary)' }}>{cumplimiento?.encargado_id ?? 'N/A'}</strong>
+                    </div>
+                    <div style={{ fontSize: '0.73rem', color: 'var(--text-secondary)' }}>
+                      Inicio: <strong style={{ color: 'var(--text-primary)' }}>{formatDateTime(cumplimiento?.fecha_inicio)}</strong>
+                    </div>
+                    <div style={{ fontSize: '0.73rem', color: 'var(--text-secondary)' }}>
+                      Cierre: <strong style={{ color: 'var(--text-primary)' }}>{formatDateTime(cumplimiento?.fecha_cierre)}</strong>
+                    </div>
+                    <div style={{ fontSize: '0.73rem', color: 'var(--text-secondary)' }}>
+                      Email: <strong style={{ color: 'var(--text-primary)' }}>{contratistaDetalle?.email || 'N/A'}</strong>
+                    </div>
+                    <div style={{ fontSize: '0.73rem', color: 'var(--text-secondary)' }}>
+                      Teléfono: <strong style={{ color: 'var(--text-primary)' }}>{contratistaDetalle?.telefono || 'N/A'}</strong>
+                    </div>
+                  </div>
+                  {cumplimiento?.observacion_general && (
+                    <div style={{
+                      fontSize: '0.73rem',
+                      color: 'var(--text-secondary)',
+                      padding: '8px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border-subtle)',
+                      background: 'var(--bg-surface)',
+                    }}>
+                      <strong style={{ color: 'var(--text-primary)' }}>Observación general:</strong> {cumplimiento.observacion_general}
+                    </div>
+                  )}
+                </div>
+
                 <div style={{ display: 'grid', gap: '6px' }}>
                   <div style={{ fontSize: '0.76rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
                     Adjuntos de soporte
@@ -1586,6 +1686,102 @@ export default function CumplimientoView() {
                 <div style={{ color: 'var(--text-muted)', fontSize: '0.84rem' }}>Cargando desglose...</div>
               ) : (
                 <>
+                  <div style={{
+                    display: 'grid',
+                    gap: '8px',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: '10px',
+                    padding: '10px',
+                    background: 'var(--bg-elevated)',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                      <div style={{ fontSize: '0.82rem', color: 'var(--text-primary)', fontWeight: 700 }}>
+                        Resumen de verificación
+                      </div>
+                      {desgloseCumplimiento?.estado && <CumplimientoBadge estado={desgloseCumplimiento.estado} />}
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                      <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                        Ítems respondidos: <strong style={{ color: 'var(--text-primary)' }}>
+                          {(desgloseCumplimiento?.items || []).filter((i) => i.cumple !== null).length}/{(desgloseCumplimiento?.items || []).length}
+                        </strong>
+                      </div>
+                      <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                        Encargado ID: <strong style={{ color: 'var(--text-primary)' }}>{desgloseCumplimiento?.encargado_id ?? 'N/A'}</strong>
+                      </div>
+                      <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                        Inicio: <strong style={{ color: 'var(--text-primary)' }}>{formatDateTime(desgloseCumplimiento?.fecha_inicio)}</strong>
+                      </div>
+                      <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                        Cierre: <strong style={{ color: 'var(--text-primary)' }}>{formatDateTime(desgloseCumplimiento?.fecha_cierre)}</strong>
+                      </div>
+                    </div>
+                    {desgloseCumplimiento?.firma_digital && (
+                      <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                        Firma: <strong style={{ color: 'var(--text-primary)' }}>{desgloseCumplimiento.firma_digital}</strong>
+                      </div>
+                    )}
+                    {desgloseCumplimiento?.observacion_general && (
+                      <div style={{
+                        fontSize: '0.74rem',
+                        color: 'var(--text-secondary)',
+                        padding: '8px',
+                        borderRadius: '8px',
+                        border: '1px solid var(--border-subtle)',
+                        background: 'var(--bg-surface)',
+                      }}>
+                        <strong style={{ color: 'var(--text-primary)' }}>Observación general:</strong> {desgloseCumplimiento.observacion_general}
+                      </div>
+                    )}
+                    {desgloseCumplimiento && desgloseCumplimiento.estado !== 'EN_PROGRESO' && (
+                      <button
+                        className="btn-primary"
+                        onClick={handleReverificarPersonaDesdeDesglose}
+                        disabled={reverificandoDesdeDesglose}
+                        style={{ justifySelf: 'start', fontSize: '0.78rem' }}
+                      >
+                        <PenLine size={13} />
+                        {reverificandoDesdeDesglose ? 'Iniciando...' : 'Volver a verificar persona'}
+                      </button>
+                    )}
+                  </div>
+
+                  <div style={{
+                    display: 'grid',
+                    gap: '8px',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: '10px',
+                    padding: '10px',
+                    background: 'var(--bg-elevated)',
+                  }}>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Datos del contratista</div>
+                    <div style={{ fontSize: '0.82rem', color: 'var(--text-primary)', fontWeight: 700 }}>
+                      {desgloseContratista ? `${desgloseContratista.nombres} ${desgloseContratista.apellidos}` : 'No disponible'}
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                      <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                        Documento: <strong style={{ color: 'var(--text-primary)' }}>
+                          {desgloseContratista ? `${desgloseContratista.tipo_documento} ${desgloseContratista.numero_documento}` : 'N/A'}
+                        </strong>
+                      </div>
+                      <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                        Estado: <strong style={{ color: 'var(--text-primary)' }}>{desgloseContratista?.estado || 'N/A'}</strong>
+                      </div>
+                      <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                        Email: <strong style={{ color: 'var(--text-primary)' }}>{desgloseContratista?.email || 'N/A'}</strong>
+                      </div>
+                      <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                        Teléfono: <strong style={{ color: 'var(--text-primary)' }}>{desgloseContratista?.telefono || 'N/A'}</strong>
+                      </div>
+                      <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                        Proveedor: <strong style={{ color: 'var(--text-primary)' }}>{desgloseContratista?.proveedor_nombre || 'Sin proveedor'}</strong>
+                      </div>
+                      <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                        Autogestión: <strong style={{ color: 'var(--text-primary)' }}>{formatDateTime(desgloseContratista?.autogestion_completada_en)}</strong>
+                      </div>
+                    </div>
+                  </div>
+
                   <div style={{ display: 'grid', gap: '6px' }}>
                     <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Casillas de checklist</div>
                     {(desgloseCumplimiento?.items || []).map((item) => (

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Check, ChevronLeft, ChevronRight, Building2, Lock, ChevronDown, Eye, EyeOff, X } from 'lucide-react'
+import { Check, ChevronLeft, ChevronRight, Lock, ChevronDown, Eye, EyeOff, X } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { herramientasService, type RolSistema } from '@/services/herramientas.service'
 import { hseService } from '@/services/hse.service'
@@ -8,8 +8,6 @@ import { useAuthStore } from '@/store/authStore'
 import type { RolNombre, SedeBasica } from '@/types'
 import {
   DEFAULT_PERMISOS,
-  HSE_SUBROLES_POR_ROL,
-  HSE_SUBMODULO_ROLES,
   PERMISSION_META,
   PERMISOS_LABELS,
   ROL_AREAS_POR_CATEGORIA,
@@ -27,7 +25,7 @@ interface CrearUsuarioWizardProps {
   onUserCreated: () => void
 }
 
-export function CrearUsuarioWizard({ roles, setVistaActiva, onUserCreated }: CrearUsuarioWizardProps) {
+export function CrearUsuarioWizard({ setVistaActiva, onUserCreated }: CrearUsuarioWizardProps) {
   const [wizardStep, setWizardStep] = useState(1)
   const [savingUser, setSavingUser] = useState(false)
   const [sedesDisponibles, setSedesDisponibles] = useState<SedeBasica[]>([])
@@ -154,17 +152,6 @@ export function CrearUsuarioWizard({ roles, setVistaActiva, onUserCreated }: Cre
     aplicarRolInicial(rolResuelto)
   }
 
-  const toggleSubrolWizard = (subrol: RolNombre) => {
-    setNuevoUsuario((p) => {
-      if (!p.rol_nombre) return p
-      const yaTiene = p.roles_nombres.includes(subrol)
-      const nextRoles = yaTiene
-        ? p.roles_nombres.filter((x) => x !== subrol)
-        : [...p.roles_nombres, subrol]
-      return { ...p, roles_nombres: nextRoles }
-    })
-  }
-
   const handleNextStep = () => {
     if (wizardStep === 1 && !validarPaso1()) return
     if (wizardStep === 2 && !validarPaso2()) return
@@ -210,14 +197,6 @@ export function CrearUsuarioWizard({ roles, setVistaActiva, onUserCreated }: Cre
     { id: 2, title: 'Rol y permisos' },
     { id: 3, title: 'Firma y trazabilidad' },
   ]
-
-  const rolWizardActual: RolNombre | null = (nuevoUsuario.rol_nombre as RolNombre) || null
-  const rolWizardSeleccionado = roles.find((r) => r.nombre === nuevoUsuario.rol_nombre)
-  const wizardGrupos = rolWizardSeleccionado?.grupos ?? []
-  const subrolesDisponibles = rolWizardActual ? HSE_SUBROLES_POR_ROL[rolWizardActual] ?? [] : []
-  const submodulosActivosSubrol = rolWizardActual
-    ? HSE_SUBMODULO_ROLES.filter((item) => item.roles.includes(rolWizardActual as RolNombre))
-    : []
 
   const panelStyle: React.CSSProperties = {
     background: 'var(--bg-surface)',

@@ -1,0 +1,20 @@
+# Dependencias
+node_modules/
+package-lock.json
+
+# Entornos y Caché
+.venv/
+venv/
+__pycache__/
+*.pyc
+.env
+
+# Registros y Bases de Datos Locales
+*.log
+*.sqlite3
+*.db
+
+# Directorios de Compilación
+dist/
+build/
+.git/

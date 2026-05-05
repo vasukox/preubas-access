@@ -8,6 +8,7 @@ type ConfirmActionModalProps = {
   loading?: boolean
   onConfirm: () => void
   onCancel: () => void
+  children?: React.ReactNode
 }
 
 export function ConfirmActionModal({
@@ -20,6 +21,7 @@ export function ConfirmActionModal({
   loading = false,
   onConfirm,
   onCancel,
+  children,
 }: ConfirmActionModalProps) {
   if (!open) return null
 
@@ -52,6 +54,11 @@ export function ConfirmActionModal({
           <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '6px', lineHeight: 1.45 }}>
             {message}
           </p>
+          {children && (
+            <div style={{ marginTop: '12px' }}>
+              {children}
+            </div>
+          )}
         </div>
 
         <div

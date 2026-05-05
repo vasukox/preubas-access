@@ -1,5 +1,5 @@
   import { useEffect, useState } from 'react'
-  import { Activity, ChevronLeft, Clock, History, RefreshCw, Search } from 'lucide-react'
+  import { Activity, ChevronLeft, History, RefreshCw, Search } from 'lucide-react'
   import { toast } from 'react-hot-toast'
   import type { AuditLogEntry } from '@/services/herramientas.service'
   import { herramientasService } from '@/services/herramientas.service'

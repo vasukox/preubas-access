@@ -1,0 +1,37 @@
+import { Repository } from 'typeorm';
+import { Sede } from '../sede/entities/sede.entity';
+import { Ubicacion } from '../sede/entities/ubicacion.entity';
+import { CatEps } from '../hse/entities/cat-eps.entity';
+import { CatArl } from '../hse/entities/cat-arl.entity';
+import { CatAfp } from '../hse/entities/cat-afp.entity';
+import { CatNormaSeguridad } from '../hse/entities/cat-norma-seguridad.entity';
+import { CreateSedeDto, UpdateSedeDto, CreateUbicacionDto, UpdateUbicacionDto, CreateCatalogoDto, UpdateCatalogoDto, CreateNormaDto, UpdateNormaDto } from './dto/config-koaj.dto';
+type TipoCatalogo = 'eps' | 'arl' | 'afp';
+export declare class ConfigKoajService {
+    private readonly sedeRepo;
+    private readonly ubicacionRepo;
+    private readonly epsRepo;
+    private readonly arlRepo;
+    private readonly afpRepo;
+    private readonly normaRepo;
+    private readonly logger;
+    constructor(sedeRepo: Repository<Sede>, ubicacionRepo: Repository<Ubicacion>, epsRepo: Repository<CatEps>, arlRepo: Repository<CatArl>, afpRepo: Repository<CatAfp>, normaRepo: Repository<CatNormaSeguridad>);
+    listarSedes(): Promise<Sede[]>;
+    getSede(id: number): Promise<Sede>;
+    crearSede(dto: CreateSedeDto): Promise<Sede>;
+    actualizarSede(id: number, dto: UpdateSedeDto): Promise<Sede>;
+    listarUbicaciones(sedeId: number): Promise<Ubicacion[]>;
+    crearUbicacion(dto: CreateUbicacionDto): Promise<Ubicacion>;
+    actualizarUbicacion(id: number, dto: UpdateUbicacionDto): Promise<Ubicacion>;
+    eliminarUbicacion(id: number): Promise<void>;
+    private getCatalogoRepo;
+    listarCatalogo(tipo: TipoCatalogo): Promise<(CatEps | CatArl | CatAfp)[]>;
+    crearItemCatalogo(tipo: TipoCatalogo, dto: CreateCatalogoDto): Promise<CatEps | CatArl | CatAfp>;
+    actualizarItemCatalogo(tipo: TipoCatalogo, id: number, dto: UpdateCatalogoDto): Promise<CatEps | CatArl | CatAfp>;
+    eliminarItemCatalogo(tipo: TipoCatalogo, id: number): Promise<void>;
+    listarNormas(sedeId?: number): Promise<CatNormaSeguridad[]>;
+    crearNorma(dto: CreateNormaDto): Promise<CatNormaSeguridad>;
+    actualizarNorma(id: number, dto: UpdateNormaDto): Promise<CatNormaSeguridad>;
+    eliminarNorma(id: number): Promise<void>;
+}
+export {};

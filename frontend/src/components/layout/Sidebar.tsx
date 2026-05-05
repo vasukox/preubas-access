@@ -18,7 +18,7 @@ import {
   Building2, Wifi, WifiOff, Loader2,
   ChevronDown, Wrench,
   LayoutGrid, ClipboardList, Eye, AlertTriangle, ClipboardCheck,
-  Globe, BookOpen, ListChecks, Hammer,
+  Globe, BookOpen, ListChecks, Hammer, UserX,
 } from 'lucide-react'
 import { useWSStore } from '@/store'
 import type { RolNombre, UsuarioMe, SedeBasica } from '@/types'
@@ -131,6 +131,43 @@ export const NAV_ITEMS: NavItem[] = [
     path:  '/gh',
     icon:  <Users size={18} />,
     roles: ['ADMIN_GLOBAL','ADMIN_GH','VISUALIZADOR'],
+    children: [
+      {
+        id:    'gh-dashboard',
+        label: 'Dashboard',
+        path:  '/gh',
+        icon:  <LayoutGrid size={14} />,
+        roles: ['ADMIN_GLOBAL','ADMIN_GH','VISUALIZADOR'],
+      },
+      {
+        id:    'gh-citas',
+        label: 'Agendar Citas',
+        path:  '/gh/citas',
+        icon:  <ClipboardList size={14} />,
+        roles: ['ADMIN_GLOBAL','ADMIN_GH'],
+      },
+      {
+        id:    'gh-inducciones',
+        label: 'Inducciones',
+        path:  '/gh/inducciones',
+        icon:  <BookOpen size={14} />,
+        roles: ['ADMIN_GLOBAL','ADMIN_GH'],
+      },
+      {
+        id:    'gh-dotacion',
+        label: 'Dotación',
+        path:  '/gh/dotacion',
+        icon:  <Hammer size={14} />,
+        roles: ['ADMIN_GLOBAL','ADMIN_GH'],
+      },
+      {
+        id:    'gh-importacion',
+        label: 'Importación',
+        path:  '/gh/importacion',
+        icon:  <ListChecks size={14} />,
+        roles: ['ADMIN_GLOBAL','ADMIN_GH'],
+      },
+    ],
   },
   {
     id:    'reportes',
@@ -179,6 +216,13 @@ export const NAV_ITEMS: NavItem[] = [
         label: 'Actividades HSE',
         path:  '/config/actividades',
         icon:  <Hammer size={14} />,
+        roles: ['ADMIN_GLOBAL'],
+      },
+      {
+        id:    'config-usuarios-generales',
+        label: 'Usuarios Generales',
+        path:  '/config/usuarios-generales',
+        icon:  <UserX size={14} />,
         roles: ['ADMIN_GLOBAL'],
       },
     ],
@@ -250,6 +294,14 @@ function NavGroup({
   // Altura estimada por item para la transición de max-height
   const ITEM_HEIGHT_PX = 40
   const submenuMaxHeight = visibleChildren.length * ITEM_HEIGHT_PX + 8
+
+  const isSubItemActive = (subPath: string, groupPath: string, currentPath: string): boolean => {
+    // Root sub-route (e.g. /gh or /hse) should only match exactly.
+    if (subPath === groupPath) {
+      return currentPath === subPath || currentPath === `${subPath}/`
+    }
+    return currentPath === subPath || currentPath.startsWith(`${subPath}/`)
+  }
 
   return (
     <div>
@@ -343,8 +395,7 @@ function NavGroup({
           }}
         >
           {visibleChildren.map(sub => {
-            const isActive = location.pathname === sub.path ||
-              (sub.path !== '/hse' && location.pathname.startsWith(sub.path))
+            const isActive = isSubItemActive(sub.path, item.path, location.pathname)
             return (
               <NavLink
                 key={sub.id}

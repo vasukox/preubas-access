@@ -91,7 +91,7 @@ export const useWSStore = create<WSState>()(
 
         set({ status: 'RECONECTANDO', sedeId }, false, 'ws/connect')
 
-        const url = `${WS_BASE_URL}/ws/${sedeId}?token=${token}`
+        const url = `${WS_BASE_URL}/ws?sede_id=${sedeId}&token=${token}`
         socket = new WebSocket(url)
 
         socket.onopen = () => {

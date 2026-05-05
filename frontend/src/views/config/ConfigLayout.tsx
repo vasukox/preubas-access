@@ -5,7 +5,7 @@
  */
 import { useLocation, Outlet } from 'react-router-dom'
 
-type ConfigRoute = 'sistema' | 'estructura' | 'catalogos' | 'normas' | 'actividades'
+type ConfigRoute = 'sistema' | 'estructura' | 'catalogos' | 'normas' | 'actividades' | 'usuarios-generales'
 
 const ROUTE_META: Record<ConfigRoute, { title: string; subtitle: string; accent: string; area: string }> = {
   sistema:     { title: 'Parámetros globales',  subtitle: 'Variables de entorno y seguridad del sistema (solo lectura).',             accent: '#6366F1', area: 'SISTEMA'    },
@@ -13,9 +13,11 @@ const ROUTE_META: Record<ConfigRoute, { title: string; subtitle: string; accent:
   catalogos:   { title: 'Catálogos HSE',        subtitle: 'Administra las entidades base: EPS, ARL y AFP vinculadas a autorizaciones.', accent: '#F59E0B', area: 'REGLAS HSE' },
   normas:      { title: 'Normas de seguridad',  subtitle: 'Configura las normas HSE del flujo de autorización.',                       accent: '#F59E0B', area: 'REGLAS HSE' },
   actividades: { title: 'Actividades HSE',      subtitle: 'Gestión de actividades y clasificaciones operativas del módulo HSE.',         accent: '#EC4899', area: 'REGLAS HSE' },
+  'usuarios-generales': { title: 'Usuarios generales del sistema', subtitle: 'Listado global de contratistas/personas por sede, con filtros y eliminación administrativa segura.', accent: '#EF4444', area: 'GOBIERNO OPERATIVO' },
 }
 
 function pathToRoute(pathname: string): ConfigRoute {
+  if (pathname.includes('/config/usuarios-generales')) return 'usuarios-generales'
   if (pathname.includes('/config/estructura'))  return 'estructura'
   if (pathname.includes('/config/catalogos'))   return 'catalogos'
   if (pathname.includes('/config/normas'))      return 'normas'
