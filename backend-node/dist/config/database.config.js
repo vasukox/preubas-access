@@ -12,7 +12,7 @@ function getDatabaseConfig(config) {
         charset: 'utf8mb4',
         timezone: 'Z',
         entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-        synchronize: false,
+        synchronize: config.isDevelopment,
         logging: config.isDevelopment ? ['error', 'warn', 'query'] : ['error'],
         maxQueryExecutionTime: 3000,
         extra: {

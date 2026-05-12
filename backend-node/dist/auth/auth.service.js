@@ -77,7 +77,7 @@ let AuthService = AuthService_1 = class AuthService {
     async login(dto, ipAddress, userAgent) {
         const usuario = await this.usuarioRepo.findOne({
             where: { email: dto.email.toLowerCase().trim() },
-            relations: ['roles', 'roles.rol', 'perfil', 'permisos'],
+            relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada'],
         });
         if (!usuario || !usuario.activo) {
             throw new common_1.UnauthorizedException({

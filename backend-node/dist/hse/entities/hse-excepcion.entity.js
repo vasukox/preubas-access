@@ -12,60 +12,90 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.HseExcepcion = void 0;
 const typeorm_1 = require("typeorm");
 const base_entity_1 = require("../../common/entities/base.entity");
-const hse_contratista_entity_1 = require("./hse-contratista.entity");
+const persona_entity_1 = require("../../persona/entities/persona.entity");
 const usuario_entity_1 = require("../../auth/entities/usuario.entity");
 const sede_entity_1 = require("../../sede/entities/sede.entity");
 let HseExcepcion = class HseExcepcion extends base_entity_1.BaseEntity {
-    contratistaId;
-    autorizadorId;
+    personaId;
+    tipoDocumento;
+    numeroDocumento;
+    nombreCompleto;
+    proveedorId;
+    origenExcepcion;
+    ubicacionId;
+    aprobadoPor;
     sedeId;
-    motivoExcepcion;
-    fechaValidezInicio;
-    fechaValidezFin;
-    esActiva;
-    contratista;
-    autorizador;
+    motivo;
+    fechaInicio;
+    fechaFin;
+    activa;
+    persona;
+    aprobador;
     sede;
 };
 exports.HseExcepcion = HseExcepcion;
 __decorate([
-    (0, typeorm_1.Column)({ name: 'contratista_id', type: 'int', nullable: false }),
-    __metadata("design:type", Number)
-], HseExcepcion.prototype, "contratistaId", void 0);
+    (0, typeorm_1.Column)({ name: 'persona_id', type: 'int', nullable: true }),
+    __metadata("design:type", Object)
+], HseExcepcion.prototype, "personaId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'autorizador_id', type: 'int', nullable: false }),
+    (0, typeorm_1.Column)({ name: 'tipo_documento', type: 'varchar', length: 20, nullable: true }),
+    __metadata("design:type", Object)
+], HseExcepcion.prototype, "tipoDocumento", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'numero_documento', type: 'varchar', length: 30, nullable: true }),
+    __metadata("design:type", Object)
+], HseExcepcion.prototype, "numeroDocumento", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'nombre_completo', type: 'varchar', length: 200, nullable: true }),
+    __metadata("design:type", Object)
+], HseExcepcion.prototype, "nombreCompleto", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'proveedor_id', type: 'int', nullable: true }),
+    __metadata("design:type", Object)
+], HseExcepcion.prototype, "proveedorId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'origen_excepcion', type: 'varchar', length: 20, default: 'INDIVIDUAL' }),
+    __metadata("design:type", String)
+], HseExcepcion.prototype, "origenExcepcion", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'ubicacion_id', type: 'int', nullable: true }),
+    __metadata("design:type", Object)
+], HseExcepcion.prototype, "ubicacionId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'aprobado_por', type: 'int', nullable: false }),
     __metadata("design:type", Number)
-], HseExcepcion.prototype, "autorizadorId", void 0);
+], HseExcepcion.prototype, "aprobadoPor", void 0);
 __decorate([
     (0, typeorm_1.Column)({ name: 'sede_id', type: 'int', nullable: false }),
     __metadata("design:type", Number)
 ], HseExcepcion.prototype, "sedeId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'motivo_excepcion', type: 'text', nullable: false }),
+    (0, typeorm_1.Column)({ name: 'motivo', type: 'text', nullable: false }),
     __metadata("design:type", String)
-], HseExcepcion.prototype, "motivoExcepcion", void 0);
+], HseExcepcion.prototype, "motivo", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'fecha_validez_inicio', type: 'datetime', nullable: false }),
+    (0, typeorm_1.Column)({ name: 'fecha_inicio', type: 'date', nullable: false }),
     __metadata("design:type", Date)
-], HseExcepcion.prototype, "fechaValidezInicio", void 0);
+], HseExcepcion.prototype, "fechaInicio", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'fecha_validez_fin', type: 'datetime', nullable: false }),
+    (0, typeorm_1.Column)({ name: 'fecha_fin', type: 'date', nullable: false }),
     __metadata("design:type", Date)
-], HseExcepcion.prototype, "fechaValidezFin", void 0);
+], HseExcepcion.prototype, "fechaFin", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'es_activa', type: 'boolean', default: true }),
+    (0, typeorm_1.Column)({ name: 'activa', type: 'boolean', default: true }),
     __metadata("design:type", Boolean)
-], HseExcepcion.prototype, "esActiva", void 0);
+], HseExcepcion.prototype, "activa", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => hse_contratista_entity_1.HseContratista, { onDelete: 'CASCADE' }),
-    (0, typeorm_1.JoinColumn)({ name: 'contratista_id' }),
-    __metadata("design:type", hse_contratista_entity_1.HseContratista)
-], HseExcepcion.prototype, "contratista", void 0);
+    (0, typeorm_1.ManyToOne)(() => persona_entity_1.Persona, { onDelete: 'SET NULL', nullable: true }),
+    (0, typeorm_1.JoinColumn)({ name: 'persona_id' }),
+    __metadata("design:type", Object)
+], HseExcepcion.prototype, "persona", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => usuario_entity_1.Usuario, { onDelete: 'RESTRICT' }),
-    (0, typeorm_1.JoinColumn)({ name: 'autorizador_id' }),
+    (0, typeorm_1.JoinColumn)({ name: 'aprobado_por' }),
     __metadata("design:type", usuario_entity_1.Usuario)
-], HseExcepcion.prototype, "autorizador", void 0);
+], HseExcepcion.prototype, "aprobador", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => sede_entity_1.Sede, { onDelete: 'RESTRICT' }),
     (0, typeorm_1.JoinColumn)({ name: 'sede_id' }),

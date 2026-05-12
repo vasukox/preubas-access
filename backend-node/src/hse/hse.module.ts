@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PersonaModule } from '../persona/persona.module';
 
 // ── Entities comunes ────────────────────────────────────────────────────────
 import { Sede } from '../sede/entities/sede.entity';
@@ -31,6 +32,16 @@ import { HseHistorial } from './entities/hse-historial.entity';
 
 import { HseController } from './hse.controller';
 import { HseService } from './hse.service';
+import { AutorizacionService } from './services/autorizacion.service';
+import { CodigoGeneratorService } from './services/codigo-generator.service';
+import { AutorizacionValidator } from './validators/autorizacion.validator';
+import { AutogestionService } from './services/autogestion.service';
+import { TokenValidatorService } from './services/token-validator.service';
+import { AccesoService } from './services/acceso.service';
+import { CumplimientoService } from './services/cumplimiento.service';
+import { ValidacionService } from './services/validacion.service';
+import { ExcepcionService } from './services/excepcion.service';
+import { ReportesService } from './services/reportes.service';
 
 /**
  * HseModule — registra todas las entidades del módulo HSE en TypeORM.
@@ -39,6 +50,7 @@ import { HseService } from './hse.service';
  */
 @Module({
   imports: [
+    PersonaModule,
     TypeOrmModule.forFeature([
       Sede,
       // Catálogos
@@ -66,7 +78,19 @@ import { HseService } from './hse.service';
     ]),
   ],
   controllers: [HseController],
-  providers: [HseService],
+  providers: [
+    HseService,
+    AutorizacionService,
+    CodigoGeneratorService,
+    AutorizacionValidator,
+    AutogestionService,
+    TokenValidatorService,
+    AccesoService,
+    CumplimientoService,
+    ValidacionService,
+    ExcepcionService,
+    ReportesService,
+  ],
   exports: [TypeOrmModule],
 })
 export class HseModule {}

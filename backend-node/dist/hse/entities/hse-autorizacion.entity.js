@@ -42,7 +42,7 @@ __decorate([
 ], HseAutorizacion.prototype, "codigo", void 0);
 __decorate([
     (0, typeorm_1.Column)({ name: 'proveedor_id', type: 'int', nullable: true }),
-    __metadata("design:type", Number)
+    __metadata("design:type", Object)
 ], HseAutorizacion.prototype, "proveedorId", void 0);
 __decorate([
     (0, typeorm_1.Column)({ name: 'sede_id', type: 'int', nullable: false }),
@@ -78,7 +78,7 @@ __decorate([
 ], HseAutorizacion.prototype, "estado", void 0);
 __decorate([
     (0, typeorm_1.Column)({ name: 'motivo_denegacion', type: 'text', nullable: true }),
-    __metadata("design:type", String)
+    __metadata("design:type", Object)
 ], HseAutorizacion.prototype, "motivoDenegacion", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => proveedor_entity_1.Proveedor, { onDelete: 'SET NULL' }),

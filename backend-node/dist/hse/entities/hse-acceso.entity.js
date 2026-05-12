@@ -15,17 +15,21 @@ const base_entity_1 = require("../../common/entities/base.entity");
 const hse_contratista_entity_1 = require("./hse-contratista.entity");
 const sede_entity_1 = require("../../sede/entities/sede.entity");
 const usuario_entity_1 = require("../../auth/entities/usuario.entity");
+const ubicacion_entity_1 = require("../../sede/entities/ubicacion.entity");
+const hse_enum_1 = require("../../common/enums/hse.enum");
 let HseAcceso = class HseAcceso extends base_entity_1.BaseEntity {
     contratistaId;
     sedeId;
     registradoPor;
     tipoAcceso;
+    metodo;
+    ubicacionId;
+    observacion;
     fechaHora;
-    puerta;
-    observaciones;
     contratista;
     sede;
     usuarioRegistro;
+    ubicacion;
 };
 exports.HseAcceso = HseAcceso;
 __decorate([
@@ -41,21 +45,25 @@ __decorate([
     __metadata("design:type", Number)
 ], HseAcceso.prototype, "registradoPor", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'tipo_acceso', type: 'varchar', length: 20, nullable: false, comment: 'ENTRADA / SALIDA' }),
+    (0, typeorm_1.Column)({ name: 'tipo', type: 'varchar', length: 20, nullable: false, comment: 'ENTRADA / SALIDA' }),
     __metadata("design:type", String)
 ], HseAcceso.prototype, "tipoAcceso", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'metodo', type: 'enum', enum: hse_enum_1.MetodoAcceso, nullable: false, default: hse_enum_1.MetodoAcceso.CEDULA_MANUAL }),
+    __metadata("design:type", String)
+], HseAcceso.prototype, "metodo", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'ubicacion_id', type: 'int', nullable: true }),
+    __metadata("design:type", Number)
+], HseAcceso.prototype, "ubicacionId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'observacion', type: 'text', nullable: true }),
+    __metadata("design:type", String)
+], HseAcceso.prototype, "observacion", void 0);
 __decorate([
     (0, typeorm_1.Column)({ name: 'fecha_hora', type: 'datetime', nullable: false }),
     __metadata("design:type", Date)
 ], HseAcceso.prototype, "fechaHora", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 100, nullable: true }),
-    __metadata("design:type", String)
-], HseAcceso.prototype, "puerta", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: 'text', nullable: true }),
-    __metadata("design:type", String)
-], HseAcceso.prototype, "observaciones", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => hse_contratista_entity_1.HseContratista, (contratista) => contratista.accesos, { onDelete: 'CASCADE' }),
     (0, typeorm_1.JoinColumn)({ name: 'contratista_id' }),
@@ -71,6 +79,11 @@ __decorate([
     (0, typeorm_1.JoinColumn)({ name: 'registrado_por' }),
     __metadata("design:type", usuario_entity_1.Usuario)
 ], HseAcceso.prototype, "usuarioRegistro", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => ubicacion_entity_1.Ubicacion, { onDelete: 'SET NULL', nullable: true }),
+    (0, typeorm_1.JoinColumn)({ name: 'ubicacion_id' }),
+    __metadata("design:type", ubicacion_entity_1.Ubicacion)
+], HseAcceso.prototype, "ubicacion", void 0);
 exports.HseAcceso = HseAcceso = __decorate([
     (0, typeorm_1.Entity)('hse_accesos')
 ], HseAcceso);

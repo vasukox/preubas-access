@@ -6,7 +6,7 @@ import { HseContratista } from './hse-contratista.entity';
 import { TipoContratista, EstadoAutorizacion } from '../../common/enums/hse.enum';
 export declare class HseAutorizacion extends BaseEntity {
     codigo: string;
-    proveedorId: number;
+    proveedorId: number | null;
     sedeId: number;
     creadoPor: number;
     responsableInternoId: number;
@@ -15,7 +15,7 @@ export declare class HseAutorizacion extends BaseEntity {
     fechaInicio: Date;
     fechaFin: Date;
     estado: EstadoAutorizacion;
-    motivoDenegacion: string;
+    motivoDenegacion: string | null;
     proveedor: Proveedor;
     sede: Sede;
     creador: Usuario;

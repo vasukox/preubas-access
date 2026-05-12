@@ -13,14 +13,14 @@ exports.HseCertificaciones = void 0;
 const typeorm_1 = require("typeorm");
 const base_entity_1 = require("../../common/entities/base.entity");
 const hse_contratista_entity_1 = require("./hse-contratista.entity");
+const hse_enum_1 = require("../../common/enums/hse.enum");
 let HseCertificaciones = class HseCertificaciones extends base_entity_1.BaseEntity {
     contratistaId;
-    urlCertificadoAlturas;
-    fechaVencimientoAlturas;
-    urlCertificadoConfinados;
-    fechaVencimientoConfinados;
-    urlLicenciaSst;
-    urlOtrosCertificados;
+    artDescripcionTarea;
+    artArchivo;
+    permisoTipo;
+    permisoFecha;
+    permisoArchivo;
     contratista;
 };
 exports.HseCertificaciones = HseCertificaciones;
@@ -29,29 +29,25 @@ __decorate([
     __metadata("design:type", Number)
 ], HseCertificaciones.prototype, "contratistaId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'url_certificado_alturas', type: 'text', nullable: true }),
+    (0, typeorm_1.Column)({ name: 'art_descripcion_tarea', type: 'text', nullable: true }),
     __metadata("design:type", String)
-], HseCertificaciones.prototype, "urlCertificadoAlturas", void 0);
+], HseCertificaciones.prototype, "artDescripcionTarea", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'fecha_vencimiento_alturas', type: 'date', nullable: true }),
+    (0, typeorm_1.Column)({ name: 'art_archivo', type: 'varchar', length: 500, nullable: true }),
+    __metadata("design:type", String)
+], HseCertificaciones.prototype, "artArchivo", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'permiso_tipo', type: 'enum', enum: hse_enum_1.PermisoTipo, nullable: true }),
+    __metadata("design:type", String)
+], HseCertificaciones.prototype, "permisoTipo", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'permiso_fecha', type: 'date', nullable: true }),
     __metadata("design:type", Date)
-], HseCertificaciones.prototype, "fechaVencimientoAlturas", void 0);
+], HseCertificaciones.prototype, "permisoFecha", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'url_certificado_confinados', type: 'text', nullable: true }),
+    (0, typeorm_1.Column)({ name: 'permiso_archivo', type: 'varchar', length: 500, nullable: true }),
     __metadata("design:type", String)
-], HseCertificaciones.prototype, "urlCertificadoConfinados", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ name: 'fecha_vencimiento_confinados', type: 'date', nullable: true }),
-    __metadata("design:type", Date)
-], HseCertificaciones.prototype, "fechaVencimientoConfinados", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ name: 'url_licencia_sst', type: 'text', nullable: true }),
-    __metadata("design:type", String)
-], HseCertificaciones.prototype, "urlLicenciaSst", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ name: 'url_otros_certificados', type: 'text', nullable: true }),
-    __metadata("design:type", String)
-], HseCertificaciones.prototype, "urlOtrosCertificados", void 0);
+], HseCertificaciones.prototype, "permisoArchivo", void 0);
 __decorate([
     (0, typeorm_1.OneToOne)(() => hse_contratista_entity_1.HseContratista, (contratista) => contratista.certificaciones, { onDelete: 'CASCADE' }),
     (0, typeorm_1.JoinColumn)({ name: 'contratista_id' }),

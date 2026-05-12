@@ -1,5 +1,6 @@
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { SnakeToCamelMiddleware } from './common/middleware/snake-to-camel.middleware';
 import { AppController } from './app.controller';
 import { ConfigModule } from './config/config.module';
 import { ConfigService } from './config/config.service';
@@ -56,4 +57,8 @@ import { WebsocketsModule } from './websockets/websockets.module';
   controllers: [AppController],
   providers: [],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(SnakeToCamelMiddleware).forRoutes('*');
+  }
+}

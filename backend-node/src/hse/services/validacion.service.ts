@@ -1,0 +1,330 @@
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { HseContratista } from '../entities/hse-contratista.entity';
+import { HseExcepcion } from '../entities/hse-excepcion.entity';
+import { HseAcceso } from '../entities/hse-acceso.entity';
+import { HseAutorizacion } from '../entities/hse-autorizacion.entity';
+import { EstadoAutorizacion, EstadoContratista, TipoContratista } from '../../common/enums/hse.enum';
+import { Persona } from '../../persona/entities/persona.entity';
+import { CodigoGeneratorService } from './codigo-generator.service';
+import * as crypto from 'crypto';
+
+const EXCEPCION_AUTORIZACION_RE = /^excepci[oó]n\s*hse\s*:/i;
+
+@Injectable()
+export class ValidacionService {
+  constructor(
+    @InjectRepository(HseContratista)
+    private readonly contratistaRepo: Repository<HseContratista>,
+    @InjectRepository(HseExcepcion)
+    private readonly excepcionRepo: Repository<HseExcepcion>,
+    @InjectRepository(HseAcceso)
+    private readonly accesoRepo: Repository<HseAcceso>,
+    @InjectRepository(HseAutorizacion)
+    private readonly autorizacionRepo: Repository<HseAutorizacion>,
+    @InjectRepository(Persona)
+    private readonly personaRepo: Repository<Persona>,
+    private readonly codigoGenerator: CodigoGeneratorService,
+  ) {}
+
+  async validarAccesoPermitido(contratistaId: number): Promise<boolean> {
+    const contratista = await this.contratistaRepo.findOne({
+      where: { id: contratistaId },
+      relations: ['autorizacion']
+    });
+
+    if (!contratista) {
+      throw new BadRequestException('Contratista no encontrado');
+    }
+
+    const autorizacion = contratista.autorizacion;
+    if (!autorizacion) {
+      throw new BadRequestException('El contratista no tiene una autorización asignada');
+    }
+
+    const tieneExcepcionActiva = await this.tieneExcepcionActivaPorDocumento(
+      contratista.numeroDocumento,
+      autorizacion.sedeId,
+    );
+
+    if (!tieneExcepcionActiva) {
+      if (contratista.estado !== EstadoContratista.APROBADO) {
+        throw new BadRequestException(`El contratista no está aprobado. Estado actual: ${contratista.estado}`);
+      }
+
+      if (autorizacion.estado !== EstadoAutorizacion.APROBADO) {
+        throw new BadRequestException(`La autorización no está aprobada. Estado actual: ${autorizacion.estado}`);
+      }
+    }
+
+    if (this.estaFechaVencida(autorizacion.fechaFin)) {
+      autorizacion.estado = EstadoAutorizacion.VENCIDO;
+      await this.autorizacionRepo.save(autorizacion);
+      throw new BadRequestException('La autorizacion esta vencida');
+    }
+
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    
+    const inicio = new Date(autorizacion.fechaInicio);
+    inicio.setHours(0, 0, 0, 0);
+    
+    const fin = new Date(autorizacion.fechaFin);
+    fin.setHours(23, 59, 59, 999);
+
+    if (hoy < inicio || hoy > fin) {
+      throw new BadRequestException(`La autorización no está vigente. Válida desde ${inicio.toLocaleDateString()} hasta ${fin.toLocaleDateString()}`);
+    }
+
+    return true;
+  }
+
+  async obtenerEstadoAccesoPorDocumento(documento: string, sedeId: number) {
+    const contratista = await this.buscarContratistaPorDocumentoYSede(documento, sedeId, true);
+
+    if (!contratista) {
+      const excepcion = await this.buscarExcepcionActiva(documento, sedeId);
+      if (excepcion) {
+        const contratistaExcepcion = await this.asegurarContratistaExcepcion(excepcion, documento, sedeId);
+
+        const ultimoAcceso = await this.accesoRepo.findOne({
+          where: { contratistaId: contratistaExcepcion.id, sedeId },
+          order: { fechaHora: 'DESC' },
+        });
+        const dentroActualmente = ultimoAcceso?.tipoAcceso === 'ENTRADA';
+
+        return {
+          estado: 'EXCEPCION',
+          color: 'blue',
+          nombre: this.nombreCompleto(
+            contratistaExcepcion.nombres,
+            contratistaExcepcion.apellidos,
+            excepcion.nombreCompleto,
+          ),
+          empresa: null,
+          tipoContratista: contratistaExcepcion.autorizacion?.tipoContratista ?? null,
+          mensaje: 'Acceso permitido por excepcion activa',
+          problemas: [],
+          dentroActualmente,
+          ultimaEntrada: dentroActualmente ? ultimoAcceso?.fechaHora ?? null : null,
+          contratistaId: contratistaExcepcion.id,
+          autorizacionId: contratistaExcepcion.autorizacionId,
+        };
+      }
+
+      return {
+        estado: 'NO_REGISTRADO',
+        color: 'gray',
+        nombre: null,
+        empresa: null,
+        tipoContratista: null,
+        mensaje: 'Documento no encontrado. El contratista debe tramitar su autorización.',
+        problemas: [],
+        dentroActualmente: false,
+        ultimaEntrada: null,
+        contratistaId: null,
+        autorizacionId: null,
+      };
+    }
+
+    let permitido = false;
+    let mensaje = '';
+
+    try {
+      permitido = await this.validarAccesoPermitido(contratista.id);
+      mensaje = 'Acceso permitido';
+    } catch (e: any) {
+      permitido = false;
+      mensaje = e.message;
+    }
+
+    const ultimoAcceso = await this.accesoRepo.findOne({
+      where: { contratistaId: contratista.id, sedeId },
+      order: { fechaHora: 'DESC' },
+    });
+    const dentroActualmente = ultimoAcceso?.tipoAcceso === 'ENTRADA';
+
+    return {
+      estado: permitido ? 'AUTORIZADO' : 'NO_AUTORIZADO',
+      color: permitido ? 'green' : 'red',
+      nombre: `${contratista.nombres} ${contratista.apellidos}`.trim(),
+      empresa: contratista.autorizacion?.proveedor?.nomProveedor ?? null,
+      tipoContratista: contratista.autorizacion?.tipoContratista ?? null,
+      mensaje,
+      problemas: permitido ? [] : [mensaje],
+      dentroActualmente,
+      ultimaEntrada: dentroActualmente ? ultimoAcceso?.fechaHora ?? null : null,
+      contratistaId: contratista.id,
+      autorizacionId: contratista.autorizacionId,
+    };
+  }
+
+  private async buscarContratistaPorDocumentoYSede(documento: string, sedeId: number, soloAprobados: boolean) {
+    const qb = this.contratistaRepo.createQueryBuilder('contratista')
+      .leftJoinAndSelect('contratista.persona', 'persona')
+      .innerJoinAndSelect('contratista.autorizacion', 'autorizacion')
+      .leftJoinAndSelect('autorizacion.proveedor', 'proveedor')
+      .where('(persona.numero_documento = :documento OR contratista.numero_documento = :documento)', { documento })
+      .andWhere('autorizacion.sede_id = :sedeId', { sedeId })
+      .andWhere('autorizacion.estado != :estado', { estado: EstadoAutorizacion.BORRADOR })
+      .andWhere('contratista.deleted_at IS NULL')
+      .andWhere('autorizacion.deleted_at IS NULL')
+      .orderBy('autorizacion.fecha_fin', 'DESC');
+
+    if (soloAprobados) {
+      qb.andWhere('contratista.estado = :estadoContratista', { estadoContratista: EstadoContratista.APROBADO })
+        .andWhere('autorizacion.estado = :estadoAutorizacion', { estadoAutorizacion: EstadoAutorizacion.APROBADO });
+    }
+
+    return qb.getOne();
+  }
+
+  private async buscarExcepcionActiva(documento: string, sedeId: number) {
+    const hoy = this.fechaHoyIso();
+    return this.excepcionRepo.createQueryBuilder('excepcion')
+      .leftJoinAndSelect('excepcion.persona', 'persona')
+      .where('excepcion.sede_id = :sedeId', { sedeId })
+      .andWhere('excepcion.activa = :activa', { activa: true })
+      .andWhere('excepcion.fecha_inicio <= :hoy', { hoy })
+      .andWhere('excepcion.fecha_fin >= :hoy', { hoy })
+      .andWhere('(persona.numero_documento = :documento OR excepcion.numero_documento = :documento)', { documento })
+      .orderBy('excepcion.fecha_fin', 'DESC')
+      .getOne();
+  }
+
+  private async tieneExcepcionActivaPorDocumento(documento: string, sedeId: number) {
+    const excepcion = await this.buscarExcepcionActiva(documento, sedeId);
+    return Boolean(excepcion);
+  }
+
+  private async asegurarContratistaExcepcion(excepcion: HseExcepcion, documento: string, sedeId: number): Promise<HseContratista> {
+    const duracionHoras = 48;
+    const tokenAutogestion = crypto.randomBytes(32).toString('hex');
+    const tokenExpiraEn = new Date(Date.now() + duracionHoras * 60 * 60 * 1000);
+
+    const existente = await this.buscarContratistaPorDocumentoYSede(documento, sedeId, false);
+    if (existente) {
+      let huboCambios = false;
+
+      if (!existente.personaId && excepcion.personaId) {
+        existente.personaId = excepcion.personaId;
+        huboCambios = true;
+      }
+
+      if (existente.autorizacion && this.esAutorizacionExcepcion(existente.autorizacion.descripcionActividad)) {
+        if (existente.autorizacion.estado !== EstadoAutorizacion.APROBADO) {
+          existente.autorizacion.estado = EstadoAutorizacion.APROBADO;
+          await this.autorizacionRepo.save(existente.autorizacion);
+          huboCambios = true;
+        }
+        if (existente.estado !== EstadoContratista.APROBADO) {
+          existente.estado = EstadoContratista.APROBADO;
+          huboCambios = true;
+        }
+      }
+
+      existente.tokenAutogestion = tokenAutogestion;
+      existente.tokenExpiraEn = tokenExpiraEn;
+      existente.tokenDuracionHoras = duracionHoras;
+      huboCambios = true;
+
+      if (huboCambios) {
+        await this.contratistaRepo.save(existente);
+      }
+
+      return existente;
+    }
+
+    const persona = excepcion.personaId
+      ? await this.personaRepo.findOne({ where: { id: excepcion.personaId } })
+      : null;
+
+    const [nombres, apellidos] = this.partirNombreCompleto(
+      persona?.nombres,
+      persona?.apellidos,
+      excepcion.nombreCompleto,
+    );
+    const numeroDocumento = persona?.numeroDocumento ?? excepcion.numeroDocumento ?? documento;
+    const tipoDocumento = this.tipoDocumentoValido(persona?.tipoDocumento ?? excepcion.tipoDocumento ?? 'CC');
+    const email = (persona?.email ?? '').trim() || `excepcion.${numeroDocumento}@koaj.local`;
+
+    const codigo = await this.codigoGenerator.generarCodigo();
+    const descripcionBase = (excepcion.motivo ?? '').trim().replace(/\n/g, ' ');
+    const descripcionActividad = `Excepción HSE: ${descripcionBase}`.slice(0, 500);
+
+    const autorizacion = this.autorizacionRepo.create({
+      codigo,
+      proveedorId: persona?.proveedorId ?? excepcion.proveedorId ?? undefined,
+      sedeId,
+      creadoPor: excepcion.aprobadoPor,
+      tipoContratista: TipoContratista.NORMAL,
+      descripcionActividad,
+      fechaInicio: excepcion.fechaInicio as any,
+      fechaFin: excepcion.fechaFin as any,
+      estado: EstadoAutorizacion.APROBADO,
+    });
+    const autorizacionCreada = await this.autorizacionRepo.save(autorizacion);
+
+    const contratista = this.contratistaRepo.create({
+      autorizacionId: autorizacionCreada.id,
+      personaId: persona?.id ?? undefined,
+      tipoDocumento: tipoDocumento as any,
+      numeroDocumento,
+      nombres,
+      apellidos,
+      email,
+      telefono: persona?.telefonoCelular ?? undefined,
+      esExtranjero: persona?.esExtranjero ?? false,
+      estado: EstadoContratista.APROBADO,
+      tokenAutogestion,
+      tokenExpiraEn,
+      tokenDuracionHoras: duracionHoras,
+    });
+    const contratistaCreado = await this.contratistaRepo.save(contratista);
+
+    const recargado = await this.contratistaRepo.findOne({
+      where: { id: contratistaCreado.id },
+      relations: ['autorizacion'],
+    });
+    return recargado ?? contratistaCreado;
+  }
+
+  private esAutorizacionExcepcion(descripcionActividad?: string | null) {
+    return EXCEPCION_AUTORIZACION_RE.test((descripcionActividad ?? '').trim());
+  }
+
+  private tipoDocumentoValido(tipo: string) {
+    return ['CC', 'CE', 'PASAPORTE', 'TI'].includes(tipo) ? tipo : 'CC';
+  }
+
+  private partirNombreCompleto(nombres?: string | null, apellidos?: string | null, fallback?: string | null) {
+    const n = (nombres ?? '').trim();
+    const a = (apellidos ?? '').trim();
+    if (n || a) {
+      return [n || 'Sin nombre', a || 'N/A'];
+    }
+
+    const partes = (fallback ?? 'Excepcion HSE').trim().split(/\s+/).filter(Boolean);
+    if (partes.length === 0) {
+      return ['Excepcion', 'HSE'];
+    }
+    if (partes.length === 1) {
+      return [partes[0], 'HSE'];
+    }
+    return [partes.slice(0, -1).join(' '), partes[partes.length - 1]];
+  }
+
+  private nombreCompleto(nombres?: string | null, apellidos?: string | null, fallback?: string | null) {
+    const full = `${nombres ?? ''} ${apellidos ?? ''}`.trim();
+    return full || (fallback ?? null);
+  }
+
+  private estaFechaVencida(fecha: Date | string) {
+    return String(fecha) < this.fechaHoyIso();
+  }
+
+  private fechaHoyIso() {
+    return new Date().toISOString().slice(0, 10);
+  }
+}

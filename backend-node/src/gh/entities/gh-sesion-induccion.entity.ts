@@ -3,7 +3,7 @@ import { BaseEntity } from '../../common/entities/base.entity';
 import { Sede } from '../../sede/entities/sede.entity';
 import { Usuario } from '../../auth/entities/usuario.entity';
 import { GhInduccionAsistencia } from './gh-induccion-asistencia.entity';
-import { GhEstadoSesionInduccion } from '../../common/enums/gh.enum';
+import { GhEstadoSesionInduccion, GhTipoSesion } from '../../common/enums/gh.enum';
 
 @Entity('gh_sesiones_induccion')
 export class GhSesionInduccion extends BaseEntity {
@@ -15,6 +15,21 @@ export class GhSesionInduccion extends BaseEntity {
 
   @Column({ name: 'tipo_induccion', type: 'varchar', length: 120, nullable: false })
   tipoInduccion: string;
+
+  @Column({ name: 'tipo_sesion', type: 'enum', enum: GhTipoSesion, default: GhTipoSesion.PRESENCIAL, nullable: false })
+  tipoSesion: GhTipoSesion;
+
+  @Column({ name: 'link_virtual', type: 'text', nullable: true })
+  linkVirtual: string;
+
+  @Column({ name: 'sala_fisica', type: 'varchar', length: 120, nullable: true })
+  salaFisica: string;
+
+  @Column({ type: 'text', nullable: true })
+  descripcion: string;
+
+  @Column({ name: 'capacidad_maxima', type: 'int', nullable: true })
+  capacidadMaxima: number;
 
   @Column({ name: 'responsable_usuario_id', type: 'int', nullable: true })
   responsableUsuarioId: number;

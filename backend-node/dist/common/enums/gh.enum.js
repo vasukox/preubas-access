@@ -1,6 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GhDotacionItemEstado = exports.GhDotacionEntregaEstado = exports.GhEstadoAsistenciaInduccion = exports.GhEstadoSesionInduccion = exports.GhTipoAcceso = exports.GhImportacionEstado = exports.GhEstadoCita = exports.GhTipoCita = void 0;
+exports.GhDotacionItemEstado = exports.GhDotacionEntregaEstado = exports.GhEstadoAsistenciaInduccion = exports.GhEstadoSesionInduccion = exports.GhTipoAcceso = exports.GhImportacionEstado = exports.GhEstadoCita = exports.GhTipoCita = exports.GhTipoSesion = void 0;
+var GhTipoSesion;
+(function (GhTipoSesion) {
+    GhTipoSesion["PRESENCIAL"] = "PRESENCIAL";
+    GhTipoSesion["VIRTUAL"] = "VIRTUAL";
+    GhTipoSesion["HIBRIDA"] = "HIBRIDA";
+})(GhTipoSesion || (exports.GhTipoSesion = GhTipoSesion = {}));
 var GhTipoCita;
 (function (GhTipoCita) {
     GhTipoCita["INDUCCION"] = "INDUCCION";

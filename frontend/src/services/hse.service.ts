@@ -173,6 +173,9 @@ export const hseService = {
   aceptarNormas: (token: string, data: AceptacionNormasRequest) =>
     post<AceptacionNormasResponse>(`/hse/autogestion/${token}/normas`, data),
 
+  finalizarAutogestion: (token: string) =>
+    post<{ success: boolean; message: string }>(`/hse/autogestion/${token}/finalizar`),
+
   // ── Portal Vigilante ───────────────────────────────────────────
   verificarAcceso: (data: VerificarAccesoRequest) =>
     post<VerificarAccesoResponse>('/hse/vigilante/verificar', data),

@@ -5,7 +5,19 @@
       "Bash(npx tsc:*)",
       "Bash(cmd /c \"cd \"\"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\frontend\"\" && npx tsc --noEmit 2>&1\")",
       "Bash(npx --yes tsc --noEmit --project \"c:/Users/andresdb/OneDrive - PERMODA LTDA/Escritorio/Koaj_access/frontend/tsconfig.app.json\")",
-      "Bash(python -c \"from app.models.usuario import UsuarioPermiso, AuditLog; print\\(''Modelos OK:'', UsuarioPermiso.__tablename__, AuditLog.__tablename__\\)\")"
+      "Bash(python -c \"from app.models.usuario import UsuarioPermiso, AuditLog; print\\(''Modelos OK:'', UsuarioPermiso.__tablename__, AuditLog.__tablename__\\)\")",
+      "PowerShell(cd \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\"; npx tsc --noEmit 2>&1 | Where-Object { $_ -notmatch \"app.controller.spec.ts\" } | Select-Object -First 40)",
+      "Bash(Get-ChildItem -Recurse \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\\\\src\\\\hse\" -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object FullName)",
+      "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\\\\src\\\\hse\" -Recurse -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName })",
+      "PowerShell(cd \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\"; npx tsc --noEmit 2>&1 | Where-Object { $_ -notmatch \"app.controller.spec.ts\" })",
+      "Bash(Get-ChildItem -Recurse -Directory)",
+      "Bash(Select-Object -First 20)",
+      "PowerShell(cd \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\"; npx tsc --noEmit 2>&1 | Where-Object { $_ -match \"autogestion\" })",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\" -Directory -Force)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\frontend\\\\src\\\\views\\\\gh\" -Recurse -File)",
+      "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\frontend\\\\src\" -Recurse -File | Where-Object {$_.Name -match \"\\(hse|seguridad|contrata|authorization\\)\" -or $_.Directory -match \"\\(hse|seguridad|contrata\\)\"} | Select-Object -ExpandProperty FullName)",
+      "PowerShell(head -20)"
     ]
   }
 }

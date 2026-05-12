@@ -32,6 +32,12 @@ let HttpExceptionFilter = HttpExceptionFilter_1 = class HttpExceptionFilter {
                 message = exceptionResponse.error.message;
                 code = exceptionResponse.error.code;
             }
+            else if (typeof exceptionResponse === 'object' &&
+                exceptionResponse.code &&
+                exceptionResponse.message) {
+                message = exceptionResponse.message;
+                code = exceptionResponse.code;
+            }
             else {
                 message = exceptionResponse.message || exception.message;
                 if (status === 401)

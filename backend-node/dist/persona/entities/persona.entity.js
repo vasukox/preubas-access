@@ -78,7 +78,7 @@ __decorate([
 ], Persona.prototype, "tratamientoDatos", void 0);
 __decorate([
     (0, typeorm_1.Column)({ name: 'proveedor_id', type: 'int', nullable: true }),
-    __metadata("design:type", Number)
+    __metadata("design:type", Object)
 ], Persona.prototype, "proveedorId", void 0);
 __decorate([
     (0, typeorm_1.Column)({ name: 'tipologia_hse', type: 'enum', enum: ['CONTRATISTA_EMPRESA', 'TECNICO_INDEPENDIENTE', 'PROVEEDOR_SERVICIOS', 'INSPECTOR_AUDITOR', 'FUNCIONARIO_PUBLICO'], nullable: true }),

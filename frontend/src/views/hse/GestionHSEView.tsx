@@ -1394,23 +1394,10 @@ export default function GestionHSEView() {
   }
 
   const normalizarDoc = (tipo?: string, numero?: string) => `${(tipo || '').trim().toUpperCase()}-${(numero || '').trim()}`
-  const esExcepcion = (a: AutorizacionListResponse) => {
-    // Solo considerar "excepción" cuando la autorización fue creada
-    // explícitamente como excepción HSE.
-    return /^excepci[oó]n\s*hse\s*:/i.test((a.descripcion_actividad || '').trim())
-  }
+  // Criterio de canal: ALTO_RIESGO → Canal Excepciones, NORMAL → Flujo Estándar
+  const esExcepcion = (a: AutorizacionListResponse) => a.tipo_contratista === 'ALTO_RIESGO'
 
-  const resolverProveedorId = (a: AutorizacionListResponse): number | null => {
-    if (a.proveedor_id) return a.proveedor_id
-    // Fallback: en algunas autorizaciones de excepción el proveedor puede
-    // venir nulo en la cabecera, tomarlo desde la excepción activa por documento.
-    const exPorDoc = new Map(excepcionesActivas.map(e => [normalizarDoc(e.tipo_documento || undefined, e.numero_documento || undefined), e]))
-    for (const c of (a.contratistas || [])) {
-      const ex = exPorDoc.get(normalizarDoc(c.tipo_documento, c.numero_documento))
-      if (ex?.proveedor_id) return ex.proveedor_id
-    }
-    return null
-  }
+  const resolverProveedorId = (a: AutorizacionListResponse): number | null => a.proveedor_id ?? null
 
   const autorizacionesNormales = autorizaciones.filter(a => !esExcepcion(a))
   const excepciones = autorizaciones.filter(esExcepcion)
@@ -1421,7 +1408,7 @@ export default function GestionHSEView() {
       acc[key] = {
         label: proveedorId
           ? `Empresa: ${proveedoresMap[proveedorId] || `Proveedor #${proveedorId}`}`
-          : 'Personas normales (sin empresa)',
+          : 'Sin empresa asignada',
         items: [],
         esSinEmpresa: proveedorId === null,
       }
@@ -1714,8 +1701,8 @@ export default function GestionHSEView() {
           padding:    '0 8px',
         }}>
           {paginaActiva === 'normales'
-            ? 'Vista activa: autorizaciones operativas regulares.'
-            : 'Vista activa: ingresos permitidos por excepción temporal.'}
+            ? 'Contratistas NORMAL — autogestión directa, sin revisión HSE.'
+            : 'Contratistas ALTO RIESGO — requieren revisión y aprobación HSE.'}
         </div>
       </div>
 
@@ -1755,7 +1742,7 @@ export default function GestionHSEView() {
             borderRadius: 'var(--radius-lg)',
             border:       '1px solid var(--border-subtle)',
           }}>
-            No hay {paginaActiva === 'normales' ? 'autorizaciones normales' : 'excepciones'}
+            No hay autorizaciones de {paginaActiva === 'normales' ? 'flujo estándar (NORMAL)' : 'canal de excepciones (ALTO RIESGO)'}
             {filtroEstado !== 'todos' ? ` con estado "${ESTADOS_GESTION.find(e => e.value === filtroEstado)?.label}"` : ''}.
           </div>
         ) : (
@@ -1989,7 +1976,7 @@ export default function GestionHSEView() {
                             <button
                               onClick={() => {
                                 setModalId(c.id)
-                                setModalEsExcepcion(paginaActiva === 'excepciones' || esExcepcion(a))
+                                setModalEsExcepcion(a.tipo_contratista === 'ALTO_RIESGO')
                               }}
                               style={{
                                 display:      'flex',

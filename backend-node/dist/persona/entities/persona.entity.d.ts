@@ -12,7 +12,7 @@ export declare class Persona extends BaseEntity {
     esExtranjero: boolean;
     fechaNacimiento: Date;
     tratamientoDatos: boolean;
-    proveedorId: number;
+    proveedorId: number | null;
     tipologiaHse: string;
     activo: boolean;
     notas: string;

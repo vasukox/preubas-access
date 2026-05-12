@@ -1,13 +1,13 @@
 import { BaseEntity } from '../../common/entities/base.entity';
 import { HseContratista } from './hse-contratista.entity';
 import { Usuario } from '../../auth/entities/usuario.entity';
-import { EstadoContratista } from '../../common/enums/hse.enum';
 export declare class HseHistorial extends BaseEntity {
     contratistaId: number;
-    estadoAnterior: EstadoContratista;
-    estadoNuevo: EstadoContratista;
-    motivo: string;
-    cambiadoPor: number;
+    usuarioId: number | null;
+    estadoAnterior: string | null;
+    estadoNuevo: string;
+    motivo: string | null;
+    metadataExtra: object | null;
     contratista: HseContratista;
     usuario: Usuario;
 }

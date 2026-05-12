@@ -33,7 +33,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         message = exceptionResponse.message.join(', ');
         code = 'VALIDATION_ERROR';
       } 
-      // 2. Manejo si el error ya viene en el formato estándar de Koaj Access
+      // 2. Manejo si el error ya viene en el formato estándar de Koaj Access  { error: { code, message } }
       else if (
         typeof exceptionResponse === 'object' &&
         exceptionResponse.error &&
@@ -41,8 +41,17 @@ export class HttpExceptionFilter implements ExceptionFilter {
       ) {
         message = exceptionResponse.error.message;
         code = exceptionResponse.error.code;
+      }
+      // 3. Manejo directo { code, message } — usado por AuthService y otros
+      else if (
+        typeof exceptionResponse === 'object' &&
+        exceptionResponse.code &&
+        exceptionResponse.message
+      ) {
+        message = exceptionResponse.message;
+        code = exceptionResponse.code;
       } 
-      // 3. Fallback genérico para otros HttpException
+      // 4. Fallback genérico para otros HttpException
       else {
         message = exceptionResponse.message || exception.message;
         if (status === 401) code = 'UNAUTHORIZED';

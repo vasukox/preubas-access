@@ -195,11 +195,18 @@ export interface GhSesionInduccionAsistencia {
   ultimo_error_codigo: string | null
 }
 
+export type GhTipoSesion = 'PRESENCIAL' | 'VIRTUAL' | 'HIBRIDA'
+
 export interface GhSesionInduccion {
   id: number
   sede_id: number
   area: string
   tipo_induccion: string
+  tipo_sesion: GhTipoSesion
+  link_virtual: string | null
+  sala_fisica: string | null
+  descripcion: string | null
+  capacidad_maxima: number | null
   responsable_usuario_id: number | null
   fecha_hora_inicio: string
   fecha_hora_fin: string
@@ -209,12 +216,20 @@ export interface GhSesionInduccion {
   fecha_cierre: string | null
   related_cita_ids: number[]
   asistentes: GhSesionInduccionAsistencia[]
+  total_asistentes: number
+  total_checkin: number
+  total_checkout: number
 }
 
 export interface GhSesionInduccionCreateRequest {
   sede_id: number
   area: string
   tipo_induccion: string
+  tipo_sesion?: GhTipoSesion
+  link_virtual?: string | null
+  sala_fisica?: string | null
+  descripcion?: string | null
+  capacidad_maxima?: number | null
   responsable_usuario_id?: number | null
   fecha_hora_inicio: string
   fecha_hora_fin: string
@@ -234,6 +249,11 @@ export interface GhCodigoTemporal {
   tipo: 'CHECKIN' | 'CHECKOUT'
   codigo: string
   expira_en: string
+}
+
+export interface GhSesionInduccionEstadoRequest {
+  estado_sesion: GhEstadoSesionInduccion
+  motivo?: string | null
 }
 
 export type GhEstadoEntregaDotacion =
@@ -266,16 +286,45 @@ export interface GhDotacionEntregaDetalle {
   evidencia_url: string | null
 }
 
+export interface GhDotacionEntregaMaestro {
+  id: number
+  kit_codigo: string
+  kit_descripcion: string
+  area: string
+  cargo: string
+  tipo_contrato: string
+}
+
 export interface GhDotacionEntrega {
   id: number
   candidato_id: number
-  sesion_id: number | null
-  cita_id: number | null
+  candidato: GhCandidato | null
+  maestro_dotacion_id: number | null
+  maestro_dotacion: GhDotacionEntregaMaestro | null
+  sesion_o_cita_id: number | null
+  tipo_referencia: string | null
+  area: string | null
+  cargo: string | null
   estado_entrega: GhEstadoEntregaDotacion
   entregado_por_usuario_id: number | null
+  entregador_nombre: string | null
   fecha_entrega: string | null
+  fecha_creacion: string
   observaciones: string | null
   detalles: GhDotacionEntregaDetalle[]
+  total_items: number
+  items_entregados: number
+  porcentaje_completitud: number
+}
+
+export interface GhCandidatoSearch {
+  id: number
+  tipo_documento: string
+  numero_documento: string
+  nombres: string
+  apellidos: string
+  email: string | null
+  telefono: string | null
 }
 
 export interface GhPortalInduccionValidateResponse {

@@ -140,7 +140,7 @@ function ModalEditarProveedor({
   onSaved:   () => void
 }) {
   const [nombre, setNombre] = useState(proveedor.nombre)
-  const [nit,    setNit]    = useState('')
+  const [nit,    setNit]    = useState(proveedor.nit ?? '')
   const [activo, setActivo] = useState(proveedor.activo)
   const [saving, setSaving] = useState(false)
   const [error,  setError]  = useState<string | null>(null)
@@ -358,7 +358,7 @@ function ModalCrear({
   const [selectedSedeId, setSelectedSedeId] = useState<number>(initialSedeId > 0 ? initialSedeId : 0)
 
   const [form, setForm] = useState({
-    tipo_contratista:      'ALTO_RIESGO' as TipoContratista,
+    tipo_contratista:      'NORMAL' as TipoContratista,
     descripcion_actividad: '',
     fecha_inicio:          '',
     fecha_fin:             '',
@@ -439,7 +439,7 @@ function ModalCrear({
 
   const resetForm = () => {
     setForm({
-      tipo_contratista:      'ALTO_RIESGO' as TipoContratista,
+      tipo_contratista:      'NORMAL' as TipoContratista,
       descripcion_actividad: '',
       fecha_inicio:          '',
       fecha_fin:             '',
@@ -606,6 +606,9 @@ function ModalCrear({
                </p>
                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', textAlign: 'left' }}>
                  {createdData?.contratistas?.map((c: any, i: number) => (
+                    (() => {
+                      const tokenAutogestion = c.token_autogestion ?? c.tokenAutogestion ?? null
+                      return (
                    <div key={i} style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', padding: '16px' }}>
                      <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>
                        {c.nombres} {c.apellidos}
@@ -614,17 +617,17 @@ function ModalCrear({
                        {c.tipo_documento} {c.numero_documento}
                      </div>
                      <div style={{ display: 'flex', gap: '8px' }}>
-                       {c.token_autogestion ? (
+                       {tokenAutogestion ? (
                          <>
                            <input
                              type="text"
                              readOnly
-                             value={`${window.location.origin}/portal/hse/${c.token_autogestion}`}
+                             value={`${window.location.origin}/portal/hse/${tokenAutogestion}`}
                              style={{ flex: 1, padding: '8px 12px', background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-md)', fontSize: '0.75rem', color: 'var(--text-secondary)', outline: 'none' }}
                            />
                            <button
                              onClick={() => {
-                               navigator.clipboard.writeText(`${window.location.origin}/portal/hse/${c.token_autogestion}`);
+                               navigator.clipboard.writeText(`${window.location.origin}/portal/hse/${tokenAutogestion}`);
                                toast.success(`Link de autogestión copiado para ${c.nombres} ${c.apellidos}.`)
                                const btn = document.activeElement as HTMLButtonElement;
                                if (btn) {
@@ -654,6 +657,8 @@ function ModalCrear({
                        )}
                      </div>
                    </div>
+                      )
+                    })()
                  ))}
                </div>
             </div>
@@ -717,6 +722,37 @@ function ModalCrear({
                     </button>
                   ))}
                 </div>
+              </div>
+
+              {/* Indicador de canal */}
+              <div style={{
+                padding:      '10px 14px',
+                borderRadius: 'var(--radius-md)',
+                background:   form.tipo_contratista === 'ALTO_RIESGO'
+                  ? 'rgba(245,158,11,0.06)'
+                  : 'rgba(99,102,241,0.06)',
+                border: `1px solid ${form.tipo_contratista === 'ALTO_RIESGO'
+                  ? 'rgba(245,158,11,0.2)'
+                  : 'rgba(99,102,241,0.2)'}`,
+                fontSize:     '0.75rem',
+                color:        form.tipo_contratista === 'ALTO_RIESGO'
+                  ? '#B45309'
+                  : '#6366F1',
+                display:      'flex',
+                alignItems:   'center',
+                gap:          '8px',
+              }}>
+                {form.tipo_contratista === 'ALTO_RIESGO'
+                  ? <AlertTriangle size={13} />
+                  : <CheckCircle2 size={13} />}
+                <span>
+                  Canal destino:{' '}
+                  <strong>
+                    {form.tipo_contratista === 'ALTO_RIESGO'
+                      ? 'Canal de Excepciones — requiere revisión y aprobación HSE'
+                      : 'Flujo Estándar — autogestión directa sin revisión HSE'}
+                  </strong>
+                </span>
               </div>
 
               {/* Descripción actividad */}

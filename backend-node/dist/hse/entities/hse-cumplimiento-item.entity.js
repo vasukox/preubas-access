@@ -15,9 +15,11 @@ const base_entity_1 = require("../../common/entities/base.entity");
 const hse_cumplimiento_entity_1 = require("./hse-cumplimiento.entity");
 let HseCumplimientoItem = class HseCumplimientoItem extends base_entity_1.BaseEntity {
     cumplimientoId;
-    requisitoCodigo;
-    esCumplido;
+    pregunta;
+    aplica;
+    cumple;
     observacion;
+    orden;
     cumplimiento;
 };
 exports.HseCumplimientoItem = HseCumplimientoItem;
@@ -26,23 +28,31 @@ __decorate([
     __metadata("design:type", Number)
 ], HseCumplimientoItem.prototype, "cumplimientoId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'requisito_codigo', type: 'varchar', length: 50, nullable: false }),
+    (0, typeorm_1.Column)({ type: 'varchar', length: 300, nullable: false }),
     __metadata("design:type", String)
-], HseCumplimientoItem.prototype, "requisitoCodigo", void 0);
+], HseCumplimientoItem.prototype, "pregunta", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'es_cumplido', type: 'boolean', default: false, nullable: false }),
+    (0, typeorm_1.Column)({ type: 'boolean', default: true }),
     __metadata("design:type", Boolean)
-], HseCumplimientoItem.prototype, "esCumplido", void 0);
+], HseCumplimientoItem.prototype, "aplica", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'boolean', nullable: true }),
+    __metadata("design:type", Boolean)
+], HseCumplimientoItem.prototype, "cumple", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'text', nullable: true }),
     __metadata("design:type", String)
 ], HseCumplimientoItem.prototype, "observacion", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'int', nullable: false }),
+    __metadata("design:type", Number)
+], HseCumplimientoItem.prototype, "orden", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => hse_cumplimiento_entity_1.HseCumplimiento, (cumplimiento) => cumplimiento.items, { onDelete: 'CASCADE' }),
     (0, typeorm_1.JoinColumn)({ name: 'cumplimiento_id' }),
     __metadata("design:type", hse_cumplimiento_entity_1.HseCumplimiento)
 ], HseCumplimientoItem.prototype, "cumplimiento", void 0);
 exports.HseCumplimientoItem = HseCumplimientoItem = __decorate([
-    (0, typeorm_1.Entity)('hse_cumplimientos_items')
+    (0, typeorm_1.Entity)('hse_cumplimiento_items')
 ], HseCumplimientoItem);
 //# sourceMappingURL=hse-cumplimiento-item.entity.js.map

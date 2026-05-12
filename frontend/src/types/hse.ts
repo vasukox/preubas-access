@@ -58,6 +58,7 @@ export interface CatItem {
 export interface ProveedorHSEOption {
   id: number
   nombre: string
+  nit?: string
   activo: boolean
 }
 

@@ -12,7 +12,7 @@ export class HseAutorizacion extends BaseEntity {
   codigo: string;
 
   @Column({ name: 'proveedor_id', type: 'int', nullable: true })
-  proveedorId: number;
+  proveedorId: number | null;
 
   @Column({ name: 'sede_id', type: 'int', nullable: false })
   sedeId: number;
@@ -39,7 +39,7 @@ export class HseAutorizacion extends BaseEntity {
   estado: EstadoAutorizacion;
 
   @Column({ name: 'motivo_denegacion', type: 'text', nullable: true })
-  motivoDenegacion: string;
+  motivoDenegacion: string | null;
 
   // ── Relaciones ──────────────────────────────────────────────────
 

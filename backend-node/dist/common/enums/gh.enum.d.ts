@@ -1,3 +1,8 @@
+export declare enum GhTipoSesion {
+    PRESENCIAL = "PRESENCIAL",
+    VIRTUAL = "VIRTUAL",
+    HIBRIDA = "HIBRIDA"
+}
 export declare enum GhTipoCita {
     INDUCCION = "INDUCCION",
     FIRMA_CONTRATO = "FIRMA_CONTRATO",

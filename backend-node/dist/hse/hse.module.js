@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.HseModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
+const persona_module_1 = require("../persona/persona.module");
 const sede_entity_1 = require("../sede/entities/sede.entity");
 const cat_eps_entity_1 = require("./entities/cat-eps.entity");
 const cat_arl_entity_1 = require("./entities/cat-arl.entity");
@@ -29,12 +30,23 @@ const hse_excepcion_entity_1 = require("./entities/hse-excepcion.entity");
 const hse_historial_entity_1 = require("./entities/hse-historial.entity");
 const hse_controller_1 = require("./hse.controller");
 const hse_service_1 = require("./hse.service");
+const autorizacion_service_1 = require("./services/autorizacion.service");
+const codigo_generator_service_1 = require("./services/codigo-generator.service");
+const autorizacion_validator_1 = require("./validators/autorizacion.validator");
+const autogestion_service_1 = require("./services/autogestion.service");
+const token_validator_service_1 = require("./services/token-validator.service");
+const acceso_service_1 = require("./services/acceso.service");
+const cumplimiento_service_1 = require("./services/cumplimiento.service");
+const validacion_service_1 = require("./services/validacion.service");
+const excepcion_service_1 = require("./services/excepcion.service");
+const reportes_service_1 = require("./services/reportes.service");
 let HseModule = class HseModule {
 };
 exports.HseModule = HseModule;
 exports.HseModule = HseModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            persona_module_1.PersonaModule,
             typeorm_1.TypeOrmModule.forFeature([
                 sede_entity_1.Sede,
                 cat_eps_entity_1.CatEps,
@@ -57,7 +69,19 @@ exports.HseModule = HseModule = __decorate([
             ]),
         ],
         controllers: [hse_controller_1.HseController],
-        providers: [hse_service_1.HseService],
+        providers: [
+            hse_service_1.HseService,
+            autorizacion_service_1.AutorizacionService,
+            codigo_generator_service_1.CodigoGeneratorService,
+            autorizacion_validator_1.AutorizacionValidator,
+            autogestion_service_1.AutogestionService,
+            token_validator_service_1.TokenValidatorService,
+            acceso_service_1.AccesoService,
+            cumplimiento_service_1.CumplimientoService,
+            validacion_service_1.ValidacionService,
+            excepcion_service_1.ExcepcionService,
+            reportes_service_1.ReportesService,
+        ],
         exports: [typeorm_1.TypeOrmModule],
     })
 ], HseModule);

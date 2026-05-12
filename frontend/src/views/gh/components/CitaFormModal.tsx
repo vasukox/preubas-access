@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
-import { Calendar, Clock, ChevronLeft, ChevronRight, AlertCircle, Users, User, BookOpen, PenTool, Shirt } from 'lucide-react'
+import { Calendar, Clock, ChevronLeft, ChevronRight, AlertCircle, Users, User, BookOpen, PenTool, Shirt, Info } from 'lucide-react'
 
 import { useCrearGHCita, useCrearGHCitasGrupo } from '@/hooks/gh/useGHCitas'
 import type { GhCita, GhTipoCita } from '@/types/gh'
@@ -12,17 +12,50 @@ interface CitaFormModalProps {
 }
 
 const TIPOS_CITA = [
-  { value: 'INDUCCION',        label: 'Inducción',        Icon: BookOpen },
-  { value: 'FIRMA_CONTRATO',   label: 'Firma contrato',   Icon: PenTool },
-  { value: 'ENTREGA_DOTACION', label: 'Entrega dotación', Icon: Shirt },
+  {
+    value: 'INDUCCION',
+    label: 'Inducción',
+    Icon: BookOpen,
+    color: '#0ea5e9',
+    bg: 'rgba(14,165,233,0.08)',
+    border: 'rgba(14,165,233,0.25)',
+    desc: 'Orientación al cargo y empresa',
+  },
+  {
+    value: 'FIRMA_CONTRATO',
+    label: 'Firma contrato',
+    Icon: PenTool,
+    color: '#10b981',
+    bg: 'rgba(16,185,129,0.08)',
+    border: 'rgba(16,185,129,0.25)',
+    desc: 'Vinculación y firma de documentos',
+  },
+  {
+    value: 'ENTREGA_DOTACION',
+    label: 'Entrega dotación',
+    Icon: Shirt,
+    color: '#f59e0b',
+    bg: 'rgba(245,158,11,0.08)',
+    border: 'rgba(245,158,11,0.25)',
+    desc: 'Elementos de dotación laboral',
+  },
 ] as const
 
-// Franjas horarias rápidas cada 30 min (07:00 – 18:00)
 const HORA_SLOTS: string[] = []
 for (let h = 7; h <= 18; h++) {
   HORA_SLOTS.push(`${String(h).padStart(2, '0')}:00`)
   if (h < 18) HORA_SLOTS.push(`${String(h).padStart(2, '0')}:30`)
 }
+
+const AREAS_SUGERIDAS = [
+  'VENTAS', 'BODEGA', 'ADMINISTRATIVO', 'LOGÍSTICA', 'CAJA',
+  'VISUAL MERCHANDISING', 'SERVICIO AL CLIENTE', 'ALMACÉN',
+]
+
+const TIPOS_INDUCCION_SUGERIDOS = [
+  'GENERAL', 'CARGO ESPECÍFICO', 'SST', 'MARCA Y CULTURA',
+  'NORMAS Y POLÍTICAS', 'SISTEMAS Y HERRAMIENTAS',
+]
 
 type CandidateDraft = {
   tipo_documento: string
@@ -78,6 +111,8 @@ export function CitaFormModal({ open, sedeId, onClose, onCreated }: CitaFormModa
   const [horaInicio, setHoraInicio] = useState('09:00')
   const [horaFin, setHoraFin] = useState('09:30')
   const [observaciones, setObservaciones] = useState('')
+  const [areaInduccion, setAreaInduccion] = useState('')
+  const [tipoInduccionHint, setTipoInduccionHint] = useState('')
   const [error, setError] = useState<string | null>(null)
 
   const duracionMin = useMemo(() => {
@@ -98,15 +133,13 @@ export function CitaFormModal({ open, sedeId, onClose, onCreated }: CitaFormModa
   const availableHoraFin = useMemo(() => {
     const [hi, mi] = horaInicio.split(':').map(Number)
     const startMins = hi * 60 + mi
-    
     const slots = []
-    // Opciones de fin desde 30 min después de la hora de inicio, hasta las 18:30
     for (let i = 30; ; i += 30) {
-        const hfTotal = startMins + i
-        if (hfTotal > 18 * 60 + 30) break // Tope en las 18:30
-        const h = Math.floor(hfTotal / 60)
-        const m = hfTotal % 60
-        slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`)
+      const hfTotal = startMins + i
+      if (hfTotal > 18 * 60 + 30) break
+      const h = Math.floor(hfTotal / 60)
+      const m = hfTotal % 60
+      slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`)
     }
     return slots
   }, [horaInicio])
@@ -127,6 +160,8 @@ export function CitaFormModal({ open, sedeId, onClose, onCreated }: CitaFormModa
     setHoraInicio('09:00')
     setHoraFin('09:30')
     setObservaciones('')
+    setAreaInduccion('')
+    setTipoInduccionHint('')
     setError(null)
   }
 
@@ -134,6 +169,16 @@ export function CitaFormModal({ open, sedeId, onClose, onCreated }: CitaFormModa
     if (isSubmitting) return
     clearForm()
     onClose()
+  }
+
+  const buildObservaciones = (): string | null => {
+    const parts: string[] = []
+    if (tipoCita === 'INDUCCION') {
+      if (areaInduccion.trim()) parts.push(`Área: ${areaInduccion.trim()}`)
+      if (tipoInduccionHint.trim()) parts.push(`Inducción: ${tipoInduccionHint.trim()}`)
+    }
+    if (observaciones.trim()) parts.push(observaciones.trim())
+    return parts.length > 0 ? parts.join(' · ') : null
   }
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -157,7 +202,8 @@ export function CitaFormModal({ open, sedeId, onClose, onCreated }: CitaFormModa
     }
 
     const inicioISO = buildISO(fechaSeleccionada, horaInicio)
-    const finISO   = buildISO(fechaSeleccionada, horaFin)
+    const finISO = buildISO(fechaSeleccionada, horaFin)
+    const obsBuilt = buildObservaciones()
 
     try {
       let createdCitas: GhCita[] = []
@@ -168,7 +214,7 @@ export function CitaFormModal({ open, sedeId, onClose, onCreated }: CitaFormModa
           tipo_cita: tipoCita,
           fecha_hora_inicio: inicioISO,
           fecha_hora_fin: finISO,
-          observaciones: observaciones.trim() || null,
+          observaciones: obsBuilt,
         })
       } else {
         const created = await createMutation.mutateAsync({
@@ -177,7 +223,7 @@ export function CitaFormModal({ open, sedeId, onClose, onCreated }: CitaFormModa
           tipo_cita: tipoCita,
           fecha_hora_inicio: inicioISO,
           fecha_hora_fin: finISO,
-          observaciones: observaciones.trim() || null,
+          observaciones: obsBuilt,
         })
         createdCitas = [created]
       }
@@ -213,6 +259,8 @@ export function CitaFormModal({ open, sedeId, onClose, onCreated }: CitaFormModa
     display: 'block',
   }
 
+  const selectedTipo = TIPOS_CITA.find((t) => t.value === tipoCita)!
+
   return (
     <div
       style={{
@@ -243,30 +291,46 @@ export function CitaFormModal({ open, sedeId, onClose, onCreated }: CitaFormModa
           gridTemplateRows: 'auto 1fr auto',
         }}
       >
-        {/* Header */}
+        {/* ── Header ── */}
         <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ width: '36px', height: '36px', borderRadius: 'var(--radius-md)', background: 'rgba(14,165,233,0.12)', border: '1px solid rgba(14,165,233,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Calendar size={16} color="#0ea5e9" />
+          <div
+            style={{
+              width: '38px', height: '38px', borderRadius: 'var(--radius-md)',
+              background: selectedTipo.bg, border: `1px solid ${selectedTipo.border}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s',
+            }}
+          >
+            <selectedTipo.Icon size={17} color={selectedTipo.color} />
           </div>
           <div style={{ flex: 1 }}>
-            <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>Nueva cita GH</h3>
-            <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
-              Agenda individual o grupal en una franja horaria
+            <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+              Nueva cita — {selectedTipo.label}
+            </h3>
+            <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+              {selectedTipo.desc} · agenda {isGroupMode ? 'grupal' : 'individual'}
             </p>
           </div>
           {/* Modo toggle */}
           <div style={{ display: 'flex', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-full)', overflow: 'hidden' }}>
-            <button type="button" onClick={() => setIsGroupMode(false)} style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 12px', fontSize: '0.72rem', fontWeight: 600, background: !isGroupMode ? 'var(--primary-400)' : 'transparent', color: !isGroupMode ? '#fff' : 'var(--text-muted)', border: 'none', cursor: 'pointer', transition: 'all 0.15s' }}>
+            <button
+              type="button"
+              onClick={() => setIsGroupMode(false)}
+              style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 12px', fontSize: '0.72rem', fontWeight: 600, background: !isGroupMode ? 'var(--primary-400)' : 'transparent', color: !isGroupMode ? '#fff' : 'var(--text-muted)', border: 'none', cursor: 'pointer', transition: 'all 0.15s' }}
+            >
               <User size={12} /> Individual
             </button>
-            <button type="button" onClick={() => setIsGroupMode(true)} style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 12px', fontSize: '0.72rem', fontWeight: 600, background: isGroupMode ? 'var(--primary-400)' : 'transparent', color: isGroupMode ? '#fff' : 'var(--text-muted)', border: 'none', cursor: 'pointer', transition: 'all 0.15s' }}>
+            <button
+              type="button"
+              onClick={() => setIsGroupMode(true)}
+              style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 12px', fontSize: '0.72rem', fontWeight: 600, background: isGroupMode ? 'var(--primary-400)' : 'transparent', color: isGroupMode ? '#fff' : 'var(--text-muted)', border: 'none', cursor: 'pointer', transition: 'all 0.15s' }}
+            >
               <Users size={12} /> Grupo
             </button>
           </div>
         </div>
 
-        {/* Body */}
-        <div style={{ padding: '20px 24px', display: 'grid', gap: '20px' }}>
+        {/* ── Body ── */}
+        <div style={{ padding: '20px 24px', display: 'grid', gap: '22px' }}>
 
           {error && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(239,68,68,0.35)', background: 'rgba(239,68,68,0.08)', color: 'var(--danger-400)', fontSize: '0.78rem' }}>
@@ -275,97 +339,111 @@ export function CitaFormModal({ open, sedeId, onClose, onCreated }: CitaFormModa
             </div>
           )}
 
-          {/* ── 1. Tipo de cita ── */}
+          {/* ── 1. Tipo de cita — card grid ── */}
           <section>
             <span style={labelStyle}>Motivo de la cita</span>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
               {TIPOS_CITA.map((tipo) => {
                 const Icon = tipo.Icon
+                const isActive = tipoCita === tipo.value
                 return (
                   <button
                     key={tipo.value}
                     type="button"
                     onClick={() => setTipoCita(tipo.value)}
                     style={{
-                      display: 'flex', alignItems: 'center', gap: '6px',
-                      padding: '8px 14px', borderRadius: 'var(--radius-full)', fontSize: '0.78rem', fontWeight: 600,
-                      border: `1px solid ${tipoCita === tipo.value ? '#0ea5e933' : 'var(--border-subtle)'}`,
-                      background: tipoCita === tipo.value ? 'rgba(14,165,233,0.1)' : 'var(--bg-elevated)',
-                      color: tipoCita === tipo.value ? '#0ea5e9' : 'var(--text-secondary)',
-                      cursor: 'pointer', transition: 'all 0.15s',
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px',
+                      padding: '16px 12px', borderRadius: 'var(--radius-lg)',
+                      border: `1.5px solid ${isActive ? tipo.color : 'var(--border-subtle)'}`,
+                      background: isActive ? tipo.bg : 'var(--bg-elevated)',
+                      color: isActive ? tipo.color : 'var(--text-secondary)',
+                      cursor: 'pointer', transition: 'all 0.2s',
+                      boxShadow: isActive ? `0 4px 16px ${tipo.color}22` : 'none',
                     }}
                   >
-                    <Icon size={14} />
-                    {tipo.label}
+                    <Icon size={20} />
+                    <span style={{ fontSize: '0.78rem', fontWeight: 700 }}>{tipo.label}</span>
+                    <span style={{ fontSize: '0.68rem', color: isActive ? tipo.color : 'var(--text-muted)', textAlign: 'center', lineHeight: 1.4, opacity: 0.85 }}>{tipo.desc}</span>
                   </button>
                 )
               })}
             </div>
           </section>
 
+          {/* ── 1b. Inducción callout ── */}
+          {tipoCita === 'INDUCCION' && (
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '12px 14px', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(14,165,233,0.2)', background: 'rgba(14,165,233,0.05)' }}>
+              <Info size={15} color="#0ea5e9" style={{ flexShrink: 0, marginTop: '1px' }} />
+              <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.55 }}>
+                Las citas de inducción pueden agruparse en <strong style={{ color: '#0ea5e9' }}>sesiones sincrónicas o virtuales</strong>. Una vez creada, ve a <strong>Inducciones</strong> para vincularla a una sesión con link de videoconferencia o sala física.
+              </p>
+            </div>
+          )}
+
           {/* ── 2. Horario ── */}
-          <section style={{ display: 'grid', gap: '20px' }}>
+          <section style={{ display: 'grid', gap: '16px' }}>
             {/* Fecha */}
             <div>
-              <span style={labelStyle}>Fecha seleccionada</span>
+              <span style={labelStyle}>Fecha</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <button
                   type="button"
-                  onClick={() => setFechaSeleccionada(d => addDays(d, -1))}
+                  onClick={() => setFechaSeleccionada((d) => addDays(d, -1))}
                   disabled={fechaSeleccionada <= todayStr()}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', background: 'var(--bg-elevated)', cursor: fechaSeleccionada <= todayStr() ? 'not-allowed' : 'pointer', opacity: fechaSeleccionada <= todayStr() ? 0.4 : 1, transition: 'all 0.2s' }}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', background: 'var(--bg-elevated)', cursor: fechaSeleccionada <= todayStr() ? 'not-allowed' : 'pointer', opacity: fechaSeleccionada <= todayStr() ? 0.35 : 1, flexShrink: 0 }}
                 >
                   <ChevronLeft size={16} />
                 </button>
 
-                <div style={{ flex: 1, textAlign: 'center', padding: '8px', background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)' }}>
-                  <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'capitalize' }}>
-                    {formatDateLabel(fechaSeleccionada)}
+                {/* Clickable date display — transparent input overlay */}
+                <div style={{ flex: 1, position: 'relative' }}>
+                  <div style={{ textAlign: 'center', padding: '9px 12px', background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', pointerEvents: 'none' }}>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'capitalize' }}>
+                      {formatDateLabel(fechaSeleccionada)}
+                    </div>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '2px', fontFamily: 'var(--font-mono)' }}>
+                      {fechaSeleccionada} — clic para cambiar
+                    </div>
                   </div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px', fontFamily: 'var(--font-mono)' }}>
-                    {fechaSeleccionada}
-                  </div>
+                  <input
+                    type="date"
+                    value={fechaSeleccionada}
+                    min={todayStr()}
+                    onChange={(e) => { if (e.target.value) setFechaSeleccionada(e.target.value) }}
+                    style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%' }}
+                  />
                 </div>
 
                 <button
                   type="button"
-                  onClick={() => setFechaSeleccionada(d => addDays(d, 1))}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', background: 'var(--bg-elevated)', cursor: 'pointer', transition: 'all 0.2s' }}
+                  onClick={() => setFechaSeleccionada((d) => addDays(d, 1))}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', background: 'var(--bg-elevated)', cursor: 'pointer', flexShrink: 0 }}
                 >
                   <ChevronRight size={16} />
                 </button>
-
-                <input
-                  type="date"
-                  value={fechaSeleccionada}
-                  min={todayStr()}
-                  onChange={(e) => { if (e.target.value) setFechaSeleccionada(e.target.value) }}
-                  style={{ ...fieldStyle, width: '40px', height: '36px', padding: 0, opacity: 0, position: 'absolute', pointerEvents: 'none' }}
-                />
               </div>
             </div>
 
-            <div style={{ background: 'var(--bg-raised)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xl)', padding: '18px 20px', boxShadow: 'var(--shadow-sm)' }}>
-              {/* Hora de inicio — chips */}
+            <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xl)', padding: '16px 20px' }}>
+              {/* Hora inicio */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-                <Clock size={15} color="#6366f1" />
-                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '0.02em' }}>Hora de inicio</span>
+                <Clock size={14} color="#6366f1" />
+                <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-primary)' }}>Hora de inicio</span>
               </div>
-              <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
                 {HORA_SLOTS.map((slot) => (
                   <button
                     key={slot}
                     type="button"
                     onClick={() => setHoraInicio(slot)}
                     style={{
-                      flexShrink: 0,
-                      padding: '8px 18px', borderRadius: 'var(--radius-full)', fontSize: '0.8rem', fontWeight: 700,
-                      fontFamily: 'var(--font-mono)',
+                      flexShrink: 0, padding: '7px 14px', borderRadius: 'var(--radius-full)',
+                      fontSize: '0.78rem', fontWeight: 700, fontFamily: 'var(--font-mono)',
                       border: `1px solid ${horaInicio === slot ? '#6366f1' : 'var(--border-default)'}`,
                       background: horaInicio === slot ? '#6366f1' : 'var(--bg-surface)',
                       color: horaInicio === slot ? '#fff' : 'var(--text-muted)',
-                      boxShadow: horaInicio === slot ? '0 4px 14px rgba(99,102,241,0.3)' : 'none',
-                      cursor: 'pointer', transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                      boxShadow: horaInicio === slot ? '0 4px 14px rgba(99,102,241,0.28)' : 'none',
+                      cursor: 'pointer', transition: 'all 0.18s',
                       transform: horaInicio === slot ? 'scale(1.05)' : 'scale(1)',
                     }}
                   >
@@ -374,26 +452,25 @@ export function CitaFormModal({ open, sedeId, onClose, onCreated }: CitaFormModa
                 ))}
               </div>
 
-              {/* Hora de fin — chips */}
+              {/* Hora fin */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-                <Clock size={15} color="#10b981" />
-                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '0.02em' }}>Hora de finalización</span>
+                <Clock size={14} color="#10b981" />
+                <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-primary)' }}>Hora de finalización</span>
               </div>
-              <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
                 {availableHoraFin.map((slot) => (
                   <button
                     key={slot}
                     type="button"
                     onClick={() => setHoraFin(slot)}
                     style={{
-                      flexShrink: 0,
-                      padding: '8px 18px', borderRadius: 'var(--radius-full)', fontSize: '0.8rem', fontWeight: 700,
-                      fontFamily: 'var(--font-mono)',
+                      flexShrink: 0, padding: '7px 14px', borderRadius: 'var(--radius-full)',
+                      fontSize: '0.78rem', fontWeight: 700, fontFamily: 'var(--font-mono)',
                       border: `1px solid ${horaFin === slot ? '#10b981' : 'var(--border-default)'}`,
                       background: horaFin === slot ? '#10b981' : 'var(--bg-surface)',
                       color: horaFin === slot ? '#fff' : 'var(--text-muted)',
-                      boxShadow: horaFin === slot ? '0 4px 14px rgba(16,185,129,0.3)' : 'none',
-                      cursor: 'pointer', transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                      boxShadow: horaFin === slot ? '0 4px 14px rgba(16,185,129,0.28)' : 'none',
+                      cursor: 'pointer', transition: 'all 0.18s',
                       transform: horaFin === slot ? 'scale(1.05)' : 'scale(1)',
                     }}
                   >
@@ -403,21 +480,61 @@ export function CitaFormModal({ open, sedeId, onClose, onCreated }: CitaFormModa
               </div>
 
               {/* Resumen visual */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '16px 20px', background: 'linear-gradient(to right, rgba(99,102,241,0.06), rgba(16,185,129,0.06))', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 'var(--radius-xl)', boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.02)' }}>
-                <Clock size={18} color="#6366f1" />
-                <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
-                  {horaInicio}
-                </span>
-                <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', opacity: 0.6 }}>→</span>
-                <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
-                  {horaFin}
-                </span>
-                <span style={{ marginLeft: 'auto', fontSize: '0.8rem', fontWeight: 700, color: 'var(--primary-500)', background: 'var(--bg-surface)', padding: '4px 12px', borderRadius: 'var(--radius-full)', border: '1px solid rgba(99,102,241,0.2)', boxShadow: 'var(--shadow-sm)' }}>
-                  {duracionMin} min
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 18px', background: 'linear-gradient(to right, rgba(99,102,241,0.06), rgba(16,185,129,0.06))', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 'var(--radius-lg)' }}>
+                <Calendar size={16} color="#6366f1" />
+                <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{formatDateLabel(fechaSeleccionada)}</span>
+                <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>{horaInicio}</span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>→</span>
+                  <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>{horaFin}</span>
+                  <span style={{ padding: '3px 10px', borderRadius: 'var(--radius-full)', background: 'var(--bg-surface)', border: '1px solid rgba(99,102,241,0.2)', fontSize: '0.75rem', fontWeight: 700, color: '#6366f1', fontFamily: 'var(--font-mono)' }}>
+                    {duracionMin} min
+                  </span>
                 </span>
               </div>
             </div>
           </section>
+
+          {/* ── 2b. Datos de inducción (solo para INDUCCION) ── */}
+          {tipoCita === 'INDUCCION' && (
+            <section>
+              <span style={labelStyle}>Datos de inducción (opcional)</span>
+              <div style={{ padding: '14px', background: 'var(--bg-elevated)', border: '1px solid rgba(14,165,233,0.12)', borderRadius: 'var(--radius-lg)', display: 'grid', gap: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div>
+                    <span style={labelStyle}>Área de vinculación</span>
+                    <input
+                      value={areaInduccion}
+                      onChange={(e) => setAreaInduccion(e.target.value)}
+                      placeholder="Ej: VENTAS, BODEGA..."
+                      list="areas-induccion-list"
+                      style={fieldStyle}
+                    />
+                    <datalist id="areas-induccion-list">
+                      {AREAS_SUGERIDAS.map((a) => <option key={a} value={a} />)}
+                    </datalist>
+                  </div>
+                  <div>
+                    <span style={labelStyle}>Tipo de inducción</span>
+                    <input
+                      value={tipoInduccionHint}
+                      onChange={(e) => setTipoInduccionHint(e.target.value)}
+                      placeholder="Ej: GENERAL, SST..."
+                      list="tipos-induccion-list"
+                      style={fieldStyle}
+                    />
+                    <datalist id="tipos-induccion-list">
+                      {TIPOS_INDUCCION_SUGERIDOS.map((t) => <option key={t} value={t} />)}
+                    </datalist>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                  <Info size={11} />
+                  Se añaden a las observaciones — útil al crear la sesión de inducción después.
+                </div>
+              </div>
+            </section>
+          )}
 
           {/* ── 3. Candidatos ── */}
           <section>
@@ -434,7 +551,11 @@ export function CitaFormModal({ open, sedeId, onClose, onCreated }: CitaFormModa
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)' }}>PERSONA {index + 1}</span>
                       {candidatos.length > 1 && (
-                        <button type="button" onClick={() => setCandidatos(p => p.filter((_, i) => i !== index))} style={{ fontSize: '0.7rem', color: 'var(--danger-400)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '2px 6px' }}>
+                        <button
+                          type="button"
+                          onClick={() => setCandidatos((p) => p.filter((_, i) => i !== index))}
+                          style={{ fontSize: '0.7rem', color: 'var(--danger-400)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '2px 6px' }}
+                        >
                           Quitar
                         </button>
                       )}
@@ -476,9 +597,9 @@ export function CitaFormModal({ open, sedeId, onClose, onCreated }: CitaFormModa
               {isGroupMode && (
                 <button
                   type="button"
-                  onClick={() => setCandidatos(p => [...p, { ...EMPTY_CANDIDATE }])}
+                  onClick={() => setCandidatos((p) => [...p, { ...EMPTY_CANDIDATE }])}
                   disabled={isSubmitting}
-                  style={{ padding: '8px', borderRadius: 'var(--radius-md)', border: '1px dashed var(--border-subtle)', background: 'transparent', color: 'var(--primary-400)', fontSize: '0.76rem', fontWeight: 600, cursor: 'pointer' }}
+                  style={{ padding: '9px', borderRadius: 'var(--radius-md)', border: '1px dashed var(--border-subtle)', background: 'transparent', color: 'var(--primary-400)', fontSize: '0.76rem', fontWeight: 600, cursor: 'pointer' }}
                 >
                   + Agregar persona al grupo
                 </button>
@@ -488,21 +609,28 @@ export function CitaFormModal({ open, sedeId, onClose, onCreated }: CitaFormModa
 
           {/* ── 4. Observaciones ── */}
           <section>
-            <span style={labelStyle}>Observaciones (opcional)</span>
+            <span style={labelStyle}>Observaciones internas (opcional)</span>
             <textarea
               value={observaciones}
               onChange={(e) => setObservaciones(e.target.value)}
               rows={2}
-              placeholder="Notas internas sobre esta cita..."
+              placeholder="Notas adicionales sobre esta cita..."
               style={{ ...fieldStyle, resize: 'vertical', lineHeight: 1.5 }}
             />
           </section>
         </div>
 
-        {/* Footer */}
-        <div style={{ padding: '14px 24px', borderTop: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-elevated)' }}>
-          <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-            {TIPOS_CITA.find(t => t.value === tipoCita)?.label} · {formatDateLabel(fechaSeleccionada)} · {horaInicio} → {horaFin}
+        {/* ── Footer ── */}
+        <div style={{ padding: '14px 24px', borderTop: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-elevated)', gap: '12px', flexWrap: 'wrap' }}>
+          <div>
+            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+              {selectedTipo.label} · {formatDateLabel(fechaSeleccionada)} · {horaInicio} → {horaFin} ({duracionMin} min)
+            </div>
+            {tipoCita === 'INDUCCION' && (areaInduccion || tipoInduccionHint) && (
+              <div style={{ fontSize: '0.7rem', color: '#0ea5e9', marginTop: '3px' }}>
+                {[areaInduccion, tipoInduccionHint].filter(Boolean).join(' · ')}
+              </div>
+            )}
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
             <button type="button" className="btn-ghost" onClick={handleClose} disabled={isSubmitting}>

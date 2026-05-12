@@ -1,12 +1,12 @@
 import { BaseEntity } from '../../common/entities/base.entity';
 import { HseContratista } from './hse-contratista.entity';
+import { PermisoTipo } from '../../common/enums/hse.enum';
 export declare class HseCertificaciones extends BaseEntity {
     contratistaId: number;
-    urlCertificadoAlturas: string;
-    fechaVencimientoAlturas: Date;
-    urlCertificadoConfinados: string;
-    fechaVencimientoConfinados: Date;
-    urlLicenciaSst: string;
-    urlOtrosCertificados: string;
+    artDescripcionTarea: string;
+    artArchivo: string;
+    permisoTipo: PermisoTipo;
+    permisoFecha: Date;
+    permisoArchivo: string;
     contratista: HseContratista;
 }

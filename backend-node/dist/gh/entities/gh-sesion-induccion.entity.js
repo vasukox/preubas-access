@@ -20,6 +20,11 @@ let GhSesionInduccion = class GhSesionInduccion extends base_entity_1.BaseEntity
     sedeId;
     area;
     tipoInduccion;
+    tipoSesion;
+    linkVirtual;
+    salaFisica;
+    descripcion;
+    capacidadMaxima;
     responsableUsuarioId;
     fechaHoraInicio;
     fechaHoraFin;
@@ -44,6 +49,26 @@ __decorate([
     (0, typeorm_1.Column)({ name: 'tipo_induccion', type: 'varchar', length: 120, nullable: false }),
     __metadata("design:type", String)
 ], GhSesionInduccion.prototype, "tipoInduccion", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'tipo_sesion', type: 'enum', enum: gh_enum_1.GhTipoSesion, default: gh_enum_1.GhTipoSesion.PRESENCIAL, nullable: false }),
+    __metadata("design:type", String)
+], GhSesionInduccion.prototype, "tipoSesion", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'link_virtual', type: 'text', nullable: true }),
+    __metadata("design:type", String)
+], GhSesionInduccion.prototype, "linkVirtual", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'sala_fisica', type: 'varchar', length: 120, nullable: true }),
+    __metadata("design:type", String)
+], GhSesionInduccion.prototype, "salaFisica", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'text', nullable: true }),
+    __metadata("design:type", String)
+], GhSesionInduccion.prototype, "descripcion", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'capacidad_maxima', type: 'int', nullable: true }),
+    __metadata("design:type", Number)
+], GhSesionInduccion.prototype, "capacidadMaxima", void 0);
 __decorate([
     (0, typeorm_1.Column)({ name: 'responsable_usuario_id', type: 'int', nullable: true }),
     __metadata("design:type", Number)

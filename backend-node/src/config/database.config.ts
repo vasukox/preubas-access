@@ -23,7 +23,7 @@ export function getDatabaseConfig(
     charset: 'utf8mb4',
     timezone: 'Z',
     entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-    synchronize: false,
+    synchronize: config.isDevelopment, // TEMPORAL: crea tablas nuevas; deshabilitar antes de producción
     logging: config.isDevelopment ? ['error', 'warn', 'query'] : ['error'],
     maxQueryExecutionTime: 3000,
     extra: {

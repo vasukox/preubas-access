@@ -22,6 +22,7 @@ import type {
   GhCodigoTemporal,
   GhMaestroDotacion,
   GhDotacionEntrega,
+  GhCandidatoSearch,
   GhPortalInduccionValidateResponse,
   GhPortalInduccionAccionResponse,
 } from '@/types/gh'
@@ -118,10 +119,26 @@ export const ghService = {
     kit_descripcion: string
     activo: boolean
   }) => post<GhMaestroDotacion>('/gh/dotacion/maestro', data),
-  listarEntregasDotacion: (estado?: string) =>
-    get<GhDotacionEntrega[]>(`/gh/dotacion/entregas${estado ? `?estado=${estado}` : ''}`),
-  crearEntregaDotacion: (data: { candidato_id: number; sesion_o_cita_id: number; tipo_referencia: 'SESION' | 'CITA'; observaciones?: string | null }) =>
-    post<GhDotacionEntrega>('/gh/dotacion/entregas', data),
+  buscarCandidatosDotacion: (q: string) => {
+    const params = new URLSearchParams({ q })
+    return get<GhCandidatoSearch[]>(`/gh/dotacion/candidatos/buscar?${params}`)
+  },
+  listarEntregasDotacion: (params?: { sede_id?: number; estado?: string }) => {
+    const q = new URLSearchParams()
+    if (params?.sede_id) q.set('sede_id', String(params.sede_id))
+    if (params?.estado) q.set('estado', params.estado)
+    const suffix = q.toString() ? `?${q}` : ''
+    return get<GhDotacionEntrega[]>(`/gh/dotacion/entregas${suffix}`)
+  },
+  crearEntregaDotacion: (data: {
+    candidato_id: number
+    maestro_dotacion_id?: number | null
+    sesion_o_cita_id?: number | null
+    tipo_referencia?: string | null
+    area?: string | null
+    cargo?: string | null
+    observaciones?: string | null
+  }) => post<GhDotacionEntrega>('/gh/dotacion/entregas', data),
   agregarDetalleEntregaDotacion: (entregaId: number, data: any) =>
     post<GhDotacionEntrega>(`/gh/dotacion/entregas/${entregaId}/detalle`, data),
   cerrarEntregaDotacion: (entregaId: number) =>

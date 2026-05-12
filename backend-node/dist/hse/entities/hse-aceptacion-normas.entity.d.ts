@@ -2,10 +2,10 @@ import { BaseEntity } from '../../common/entities/base.entity';
 import { HseContratista } from './hse-contratista.entity';
 export declare class HseAceptacionNormas extends BaseEntity {
     contratistaId: number;
-    aceptaPoliticasSst: boolean;
-    aceptaTratamientoDatos: boolean;
+    aceptoNormas: boolean;
+    aceptoDatos: boolean;
+    firmaDigital: string;
     fechaAceptacion: Date;
-    ipAceptacion: string;
-    firmaDigitalHash: string;
+    ipAddress: string;
     contratista: HseContratista;
 }

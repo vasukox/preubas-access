@@ -27,10 +27,11 @@ let KoajGateway = KoajGateway_1 = class KoajGateway {
     handleConnection(client, request) {
         try {
             const rawUrl = request.url ?? '/';
-            const url = new URL(`http://localhost${rawUrl}`);
-            const sedeIdStr = url.searchParams.get('sede_id');
+            const queryString = rawUrl.includes('?') ? rawUrl.split('?')[1] : '';
+            const urlParams = new URLSearchParams(queryString);
+            const sedeIdStr = urlParams.get('sede_id');
             const sedeId = sedeIdStr ? parseInt(sedeIdStr, 10) : 0;
-            const token = url.searchParams.get('token');
+            const token = urlParams.get('token');
             if (!token) {
                 this.logger.warn('[WS] Rechazado: token no proporcionado');
                 client.close(4001, 'Token requerido');

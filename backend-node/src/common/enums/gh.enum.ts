@@ -1,3 +1,9 @@
+export enum GhTipoSesion {
+  PRESENCIAL = 'PRESENCIAL',
+  VIRTUAL = 'VIRTUAL',
+  HIBRIDA = 'HIBRIDA',
+}
+
 export enum GhTipoCita {
   INDUCCION = 'INDUCCION',
   FIRMA_CONTRATO = 'FIRMA_CONTRATO',

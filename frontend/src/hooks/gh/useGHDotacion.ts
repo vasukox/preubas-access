@@ -25,20 +25,37 @@ export function useCrearGHMaestroDotacion() {
   })
 }
 
-export function useGHEntregasDotacion(estado?: string) {
+export function useGHEntregasDotacion(params?: { sede_id?: number; estado?: string }) {
   return useQuery({
-    queryKey: ['gh', 'dotacion', 'entregas', estado],
-    queryFn: () => ghService.listarEntregasDotacion(estado),
+    queryKey: ['gh', 'dotacion', 'entregas', params],
+    queryFn: () => ghService.listarEntregasDotacion(params),
+  })
+}
+
+export function useBuscarCandidatosDotacion(q: string) {
+  return useQuery({
+    queryKey: ['gh', 'dotacion', 'candidatos-buscar', q],
+    queryFn: () => ghService.buscarCandidatosDotacion(q),
+    enabled: q.trim().length >= 2,
+    staleTime: 30_000,
   })
 }
 
 export function useCrearGHEntregaDotacion() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (payload: { candidato_id: number; sesion_o_cita_id: number; tipo_referencia: 'SESION' | 'CITA'; observaciones?: string | null }) =>
-      ghService.crearEntregaDotacion(payload),
+    mutationFn: (payload: {
+      candidato_id: number
+      maestro_dotacion_id?: number | null
+      sesion_o_cita_id?: number | null
+      tipo_referencia?: string | null
+      area?: string | null
+      cargo?: string | null
+      observaciones?: string | null
+    }) => ghService.crearEntregaDotacion(payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['gh', 'dotacion', 'entregas'] })
+      qc.invalidateQueries({ queryKey: ['gh', 'dashboard'] })
     },
   })
 }

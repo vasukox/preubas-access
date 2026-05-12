@@ -376,11 +376,23 @@ function Paso2Datos({
   form,
   setForm,
   empresaProveedor,
+  formClasif,
+  setFormClasif,
+  onUploadPdf,
+  uploadingCampo,
+  uploadProgress,
 }: {
   form:    any
   setForm: (f: any) => void
   empresaProveedor?: string | null
+  formClasif: any
+  setFormClasif: (f: any) => void
+  onUploadPdf: (modulo: UploadModulo, campo: string, file: File) => Promise<string>
+  uploadingCampo: string | null
+  uploadProgress: Record<string, number>
 }) {
+  const esExtranjero = form.tipo_documento === 'CE' || form.tipo_documento === 'PASAPORTE'
+
   return (
     <div>
       <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>
@@ -434,6 +446,68 @@ function Paso2Datos({
           />
         </div>
       </div>
+
+      {/* Póliza de seguro — solo CE / PASAPORTE */}
+      {esExtranjero && (
+        <div style={{
+          marginBottom: '16px',
+          padding:      '16px',
+          background:   'rgba(16,185,129,0.05)',
+          border:       '1px solid rgba(16,185,129,0.2)',
+          borderRadius: '10px',
+        }}>
+          <div style={{ fontSize: '0.72rem', color: 'var(--success-400)', fontWeight: 600, letterSpacing: '0.06em', marginBottom: '12px' }}>
+            PÓLIZA DE SEGURO — COBERTURA COLOMBIA
+            <span style={{ fontSize: '0.65rem', fontWeight: 400, color: 'var(--text-muted)', marginLeft: '8px' }}>
+              Obligatoria para documentos CE / PASAPORTE
+            </span>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '12px' }}>
+            <div>
+              <label style={labelStyle}>ASEGURADORA <span style={{ color: 'var(--danger-400)' }}>*</span></label>
+              <input
+                type="text"
+                value={formClasif.extran_aseguradora ?? ''}
+                onChange={e => setFormClasif((f: any) => ({ ...f, extran_aseguradora: e.target.value }))}
+                placeholder="Nombre de la aseguradora"
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>NÚMERO DE PÓLIZA <span style={{ color: 'var(--danger-400)' }}>*</span></label>
+              <input
+                type="text"
+                value={formClasif.extran_num_poliza ?? ''}
+                onChange={e => setFormClasif((f: any) => ({ ...f, extran_num_poliza: e.target.value }))}
+                placeholder="POL-0000000"
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>VENCIMIENTO PÓLIZA <span style={{ color: 'var(--danger-400)' }}>*</span></label>
+              <input
+                type="date"
+                value={formClasif.extran_poliza_venc ?? ''}
+                onChange={e => setFormClasif((f: any) => ({ ...f, extran_poliza_venc: e.target.value || undefined }))}
+                style={inputStyle}
+              />
+              <VigenciaBadge fecha={formClasif.extran_poliza_venc} />
+            </div>
+          </div>
+          <PdfUploadField
+            label="PDF póliza"
+            required
+            value={formClasif.extran_poliza_archivo}
+            uploading={uploadingCampo === 'clasificacion.extran_poliza_archivo'}
+            progress={uploadProgress['clasificacion.extran_poliza_archivo']}
+            onSelect={(file) => {
+              void onUploadPdf('clasificacion', 'extran_poliza_archivo', file).then((path) => {
+                setFormClasif((f: any) => ({ ...f, extran_poliza_archivo: path }))
+              })
+            }}
+          />
+        </div>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px', marginBottom: '12px' }}>
         <div>
@@ -499,6 +573,18 @@ function Paso2Datos({
             style={inputStyle}
           />
         </div>
+      </div>
+
+      {/* Tipología de trabajo */}
+      <div style={{ marginBottom: '12px' }}>
+        <label style={labelStyle}>TIPOLOGÍA / PERFIL DEL TRABAJO</label>
+        <input
+          type="text"
+          value={form.tipologia_hse ?? ''}
+          onChange={e => setForm((f: any) => ({ ...f, tipologia_hse: e.target.value }))}
+          placeholder="Ej: Electricista, Fontanero, Contratista de obra..."
+          style={inputStyle}
+        />
       </div>
 
       {/* Responsable SST */}
@@ -994,9 +1080,13 @@ function VigenciaBadge({ fecha }: { fecha: string | undefined }) {
 
 // ── Paso 4 — Seguridad social ───────────────────────────────────
 function Paso4SeguridadSocial({
-  form, setForm, eps, arl, afp, onUploadPdf, uploadingCampo, uploadProgress,
+  form, setForm,
+  cuadrillaPersonas, setCuadrillaPersonas,
+  eps, arl, afp, onUploadPdf, uploadingCampo, uploadProgress,
 }: {
   form: any; setForm: (f: any) => void
+  cuadrillaPersonas: any[]
+  setCuadrillaPersonas: React.Dispatch<React.SetStateAction<any[]>>
   eps: Array<{ id: number; nombre: string }>
   arl: Array<{ id: number; nombre: string }>
   afp: Array<{ id: number; nombre: string }>
@@ -1004,6 +1094,20 @@ function Paso4SeguridadSocial({
   uploadingCampo: string | null
   uploadProgress: Record<string, number>
 }) {
+  const [draftOpen, setDraftOpen] = useState(false)
+  const [draft, setDraft] = useState<any>({})
+
+  const addPersona = () => {
+    if (!draft.nombre_persona?.trim() || !draft.cedula_persona?.trim()) return
+    setCuadrillaPersonas(prev => [...prev, { ...draft, es_titular: false }])
+    setDraft({})
+    setDraftOpen(false)
+  }
+
+  const removePersona = (idx: number) => {
+    setCuadrillaPersonas(prev => prev.filter((_, i) => i !== idx))
+  }
+
   const hayVencido = estadoVigencia(form.eps_vigencia) === 'vencido'
     || estadoVigencia(form.arl_vigencia) === 'vencido'
     || estadoVigencia(form.afp_vigencia) === 'vencido'
@@ -1140,6 +1244,197 @@ function Paso4SeguridadSocial({
           }}
         />
       </div>
+
+      {/* ── CUADRILLA ADICIONAL ───────────────────────────────── */}
+      <div style={{ marginTop: '24px', borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+          <div>
+            <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
+              CUADRILLA ADICIONAL
+            </div>
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', opacity: 0.7, marginTop: '2px' }}>
+              Si vienes con más personas, registra su seguridad social aquí.
+            </div>
+          </div>
+          {!draftOpen && (
+            <button
+              type="button"
+              onClick={() => setDraftOpen(true)}
+              style={{
+                padding: '6px 14px', fontSize: '0.75rem', fontWeight: 600,
+                background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.3)',
+                borderRadius: '8px', color: '#818CF8', cursor: 'pointer', whiteSpace: 'nowrap',
+              }}
+            >
+              + Agregar persona
+            </button>
+          )}
+        </div>
+
+        {/* Lista de personas agregadas */}
+        {cuadrillaPersonas.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
+            {cuadrillaPersonas.map((p, idx) => {
+              const epsNombre = eps.find(e => e.id === Number(p.eps_id))?.nombre ?? '—'
+              const arlNombre = arl.find(a => a.id === Number(p.arl_id))?.nombre ?? '—'
+              return (
+                <div key={idx} style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '10px 14px', background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px',
+                }}>
+                  <div>
+                    <div style={{ fontSize: '0.82rem', color: 'var(--text-primary)', fontWeight: 600 }}>
+                      {p.nombre_persona}
+                    </div>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                      CC {p.cedula_persona} &nbsp;·&nbsp; EPS: {epsNombre} &nbsp;·&nbsp; ARL: {arlNombre}
+                      {p.pila_archivo && <span> &nbsp;·&nbsp; PILA ✓</span>}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removePersona(idx)}
+                    style={{
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      color: 'var(--danger-400)', fontSize: '1rem', padding: '4px 8px',
+                    }}
+                    title="Eliminar persona"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Formulario inline para agregar persona */}
+        {draftOpen && (
+          <div style={{
+            padding: '16px', background: 'rgba(99,102,241,0.04)',
+            border: '1px solid rgba(99,102,241,0.2)', borderRadius: '10px',
+          }}>
+            <div style={{ fontSize: '0.72rem', color: '#818CF8', fontWeight: 600, letterSpacing: '0.06em', marginBottom: '12px' }}>
+              NUEVA PERSONA
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', marginBottom: '10px' }}>
+              <div>
+                <label style={labelStyle}>NOMBRE COMPLETO <span style={{ color: 'var(--danger-400)' }}>*</span></label>
+                <input type="text" value={draft.nombre_persona ?? ''} onChange={e => setDraft((d: any) => ({ ...d, nombre_persona: e.target.value }))} style={inputStyle} placeholder="Nombres y apellidos" />
+              </div>
+              <div>
+                <label style={labelStyle}>CÉDULA <span style={{ color: 'var(--danger-400)' }}>*</span></label>
+                <input type="text" value={draft.cedula_persona ?? ''} onChange={e => setDraft((d: any) => ({ ...d, cedula_persona: e.target.value }))} style={inputStyle} placeholder="Número de documento" />
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', marginBottom: '10px' }}>
+              <div>
+                <label style={labelStyle}>EPS</label>
+                <select value={draft.eps_id ?? ''} onChange={e => setDraft((d: any) => ({ ...d, eps_id: e.target.value ? Number(e.target.value) : undefined }))} style={selectStyle}>
+                  <option value="">Seleccionar...</option>
+                  {eps.map(item => <option key={item.id} value={item.id}>{item.nombre}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={labelStyle}>VIGENCIA EPS</label>
+                <input type="date" value={draft.eps_vigencia ?? ''} onChange={e => setDraft((d: any) => ({ ...d, eps_vigencia: e.target.value || undefined }))} style={inputStyle} />
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', marginBottom: '10px' }}>
+              <div>
+                <label style={labelStyle}>ARL</label>
+                <select value={draft.arl_id ?? ''} onChange={e => setDraft((d: any) => ({ ...d, arl_id: e.target.value ? Number(e.target.value) : undefined }))} style={selectStyle}>
+                  <option value="">Seleccionar...</option>
+                  {arl.map(item => <option key={item.id} value={item.id}>{item.nombre}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={labelStyle}>VIGENCIA ARL</label>
+                <input type="date" value={draft.arl_vigencia ?? ''} onChange={e => setDraft((d: any) => ({ ...d, arl_vigencia: e.target.value || undefined }))} style={inputStyle} />
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', marginBottom: '10px' }}>
+              <div>
+                <label style={labelStyle}>AFP</label>
+                <select value={draft.afp_id ?? ''} onChange={e => setDraft((d: any) => ({ ...d, afp_id: e.target.value ? Number(e.target.value) : undefined }))} style={selectStyle}>
+                  <option value="">Seleccionar...</option>
+                  {afp.map(item => <option key={item.id} value={item.id}>{item.nombre}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={labelStyle}>VIGENCIA AFP</label>
+                <input type="date" value={draft.afp_vigencia ?? ''} onChange={e => setDraft((d: any) => ({ ...d, afp_vigencia: e.target.value || undefined }))} style={inputStyle} />
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', marginBottom: '12px' }}>
+              <div>
+                <label style={labelStyle}>TIPO PILA</label>
+                <select value={draft.pila_tipo ?? ''} onChange={e => setDraft((d: any) => ({ ...d, pila_tipo: e.target.value || undefined }))} style={selectStyle}>
+                  <option value="">Seleccionar...</option>
+                  {['INTEGRADA', 'MANUAL'].map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={labelStyle}>ESTADO PILA</label>
+                <select value={draft.pila_estado ?? ''} onChange={e => setDraft((d: any) => ({ ...d, pila_estado: e.target.value || undefined }))} style={selectStyle}>
+                  <option value="">Seleccionar...</option>
+                  <option value="PENDIENTE">Pendiente</option>
+                  <option value="PAGADA">Pagada ✓</option>
+                  <option value="VENCIDA">Vencida ⚠</option>
+                </select>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '14px' }}>
+              <PdfUploadField
+                label="PDF planilla PILA"
+                value={draft.pila_archivo}
+                uploading={uploadingCampo === 'seg_social.cuadrilla_draft_pila_archivo'}
+                progress={uploadProgress['seg_social.cuadrilla_draft_pila_archivo']}
+                onSelect={(file) => {
+                  void onUploadPdf('seg_social', 'cuadrilla_draft_pila_archivo', file).then((path) => {
+                    setDraft((d: any) => ({ ...d, pila_archivo: path }))
+                  })
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                onClick={() => { setDraftOpen(false); setDraft({}) }}
+                style={{
+                  padding: '7px 16px', fontSize: '0.78rem',
+                  background: 'none', border: '1px solid rgba(255,255,255,0.12)',
+                  borderRadius: '8px', color: 'var(--text-muted)', cursor: 'pointer',
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={addPersona}
+                disabled={!draft.nombre_persona?.trim() || !draft.cedula_persona?.trim()}
+                style={{
+                  padding: '7px 16px', fontSize: '0.78rem', fontWeight: 600,
+                  background: (!draft.nombre_persona?.trim() || !draft.cedula_persona?.trim())
+                    ? 'rgba(99,102,241,0.3)' : 'rgba(99,102,241,0.8)',
+                  border: 'none', borderRadius: '8px', color: '#fff',
+                  cursor: (!draft.nombre_persona?.trim() || !draft.cedula_persona?.trim()) ? 'not-allowed' : 'pointer',
+                }}
+              >
+                Agregar a cuadrilla
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -1201,6 +1496,53 @@ function Paso5Certificaciones({
             }}
           />
         </div>
+      </div>
+
+      {/* PERMISO DE TRABAJO — opcional */}
+      <div style={{
+        padding:      '16px',
+        background:   'rgba(99,102,241,0.04)',
+        border:       '1px solid rgba(99,102,241,0.15)',
+        borderRadius: '10px',
+      }}>
+        <div style={{ fontSize: '0.72rem', color: '#818CF8', fontWeight: 600, letterSpacing: '0.06em', marginBottom: '12px' }}>
+          PERMISO DE TRABAJO <span style={{ fontSize: '0.65rem', fontWeight: 400, color: 'var(--text-muted)', marginLeft: '6px' }}>OPCIONAL</span>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '12px' }}>
+          <div>
+            <label style={labelStyle}>TIPO DE PERMISO</label>
+            <select
+              value={form.permiso_tipo ?? ''}
+              onChange={e => setForm((f: any) => ({ ...f, permiso_tipo: e.target.value || undefined }))}
+              style={selectStyle}
+            >
+              <option value="">Seleccionar...</option>
+              {(['ALTURAS', 'CONFINADOS', 'CALIENTE', 'ELECTRICO', 'GENERAL'] as const).map(t => (
+                <option key={t} value={t}>{t.replace('_', ' ')}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label style={labelStyle}>FECHA PERMISO</label>
+            <input
+              type="date"
+              value={form.permiso_fecha ?? ''}
+              onChange={e => setForm((f: any) => ({ ...f, permiso_fecha: e.target.value || undefined }))}
+              style={inputStyle}
+            />
+          </div>
+        </div>
+        <PdfUploadField
+          label="PDF permiso de trabajo"
+          value={form.permiso_archivo}
+          uploading={uploadingCampo === 'certificaciones.permiso_archivo'}
+          progress={uploadProgress['certificaciones.permiso_archivo']}
+          onSelect={(file) => {
+            void onUploadPdf('certificaciones', 'permiso_archivo', file).then((path) => {
+              setForm((f: any) => ({ ...f, permiso_archivo: path }))
+            })
+          }}
+        />
       </div>
     </div>
   )
@@ -1597,6 +1939,7 @@ export default function AutogestionView() {
   const [formDatos,        setFormDatos]        = useState<any>({})
   const [formClasif,       setFormClasif]       = useState<any>({})
   const [formSegSocial,    setFormSegSocial]    = useState<any>({ es_titular: true })
+  const [cuadrillaPersonas, setCuadrillaPersonas] = useState<any[]>([])
   const [formCert,         setFormCert]         = useState<any>({})
   const [formExamen,       setFormExamen]       = useState<any>({})
   const [formEmergencia,   setFormEmergencia]   = useState<any>({})
@@ -1618,6 +1961,9 @@ export default function AutogestionView() {
           apellidos:        data.apellidos,
           email:            data.email,
           telefono:         data.telefono,
+          tipologia_hse:    data.tipo_contratista === 'ALTO_RIESGO'
+            ? 'Contratista de Alto Riesgo'
+            : 'Contratista / Visita sin Riesgo',
         })
         if (data.clasificacion) setFormClasif(data.clasificacion)
         if (data.seguridad_social?.length) setFormSegSocial(data.seguridad_social[0])
@@ -1644,6 +1990,14 @@ export default function AutogestionView() {
     }
     load()
   }, [token])
+
+  // Auto-activar personal_extranjero en clasificación cuando el doc es CE o PASAPORTE
+  useEffect(() => {
+    const esExt = formDatos.tipo_documento === 'CE' || formDatos.tipo_documento === 'PASAPORTE'
+    if (esExt) {
+      setFormClasif((f: any) => ({ ...f, personal_extranjero: true }))
+    }
+  }, [formDatos.tipo_documento])
 
   const esAltoRiesgo   = tokenData?.tipo_contratista === 'ALTO_RIESGO'
   const pasosActivos   = esAltoRiesgo ? PASOS_ALTO_RIESGO : PASOS_NORMAL
@@ -1693,7 +2047,7 @@ export default function AutogestionView() {
       case 'sede':
         return null
 
-      case 'datos':
+      case 'datos': {
         if (!formDatos.tipo_documento?.trim()) return 'Selecciona un tipo de documento.'
         if (!formDatos.numero_documento?.trim()) return 'Ingresa tu número de documento.'
         if (!formDatos.nombres?.trim()) return 'Ingresa tus nombres.'
@@ -1702,7 +2056,17 @@ export default function AutogestionView() {
         if (!formDatos.email.includes('@')) return 'El correo electrónico es inválido.'
         if (!formDatos.telefono?.trim()) return 'Ingresa tu número de teléfono.'
         if (!formDatos.tratamiento_datos) return 'Debes aceptar el tratamiento de tus datos personales.'
+        const esExt = formDatos.tipo_documento === 'CE' || formDatos.tipo_documento === 'PASAPORTE'
+        if (esExt) {
+          if (!formClasif.extran_aseguradora?.trim()) return 'Ingresa la aseguradora de tu póliza de seguro.'
+          if (!formClasif.extran_num_poliza?.trim()) return 'Ingresa el número de póliza de seguro.'
+          if (!formClasif.extran_poliza_venc) return 'Ingresa la fecha de vencimiento de la póliza.'
+          if (!formClasif.extran_poliza_archivo) return 'Adjunta el PDF de la póliza de seguro con cobertura Colombia.'
+          if (estadoVigencia(formClasif.extran_poliza_venc) === 'vencido')
+            return 'La póliza de seguro debe estar vigente para continuar.'
+        }
         return null
+      }
 
       case 'actividad': {
         if (!formClasif || Object.keys(formClasif).length === 0)
@@ -1845,6 +2209,7 @@ export default function AutogestionView() {
             acepto_datos:  formNormas.acepto_datos,
             firma_digital: formNormas.firma_digital,
           })
+          await hseService.finalizarAutogestion(token)
           setCompletado(true)
           return
 
@@ -1867,12 +2232,15 @@ export default function AutogestionView() {
 
         case 'seg_social':
           await hseService.guardarSeguridadSocial(token, {
-            personas: [{
-              ...formSegSocial,
-              es_titular:     true,
-              nombre_persona: `${formDatos.nombres ?? ''} ${formDatos.apellidos ?? ''}`.trim() || undefined,
-              cedula_persona: formDatos.numero_documento || undefined,
-            }],
+            personas: [
+              {
+                ...formSegSocial,
+                es_titular:     true,
+                nombre_persona: `${formDatos.nombres ?? ''} ${formDatos.apellidos ?? ''}`.trim() || undefined,
+                cedula_persona: formDatos.numero_documento || undefined,
+              },
+              ...cuadrillaPersonas.map((p: any) => ({ ...p, es_titular: false })),
+            ],
           })
           break
 
@@ -1921,6 +2289,11 @@ export default function AutogestionView() {
             form={formDatos}
             setForm={setFormDatos}
             empresaProveedor={tokenData.empresa_proveedor}
+            formClasif={formClasif}
+            setFormClasif={setFormClasif}
+            onUploadPdf={handleUploadPdf}
+            uploadingCampo={uploadingCampo}
+            uploadProgress={uploadProgress}
           />
         )
       case 'actividad':
@@ -1939,6 +2312,8 @@ export default function AutogestionView() {
           <Paso4SeguridadSocial
             form={formSegSocial}
             setForm={setFormSegSocial}
+            cuadrillaPersonas={cuadrillaPersonas}
+            setCuadrillaPersonas={setCuadrillaPersonas}
             eps={epsCatalog}
             arl={arlCatalog}
             afp={afpCatalog}

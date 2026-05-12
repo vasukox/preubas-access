@@ -102,7 +102,7 @@ export class AuthService {
     // 1. Buscar usuario activo por email
     const usuario = await this.usuarioRepo.findOne({
       where: { email: dto.email.toLowerCase().trim() },
-      relations: ['roles', 'roles.rol', 'perfil', 'permisos'],
+      relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada'],
     });
 
     if (!usuario || !usuario.activo) {

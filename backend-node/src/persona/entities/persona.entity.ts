@@ -38,7 +38,7 @@ export class Persona extends BaseEntity {
   tratamientoDatos: boolean;
 
   @Column({ name: 'proveedor_id', type: 'int', nullable: true })
-  proveedorId: number;
+  proveedorId: number | null;
 
   @Column({ name: 'tipologia_hse', type: 'enum', enum: ['CONTRATISTA_EMPRESA', 'TECNICO_INDEPENDIENTE', 'PROVEEDOR_SERVICIOS', 'INSPECTOR_AUDITOR', 'FUNCIONARIO_PUBLICO'], nullable: true })
   tipologiaHse: string;

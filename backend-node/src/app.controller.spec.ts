@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ConfigService } from './config/config.service';
 
 describe('AppController', () => {
   let appController: AppController;
@@ -8,15 +8,29 @@ describe('AppController', () => {
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
-      providers: [AppService],
+      providers: [
+        {
+          provide: ConfigService,
+          useValue: {
+            appName: 'KOAJ Access API',
+            appVersion: 'test',
+            nodeEnv: 'test',
+          },
+        },
+      ],
     }).compile();
 
     appController = app.get<AppController>(AppController);
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('should return API info', () => {
+      expect(appController.getInfo()).toEqual({
+        name: 'KOAJ Access API',
+        version: 'test',
+        environment: 'test',
+        docs: '/api/v1/health',
+      });
     });
   });
 });

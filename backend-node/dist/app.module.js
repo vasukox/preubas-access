@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
+const snake_to_camel_middleware_1 = require("./common/middleware/snake-to-camel.middleware");
 const app_controller_1 = require("./app.controller");
 const config_module_1 = require("./config/config.module");
 const config_service_1 = require("./config/config.service");
@@ -24,6 +25,9 @@ const parking_module_1 = require("./parking/parking.module");
 const nfc_module_1 = require("./nfc/nfc.module");
 const websockets_module_1 = require("./websockets/websockets.module");
 let AppModule = class AppModule {
+    configure(consumer) {
+        consumer.apply(snake_to_camel_middleware_1.SnakeToCamelMiddleware).forRoutes('*');
+    }
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([

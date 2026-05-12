@@ -85,15 +85,16 @@ export class KoajGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleConnection(client: WebSocket, request: IncomingMessage): void {
     try {
       // URL del frontend: /ws?sede_id={sedeId}&token={JWT}
-      // (wsStore.ts línea 94: `${WS_BASE_URL}/ws?sede_id=${sedeId}&token=${token}`)
       const rawUrl = request.url ?? '/';
-      const url = new URL(`http://localhost${rawUrl}`);
+      
+      // Manejar tanto "/ws?..." como "/api/v1/ws?..."
+      // Buscamos el "?" para obtener los params independientemente del path
+      const queryString = rawUrl.includes('?') ? rawUrl.split('?')[1] : '';
+      const urlParams = new URLSearchParams(queryString);
 
-      // sede_id viene como query param, NO en el path
-      const sedeIdStr = url.searchParams.get('sede_id');
+      const sedeIdStr = urlParams.get('sede_id');
       const sedeId = sedeIdStr ? parseInt(sedeIdStr, 10) : 0;
-
-      const token = url.searchParams.get('token');
+      const token = urlParams.get('token');
 
       // Validar que el token esté presente
       if (!token) {

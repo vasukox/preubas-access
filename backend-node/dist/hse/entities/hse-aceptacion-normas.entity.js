@@ -15,11 +15,11 @@ const base_entity_1 = require("../../common/entities/base.entity");
 const hse_contratista_entity_1 = require("./hse-contratista.entity");
 let HseAceptacionNormas = class HseAceptacionNormas extends base_entity_1.BaseEntity {
     contratistaId;
-    aceptaPoliticasSst;
-    aceptaTratamientoDatos;
+    aceptoNormas;
+    aceptoDatos;
+    firmaDigital;
     fechaAceptacion;
-    ipAceptacion;
-    firmaDigitalHash;
+    ipAddress;
     contratista;
 };
 exports.HseAceptacionNormas = HseAceptacionNormas;
@@ -28,25 +28,25 @@ __decorate([
     __metadata("design:type", Number)
 ], HseAceptacionNormas.prototype, "contratistaId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'acepta_politicas_sst', type: 'boolean', default: false }),
+    (0, typeorm_1.Column)({ name: 'acepto_normas', type: 'boolean', default: false }),
     __metadata("design:type", Boolean)
-], HseAceptacionNormas.prototype, "aceptaPoliticasSst", void 0);
+], HseAceptacionNormas.prototype, "aceptoNormas", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'acepta_tratamiento_datos', type: 'boolean', default: false }),
+    (0, typeorm_1.Column)({ name: 'acepto_datos', type: 'boolean', default: false }),
     __metadata("design:type", Boolean)
-], HseAceptacionNormas.prototype, "aceptaTratamientoDatos", void 0);
+], HseAceptacionNormas.prototype, "aceptoDatos", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'firma_digital', type: 'varchar', length: 200, nullable: true }),
+    __metadata("design:type", String)
+], HseAceptacionNormas.prototype, "firmaDigital", void 0);
 __decorate([
     (0, typeorm_1.Column)({ name: 'fecha_aceptacion', type: 'datetime', nullable: true }),
     __metadata("design:type", Date)
 ], HseAceptacionNormas.prototype, "fechaAceptacion", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'ip_aceptacion', type: 'varchar', length: 45, nullable: true }),
+    (0, typeorm_1.Column)({ name: 'ip_address', type: 'varchar', length: 45, nullable: true }),
     __metadata("design:type", String)
-], HseAceptacionNormas.prototype, "ipAceptacion", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ name: 'firma_digital_hash', type: 'varchar', length: 255, nullable: true }),
-    __metadata("design:type", String)
-], HseAceptacionNormas.prototype, "firmaDigitalHash", void 0);
+], HseAceptacionNormas.prototype, "ipAddress", void 0);
 __decorate([
     (0, typeorm_1.OneToOne)(() => hse_contratista_entity_1.HseContratista, (contratista) => contratista.aceptacionNormas, { onDelete: 'CASCADE' }),
     (0, typeorm_1.JoinColumn)({ name: 'contratista_id' }),

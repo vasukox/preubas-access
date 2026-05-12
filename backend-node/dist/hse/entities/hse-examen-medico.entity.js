@@ -13,12 +13,13 @@ exports.HseExamenMedico = void 0;
 const typeorm_1 = require("typeorm");
 const base_entity_1 = require("../../common/entities/base.entity");
 const hse_contratista_entity_1 = require("./hse-contratista.entity");
+const hse_enum_1 = require("../../common/enums/hse.enum");
 let HseExamenMedico = class HseExamenMedico extends base_entity_1.BaseEntity {
     contratistaId;
-    urlCertificadoAptitud;
-    fechaEmision;
-    aptoConRestricciones;
-    restricciones;
+    fechaExamen;
+    concepto;
+    descripcionRestriccion;
+    archivo;
     contratista;
 };
 exports.HseExamenMedico = HseExamenMedico;
@@ -27,21 +28,21 @@ __decorate([
     __metadata("design:type", Number)
 ], HseExamenMedico.prototype, "contratistaId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'url_certificado_aptitud', type: 'text', nullable: false }),
-    __metadata("design:type", String)
-], HseExamenMedico.prototype, "urlCertificadoAptitud", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ name: 'fecha_emision', type: 'date', nullable: false }),
+    (0, typeorm_1.Column)({ name: 'fecha_examen', type: 'date', nullable: true }),
     __metadata("design:type", Date)
-], HseExamenMedico.prototype, "fechaEmision", void 0);
+], HseExamenMedico.prototype, "fechaExamen", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'apto_con_restricciones', type: 'boolean', default: false }),
-    __metadata("design:type", Boolean)
-], HseExamenMedico.prototype, "aptoConRestricciones", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: 'text', nullable: true }),
+    (0, typeorm_1.Column)({ type: 'enum', enum: hse_enum_1.ConceptoMedico, nullable: true }),
     __metadata("design:type", String)
-], HseExamenMedico.prototype, "restricciones", void 0);
+], HseExamenMedico.prototype, "concepto", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'descripcion_restriccion', type: 'text', nullable: true }),
+    __metadata("design:type", String)
+], HseExamenMedico.prototype, "descripcionRestriccion", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 500, nullable: true }),
+    __metadata("design:type", String)
+], HseExamenMedico.prototype, "archivo", void 0);
 __decorate([
     (0, typeorm_1.OneToOne)(() => hse_contratista_entity_1.HseContratista, (contratista) => contratista.examenMedico, { onDelete: 'CASCADE' }),
     (0, typeorm_1.JoinColumn)({ name: 'contratista_id' }),
