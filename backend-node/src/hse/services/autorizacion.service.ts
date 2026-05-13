@@ -75,7 +75,7 @@ export class AutorizacionService {
   }
 
   async create(createDto: CreateAutorizacionDto, userId: number) {
-    this.validator.validarFechas(createDto.fechaInicio, createDto.fechaFin);
+    this.validator.validarFechas(createDto.fecha_inicio, createDto.fecha_fin);
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -85,13 +85,13 @@ export class AutorizacionService {
       const codigo = await this.codigoGenerator.generarCodigo();
 
       const autorizacion = this.autorizacionRepo.create({
-        proveedorId: createDto.proveedorId,
-        sedeId: createDto.sedeId,
-        responsableInternoId: createDto.responsableInternoId,
-        tipoContratista: createDto.tipoContratista,
-        descripcionActividad: createDto.descripcionActividad,
-        fechaInicio: createDto.fechaInicio as any,
-        fechaFin: createDto.fechaFin as any,
+        proveedorId: createDto.proveedor_id,
+        sedeId: createDto.sede_id,
+        responsableInternoId: createDto.responsable_interno_id,
+        tipoContratista: createDto.tipo_contratista,
+        descripcionActividad: createDto.descripcion_actividad,
+        fechaInicio: this.toDateOnly(createDto.fecha_inicio),
+        fechaFin: this.toDateOnly(createDto.fecha_fin),
         codigo,
         creadoPor: userId,
         estado: EstadoAutorizacion.BORRADOR,
@@ -103,16 +103,16 @@ export class AutorizacionService {
         const duracionHoras = 72;
         const contratistas = createDto.contratistas.map(c =>
           this.contratistaRepo.create({
-            personaId: c.personaId,
-            tipoDocumento: c.tipoDocumento,
-            numeroDocumento: c.numeroDocumento,
+            personaId: c.persona_id,
+            tipoDocumento: c.tipo_documento,
+            numeroDocumento: c.numero_documento,
             nombres: c.nombres,
             apellidos: c.apellidos,
             email: c.email,
             telefono: c.telefono,
-            esExtranjero: c.esExtranjero ?? false,
-            sstResponsableNombre: c.sstResponsableNombre,
-            sstResponsableTelefono: c.sstResponsableTelefono,
+            esExtranjero: c.es_extranjero ?? false,
+            sstResponsableNombre: c.sst_responsable_nombre,
+            sstResponsableTelefono: c.sst_responsable_telefono,
             autorizacionId: savedAutorizacion.id,
             estado: EstadoContratista.PENDIENTE_AUTOGESTION,
             tokenAutogestion: crypto.randomBytes(32).toString('hex'),
@@ -137,20 +137,20 @@ export class AutorizacionService {
   async update(id: number, updateDto: UpdateAutorizacionDto) {
     const autorizacion = await this.findOne(id);
 
-    if (updateDto.fechaInicio || updateDto.fechaFin) {
-      const fInicio = updateDto.fechaInicio ?? String(autorizacion.fechaInicio);
-      const fFin = updateDto.fechaFin ?? String(autorizacion.fechaFin);
+    if (updateDto.fecha_inicio || updateDto.fecha_fin) {
+      const fInicio = updateDto.fecha_inicio ?? String(autorizacion.fechaInicio);
+      const fFin = updateDto.fecha_fin ?? String(autorizacion.fechaFin);
       this.validator.validarFechas(fInicio, fFin);
     }
 
     await this.autorizacionRepo.update(id, {
-      ...(updateDto.proveedorId !== undefined && { proveedorId: updateDto.proveedorId }),
-      ...(updateDto.sedeId !== undefined && { sedeId: updateDto.sedeId }),
-      ...(updateDto.responsableInternoId !== undefined && { responsableInternoId: updateDto.responsableInternoId }),
-      ...(updateDto.tipoContratista !== undefined && { tipoContratista: updateDto.tipoContratista }),
-      ...(updateDto.descripcionActividad !== undefined && { descripcionActividad: updateDto.descripcionActividad }),
-      ...(updateDto.fechaInicio !== undefined && { fechaInicio: updateDto.fechaInicio as any }),
-      ...(updateDto.fechaFin !== undefined && { fechaFin: updateDto.fechaFin as any }),
+      ...(updateDto.proveedor_id !== undefined && { proveedorId: updateDto.proveedor_id }),
+      ...(updateDto.sede_id !== undefined && { sedeId: updateDto.sede_id }),
+      ...(updateDto.responsable_interno_id !== undefined && { responsableInternoId: updateDto.responsable_interno_id }),
+      ...(updateDto.tipo_contratista !== undefined && { tipoContratista: updateDto.tipo_contratista }),
+      ...(updateDto.descripcion_actividad !== undefined && { descripcionActividad: updateDto.descripcion_actividad }),
+      ...(updateDto.fecha_inicio !== undefined && { fechaInicio: this.toDateOnly(updateDto.fecha_inicio) }),
+      ...(updateDto.fecha_fin !== undefined && { fechaFin: this.toDateOnly(updateDto.fecha_fin) }),
     });
 
     return this.findOne(id);
@@ -171,12 +171,12 @@ export class AutorizacionService {
       throw new NotFoundException(`Autorizacion con ID ${id} no encontrada`);
     }
 
-    this.validarCambioEstadoAutorizacion(autorizacion, changeEstadoDto.estado, changeEstadoDto.motivoDenegacion);
+    this.validarCambioEstadoAutorizacion(autorizacion, changeEstadoDto.estado, changeEstadoDto.motivo_denegacion);
 
     autorizacion.estado = changeEstadoDto.estado;
     autorizacion.motivoDenegacion =
       changeEstadoDto.estado === EstadoAutorizacion.DENEGADO
-        ? changeEstadoDto.motivoDenegacion ?? null
+        ? changeEstadoDto.motivo_denegacion ?? null
         : null;
 
     await this.autorizacionRepo.save(autorizacion);
@@ -197,16 +197,16 @@ export class AutorizacionService {
 
     const contratistas = contratistasDto.map(c =>
       this.contratistaRepo.create({
-        personaId: c.personaId,
-        tipoDocumento: c.tipoDocumento,
-        numeroDocumento: c.numeroDocumento,
+        personaId: c.persona_id,
+        tipoDocumento: c.tipo_documento,
+        numeroDocumento: c.numero_documento,
         nombres: c.nombres,
         apellidos: c.apellidos,
         email: c.email,
         telefono: c.telefono,
-        esExtranjero: c.esExtranjero ?? false,
-        sstResponsableNombre: c.sstResponsableNombre,
-        sstResponsableTelefono: c.sstResponsableTelefono,
+        esExtranjero: c.es_extranjero ?? false,
+        sstResponsableNombre: c.sst_responsable_nombre,
+        sstResponsableTelefono: c.sst_responsable_telefono,
         autorizacionId,
         estado: EstadoContratista.PENDIENTE_AUTOGESTION,
       })
@@ -564,7 +564,7 @@ export class AutorizacionService {
   private async marcarAutorizacionesVencidas(sedeId?: number) {
     const qb = this.autorizacionRepo.createQueryBuilder('autorizacion')
       .where('autorizacion.estado != :vencido', { vencido: EstadoAutorizacion.VENCIDO })
-      .andWhere('autorizacion.fecha_fin < :hoy', { hoy: this.fechaHoyIso() });
+      .andWhere('autorizacion.fecha_fin < :hoy', { hoy: this.fechaHoyLocal() });
 
     if (sedeId) {
       qb.andWhere('autorizacion.sede_id = :sedeId', { sedeId });
@@ -588,11 +588,28 @@ export class AutorizacionService {
     return false;
   }
 
-  private estaFechaVencida(fecha: Date | string) {
-    return String(fecha) < this.fechaHoyIso();
+  private formatearFecha(fecha: Date | string): string {
+    if (!fecha) return '';
+    if (fecha instanceof Date) {
+      const y = fecha.getUTCFullYear();
+      const m = String(fecha.getUTCMonth() + 1).padStart(2, '0');
+      const d = String(fecha.getUTCDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+    return String(fecha).slice(0, 10);
   }
 
-  private fechaHoyIso() {
-    return new Date().toISOString().slice(0, 10);
+  private estaFechaVencida(fecha: Date | string) {
+    const str = this.formatearFecha(fecha);
+    return str < this.fechaHoyLocal();
+  }
+
+  private fechaHoyLocal(): string {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota' }).format(new Date());
+  }
+
+  private toDateOnly(value: string): Date {
+    const [year, month, day] = value.split('-').map(Number);
+    return new Date(year, month - 1, day);
   }
 }

@@ -24,9 +24,15 @@ const herramientas_module_1 = require("./herramientas/herramientas.module");
 const parking_module_1 = require("./parking/parking.module");
 const nfc_module_1 = require("./nfc/nfc.module");
 const websockets_module_1 = require("./websockets/websockets.module");
+const herramientas_controller_1 = require("./herramientas/herramientas.controller");
+const config_koaj_controller_1 = require("./config-koaj/config-koaj.controller");
+const gh_controller_1 = require("./gh/gh.controller");
+const proveedor_controller_1 = require("./persona/proveedor.controller");
 let AppModule = class AppModule {
     configure(consumer) {
-        consumer.apply(snake_to_camel_middleware_1.SnakeToCamelMiddleware).forRoutes('*');
+        consumer
+            .apply(snake_to_camel_middleware_1.SnakeToCamelMiddleware)
+            .forRoutes(herramientas_controller_1.HerramientasController, config_koaj_controller_1.ConfigKoajController, gh_controller_1.GhController, proveedor_controller_1.ProveedorController);
     }
 };
 exports.AppModule = AppModule;

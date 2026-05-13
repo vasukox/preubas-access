@@ -85,7 +85,7 @@ export function ChecklistPanel({ tipoCita }: ChecklistPanelProps) {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           {allDone && (
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '4px 12px', borderRadius: 'var(--radius-full)', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', color: '#10b981', fontSize: '0.72rem', fontWeight: 700 }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '4px 12px', borderRadius: 'var(--radius-full)', background: 'rgba(40,149,108,0.1)', border: '1px solid rgba(40,149,108,0.25)', color: '#10b981', fontSize: '0.72rem', fontWeight: 700 }}>
               <Check size={12} strokeWidth={3} /> Completo
             </span>
           )}
@@ -138,3 +138,4 @@ export function ChecklistPanel({ tipoCita }: ChecklistPanelProps) {
     </div>
   )
 }
+

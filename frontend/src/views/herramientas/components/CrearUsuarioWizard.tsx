@@ -487,8 +487,8 @@ export function CrearUsuarioWizard({ setVistaActiva, onUserCreated }: CrearUsuar
                           style={{
                             display: 'inline-flex', alignItems: 'center', gap: '4px',
                             padding: '3px 8px', borderRadius: '999px', fontSize: '0.67rem', fontWeight: 600,
-                            border: `1px solid ${rule.ok ? 'rgba(16,185,129,0.35)' : 'var(--border-subtle)'}`,
-                            background: rule.ok ? 'rgba(16,185,129,0.08)' : 'var(--bg-raised)',
+                            border: `1px solid ${rule.ok ? 'rgba(40,149,108,0.35)' : 'var(--border-subtle)'}`,
+                            background: rule.ok ? 'rgba(40,149,108,0.08)' : 'var(--bg-raised)',
                             color: rule.ok ? 'var(--success-400)' : 'var(--text-muted)',
                             transition: 'all 0.25s ease',
                           }}
@@ -581,7 +581,7 @@ export function CrearUsuarioWizard({ setVistaActiva, onUserCreated }: CrearUsuar
                           padding: '12px 14px',
                           borderRadius: 'var(--radius-md)',
                           border: `1px solid ${selected ? 'var(--primary-400)' : 'var(--border-default)'}`,
-                          background: selected ? 'rgba(245,158,11,0.07)' : 'var(--bg-raised)',
+                          background: selected ? 'rgba(69,116,196,0.07)' : 'var(--bg-raised)',
                           cursor: 'pointer',
                           textAlign: 'left',
                           transition: 'all 0.18s ease',
@@ -639,7 +639,7 @@ export function CrearUsuarioWizard({ setVistaActiva, onUserCreated }: CrearUsuar
                             padding: '10px 12px',
                             borderRadius: 'var(--radius-md)',
                             border: `1px solid ${selected ? 'var(--primary-400)' : 'var(--border-subtle)'}`,
-                            background: selected ? 'rgba(245,158,11,0.06)' : 'transparent',
+                            background: selected ? 'rgba(69,116,196,0.06)' : 'transparent',
                             cursor: 'pointer',
                             textAlign: 'left',
                             transition: 'all 0.18s ease',
@@ -669,7 +669,7 @@ export function CrearUsuarioWizard({ setVistaActiva, onUserCreated }: CrearUsuar
                 <div style={{
                   display: 'flex', alignItems: 'center', gap: '8px',
                   padding: '10px 14px', borderRadius: 'var(--radius-md)',
-                  background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.25)',
+                  background: 'rgba(40,149,108,0.06)', border: '1px solid rgba(40,149,108,0.25)',
                 }}>
                   <Check size={14} color="var(--success-400)" />
                   <span style={{ fontSize: '0.77rem', color: 'var(--success-400)', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
@@ -682,7 +682,7 @@ export function CrearUsuarioWizard({ setVistaActiva, onUserCreated }: CrearUsuar
 
             {/* Selector de sede — solo para vigilantes */}
             {esVigilante && (
-              <div style={{ ...panelStyle, padding: '14px', boxShadow: 'none', border: '1px solid rgba(245,158,11,0.4)', background: 'rgba(245,158,11,0.04)' }}>
+              <div style={{ ...panelStyle, padding: '14px', boxShadow: 'none', border: '1px solid rgba(69,116,196,0.4)', background: 'rgba(69,116,196,0.04)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
                   <Lock size={13} color="var(--primary-400)" />
                   <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--primary-400)' }}>
@@ -698,7 +698,7 @@ export function CrearUsuarioWizard({ setVistaActiva, onUserCreated }: CrearUsuar
                     ...p,
                     sede_asignada_id: e.target.value ? Number(e.target.value) : null,
                   }))}
-                  style={{ ...fieldStyle, borderColor: nuevoUsuario.sede_asignada_id ? 'var(--primary-400)' : 'rgba(245,158,11,0.6)' }}
+                  style={{ ...fieldStyle, borderColor: nuevoUsuario.sede_asignada_id ? 'var(--primary-400)' : 'rgba(69,116,196,0.6)' }}
                 >
                   <option value="">Selecciona la sede fija del vigilante...</option>
                   {sedesDisponibles.map((s) => (
@@ -819,7 +819,7 @@ export function CrearUsuarioWizard({ setVistaActiva, onUserCreated }: CrearUsuar
               animation: 'fadeIn 0.3s ease-out forwards',
             }}
           >
-            <div style={{ padding: '16px', background: 'rgba(99, 102, 241, 0.05)', border: '1px solid rgba(99, 102, 241, 0.2)', borderRadius: 'var(--radius-lg)' }}>
+            <div style={{ padding: '16px', background: 'rgba(86,104,184, 0.05)', border: '1px solid rgba(86,104,184, 0.2)', borderRadius: 'var(--radius-lg)' }}>
               <div style={{ fontSize: '0.76rem', color: 'var(--text-primary)', fontWeight: 600, marginBottom: '6px' }}>Trazabilidad requerida</div>
               <p style={{ margin: 0, fontSize: '0.74rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
                 El registro de un usuario en el Centro de Administración queda asociado automáticamente al usuario en sesión como responsable del alta. Acepta que tu firma sea insertada en los registros de auditoría operativa.
@@ -921,3 +921,4 @@ export function CrearUsuarioWizard({ setVistaActiva, onUserCreated }: CrearUsuar
     </div>
   )
 }
+

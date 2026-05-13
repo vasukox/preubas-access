@@ -182,9 +182,9 @@ export default function GHCitasView() {
 
   const estadoData = useMemo(
     () => [
-      { label: 'Confirmadas/En Curso', value: metrics.confirmadas + metrics.enCurso, color: 'var(--success-400)', bg: 'rgba(16,185,129,0.12)' },
-      { label: 'Por atender (Pendientes)', value: metrics.pendientes, color: '#6366F1', bg: 'rgba(99,102,241,0.12)' },
-      { label: 'No asistió', value: metrics.noAsistio, color: 'var(--danger-400)', bg: 'rgba(239,68,68,0.12)' },
+      { label: 'Confirmadas/En Curso', value: metrics.confirmadas + metrics.enCurso, color: 'var(--success-400)', bg: 'rgba(40,149,108,0.12)' },
+      { label: 'Por atender (Pendientes)', value: metrics.pendientes, color: '#5668B8', bg: 'rgba(86,104,184,0.12)' },
+      { label: 'No asistió', value: metrics.noAsistio, color: 'var(--danger-400)', bg: 'rgba(192,80,80,0.12)' },
     ],
     [metrics.confirmadas, metrics.enCurso, metrics.pendientes, metrics.noAsistio],
   )
@@ -281,9 +281,9 @@ export default function GHCitasView() {
 
       <div className="animate-fade-up stagger-1" style={{ display: 'grid', gap: '12px', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
         <MetricCard label="Citas visibles" value={metrics.total} icon={CalendarDays} color="#0ea5e9" bg="rgba(14,165,233,0.12)" />
-        <MetricCard label="Confirmadas" value={metrics.confirmadas} icon={CalendarCheck2} color="#10b981" bg="rgba(16,185,129,0.12)" badge={`${metrics.asistencia}% presente`} />
-        <MetricCard label="En curso" value={metrics.enCurso} icon={Clock3} color="#6366F1" bg="rgba(99,102,241,0.12)" />
-        <MetricCard label="Inasistencias" value={metrics.noAsistio} icon={CalendarX2} color="#ef4444" bg="rgba(239,68,68,0.12)" />
+        <MetricCard label="Confirmadas" value={metrics.confirmadas} icon={CalendarCheck2} color="#10b981" bg="rgba(40,149,108,0.12)" badge={`${metrics.asistencia}% presente`} />
+        <MetricCard label="En curso" value={metrics.enCurso} icon={Clock3} color="#5668B8" bg="rgba(86,104,184,0.12)" />
+        <MetricCard label="Inasistencias" value={metrics.noAsistio} icon={CalendarX2} color="#ef4444" bg="rgba(192,80,80,0.12)" />
       </div>
 
       <div style={{ background: 'var(--bg-surface)', padding: '16px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-subtle)', margin: '4px 0 10px 0' }}>
@@ -323,8 +323,8 @@ export default function GHCitasView() {
       {errorMsg ? (
         <div
           style={{
-            border: '1px solid rgba(239,68,68,0.35)',
-            background: 'rgba(239,68,68,0.12)',
+            border: '1px solid rgba(192,80,80,0.35)',
+            background: 'rgba(192,80,80,0.12)',
             borderRadius: 'var(--radius-md)',
             padding: '10px 12px',
             color: 'var(--danger-400)',
@@ -374,3 +374,4 @@ export default function GHCitasView() {
     </div>
   )
 }
+

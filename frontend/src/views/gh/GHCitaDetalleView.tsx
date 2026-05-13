@@ -33,18 +33,18 @@ import { ChecklistPanel } from './components/ChecklistPanel'
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
 const ESTADO_META: Record<GhEstadoCita, { label: string; color: string; bg: string; border: string }> = {
-  PROGRAMADA:  { label: 'Programada',  color: '#6366f1', bg: 'rgba(99,102,241,0.08)',  border: 'rgba(99,102,241,0.25)' },
-  CONFIRMADA:  { label: 'Confirmada',  color: '#10b981', bg: 'rgba(16,185,129,0.08)',  border: 'rgba(16,185,129,0.25)' },
+  PROGRAMADA:  { label: 'Programada',  color: '#6366f1', bg: 'rgba(86,104,184,0.08)',  border: 'rgba(86,104,184,0.25)' },
+  CONFIRMADA:  { label: 'Confirmada',  color: '#10b981', bg: 'rgba(40,149,108,0.08)',  border: 'rgba(40,149,108,0.25)' },
   EN_CURSO:    { label: 'En curso',    color: '#0ea5e9', bg: 'rgba(14,165,233,0.08)',  border: 'rgba(14,165,233,0.25)' },
-  FINALIZADA:  { label: 'Finalizada',  color: '#10b981', bg: 'rgba(16,185,129,0.08)',  border: 'rgba(16,185,129,0.25)' },
-  NO_ASISTIO:  { label: 'No asistió',  color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.25)' },
-  CANCELADA:   { label: 'Cancelada',   color: '#ef4444', bg: 'rgba(239,68,68,0.08)',   border: 'rgba(239,68,68,0.25)' },
+  FINALIZADA:  { label: 'Finalizada',  color: '#10b981', bg: 'rgba(40,149,108,0.08)',  border: 'rgba(40,149,108,0.25)' },
+  NO_ASISTIO:  { label: 'No asistió',  color: '#f59e0b', bg: 'rgba(69,116,196,0.08)', border: 'rgba(69,116,196,0.25)' },
+  CANCELADA:   { label: 'Cancelada',   color: '#ef4444', bg: 'rgba(192,80,80,0.08)',   border: 'rgba(192,80,80,0.25)' },
 }
 
 const TIPO_META: Record<GhTipoCita, { label: string; color: string; bg: string; border: string; Icon: any }> = {
-  INDUCCION:        { label: 'Inducción',          color: '#6366f1', bg: 'rgba(99,102,241,0.08)', border: 'rgba(99,102,241,0.2)',  Icon: UserCheck },
-  FIRMA_CONTRATO:   { label: 'Firma de contrato',  color: '#10b981', bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.2)',  Icon: Check },
-  ENTREGA_DOTACION: { label: 'Entrega de dotación',color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.2)', Icon: Shirt },
+  INDUCCION:        { label: 'Inducción',          color: '#6366f1', bg: 'rgba(86,104,184,0.08)', border: 'rgba(86,104,184,0.2)',  Icon: UserCheck },
+  FIRMA_CONTRATO:   { label: 'Firma de contrato',  color: '#10b981', bg: 'rgba(40,149,108,0.08)', border: 'rgba(40,149,108,0.2)',  Icon: Check },
+  ENTREGA_DOTACION: { label: 'Entrega de dotación',color: '#f59e0b', bg: 'rgba(69,116,196,0.08)', border: 'rgba(69,116,196,0.2)', Icon: Shirt },
 }
 
 type ActionDef = {
@@ -59,20 +59,20 @@ type ActionDef = {
 function getActions(cita: GhCita): ActionDef[] {
   const isInduccion = cita.tipo_cita === 'INDUCCION'
   if (cita.estado === 'PROGRAMADA') return [
-    { estado: 'CONFIRMADA', label: 'Confirmar',    color: '#10b981', bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.3)',  Icon: CalendarCheck2 },
-    { estado: 'NO_ASISTIO', label: 'Inasistencia', color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.3)', Icon: UserX },
-    { estado: 'CANCELADA',  label: 'Cancelar',     color: '#ef4444', bg: 'rgba(239,68,68,0.08)',  border: 'rgba(239,68,68,0.3)',   Icon: X },
+    { estado: 'CONFIRMADA', label: 'Confirmar',    color: '#10b981', bg: 'rgba(40,149,108,0.08)', border: 'rgba(40,149,108,0.3)',  Icon: CalendarCheck2 },
+    { estado: 'NO_ASISTIO', label: 'Inasistencia', color: '#f59e0b', bg: 'rgba(69,116,196,0.08)', border: 'rgba(69,116,196,0.3)', Icon: UserX },
+    { estado: 'CANCELADA',  label: 'Cancelar',     color: '#ef4444', bg: 'rgba(192,80,80,0.08)',  border: 'rgba(192,80,80,0.3)',   Icon: X },
   ]
   if (cita.estado === 'CONFIRMADA') {
     const base: ActionDef[] = [
-      { estado: 'NO_ASISTIO', label: 'Inasistencia', color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.3)', Icon: UserX },
-      { estado: 'CANCELADA',  label: 'Cancelar',     color: '#ef4444', bg: 'rgba(239,68,68,0.08)',  border: 'rgba(239,68,68,0.3)',   Icon: X },
+      { estado: 'NO_ASISTIO', label: 'Inasistencia', color: '#f59e0b', bg: 'rgba(69,116,196,0.08)', border: 'rgba(69,116,196,0.3)', Icon: UserX },
+      { estado: 'CANCELADA',  label: 'Cancelar',     color: '#ef4444', bg: 'rgba(192,80,80,0.08)',  border: 'rgba(192,80,80,0.3)',   Icon: X },
     ]
-    if (!isInduccion) base.unshift({ estado: 'EN_CURSO', label: 'Iniciar', color: '#6366f1', bg: 'rgba(99,102,241,0.08)', border: 'rgba(99,102,241,0.3)', Icon: Play })
+    if (!isInduccion) base.unshift({ estado: 'EN_CURSO', label: 'Iniciar', color: '#6366f1', bg: 'rgba(86,104,184,0.08)', border: 'rgba(86,104,184,0.3)', Icon: Play })
     return base
   }
   if (cita.estado === 'EN_CURSO' && !isInduccion) return [
-    { estado: 'FINALIZADA', label: 'Finalizar', color: '#10b981', bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.3)', Icon: Flag },
+    { estado: 'FINALIZADA', label: 'Finalizar', color: '#10b981', bg: 'rgba(40,149,108,0.08)', border: 'rgba(40,149,108,0.3)', Icon: Flag },
   ]
   return []
 }
@@ -295,7 +295,7 @@ export default function GHCitaDetalleView() {
             </div>
 
             {cita.observaciones && (
-              <div style={{ padding: '10px 14px', background: 'rgba(99,102,241,0.04)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(99,102,241,0.15)', fontSize: '0.78rem', color: 'var(--text-secondary)', fontStyle: 'italic', lineHeight: 1.55 }}>
+              <div style={{ padding: '10px 14px', background: 'rgba(86,104,184,0.04)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(86,104,184,0.15)', fontSize: '0.78rem', color: 'var(--text-secondary)', fontStyle: 'italic', lineHeight: 1.55 }}>
                 {cita.observaciones}
               </div>
             )}
@@ -325,12 +325,12 @@ export default function GHCitaDetalleView() {
           {/* Quick links */}
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             {cita.tipo_cita === 'INDUCCION' && !cita.sesion_induccion && (
-              <button type="button" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '6px 12px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(99,102,241,0.3)', background: 'rgba(99,102,241,0.06)', color: '#6366f1', fontSize: '0.74rem', fontWeight: 600, cursor: 'pointer' }} onClick={() => navigate('/gh/inducciones')}>
+              <button type="button" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '6px 12px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(86,104,184,0.3)', background: 'rgba(86,104,184,0.06)', color: '#6366f1', fontSize: '0.74rem', fontWeight: 600, cursor: 'pointer' }} onClick={() => navigate('/gh/inducciones')}>
                 <User size={12} /> Crear sesión de inducción
               </button>
             )}
             {cita.tipo_cita === 'ENTREGA_DOTACION' && (
-              <button type="button" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '6px 12px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(245,158,11,0.3)', background: 'rgba(245,158,11,0.06)', color: '#f59e0b', fontSize: '0.74rem', fontWeight: 600, cursor: 'pointer' }} onClick={() => navigate('/gh/dotacion')}>
+              <button type="button" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '6px 12px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(69,116,196,0.3)', background: 'rgba(69,116,196,0.06)', color: '#f59e0b', fontSize: '0.74rem', fontWeight: 600, cursor: 'pointer' }} onClick={() => navigate('/gh/dotacion')}>
                 <Shirt size={12} /> Registrar entrega de dotación
               </button>
             )}
@@ -366,13 +366,13 @@ export default function GHCitaDetalleView() {
 
       {/* ── Delete zone ── */}
       {!isClosed && (
-        <div className="animate-fade-up stagger-3" style={{ padding: '16px 20px', background: 'rgba(239,68,68,0.03)', border: '1px solid rgba(239,68,68,0.15)', borderRadius: 'var(--radius-xl)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+        <div className="animate-fade-up stagger-3" style={{ padding: '16px 20px', background: 'rgba(192,80,80,0.03)', border: '1px solid rgba(192,80,80,0.15)', borderRadius: 'var(--radius-xl)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
           <div>
             <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Zona de riesgo</div>
             <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>Eliminar la cita la borra permanentemente junto a sus links de autogestion.</div>
           </div>
           {!showDeleteConfirm ? (
-            <button type="button" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(239,68,68,0.3)', background: 'transparent', color: '#ef4444', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer' }} onClick={() => setShowDeleteConfirm(true)}>
+            <button type="button" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(192,80,80,0.3)', background: 'transparent', color: '#ef4444', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer' }} onClick={() => setShowDeleteConfirm(true)}>
               <Trash2 size={13} /> Eliminar cita
             </button>
           ) : (
@@ -390,3 +390,4 @@ export default function GHCitaDetalleView() {
     </div>
   )
 }
+

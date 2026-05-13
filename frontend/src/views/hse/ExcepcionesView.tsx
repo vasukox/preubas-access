@@ -17,6 +17,7 @@ import { usePagination } from '@/hooks/usePagination'
 import { Pagination } from '@/components/ui/Pagination'
 import type { ExcepcionResponse, ExcepcionUpdateRequest, ProveedorHSEOption } from '@/types/hse'
 import { ConfirmActionModal } from '@/components/feedback/ConfirmActionModal'
+import { localDateStr } from '@/utils/dates'
 
 function formatDisplayName(e: ExcepcionResponse): string {
   const full = (e.nombre_completo || '').trim()
@@ -165,8 +166,10 @@ function ModalEditarExcepcion({
       setError('Debes ingresar el nombre completo.')
       return
     }
-    if (!/^\d{5,20}$/.test(numeroDocumento.trim())) {
-      setError('El documento debe contener solo números (5 a 20 dígitos).')
+    const esPasaporte = tipoDocumento === 'PASAPORTE' || tipoDocumento === 'CE'
+    const docRegex = esPasaporte ? /^[A-Za-z0-9]{4,20}$/ : /^\d{5,20}$/
+    if (!docRegex.test(numeroDocumento.trim())) {
+      setError(esPasaporte ? 'El documento debe tener entre 4 y 20 caracteres alfanuméricos.' : 'El documento debe contener solo números (5 a 20 dígitos).')
       return
     }
     if (!motivo || motivo.trim().length < 10) {
@@ -249,8 +252,8 @@ function ModalEditarExcepcion({
             <div style={{
               padding: '10px 12px',
               borderRadius: 'var(--radius-md)',
-              background: 'rgba(239,68,68,0.08)',
-              border: '1px solid rgba(239,68,68,0.2)',
+              background: 'rgba(192,80,80,0.08)',
+              border: '1px solid rgba(192,80,80,0.2)',
               color: 'var(--danger-400)',
               fontSize: '0.8rem',
             }}>
@@ -267,7 +270,19 @@ function ModalEditarExcepcion({
             </div>
             <div>
               <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '5px' }}>DOCUMENTO</label>
-              <input type="text" value={numeroDocumento} onChange={(e) => setNumeroDocumento(e.target.value.replace(/[^\d]/g, ''))} style={inputStyle} />
+              <input
+                type="text"
+                value={numeroDocumento}
+                onChange={(e) => {
+                  const v = e.target.value
+                  if (tipoDocumento === 'PASAPORTE' || tipoDocumento === 'CE') {
+                    setNumeroDocumento(v.toUpperCase().replace(/[^A-Z0-9]/g, ''))
+                  } else {
+                    setNumeroDocumento(v.replace(/[^\d]/g, ''))
+                  }
+                }}
+                style={inputStyle}
+              />
             </div>
           </div>
 
@@ -395,8 +410,8 @@ function ModalCrearProveedor({
             <div style={{
               padding: '10px 12px',
               borderRadius: 'var(--radius-md)',
-              background: 'rgba(239,68,68,0.08)',
-              border: '1px solid rgba(239,68,68,0.2)',
+              background: 'rgba(192,80,80,0.08)',
+              border: '1px solid rgba(192,80,80,0.2)',
               color: 'var(--danger-400)',
               fontSize: '0.8rem',
             }}>
@@ -444,8 +459,9 @@ function ModalCrear({
   const [loading, setLoading] = useState(false)
   const [error,   setError]   = useState<string | null>(null)
   const [modo,    setModo]    = useState<'individual' | 'empresa'>('individual')
-  const hoy = new Date().toISOString().split('T')[0]
-  const manana = new Date(Date.now() + 86400000).toISOString().split('T')[0]
+  const [tipoDocIndividual, setTipoDocIndividual] = useState<'CC' | 'CE' | 'PASAPORTE' | 'TI'>('CC')
+  const hoy = localDateStr()
+  const manana = localDateStr(1)
   const [formIndividual, setFormIndividual] = useState({
     nombre_completo: '',
     numero_documento: '',
@@ -505,8 +521,10 @@ function ModalCrear({
         setError('Completa nombre y cédula del contratista.')
         return
       }
-      if (!/^\d{5,20}$/.test(formIndividual.numero_documento.trim())) {
-        setError('La cédula debe contener solo números (5 a 20 dígitos).')
+      const esPasInd = tipoDocIndividual === 'PASAPORTE' || tipoDocIndividual === 'CE'
+      const regexInd = esPasInd ? /^[A-Za-z0-9]{4,20}$/ : /^\d{5,20}$/
+      if (!regexInd.test(formIndividual.numero_documento.trim())) {
+        setError(esPasInd ? 'El documento debe tener entre 4 y 20 caracteres alfanuméricos.' : 'La cédula debe contener solo números (5 a 20 dígitos).')
         return
       }
     }
@@ -518,7 +536,7 @@ function ModalCrear({
       const totalLote = contratistas.filter(c => c.numero_documento.trim() || c.nombre_completo.trim()).length
       if (modo === 'individual') {
         await hseService.crearExcepcion({
-          tipo_documento: 'CC',
+          tipo_documento: tipoDocIndividual,
           numero_documento: formIndividual.numero_documento.trim(),
           nombre_completo: formIndividual.nombre_completo.trim(),
           sede_id:      sedeId,
@@ -622,8 +640,8 @@ function ModalCrear({
             <div style={{
               width:          '34px',
               height:         '34px',
-              background:     'rgba(239,68,68,0.08)',
-              border:         '1px solid rgba(239,68,68,0.2)',
+              background:     'rgba(192,80,80,0.08)',
+              border:         '1px solid rgba(192,80,80,0.2)',
               borderRadius:   'var(--radius-md)',
               display:        'flex',
               alignItems:     'center',
@@ -654,8 +672,8 @@ function ModalCrear({
           {/* Aviso */}
           <div style={{
             padding:      '10px 14px',
-            background:   'rgba(239,68,68,0.06)',
-            border:       '1px solid rgba(239,68,68,0.15)',
+            background:   'rgba(192,80,80,0.06)',
+            border:       '1px solid rgba(192,80,80,0.15)',
             borderRadius: 'var(--radius-md)',
             fontSize:     '0.78rem',
             color:        'var(--danger-400)',
@@ -667,8 +685,8 @@ function ModalCrear({
           {error && (
             <div style={{
               padding:      '10px 14px',
-              background:   'rgba(239,68,68,0.08)',
-              border:       '1px solid rgba(239,68,68,0.2)',
+              background:   'rgba(192,80,80,0.08)',
+              border:       '1px solid rgba(192,80,80,0.2)',
               borderRadius: 'var(--radius-md)',
               fontSize:     '0.8rem',
               color:        'var(--danger-400)',
@@ -707,15 +725,38 @@ function ModalCrear({
                 />
               </div>
 
-              <div>
-                <label style={labelStyle}>CÉDULA</label>
-                <input
-                  type="text"
-                  value={formIndividual.numero_documento}
-                  onChange={e => setFormIndividual(f => ({ ...f, numero_documento: e.target.value.replace(/[^\d]/g, '') }))}
-                  placeholder="Ej: 1012345678"
-                  style={inputStyle}
-                />
+              <div style={{ display: 'grid', gridTemplateColumns: '130px 1fr', gap: '10px' }}>
+                <div>
+                  <label style={labelStyle}>TIPO DOC</label>
+                  <select
+                    value={tipoDocIndividual}
+                    onChange={e => {
+                      setTipoDocIndividual(e.target.value as 'CC' | 'CE' | 'PASAPORTE' | 'TI')
+                      setFormIndividual(f => ({ ...f, numero_documento: '' }))
+                    }}
+                    style={inputStyle}
+                  >
+                    {(['CC', 'CE', 'PASAPORTE', 'TI'] as const).map(t => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label style={labelStyle}>NÚMERO DE DOCUMENTO</label>
+                  <input
+                    type="text"
+                    value={formIndividual.numero_documento}
+                    onChange={e => {
+                      const v = e.target.value
+                      const cleaned = (tipoDocIndividual === 'PASAPORTE' || tipoDocIndividual === 'CE')
+                        ? v.toUpperCase().replace(/[^A-Z0-9]/g, '')
+                        : v.replace(/[^\d]/g, '')
+                      setFormIndividual(f => ({ ...f, numero_documento: cleaned }))
+                    }}
+                    placeholder={tipoDocIndividual === 'PASAPORTE' ? 'Ej: AB123456' : 'Ej: 1012345678'}
+                    style={inputStyle}
+                  />
+                </div>
               </div>
             </>
           ) : (
@@ -869,6 +910,8 @@ export default function ExcepcionesView() {
   const [excepcionDetalleId, setExcepcionDetalleId] = useState<number | null>(null)
   const [excepcionEditando, setExcepcionEditando] = useState<ExcepcionResponse | null>(null)
   const [confirmAccion, setConfirmAccion] = useState<{ id: number; tipo: 'ACTIVAR' | 'DESACTIVAR'; nombre: string } | null>(null)
+  const [confirmEliminar, setConfirmEliminar] = useState<{ tipo: 'EXCEPCION' | 'PROVEEDOR'; id: number; nombre: string } | null>(null)
+  const [eliminando, setEliminando] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -932,6 +975,35 @@ export default function ExcepcionesView() {
     }
   }
 
+  const handleEliminarExcepcion = async (id: number) => {
+    setEliminando(true)
+    try {
+      await hseService.eliminarExcepcion(id)
+      toast.success('Excepción eliminada correctamente.')
+      setConfirmEliminar(null)
+      setRefresh(r => r + 1)
+    } catch (e) {
+      toast.error(`No se pudo eliminar la excepción. ${getErrorMessage(e)}`)
+    } finally {
+      setEliminando(false)
+    }
+  }
+
+  const handleEliminarProveedor = async (id: number) => {
+    setEliminando(true)
+    try {
+      await hseService.eliminarProveedor(id)
+      toast.success('Proveedor eliminado correctamente.')
+      setConfirmEliminar(null)
+      setProveedores(prev => prev.filter(p => p.id !== id))
+      setRefresh(r => r + 1)
+    } catch (e) {
+      toast.error(`No se pudo eliminar el proveedor. ${getErrorMessage(e)}`)
+    } finally {
+      setEliminando(false)
+    }
+  }
+
   const activas   = excepciones.filter(e => e.activa)
   const inactivas = excepciones.filter(e => !e.activa)
 
@@ -981,7 +1053,7 @@ export default function ExcepcionesView() {
     })
   }, [filteredExcepciones.length])
 
-  const hoy = new Date().toISOString().split('T')[0]
+  const hoy = localDateStr()
 
   const getVigenciaColor = (e: ExcepcionResponse) => {
     if (!e.activa) return 'var(--text-muted)'
@@ -1093,13 +1165,13 @@ export default function ExcepcionesView() {
             label: 'Activas vigentes',
             value: activas.filter(e => e.fecha_fin >= hoy && e.fecha_inicio <= hoy).length,
             color: 'var(--success-400)',
-            bg:    'rgba(16,185,129,0.08)',
+            bg:    'rgba(40,149,108,0.08)',
           },
           {
             label: 'Vencidas activas',
             value: activas.filter(e => e.fecha_fin < hoy).length,
             color: 'var(--danger-400)',
-            bg:    'rgba(239,68,68,0.08)',
+            bg:    'rgba(192,80,80,0.08)',
           },
           {
             label: 'Total registradas',
@@ -1110,8 +1182,8 @@ export default function ExcepcionesView() {
           {
             label: 'Origen empresa',
             value: excepciones.filter(e => e.origen_excepcion === 'EMPRESA').length,
-            color: '#818CF8',
-            bg:    'rgba(99,102,241,0.10)',
+            color: '#7080CC',
+            bg:    'rgba(86,104,184,0.10)',
           },
         ].map(stat => (
         <div key={stat.label}
@@ -1205,27 +1277,38 @@ export default function ExcepcionesView() {
                   style={{
                     background:   'var(--bg-surface)',
                     border:       '1px solid var(--border-subtle)',
-                    borderLeft:   group.isEmpresa ? '4px solid rgba(99,102,241,0.5)' : '4px solid rgba(148,163,184,0.55)',
+                    borderLeft:   group.isEmpresa ? '4px solid rgba(86,104,184,0.5)' : '4px solid rgba(148,163,184,0.55)',
                     borderRadius: 'var(--radius-lg)',
                     overflow:     'hidden',
                   }}
                 >
-                <button
-                  type="button"
-                  onClick={() => setExpandedGroups(prev => ({ ...prev, [groupKey]: !isExpanded }))}
+                <div
                   style={{
                     width: '100%',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     padding: '12px 16px',
-                    background: group.isEmpresa ? 'rgba(99,102,241,0.08)' : 'var(--bg-elevated)',
-                    border: 'none',
+                    background: group.isEmpresa ? 'rgba(86,104,184,0.08)' : 'var(--bg-elevated)',
                     borderBottom: '1px solid var(--border-subtle)',
-                    cursor: 'pointer',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+                  <button
+                    type="button"
+                    onClick={() => setExpandedGroups(prev => ({ ...prev, [groupKey]: !isExpanded }))}
+                    style={{
+                      flex: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      minWidth: 0,
+                      background: 'transparent',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: 0,
+                      textAlign: 'left',
+                    }}
+                  >
                     {isExpanded ? <ChevronDown size={15} color="var(--text-muted)" /> : <ChevronRight size={15} color="var(--text-muted)" />}
                     <div style={{ display: 'grid', gap: '1px', minWidth: 0 }}>
                       <span style={{ fontSize: '0.66rem', color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', textAlign: 'left' }}>
@@ -1244,11 +1327,38 @@ export default function ExcepcionesView() {
                     }}>
                       {group.items.length} contratista{group.items.length !== 1 ? 's' : ''}
                     </span>
+                  </button>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                      {activosGrupo} activas
+                    </span>
+                    {canManageProviders && group.isEmpresa && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const provId = Number(groupKey.replace('prov-', ''))
+                          setConfirmEliminar({ tipo: 'PROVEEDOR', id: provId, nombre: group.label })
+                        }}
+                        title="Eliminar proveedor"
+                        style={{
+                          padding: '4px 8px',
+                          background: 'transparent',
+                          color: 'var(--danger-400)',
+                          border: '1px solid rgba(192,80,80,0.25)',
+                          borderRadius: 'var(--radius-md)',
+                          fontSize: '0.7rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                        }}
+                      >
+                        <Trash2 size={12} /> Eliminar empresa
+                      </button>
+                    )}
                   </div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                    {activosGrupo} activas
-                  </div>
-                </button>
+                </div>
 
                 {isExpanded && (
                   <div style={{ padding: '12px', display: 'grid', gap: '10px' }}>
@@ -1325,7 +1435,7 @@ export default function ExcepcionesView() {
                           <strong style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Motivo:</strong> {e.motivo}
                         </div>
 
-                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
                           <button
                             onClick={() => setExcepcionDetalleId(e.id)}
                             className="btn-ghost"
@@ -1357,6 +1467,9 @@ export default function ExcepcionesView() {
                                 fontWeight: 700,
                                 cursor: accionando === e.id ? 'not-allowed' : 'pointer',
                                 opacity: accionando === e.id ? 0.6 : 1,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
                               }}
                             >
                               {accionando === e.id ? '...' : 'Desactivar'}
@@ -1376,9 +1489,34 @@ export default function ExcepcionesView() {
                                 fontWeight: 700,
                                 cursor: accionando === e.id ? 'not-allowed' : 'pointer',
                                 opacity: accionando === e.id ? 0.6 : 1,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
                               }}
                             >
                               {accionando === e.id ? '...' : 'Activar'}
+                            </button>
+                          )}
+                          {canManageProviders && (
+                            <button
+                              onClick={() => setConfirmEliminar({ tipo: 'EXCEPCION', id: e.id, nombre: formatDisplayName(e) })}
+                              title="Eliminar excepción definitivamente"
+                              style={{
+                                marginLeft: 'auto',
+                                padding: '6px 10px',
+                                background: 'transparent',
+                                color: 'var(--danger-400)',
+                                border: '1px solid rgba(192,80,80,0.25)',
+                                borderRadius: 'var(--radius-md)',
+                                fontSize: '0.74rem',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                              }}
+                            >
+                              <Trash2 size={13} /> Eliminar
                             </button>
                           )}
                         </div>
@@ -1458,6 +1596,29 @@ export default function ExcepcionesView() {
             return
           }
           void handleActivar(confirmAccion.id)
+        }}
+      />
+
+      <ConfirmActionModal
+        open={confirmEliminar !== null}
+        title={confirmEliminar?.tipo === 'PROVEEDOR' ? 'Eliminar proveedor' : 'Eliminar excepción'}
+        message={
+          confirmEliminar?.tipo === 'PROVEEDOR'
+            ? `Vas a eliminar el proveedor "${confirmEliminar.nombre}". Las excepciones asociadas quedarán sin proveedor asignado. Esta acción no se puede deshacer.`
+            : `Vas a eliminar definitivamente la excepción de ${confirmEliminar?.nombre}. Esta acción no se puede deshacer.`
+        }
+        confirmLabel="Eliminar definitivamente"
+        cancelLabel="Cancelar"
+        tone="danger"
+        loading={eliminando}
+        onCancel={() => setConfirmEliminar(null)}
+        onConfirm={() => {
+          if (!confirmEliminar) return
+          if (confirmEliminar.tipo === 'PROVEEDOR') {
+            void handleEliminarProveedor(confirmEliminar.id)
+          } else {
+            void handleEliminarExcepcion(confirmEliminar.id)
+          }
         }}
       />
     </div>

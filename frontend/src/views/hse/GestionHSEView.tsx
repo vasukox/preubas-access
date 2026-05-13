@@ -59,7 +59,7 @@ function TokenTimer({ expiraEn }: { expiraEn: string | null }) {
     </span>
   )
 
-  const color = tiempo.h < 4 ? 'var(--danger-400)' : tiempo.h < 12 ? '#F59E0B' : 'var(--success-400)'
+  const color = tiempo.h < 4 ? 'var(--danger-400)' : tiempo.h < 12 ? '#4574C4' : 'var(--success-400)'
   return (
     <span style={{
       display:    'inline-flex', alignItems: 'center', gap: '4px',
@@ -76,11 +76,11 @@ function TokenTimer({ expiraEn }: { expiraEn: string | null }) {
 function ContratistaBadge({ estado }: { estado: EstadoContratista }) {
   const colores: Record<EstadoContratista, { color: string; bg: string }> = {
     PENDIENTE_AUTOGESTION:   { color: 'var(--text-muted)',    bg: 'var(--bg-elevated)' },
-    AUTOGESTION_EN_PROGRESO: { color: 'var(--primary-400)',   bg: 'rgba(245,158,11,0.08)' },
-    AUTOGESTION_COMPLETADA:  { color: '#6366F1',              bg: 'rgba(99,102,241,0.08)' },
-    EN_REVISION:             { color: '#6366F1',              bg: 'rgba(99,102,241,0.08)' },
-    APROBADO:                { color: 'var(--success-400)',   bg: 'rgba(16,185,129,0.08)' },
-    DENEGADO:                { color: 'var(--danger-400)',    bg: 'rgba(239,68,68,0.08)' },
+    AUTOGESTION_EN_PROGRESO: { color: 'var(--primary-400)',   bg: 'rgba(69,116,196,0.08)' },
+    AUTOGESTION_COMPLETADA:  { color: '#5668B8',              bg: 'rgba(86,104,184,0.08)' },
+    EN_REVISION:             { color: '#5668B8',              bg: 'rgba(86,104,184,0.08)' },
+    APROBADO:                { color: 'var(--success-400)',   bg: 'rgba(40,149,108,0.08)' },
+    DENEGADO:                { color: 'var(--danger-400)',    bg: 'rgba(192,80,80,0.08)' },
   }
   const { color, bg } = colores[estado]
   return (
@@ -158,8 +158,8 @@ function DocLink({
     alignItems:     'center',
     justifyContent: 'space-between',
     padding:        '8px 12px',
-    background:     path ? 'rgba(99,102,241,0.05)' : 'var(--bg-elevated)',
-    border:         `1px solid ${path ? 'rgba(99,102,241,0.15)' : 'var(--border-subtle)'}`,
+    background:     path ? 'rgba(86,104,184,0.05)' : 'var(--bg-elevated)',
+    border:         `1px solid ${path ? 'rgba(86,104,184,0.15)' : 'var(--border-subtle)'}`,
     borderRadius:   '8px',
     gap:            '10px',
   }
@@ -186,7 +186,7 @@ function DocLink({
           {label}
         </span>
         {path ? (
-          <span style={{ fontSize: '0.72rem', color: '#6366F1', fontFamily: 'var(--font-mono)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <span style={{ fontSize: '0.72rem', color: '#5668B8', fontFamily: 'var(--font-mono)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             <FileIcon size={11} style={{ display: 'inline', marginRight: '4px' }} />
             {nombreArchivo}
           </span>
@@ -204,7 +204,7 @@ function DocLink({
           <button
             onClick={handleVer}
             disabled={!!cargando}
-            style={{ ...btnStyle(!!cargando), background: 'rgba(99,102,241,0.12)', color: '#6366F1' }}
+            style={{ ...btnStyle(!!cargando), background: 'rgba(86,104,184,0.12)', color: '#5668B8' }}
           >
             <Eye size={11} />
             {cargando === 'ver' ? '...' : 'Ver'}
@@ -223,7 +223,7 @@ function DocLink({
               disabled={!!cargando || removing}
               style={{
                 ...btnStyle(!!cargando || removing),
-                background: 'rgba(239,68,68,0.12)',
+                background: 'rgba(192,80,80,0.12)',
                 color: 'var(--danger-400)',
               }}
               title="Eliminar adjunto"
@@ -316,7 +316,7 @@ function ModalDetalle({
     if (!e) return <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem' }}>—</span>
     const cfg = {
       vencido: { color: 'var(--danger-400)',  text: '⚠ Vencido' },
-      proximo: { color: '#F59E0B',            text: '⚠ Vence pronto' },
+      proximo: { color: '#4574C4',            text: '⚠ Vence pronto' },
       vigente: { color: 'var(--success-400)', text: '✓ Vigente' },
     }[e]
     return (
@@ -453,14 +453,14 @@ function ModalDetalle({
             <div style={{
               width:          '36px',
               height:         '36px',
-              background:     'rgba(99,102,241,0.1)',
-              border:         '1px solid rgba(99,102,241,0.2)',
+              background:     'rgba(86,104,184,0.1)',
+              border:         '1px solid rgba(86,104,184,0.2)',
               borderRadius:   '50%',
               display:        'flex',
               alignItems:     'center',
               justifyContent: 'center',
             }}>
-              <User size={16} color="#6366F1" />
+              <User size={16} color="#5668B8" />
             </div>
             <div>
               <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
@@ -630,8 +630,8 @@ function ModalDetalle({
                           key={key}
                           style={{
                             padding:      '4px 10px',
-                            background:   activo ? 'rgba(239,68,68,0.08)' : 'var(--bg-elevated)',
-                            border:       `1px solid ${activo ? 'rgba(239,68,68,0.2)' : 'var(--border-subtle)'}`,
+                            background:   activo ? 'rgba(192,80,80,0.08)' : 'var(--bg-elevated)',
+                            border:       `1px solid ${activo ? 'rgba(192,80,80,0.2)' : 'var(--border-subtle)'}`,
                             borderRadius: '20px',
                             fontSize:     '0.72rem',
                             color:        activo ? 'var(--danger-400)' : 'var(--text-muted)',
@@ -728,7 +728,7 @@ function ModalDetalle({
                     estadoVig(ss.afp_vigencia) === 'vencido' ||
                     ss.pila_estado === 'VENCIDA'
                   ) && (
-                    <div style={{ padding: '10px 14px', borderRadius: '10px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', fontSize: '0.78rem', color: 'var(--danger-400)' }}>
+                    <div style={{ padding: '10px 14px', borderRadius: '10px', background: 'rgba(192,80,80,0.08)', border: '1px solid rgba(192,80,80,0.25)', fontSize: '0.78rem', color: 'var(--danger-400)' }}>
                       ⚠ Este contratista tiene documentos vencidos. Considera denegar y solicitar actualización.
                     </div>
                   )}
@@ -785,7 +785,7 @@ function ModalDetalle({
                           <div key={label} style={{
                             padding: '10px 12px', background: 'var(--bg-surface)',
                             borderRadius: '8px',
-                            border: `1px solid ${estadoVig(vigencia) === 'vencido' ? 'rgba(239,68,68,0.3)' : estadoVig(vigencia) === 'proximo' ? 'rgba(245,158,11,0.3)' : 'var(--border-subtle)'}`,
+                            border: `1px solid ${estadoVig(vigencia) === 'vencido' ? 'rgba(192,80,80,0.3)' : estadoVig(vigencia) === 'proximo' ? 'rgba(69,116,196,0.3)' : 'var(--border-subtle)'}`,
                           }}>
                             <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginBottom: '3px', letterSpacing: '0.06em' }}>{label}</div>
                             <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>{nombre}</div>
@@ -818,7 +818,7 @@ function ModalDetalle({
                       <h3 style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.08em', marginBottom: '10px' }}>CERTIFICACIONES</h3>
                       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
                         {data.certificaciones.permiso_tipo && (
-                          <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 600, background: 'rgba(99,102,241,0.1)', color: '#6366F1' }}>
+                          <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 600, background: 'rgba(86,104,184,0.1)', color: '#5668B8' }}>
                             Permiso: {data.certificaciones.permiso_tipo}
                           </span>
                         )}
@@ -860,8 +860,8 @@ function ModalDetalle({
                       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '8px' }}>
                         <span style={{
                           padding: '4px 10px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600,
-                          background: data.examen_medico.concepto === 'APTO' ? 'rgba(16,185,129,0.1)' : data.examen_medico.concepto === 'NO_APTO' ? 'rgba(239,68,68,0.1)' : 'rgba(245,158,11,0.1)',
-                          color: data.examen_medico.concepto === 'APTO' ? 'var(--success-400)' : data.examen_medico.concepto === 'NO_APTO' ? 'var(--danger-400)' : '#F59E0B',
+                          background: data.examen_medico.concepto === 'APTO' ? 'rgba(40,149,108,0.1)' : data.examen_medico.concepto === 'NO_APTO' ? 'rgba(192,80,80,0.1)' : 'rgba(69,116,196,0.1)',
+                          color: data.examen_medico.concepto === 'APTO' ? 'var(--success-400)' : data.examen_medico.concepto === 'NO_APTO' ? 'var(--danger-400)' : '#4574C4',
                         }}>
                           {data.examen_medico.concepto ?? '—'}
                         </span>
@@ -935,8 +935,8 @@ function ModalDetalle({
                                 justifyContent: 'space-between',
                                 padding: '7px 9px',
                                 borderRadius: '8px',
-                                background: activo ? 'rgba(239,68,68,0.08)' : 'var(--bg-surface)',
-                                border: `1px solid ${activo ? 'rgba(239,68,68,0.2)' : 'var(--border-subtle)'}`,
+                                background: activo ? 'rgba(192,80,80,0.08)' : 'var(--bg-surface)',
+                                border: `1px solid ${activo ? 'rgba(192,80,80,0.2)' : 'var(--border-subtle)'}`,
                                 fontSize: '0.74rem',
                               }}>
                                 <span style={{ color: 'var(--text-secondary)' }}>{label}</span>
@@ -991,7 +991,7 @@ function ModalDetalle({
                 gap:          '6px',
                 padding:      '8px 16px',
                 background:   'transparent',
-                border:       '1px solid rgba(239,68,68,0.3)',
+                border:       '1px solid rgba(192,80,80,0.3)',
                 borderRadius: 'var(--radius-md)',
                 color:        'var(--danger-400)',
                 fontSize:     '0.8rem',
@@ -1018,8 +1018,8 @@ function ModalDetalle({
                       alignItems:   'center',
                       gap:          '6px',
                       padding:      '9px 18px',
-                      background:   'rgba(239,68,68,0.08)',
-                      border:       '1px solid rgba(239,68,68,0.2)',
+                      background:   'rgba(192,80,80,0.08)',
+                      border:       '1px solid rgba(192,80,80,0.2)',
                       borderRadius: 'var(--radius-md)',
                       color:        'var(--danger-400)',
                       fontSize:     '0.83rem',
@@ -1045,7 +1045,7 @@ function ModalDetalle({
                       alignItems:   'center',
                       gap:          '6px',
                       padding:      '9px 18px',
-                      background:   saving ? 'var(--success-600)' : 'var(--success-500, #10B981)',
+                      background:   saving ? 'var(--success-600)' : 'var(--success-500, #28956C)',
                       border:       'none',
                       borderRadius: 'var(--radius-md)',
                       color:        'white',
@@ -1097,8 +1097,8 @@ function ModalDetalle({
             {error && (
               <div style={{
                 padding:      '8px 12px',
-                background:   'rgba(239,68,68,0.08)',
-                border:       '1px solid rgba(239,68,68,0.2)',
+                background:   'rgba(192,80,80,0.08)',
+                border:       '1px solid rgba(192,80,80,0.2)',
                 borderRadius: 'var(--radius-md)',
                 fontSize:     '0.78rem',
                 color:        'var(--danger-400)',
@@ -1157,7 +1157,7 @@ function ModalDetalle({
                 disabled={saving}
                 style={{
                   padding:      '8px 16px',
-                  background:   'var(--danger-500, #EF4444)',
+                  background:   'var(--danger-500, #C05050)',
                   border:       'none',
                   borderRadius: 'var(--radius-md)',
                   color:        'white',
@@ -1186,8 +1186,8 @@ function ModalDetalle({
               alignItems:   'flex-start',
               gap:          '10px',
               padding:      '10px 14px',
-              background:   'rgba(239,68,68,0.06)',
-              border:       '1px solid rgba(239,68,68,0.2)',
+              background:   'rgba(192,80,80,0.06)',
+              border:       '1px solid rgba(192,80,80,0.2)',
               borderRadius: 'var(--radius-md)',
               marginBottom: '12px',
             }}>
@@ -1201,8 +1201,8 @@ function ModalDetalle({
             {error && (
               <div style={{
                 padding:      '8px 12px',
-                background:   'rgba(239,68,68,0.08)',
-                border:       '1px solid rgba(239,68,68,0.2)',
+                background:   'rgba(192,80,80,0.08)',
+                border:       '1px solid rgba(192,80,80,0.2)',
                 borderRadius: 'var(--radius-md)',
                 fontSize:     '0.78rem',
                 color:        'var(--danger-400)',
@@ -1265,7 +1265,7 @@ function ModalDetalle({
                   alignItems:   'center',
                   gap:          '6px',
                   padding:      '8px 16px',
-                  background:   saving ? '#b91c1c' : 'var(--danger-500, #EF4444)',
+                  background:   saving ? '#b91c1c' : 'var(--danger-500, #C05050)',
                   border:       'none',
                   borderRadius: 'var(--radius-md)',
                   color:        'white',
@@ -1299,7 +1299,7 @@ const ESTADOS_GESTION = [
 export default function GestionHSEView() {
   const sedeActiva = useSedeStore(s => s.sedeActiva)
   const [searchParams, setSearchParams] = useSearchParams()
-  const [paginaActiva, setPaginaActiva] = useState<'normales' | 'excepciones'>('normales')
+  const [paginaActiva, setPaginaActiva] = useState<'normales' | 'alto_riesgo' | 'excepciones'>('normales')
 
   const [autorizaciones, setAutorizaciones] = useState<AutorizacionListResponse[]>([])
   const [proveedores, setProveedores] = useState<ProveedorHSEOption[]>([])
@@ -1394,67 +1394,65 @@ export default function GestionHSEView() {
   }
 
   const normalizarDoc = (tipo?: string, numero?: string) => `${(tipo || '').trim().toUpperCase()}-${(numero || '').trim()}`
-  // Criterio de canal: ALTO_RIESGO → Canal Excepciones, NORMAL → Flujo Estándar
-  const esExcepcion = (a: AutorizacionListResponse) => a.tipo_contratista === 'ALTO_RIESGO'
+
+  // Canal Excepciones = autorizaciones cuya descripción fue creada desde el submódulo de Excepciones
+  const esExcepcion = (a: AutorizacionListResponse) =>
+    /^excepci[oó]n\s*hse\s*:/i.test((a.descripcion_actividad || '').trim())
 
   const resolverProveedorId = (a: AutorizacionListResponse): number | null => a.proveedor_id ?? null
 
-  const autorizacionesNormales = autorizaciones.filter(a => !esExcepcion(a))
-  const excepciones = autorizaciones.filter(esExcepcion)
-  const excepcionesPorGrupo = excepciones.reduce<Record<string, { label: string; items: AutorizacionListResponse[]; esSinEmpresa: boolean }>>((acc, a) => {
-    const proveedorId = resolverProveedorId(a)
-    const key = proveedorId ? `prov-${proveedorId}` : 'sin-proveedor'
-    if (!acc[key]) {
-      acc[key] = {
-        label: proveedorId
-          ? `Empresa: ${proveedoresMap[proveedorId] || `Proveedor #${proveedorId}`}`
-          : 'Sin empresa asignada',
-        items: [],
-        esSinEmpresa: proveedorId === null,
-      }
-    }
-    acc[key].items.push(a)
-    return acc
-  }, {})
+  // Tres grupos mutuamente excluyentes
+  const autorizacionesNormales   = autorizaciones.filter(a => !esExcepcion(a) && a.tipo_contratista === 'NORMAL')
+  const autorizacionesAltoRiesgo = autorizaciones.filter(a => !esExcepcion(a) && a.tipo_contratista === 'ALTO_RIESGO')
+  const excepciones              = autorizaciones.filter(esExcepcion)
 
-  const normalesPorGrupo = autorizacionesNormales.reduce<Record<string, { label: string; items: AutorizacionListResponse[]; tone: string; esSinEmpresa: boolean }>>((acc, a) => {
-    const proveedorId = a.proveedor_id ?? null
-    const key = proveedorId ? `prov-${proveedorId}` : 'sin-proveedor'
-    if (!acc[key]) {
-      acc[key] = {
-        label: proveedorId
-          ? `Empresa: ${proveedoresMap[proveedorId] || `Proveedor #${proveedorId}`}`
-          : 'Sin empresa asignada',
-        items: [],
-        tone: proveedorId ? 'rgba(99, 102, 241, 0.06)' : 'var(--bg-surface)',
-        esSinEmpresa: proveedorId === null,
-      }
-    }
-    acc[key].items.push(a)
-    return acc
-  }, {})
+  const buildGrupos = (
+    lista: AutorizacionListResponse[],
+    tone: (proveedorId: number | null) => string,
+    prefixTitle: string,
+  ) =>
+    Object.values(
+      lista.reduce<Record<string, { label: string; items: AutorizacionListResponse[]; tone: string; esSinEmpresa: boolean }>>((acc, a) => {
+        const proveedorId = resolverProveedorId(a)
+        const key = proveedorId ? `prov-${proveedorId}` : 'sin-proveedor'
+        if (!acc[key]) {
+          acc[key] = {
+            label: proveedorId
+              ? `Empresa: ${proveedoresMap[proveedorId] || `Proveedor #${proveedorId}`}`
+              : 'Sin empresa asignada',
+            items: [],
+            tone: tone(proveedorId),
+            esSinEmpresa: proveedorId === null,
+          }
+        }
+        acc[key].items.push(a)
+        return acc
+      }, {}),
+    )
+      .sort((a, b) => {
+        if (a.esSinEmpresa && !b.esSinEmpresa) return -1
+        if (!a.esSinEmpresa && b.esSinEmpresa) return 1
+        return a.label.localeCompare(b.label)
+      })
+      .map(g => ({ title: `${prefixTitle} · ${g.label}`, items: g.items, tone: g.tone }))
+      .filter(s => s.items.length > 0)
 
-  const seccionesNormales = Object.values(normalesPorGrupo)
-    .sort((a, b) => {
-      if (a.esSinEmpresa && !b.esSinEmpresa) return -1
-      if (!a.esSinEmpresa && b.esSinEmpresa) return 1
-      return a.label.localeCompare(b.label)
-    })
-    .map(g => ({ title: `Flujo estándar · ${g.label}`, items: g.items, tone: g.tone }))
-    .filter(s => s.items.length > 0)
+  const seccionesNormales    = buildGrupos(autorizacionesNormales,   () => 'rgba(86,104,184,0.05)',   'Flujo estándar')
+  const seccionesAltoRiesgo  = buildGrupos(autorizacionesAltoRiesgo, () => 'rgba(192,80,80,0.04)',    'Alto Riesgo')
+  const seccionesExcepciones = buildGrupos(excepciones,              () => 'rgba(69,116,196,0.06)',   'Excepciones')
 
-  const seccionesExcepciones = Object.values(excepcionesPorGrupo)
-    .sort((a, b) => {
-      if (a.esSinEmpresa && !b.esSinEmpresa) return -1
-      if (!a.esSinEmpresa && b.esSinEmpresa) return 1
-      return a.label.localeCompare(b.label)
-    })
-    .map(g => ({ title: `Excepciones · ${g.label}`, items: g.items, tone: 'rgba(245, 158, 11, 0.06)' }))
-    .filter(s => s.items.length > 0)
+  const seccionesRender =
+    paginaActiva === 'normales'    ? seccionesNormales    :
+    paginaActiva === 'alto_riesgo' ? seccionesAltoRiesgo  :
+    seccionesExcepciones
 
-  const seccionesRender = paginaActiva === 'normales' ? seccionesNormales : seccionesExcepciones
-  const totalPaginaActiva = (paginaActiva === 'normales' ? autorizacionesNormales : excepciones).length
-  const totalNormales = autorizacionesNormales.length
+  const totalPaginaActiva =
+    paginaActiva === 'normales'    ? autorizacionesNormales.length   :
+    paginaActiva === 'alto_riesgo' ? autorizacionesAltoRiesgo.length :
+    excepciones.length
+
+  const totalNormales    = autorizacionesNormales.length
+  const totalAltoRiesgo  = autorizacionesAltoRiesgo.length
   const totalExcepciones = excepciones.length
 
   const pendientesRevision = autorizaciones.flatMap(a =>
@@ -1514,11 +1512,11 @@ export default function GestionHSEView() {
       >
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-            <ShieldCheck size={14} color="#6366F1" />
+            <ShieldCheck size={14} color="#5668B8" />
             <span style={{
               fontFamily:    'var(--font-mono)',
               fontSize:      '0.68rem',
-              color:         '#6366F1',
+              color:         '#5668B8',
               letterSpacing: '0.12em',
             }}>
               HSE / GESTIÓN
@@ -1627,67 +1625,76 @@ export default function GestionHSEView() {
         className="animate-fade-up stagger-2"
       >
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          {/* Tab: Flujo Estándar */}
           <button
             onClick={() => setPaginaActiva('normales')}
             style={{
-              display:      'flex',
-              alignItems:   'center',
-              gap:          '8px',
-              padding:      '9px 14px',
+              display: 'flex', alignItems: 'center', gap: '8px', padding: '9px 14px',
               borderRadius: 'var(--radius-lg)',
-              border:       `1px solid ${paginaActiva === 'normales' ? 'rgba(99,102,241,0.35)' : 'transparent'}`,
-              background:   paginaActiva === 'normales' ? 'rgba(99,102,241,0.12)' : 'transparent',
-              color:        paginaActiva === 'normales' ? '#6366F1' : 'var(--text-secondary)',
-              fontSize:     '0.79rem',
-              fontWeight:   700,
-              cursor:       'pointer',
-              fontFamily:   'var(--font-ui)',
-              transition:   'all var(--transition-fast)',
-              boxShadow:    paginaActiva === 'normales' ? '0 8px 18px rgba(99,102,241,0.16)' : 'none',
+              border:      `1px solid ${paginaActiva === 'normales' ? 'rgba(86,104,184,0.35)' : 'transparent'}`,
+              background:  paginaActiva === 'normales' ? 'rgba(86,104,184,0.12)' : 'transparent',
+              color:       paginaActiva === 'normales' ? '#5668B8' : 'var(--text-secondary)',
+              fontSize: '0.79rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-ui)',
+              transition: 'all var(--transition-fast)',
+              boxShadow: paginaActiva === 'normales' ? '0 8px 18px rgba(86,104,184,0.16)' : 'none',
             }}
           >
             <FileIcon size={13} />
             Flujo Estándar
             <span style={{
-              padding:      '1px 8px',
-              borderRadius: '999px',
-              background:   paginaActiva === 'normales' ? 'rgba(99,102,241,0.18)' : 'var(--bg-elevated)',
-              color:        'inherit',
-              fontSize:     '0.7rem',
-              fontFamily:   'var(--font-mono)',
+              padding: '1px 8px', borderRadius: '999px',
+              background: paginaActiva === 'normales' ? 'rgba(86,104,184,0.18)' : 'var(--bg-elevated)',
+              color: 'inherit', fontSize: '0.7rem', fontFamily: 'var(--font-mono)',
             }}>
               {totalNormales}
             </span>
           </button>
 
+          {/* Tab: Alto Riesgo */}
           <button
-            onClick={() => setPaginaActiva('excepciones')}
+            onClick={() => setPaginaActiva('alto_riesgo')}
             style={{
-              display:      'flex',
-              alignItems:   'center',
-              gap:          '8px',
-              padding:      '9px 14px',
+              display: 'flex', alignItems: 'center', gap: '8px', padding: '9px 14px',
               borderRadius: 'var(--radius-lg)',
-              border:       `1px solid ${paginaActiva === 'excepciones' ? 'rgba(245,158,11,0.45)' : 'transparent'}`,
-              background:   paginaActiva === 'excepciones' ? 'rgba(245,158,11,0.14)' : 'transparent',
-              color:        paginaActiva === 'excepciones' ? '#B45309' : 'var(--text-secondary)',
-              fontSize:     '0.79rem',
-              fontWeight:   700,
-              cursor:       'pointer',
-              fontFamily:   'var(--font-ui)',
-              transition:   'all var(--transition-fast)',
-              boxShadow:    paginaActiva === 'excepciones' ? '0 8px 18px rgba(245,158,11,0.2)' : 'none',
+              border:      `1px solid ${paginaActiva === 'alto_riesgo' ? 'rgba(192,80,80,0.4)' : 'transparent'}`,
+              background:  paginaActiva === 'alto_riesgo' ? 'rgba(192,80,80,0.1)' : 'transparent',
+              color:       paginaActiva === 'alto_riesgo' ? 'var(--danger-400)' : 'var(--text-secondary)',
+              fontSize: '0.79rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-ui)',
+              transition: 'all var(--transition-fast)',
+              boxShadow: paginaActiva === 'alto_riesgo' ? '0 8px 18px rgba(192,80,80,0.18)' : 'none',
             }}
           >
             <AlertTriangle size={13} />
+            Alto Riesgo
+            <span style={{
+              padding: '1px 8px', borderRadius: '999px',
+              background: paginaActiva === 'alto_riesgo' ? 'rgba(192,80,80,0.15)' : 'var(--bg-elevated)',
+              color: 'inherit', fontSize: '0.7rem', fontFamily: 'var(--font-mono)',
+            }}>
+              {totalAltoRiesgo}
+            </span>
+          </button>
+
+          {/* Tab: Canal Excepciones */}
+          <button
+            onClick={() => setPaginaActiva('excepciones')}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '8px', padding: '9px 14px',
+              borderRadius: 'var(--radius-lg)',
+              border:      `1px solid ${paginaActiva === 'excepciones' ? 'rgba(69,116,196,0.45)' : 'transparent'}`,
+              background:  paginaActiva === 'excepciones' ? 'rgba(69,116,196,0.14)' : 'transparent',
+              color:       paginaActiva === 'excepciones' ? '#B45309' : 'var(--text-secondary)',
+              fontSize: '0.79rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-ui)',
+              transition: 'all var(--transition-fast)',
+              boxShadow: paginaActiva === 'excepciones' ? '0 8px 18px rgba(69,116,196,0.2)' : 'none',
+            }}
+          >
+            <ShieldCheck size={13} />
             Canal Excepciones
             <span style={{
-              padding:      '1px 8px',
-              borderRadius: '999px',
-              background:   paginaActiva === 'excepciones' ? 'rgba(245,158,11,0.2)' : 'var(--bg-elevated)',
-              color:        'inherit',
-              fontSize:     '0.7rem',
-              fontFamily:   'var(--font-mono)',
+              padding: '1px 8px', borderRadius: '999px',
+              background: paginaActiva === 'excepciones' ? 'rgba(69,116,196,0.2)' : 'var(--bg-elevated)',
+              color: 'inherit', fontSize: '0.7rem', fontFamily: 'var(--font-mono)',
             }}>
               {totalExcepciones}
             </span>
@@ -1695,14 +1702,12 @@ export default function GestionHSEView() {
         </div>
 
         <div style={{
-          fontSize:   '0.72rem',
-          color:      'var(--text-muted)',
-          fontFamily: 'var(--font-mono)',
-          padding:    '0 8px',
+          fontSize: '0.72rem', color: 'var(--text-muted)',
+          fontFamily: 'var(--font-mono)', padding: '0 8px',
         }}>
-          {paginaActiva === 'normales'
-            ? 'Contratistas NORMAL — autogestión directa, sin revisión HSE.'
-            : 'Contratistas ALTO RIESGO — requieren revisión y aprobación HSE.'}
+          {paginaActiva === 'normales'    && 'Contratistas NORMAL — autogestión directa, sin revisión HSE.'}
+          {paginaActiva === 'alto_riesgo' && 'Contratistas ALTO RIESGO — requieren revisión y aprobación HSE.'}
+          {paginaActiva === 'excepciones' && 'Ingresos autorizados por excepción desde el submódulo de Excepciones.'}
         </div>
       </div>
 
@@ -1742,8 +1747,11 @@ export default function GestionHSEView() {
             borderRadius: 'var(--radius-lg)',
             border:       '1px solid var(--border-subtle)',
           }}>
-            No hay autorizaciones de {paginaActiva === 'normales' ? 'flujo estándar (NORMAL)' : 'canal de excepciones (ALTO RIESGO)'}
-            {filtroEstado !== 'todos' ? ` con estado "${ESTADOS_GESTION.find(e => e.value === filtroEstado)?.label}"` : ''}.
+            No hay autorizaciones en{' '}
+          {paginaActiva === 'normales'    ? 'el flujo estándar (NORMAL)'       :
+           paginaActiva === 'alto_riesgo' ? 'el canal de alto riesgo'          :
+           'el canal de excepciones'}
+          {filtroEstado !== 'todos' ? ` con estado "${ESTADOS_GESTION.find(e => e.value === filtroEstado)?.label}"` : ''}.
           </div>
         ) : (
           seccionesRender.map((section, sectionIndex) => {
@@ -1768,9 +1776,10 @@ export default function GestionHSEView() {
                 style={{
                   background: 'var(--bg-surface)',
                   border: '1px solid var(--border-subtle)',
-                  borderLeft: paginaActiva === 'normales'
-                    ? '4px solid rgba(99,102,241,0.5)'
-                    : '4px solid rgba(245,158,11,0.5)',
+                  borderLeft:
+                    paginaActiva === 'normales'    ? '4px solid rgba(86,104,184,0.5)'  :
+                    paginaActiva === 'alto_riesgo' ? '4px solid rgba(192,80,80,0.5)'   :
+                    '4px solid rgba(69,116,196,0.5)',
                   borderRadius: 'var(--radius-lg)',
                   overflow: 'hidden',
                 }}
@@ -1829,7 +1838,7 @@ export default function GestionHSEView() {
                   </span>
                   <span style={{
                     padding: '2px 8px', borderRadius: '20px', fontSize: '0.68rem',
-                    background: a.tipo_contratista === 'ALTO_RIESGO' ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)',
+                    background: a.tipo_contratista === 'ALTO_RIESGO' ? 'rgba(192,80,80,0.08)' : 'rgba(40,149,108,0.08)',
                     color: a.tipo_contratista === 'ALTO_RIESGO' ? 'var(--danger-400)' : 'var(--success-400)',
                   }}>
                     {a.tipo_contratista === 'ALTO_RIESGO' ? '⚠ Alto Riesgo' : 'Normal'}
@@ -1870,14 +1879,14 @@ export default function GestionHSEView() {
                               width:          '32px',
                               height:         '32px',
                               borderRadius:   '50%',
-                              background:     'rgba(99,102,241,0.1)',
-                              border:         '1px solid rgba(99,102,241,0.2)',
+                              background:     'rgba(86,104,184,0.1)',
+                              border:         '1px solid rgba(86,104,184,0.2)',
                               display:        'flex',
                               alignItems:     'center',
                               justifyContent: 'center',
                               fontSize:       '0.78rem',
                               fontWeight:     600,
-                              color:          '#6366F1',
+                              color:          '#5668B8',
                               flexShrink:     0,
                             }}>
                               {formatNombreCompleto(c.nombres, c.apellidos).charAt(0).toUpperCase()}
@@ -1950,8 +1959,8 @@ export default function GestionHSEView() {
                                     alignItems: 'center',
                                     gap: '6px',
                                     padding: '6px 10px',
-                                    background: 'rgba(16,185,129,0.12)',
-                                    border: '1px solid rgba(16,185,129,0.3)',
+                                    background: 'rgba(40,149,108,0.12)',
+                                    border: '1px solid rgba(40,149,108,0.3)',
                                     borderRadius: 'var(--radius-md)',
                                     color: 'var(--success-400)',
                                     animation: 'fadeUp 220ms ease both',
@@ -1976,17 +1985,17 @@ export default function GestionHSEView() {
                             <button
                               onClick={() => {
                                 setModalId(c.id)
-                                setModalEsExcepcion(a.tipo_contratista === 'ALTO_RIESGO')
+                                setModalEsExcepcion(esExcepcion(a))
                               }}
                               style={{
                                 display:      'flex',
                                 alignItems:   'center',
                                 gap:          '4px',
                                 padding:      '6px 12px',
-                                background:   'rgba(99,102,241,0.08)',
-                                border:       '1px solid rgba(99,102,241,0.2)',
+                                background:   'rgba(86,104,184,0.08)',
+                                border:       '1px solid rgba(86,104,184,0.2)',
                                 borderRadius: 'var(--radius-md)',
-                                color:        '#6366F1',
+                                color:        '#5668B8',
                                 fontSize:     '0.75rem',
                                 fontWeight:   600,
                                 cursor:       'pointer',

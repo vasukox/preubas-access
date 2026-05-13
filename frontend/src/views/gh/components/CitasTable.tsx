@@ -60,17 +60,17 @@ interface CitasTableProps {
 }
 
 function resolveActionColor(tone: EstadoAction['tone']) {
-  if (tone === 'danger') return { base: 'var(--text-muted)', hoverBg: 'rgba(239,68,68,0.1)', hoverColor: '#ef4444', border: 'var(--border-subtle)' }
-  if (tone === 'warn') return { base: 'var(--text-muted)', hoverBg: 'rgba(245,158,11,0.1)', hoverColor: '#f59e0b', border: 'var(--border-subtle)' }
-  if (tone === 'success') return { base: 'var(--text-muted)', hoverBg: 'rgba(16,185,129,0.1)', hoverColor: '#10b981', border: 'var(--border-subtle)' }
-  return { base: 'var(--text-muted)', hoverBg: 'rgba(99,102,241,0.1)', hoverColor: '#6366f1', border: 'var(--border-subtle)' }
+  if (tone === 'danger') return { base: 'var(--text-muted)', hoverBg: 'rgba(192,80,80,0.1)', hoverColor: '#ef4444', border: 'var(--border-subtle)' }
+  if (tone === 'warn') return { base: 'var(--text-muted)', hoverBg: 'rgba(69,116,196,0.1)', hoverColor: '#f59e0b', border: 'var(--border-subtle)' }
+  if (tone === 'success') return { base: 'var(--text-muted)', hoverBg: 'rgba(40,149,108,0.1)', hoverColor: '#10b981', border: 'var(--border-subtle)' }
+  return { base: 'var(--text-muted)', hoverBg: 'rgba(86,104,184,0.1)', hoverColor: '#6366f1', border: 'var(--border-subtle)' }
 }
 
 function resolveHighlightColor(estado: GhEstadoCita) {
-  if (estado === 'CONFIRMADA' || estado === 'FINALIZADA') return 'rgba(16,185,129,0.15)'
-  if (estado === 'NO_ASISTIO') return 'rgba(245,158,11,0.15)'
-  if (estado === 'CANCELADA') return 'rgba(239,68,68,0.15)'
-  if (estado === 'EN_CURSO') return 'rgba(99,102,241,0.15)'
+  if (estado === 'CONFIRMADA' || estado === 'FINALIZADA') return 'rgba(40,149,108,0.15)'
+  if (estado === 'NO_ASISTIO') return 'rgba(69,116,196,0.15)'
+  if (estado === 'CANCELADA') return 'rgba(192,80,80,0.15)'
+  if (estado === 'EN_CURSO') return 'rgba(86,104,184,0.15)'
   return 'transparent'
 }
 
@@ -415,3 +415,4 @@ export function CitasTable({ citas, onCambiarEstado, onEliminarCita, loadingKey 
     </>
   )
 }
+

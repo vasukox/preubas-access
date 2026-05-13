@@ -26,8 +26,8 @@ const TIPOS_CITA = [
     label: 'Firma contrato',
     Icon: PenTool,
     color: '#10b981',
-    bg: 'rgba(16,185,129,0.08)',
-    border: 'rgba(16,185,129,0.25)',
+    bg: 'rgba(40,149,108,0.08)',
+    border: 'rgba(40,149,108,0.25)',
     desc: 'Vinculación y firma de documentos',
   },
   {
@@ -35,8 +35,8 @@ const TIPOS_CITA = [
     label: 'Entrega dotación',
     Icon: Shirt,
     color: '#f59e0b',
-    bg: 'rgba(245,158,11,0.08)',
-    border: 'rgba(245,158,11,0.25)',
+    bg: 'rgba(69,116,196,0.08)',
+    border: 'rgba(69,116,196,0.25)',
     desc: 'Elementos de dotación laboral',
   },
 ] as const
@@ -333,7 +333,7 @@ export function CitaFormModal({ open, sedeId, onClose, onCreated }: CitaFormModa
         <div style={{ padding: '20px 24px', display: 'grid', gap: '22px' }}>
 
           {error && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(239,68,68,0.35)', background: 'rgba(239,68,68,0.08)', color: 'var(--danger-400)', fontSize: '0.78rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(192,80,80,0.35)', background: 'rgba(192,80,80,0.08)', color: 'var(--danger-400)', fontSize: '0.78rem' }}>
               <AlertCircle size={14} />
               {error}
             </div>
@@ -442,7 +442,7 @@ export function CitaFormModal({ open, sedeId, onClose, onCreated }: CitaFormModa
                       border: `1px solid ${horaInicio === slot ? '#6366f1' : 'var(--border-default)'}`,
                       background: horaInicio === slot ? '#6366f1' : 'var(--bg-surface)',
                       color: horaInicio === slot ? '#fff' : 'var(--text-muted)',
-                      boxShadow: horaInicio === slot ? '0 4px 14px rgba(99,102,241,0.28)' : 'none',
+                      boxShadow: horaInicio === slot ? '0 4px 14px rgba(86,104,184,0.28)' : 'none',
                       cursor: 'pointer', transition: 'all 0.18s',
                       transform: horaInicio === slot ? 'scale(1.05)' : 'scale(1)',
                     }}
@@ -469,7 +469,7 @@ export function CitaFormModal({ open, sedeId, onClose, onCreated }: CitaFormModa
                       border: `1px solid ${horaFin === slot ? '#10b981' : 'var(--border-default)'}`,
                       background: horaFin === slot ? '#10b981' : 'var(--bg-surface)',
                       color: horaFin === slot ? '#fff' : 'var(--text-muted)',
-                      boxShadow: horaFin === slot ? '0 4px 14px rgba(16,185,129,0.28)' : 'none',
+                      boxShadow: horaFin === slot ? '0 4px 14px rgba(40,149,108,0.28)' : 'none',
                       cursor: 'pointer', transition: 'all 0.18s',
                       transform: horaFin === slot ? 'scale(1.05)' : 'scale(1)',
                     }}
@@ -480,14 +480,14 @@ export function CitaFormModal({ open, sedeId, onClose, onCreated }: CitaFormModa
               </div>
 
               {/* Resumen visual */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 18px', background: 'linear-gradient(to right, rgba(99,102,241,0.06), rgba(16,185,129,0.06))', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 'var(--radius-lg)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 18px', background: 'linear-gradient(to right, rgba(86,104,184,0.06), rgba(40,149,108,0.06))', border: '1px solid rgba(86,104,184,0.15)', borderRadius: 'var(--radius-lg)' }}>
                 <Calendar size={16} color="#6366f1" />
                 <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{formatDateLabel(fechaSeleccionada)}</span>
                 <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>{horaInicio}</span>
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>→</span>
                   <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>{horaFin}</span>
-                  <span style={{ padding: '3px 10px', borderRadius: 'var(--radius-full)', background: 'var(--bg-surface)', border: '1px solid rgba(99,102,241,0.2)', fontSize: '0.75rem', fontWeight: 700, color: '#6366f1', fontFamily: 'var(--font-mono)' }}>
+                  <span style={{ padding: '3px 10px', borderRadius: 'var(--radius-full)', background: 'var(--bg-surface)', border: '1px solid rgba(86,104,184,0.2)', fontSize: '0.75rem', fontWeight: 700, color: '#6366f1', fontFamily: 'var(--font-mono)' }}>
                     {duracionMin} min
                   </span>
                 </span>
@@ -645,3 +645,4 @@ export function CitaFormModal({ open, sedeId, onClose, onCreated }: CitaFormModa
     </div>
   )
 }
+

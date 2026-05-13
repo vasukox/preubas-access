@@ -193,9 +193,9 @@
                           borderRadius: '999px',
                           fontFamily: 'var(--font-mono)',
                           fontWeight: 700,
-                          border: `1px solid ${isDanger ? 'rgba(239,68,68,0.2)' : isCreate ? 'rgba(16,185,129,0.2)' : 'rgba(16,185,129,0.2)'}`,
+                          border: `1px solid ${isDanger ? 'rgba(192,80,80,0.2)' : isCreate ? 'rgba(40,149,108,0.2)' : 'rgba(40,149,108,0.2)'}`,
                           color: isDanger ? 'var(--danger-400)' : isCreate ? 'var(--success-400)' : 'var(--primary-400)',
-                          background: isDanger ? 'rgba(239,68,68,0.08)' : isCreate ? 'rgba(16,185,129,0.08)' : 'rgba(56,189,248,0.08)',
+                          background: isDanger ? 'rgba(192,80,80,0.08)' : isCreate ? 'rgba(40,149,108,0.08)' : 'rgba(56,189,248,0.08)',
                         }}
                       >
                         {accionC}
@@ -230,3 +230,4 @@
       </div>
     )
   }
+

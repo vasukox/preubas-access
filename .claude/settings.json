@@ -5,7 +5,18 @@
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\" -Recurse -Directory)",
       "Bash(Select-Object -ExpandProperty FullName)",
       "PowerShell(head -30)",
-      "Bash(Get-ChildItem -Recurse -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\frontend\\\\src\\\\views\" -Directory)"
+      "Bash(Get-ChildItem -Recurse -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\frontend\\\\src\\\\views\" -Directory)",
+      "PowerShell(cd \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\"; & \"C:\\\\Program Files\\\\nodejs\\\\node_modules\\\\typescript\\\\bin\\\\tsc\" --noEmit --skipLibCheck 2>&1 | Where-Object { $_ -match \"excepcion|hse.controller\" } | Select-Object -First 20)",
+      "PowerShell(cd \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\"; npx tsc --noEmit --skipLibCheck 2>&1 | Where-Object { $_ -match \"excepcion|hse.controller|error\" } | Select-Object -First 20)",
+      "PowerShell(cd \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\frontend\"; npx tsc --noEmit --skipLibCheck 2>&1 | Where-Object { $_ -match \"ExcepcionesView|hse.service\" } | Select-Object -First 30)",
+      "PowerShell(Get-Command tsc)",
+      "PowerShell(tsc --version 2>&1)",
+      "PowerShell(node -e \"console.log\\(require\\('c:/Users/andresdb/OneDrive - PERMODA LTDA/Escritorio/Koaj_access/backend-node/node_modules/@nestjs/cli/package.json'\\).version\\)\" 2>&1)",
+      "PowerShell(node -e \"try{console.log\\(require\\('c:/Users/andresdb/OneDrive - PERMODA LTDA/Escritorio/Koaj_access/backend-node/node_modules/@nestjs/cli/node_modules/typescript/package.json'\\).version\\)}catch\\(e\\){console.log\\('no bundled ts'\\)}\" 2>&1)",
+      "PowerShell(node -e \"const ts = require\\('c:/Users/andresdb/OneDrive - PERMODA LTDA/Escritorio/Koaj_access/backend-node/node_modules/typescript'\\); const opt = ts.optionDeclarations?.find\\(o => o.name === 'ignoreDeprecations'\\); console.log\\(JSON.stringify\\(opt?.type, null, 2\\)\\)\")",
+      "PowerShell(node -e \"const ts = require\\('c:/Users/andresdb/OneDrive - PERMODA LTDA/Escritorio/Koaj_access/backend-node/node_modules/typescript'\\); const v = ts.version; const parsed = ts.parseConfigFileTextToJson\\('tsconfig.json', '{\\\\\"compilerOptions\\\\\":{\\\\\"ignoreDeprecations\\\\\":\\\\\"6.0\\\\\"}}'\\); console.log\\('version:', v\\); console.log\\('errors:', JSON.stringify\\(parsed.error\\)\\)\")",
+      "Bash(Get-Content \"C:\\\\Users\\\\andresdb\\\\.claude\\\\projects\\\\c--Users-andresdb-OneDrive---PERMODA-LTDA-Escritorio-Koaj-access\\\\ae5cc484-b331-4de2-a22f-b9dd602359b1\\\\tool-results\\\\toolu_01Qrp7v1xWpWFnd74yENvzhY.txt\")",
+      "PowerShell(cd \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\"; npx nest build 2>&1 | Where-Object { $_ -match \"error\" } | Select-Object -First 10)"
     ]
   }
 }

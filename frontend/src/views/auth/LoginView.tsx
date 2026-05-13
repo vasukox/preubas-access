@@ -110,8 +110,8 @@ export default function LoginView() {
             position:   'absolute',
             inset:      0,
             background: `
-              radial-gradient(ellipse at 20% 50%, rgba(245,158,11,0.08) 0%, transparent 60%),
-              radial-gradient(ellipse at 80% 20%, rgba(99,102,241,0.06) 0%, transparent 50%)
+              radial-gradient(ellipse at 20% 50%, rgba(69,116,196,0.08) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 20%, rgba(86,104,184,0.06) 0%, transparent 50%)
             `,
             pointerEvents: 'none',
           }}
@@ -261,7 +261,7 @@ export default function LoginView() {
             left:          0,
             right:         0,
             height:        '300px',
-            background:    'radial-gradient(ellipse at 50% 0%, rgba(245,158,11,0.04) 0%, transparent 70%)',
+            background:    'radial-gradient(ellipse at 50% 0%, rgba(69,116,196,0.04) 0%, transparent 70%)',
             pointerEvents: 'none',
           }}
         />
@@ -294,8 +294,8 @@ export default function LoginView() {
                 alignItems:   'flex-start',
                 gap:          '10px',
                 padding:      '12px 14px',
-                background:   'rgba(239,68,68,0.08)',
-                border:       '1px solid rgba(239,68,68,0.2)',
+                background:   'rgba(192,80,80,0.08)',
+                border:       '1px solid rgba(192,80,80,0.2)',
                 borderRadius: 'var(--radius-md)',
                 marginBottom: '24px',
                 animation:    'fadeUp 0.2s ease both',

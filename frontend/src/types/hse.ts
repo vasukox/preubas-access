@@ -602,7 +602,7 @@ export const ESTADO_AUTORIZACION_LABEL: Record<EstadoAutorizacion, string> = {
 export const ESTADO_AUTORIZACION_COLOR: Record<EstadoAutorizacion, string> = {
   BORRADOR:              'var(--text-muted)',
   PENDIENTE_AUTOGESTION: 'var(--primary-400)',
-  EN_REVISION:           '#6366F1',
+  EN_REVISION:           '#5668B8',
   APROBADO:              'var(--success-400)',
   DENEGADO:              'var(--danger-400)',
   VENCIDO:               'var(--text-muted)',

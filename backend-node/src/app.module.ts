@@ -15,6 +15,10 @@ import { HerramientasModule } from './herramientas/herramientas.module';
 import { ParkingModule } from './parking/parking.module';
 import { NfcModule } from './nfc/nfc.module';
 import { WebsocketsModule } from './websockets/websockets.module';
+import { HerramientasController } from './herramientas/herramientas.controller';
+import { ConfigKoajController } from './config-koaj/config-koaj.controller';
+import { GhController } from './gh/gh.controller';
+import { ProveedorController } from './persona/proveedor.controller';
 
 /**
  * AppModule — módulo raíz de KOAJ Access NestJS.
@@ -59,6 +63,15 @@ import { WebsocketsModule } from './websockets/websockets.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(SnakeToCamelMiddleware).forRoutes('*');
+    // Apply snake_case→camelCase conversion only to modules whose DTOs use camelCase.
+    // HSE and Auth DTOs are already snake_case, so they are intentionally excluded.
+    consumer
+      .apply(SnakeToCamelMiddleware)
+      .forRoutes(
+        HerramientasController,
+        ConfigKoajController,
+        GhController,
+        ProveedorController,
+      );
   }
 }

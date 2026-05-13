@@ -103,7 +103,7 @@ function SedeSelectorDropdown({
                 width:      '100%',
                 textAlign:  'left',
                 padding:    '9px 12px',
-                background: sedeActiva?.id === sede.id ? 'rgba(245,158,11,0.1)' : 'transparent',
+                background: sedeActiva?.id === sede.id ? 'rgba(69,116,196,0.1)' : 'transparent',
                 border:     'none',
                 color:      sedeActiva?.id === sede.id ? 'var(--primary-400)' : 'var(--text-secondary)',
                 cursor:     'pointer',
@@ -261,9 +261,9 @@ function UserMenuDropdown({
               fontWeight:     500,
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(248,113,113,0.1)'
+              e.currentTarget.style.background = 'rgba(192,80,80,0.1)'
               e.currentTarget.style.color = 'var(--danger-400)'
-              e.currentTarget.style.borderColor = 'rgba(248,113,113,0.35)'
+              e.currentTarget.style.borderColor = 'rgba(192,80,80,0.35)'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'transparent'
@@ -338,8 +338,8 @@ export function Topbar({ usuario, noLeidas, paginaActual, onMenuClick, themeMode
           alignItems:   'center',
           gap:          '6px',
           padding:      '6px 10px',
-          background:   'rgba(245,158,11,0.08)',
-          border:       '1px solid rgba(245,158,11,0.35)',
+          background:   'rgba(69,116,196,0.08)',
+          border:       '1px solid rgba(69,116,196,0.35)',
           borderRadius: 'var(--radius-md)',
           fontSize:     '0.78rem',
           fontWeight:   600,

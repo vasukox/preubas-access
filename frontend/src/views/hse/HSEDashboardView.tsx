@@ -150,19 +150,19 @@ export default function HSEDashboardView() {
       label: 'Aprobadas',
       value: metrics?.autorizaciones_activas ?? 0,
       color: 'var(--success-400)',
-      bg: 'rgba(16,185,129,0.12)',
+      bg: 'rgba(40,149,108,0.12)',
     },
     {
       label: 'En revisión',
       value: metrics?.autorizaciones_pendientes ?? 0,
-      color: '#6366F1',
-      bg: 'rgba(99,102,241,0.12)',
+      color: '#5668B8',
+      bg: 'rgba(86,104,184,0.12)',
     },
     {
       label: 'Vencidas',
       value: metrics?.autorizaciones_vencidas ?? 0,
       color: 'var(--danger-400)',
-      bg: 'rgba(239,68,68,0.12)',
+      bg: 'rgba(192,80,80,0.12)',
     },
     {
       label: 'Otros estados',
@@ -177,19 +177,19 @@ export default function HSEDashboardView() {
       label: 'Alto riesgo activos',
       value: metrics?.alto_riesgo_activos ?? 0,
       color: 'var(--danger-400)',
-      bg: 'rgba(239,68,68,0.12)',
+      bg: 'rgba(192,80,80,0.12)',
     },
     {
       label: 'Normal activos',
       value: metrics?.normal_activos ?? 0,
       color: 'var(--success-400)',
-      bg: 'rgba(16,185,129,0.12)',
+      bg: 'rgba(40,149,108,0.12)',
     },
     {
       label: 'Dentro con alerta > 8h',
       value: metrics?.alertas_activas ?? 0,
       color: 'var(--warning-400)',
-      bg: 'rgba(245,158,11,0.12)',
+      bg: 'rgba(69,116,196,0.12)',
     },
   ]
 
@@ -341,8 +341,8 @@ export default function HSEDashboardView() {
           value={metrics?.total_autorizaciones ?? 0}
           icon={ShieldCheck}
           color="var(--primary-400)"
-          bg="rgba(245,158,11,0.08)"
-          border="rgba(245,158,11,0.15)"
+          bg="rgba(69,116,196,0.08)"
+          border="rgba(69,116,196,0.15)"
           onClick={() => navigate('/hse/panel-general')}
         />
         <MetricCard
@@ -350,17 +350,17 @@ export default function HSEDashboardView() {
           value={metrics?.autorizaciones_activas ?? 0}
           icon={UserCheck}
           color="var(--success-400)"
-          bg="rgba(16,185,129,0.08)"
-          border="rgba(16,185,129,0.15)"
+          bg="rgba(40,149,108,0.08)"
+          border="rgba(40,149,108,0.15)"
           badge="APROBADO"
         />
         <MetricCard
           label="En revisión"
           value={metrics?.autorizaciones_pendientes ?? 0}
           icon={Clock}
-          color="#6366F1"
-          bg="rgba(99,102,241,0.08)"
-          border="rgba(99,102,241,0.15)"
+          color="#5668B8"
+          bg="rgba(86,104,184,0.08)"
+          border="rgba(86,104,184,0.15)"
           onClick={() => navigate('/hse/gestion')}
           badge="PENDIENTE"
         />
@@ -369,8 +369,8 @@ export default function HSEDashboardView() {
           value={metrics?.autorizaciones_vencidas ?? 0}
           icon={UserX}
           color="var(--danger-400)"
-          bg="rgba(239,68,68,0.08)"
-          border="rgba(239,68,68,0.15)"
+          bg="rgba(192,80,80,0.08)"
+          border="rgba(192,80,80,0.15)"
           badge="VENCIDO"
         />
         <MetricCard
@@ -378,8 +378,8 @@ export default function HSEDashboardView() {
           value={metrics?.contratistas_dentro_ahora ?? 0}
           icon={Activity}
           color="var(--success-400)"
-          bg="rgba(16,185,129,0.08)"
-          border="rgba(16,185,129,0.15)"
+          bg="rgba(40,149,108,0.08)"
+          border="rgba(40,149,108,0.15)"
           onClick={() => navigate('/hse/vigilante')}
         />
         <MetricCard
@@ -387,8 +387,8 @@ export default function HSEDashboardView() {
           value={metrics?.alertas_activas ?? 0}
           icon={AlertTriangle}
           color={metrics?.alertas_activas ? 'var(--danger-400)' : 'var(--text-muted)'}
-          bg={metrics?.alertas_activas ? 'rgba(239,68,68,0.08)' : 'var(--bg-elevated)'}
-          border={metrics?.alertas_activas ? 'rgba(239,68,68,0.2)' : 'var(--border-subtle)'}
+          bg={metrics?.alertas_activas ? 'rgba(192,80,80,0.08)' : 'var(--bg-elevated)'}
+          border={metrics?.alertas_activas ? 'rgba(192,80,80,0.2)' : 'var(--border-subtle)'}
         />
       </div>
 
@@ -541,8 +541,8 @@ export default function HSEDashboardView() {
               {dentro.length > 0 && (
                 <span style={{
                   padding:      '1px 8px',
-                  background:   'rgba(16,185,129,0.1)',
-                  border:       '1px solid rgba(16,185,129,0.2)',
+                  background:   'rgba(40,149,108,0.1)',
+                  border:       '1px solid rgba(40,149,108,0.2)',
                   borderRadius: '20px',
                   fontSize:     '0.7rem',
                   color:        'var(--success-400)',
@@ -598,9 +598,9 @@ export default function HSEDashboardView() {
                       height:         '32px',
                       borderRadius:   '50%',
                       background:     p.tipo_contratista === 'ALTO_RIESGO'
-                        ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)',
+                        ? 'rgba(192,80,80,0.1)' : 'rgba(40,149,108,0.1)',
                       border:         `1px solid ${p.tipo_contratista === 'ALTO_RIESGO'
-                        ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)'}`,
+                        ? 'rgba(192,80,80,0.2)' : 'rgba(40,149,108,0.2)'}`,
                       display:        'flex',
                       alignItems:     'center',
                       justifyContent: 'center',
@@ -676,15 +676,15 @@ export default function HSEDashboardView() {
                 desc:   'Crear y gestionar autorizaciones',
                 icon:   ShieldCheck,
                 color:  'var(--primary-400)',
-                bg:     'rgba(245,158,11,0.08)',
+                bg:     'rgba(69,116,196,0.08)',
                 path:   '/hse/panel-general',
               },
               {
                 label:  'Gestión HSE',
                 desc:   'Revisar y aprobar solicitudes',
                 icon:   UserCheck,
-                color:  '#6366F1',
-                bg:     'rgba(99,102,241,0.08)',
+                color:  '#5668B8',
+                bg:     'rgba(86,104,184,0.08)',
                 path:   '/hse/gestion',
               },
               {
@@ -692,7 +692,7 @@ export default function HSEDashboardView() {
                 desc:   'Verificar acceso en portería',
                 icon:   Users,
                 color:  'var(--success-400)',
-                bg:     'rgba(16,185,129,0.08)',
+                bg:     'rgba(40,149,108,0.08)',
                 path:   '/hse/vigilante',
               },
               {
@@ -700,7 +700,7 @@ export default function HSEDashboardView() {
                 desc:   'Gestionar pre-aprobados especiales',
                 icon:   AlertTriangle,
                 color:  'var(--danger-400)',
-                bg:     'rgba(239,68,68,0.08)',
+                bg:     'rgba(192,80,80,0.08)',
                 path:   '/hse/excepciones',
               },
             ].map((item) => (

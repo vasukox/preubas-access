@@ -247,8 +247,8 @@ function Paso1Sede({ data }: { data: AutogestionTokenResponse }) {
         width:          '64px',
         height:         '64px',
         borderRadius:   '50%',
-        background:     'rgba(245,158,11,0.1)',
-        border:         '2px solid rgba(245,158,11,0.3)',
+        background:     'rgba(69,116,196,0.1)',
+        border:         '2px solid rgba(69,116,196,0.3)',
         display:        'flex',
         alignItems:     'center',
         justifyContent: 'center',
@@ -271,8 +271,8 @@ function Paso1Sede({ data }: { data: AutogestionTokenResponse }) {
           gap:            '12px',
           padding:        '12px 16px',
           marginBottom:   '20px',
-          background:     'rgba(99,102,241,0.1)',
-          border:         '1px solid rgba(99,102,241,0.25)',
+          background:     'rgba(86,104,184,0.1)',
+          border:         '1px solid rgba(86,104,184,0.25)',
           borderRadius:   '12px',
           textAlign:      'left',
         }}>
@@ -280,18 +280,18 @@ function Paso1Sede({ data }: { data: AutogestionTokenResponse }) {
             width:          '36px',
             height:         '36px',
             borderRadius:   '8px',
-            background:     'rgba(99,102,241,0.15)',
+            background:     'rgba(86,104,184,0.15)',
             display:        'flex',
             alignItems:     'center',
             justifyContent: 'center',
             flexShrink:     0,
           }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#818CF8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7080CC" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
             </svg>
           </div>
           <div>
-            <div style={{ fontSize: '0.65rem', color: '#818CF8', letterSpacing: '0.08em', marginBottom: '2px' }}>EMPRESA / PROVEEDOR</div>
+            <div style={{ fontSize: '0.65rem', color: '#7080CC', letterSpacing: '0.08em', marginBottom: '2px' }}>EMPRESA / PROVEEDOR</div>
             <div style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>{data.empresa_proveedor}</div>
           </div>
         </div>
@@ -330,9 +330,9 @@ function Paso1Sede({ data }: { data: AutogestionTokenResponse }) {
           <span style={{
             padding:      '2px 8px',
             background:   data.tipo_contratista === 'ALTO_RIESGO'
-              ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)',
+              ? 'rgba(192,80,80,0.1)' : 'rgba(40,149,108,0.1)',
             border:       `1px solid ${data.tipo_contratista === 'ALTO_RIESGO'
-              ? 'rgba(239,68,68,0.3)' : 'rgba(16,185,129,0.3)'}`,
+              ? 'rgba(192,80,80,0.3)' : 'rgba(40,149,108,0.3)'}`,
             borderRadius: '20px',
             fontSize:     '0.72rem',
             color:        data.tipo_contratista === 'ALTO_RIESGO'
@@ -410,16 +410,16 @@ function Paso2Datos({
           marginBottom: '14px',
           padding:      '8px 12px',
           borderRadius: '10px',
-          background:   'rgba(99,102,241,0.08)',
-          border:       '1px solid rgba(99,102,241,0.2)',
+          background:   'rgba(86,104,184,0.08)',
+          border:       '1px solid rgba(86,104,184,0.2)',
           fontSize:     '0.76rem',
           color:        'var(--text-secondary)',
         }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#818CF8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7080CC" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
           </svg>
           <span style={{ color: 'var(--text-muted)', letterSpacing: '0.05em' }}>EMPRESA: </span>
-          <strong style={{ color: '#818CF8' }}>{empresaProveedor}</strong>
+          <strong style={{ color: '#7080CC' }}>{empresaProveedor}</strong>
         </div>
       )}
 
@@ -452,8 +452,8 @@ function Paso2Datos({
         <div style={{
           marginBottom: '16px',
           padding:      '16px',
-          background:   'rgba(16,185,129,0.05)',
-          border:       '1px solid rgba(16,185,129,0.2)',
+          background:   'rgba(40,149,108,0.05)',
+          border:       '1px solid rgba(40,149,108,0.2)',
           borderRadius: '10px',
         }}>
           <div style={{ fontSize: '0.72rem', color: 'var(--success-400)', fontWeight: 600, letterSpacing: '0.06em', marginBottom: '12px' }}>
@@ -590,8 +590,8 @@ function Paso2Datos({
       {/* Responsable SST */}
       <div style={{
         padding:      '14px 16px',
-        background:   'rgba(245,158,11,0.05)',
-        border:       '1px solid rgba(245,158,11,0.15)',
+        background:   'rgba(69,116,196,0.05)',
+        border:       '1px solid rgba(69,116,196,0.15)',
         borderRadius: '10px',
         marginTop:    '8px',
       }}>
@@ -731,7 +731,7 @@ function Paso3Clasificacion({
 
     if (key === 'trabajo_alturas') {
       return (
-        <div style={{ marginTop: '8px', padding: '14px', borderRadius: '10px', background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)' }}>
+        <div style={{ marginTop: '8px', padding: '14px', borderRadius: '10px', background: 'rgba(192,80,80,0.05)', border: '1px solid rgba(192,80,80,0.2)' }}>
           <div style={{ marginBottom: '10px', fontSize: '0.8rem', color: 'var(--danger-400)', fontWeight: 600 }}>Requisitos — Trabajo en alturas</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
             <div>
@@ -763,9 +763,9 @@ function Paso3Clasificacion({
 
     if (key === 'espacios_confinados') {
       return (
-        <div style={{ marginTop: '8px', padding: '14px', borderRadius: '10px', background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)' }}>
+        <div style={{ marginTop: '8px', padding: '14px', borderRadius: '10px', background: 'rgba(192,80,80,0.05)', border: '1px solid rgba(192,80,80,0.2)' }}>
           <div style={{ marginBottom: '10px', fontSize: '0.8rem', color: 'var(--danger-400)', fontWeight: 600 }}>Requisitos — Espacios confinados</div>
-          <div style={{ marginBottom: '10px', fontSize: '0.74rem', color: '#F59E0B' }}>Operación sugerida con roles diferenciados: supervisor, vigía y entrante según el alcance de la tarea.</div>
+          <div style={{ marginBottom: '10px', fontSize: '0.74rem', color: '#4574C4' }}>Operación sugerida con roles diferenciados: supervisor, vigía y entrante según el alcance de la tarea.</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
             <div>
               <label style={labelStyle}>ROL EN EL TRABAJO <span style={{ color: 'var(--danger-400)' }}>*</span></label>
@@ -796,7 +796,7 @@ function Paso3Clasificacion({
 
     if (key === 'trabajo_electrico') {
       return (
-        <div style={{ marginTop: '8px', padding: '14px', borderRadius: '10px', background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)' }}>
+        <div style={{ marginTop: '8px', padding: '14px', borderRadius: '10px', background: 'rgba(192,80,80,0.05)', border: '1px solid rgba(192,80,80,0.2)' }}>
           <div style={{ marginBottom: '10px', fontSize: '0.8rem', color: 'var(--danger-400)', fontWeight: 600 }}>Requisitos — Trabajo eléctrico</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
             <div>
@@ -832,9 +832,9 @@ function Paso3Clasificacion({
 
     if (key === 'trabajo_caliente') {
       return (
-        <div style={{ marginTop: '8px', padding: '14px', borderRadius: '10px', background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)' }}>
+        <div style={{ marginTop: '8px', padding: '14px', borderRadius: '10px', background: 'rgba(192,80,80,0.05)', border: '1px solid rgba(192,80,80,0.2)' }}>
           <div style={{ marginBottom: '10px', fontSize: '0.8rem', color: 'var(--danger-400)', fontWeight: 600 }}>Requisitos — Trabajo en caliente</div>
-          <div style={{ marginBottom: '10px', fontSize: '0.74rem', color: '#F59E0B' }}>Verifica control de chispas, material combustible en el entorno y extintor disponible durante toda la labor.</div>
+          <div style={{ marginBottom: '10px', fontSize: '0.74rem', color: '#4574C4' }}>Verifica control de chispas, material combustible en el entorno y extintor disponible durante toda la labor.</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
             <div>
               <label style={labelStyle}>FECHA EXTINTOR CO₂ 20Lbs <span style={{ color: 'var(--danger-400)' }}>*</span></label>
@@ -871,7 +871,7 @@ function Paso3Clasificacion({
 
     if (key === 'izaje_maquinaria') {
       return (
-        <div style={{ marginTop: '8px', padding: '14px', borderRadius: '10px', background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)' }}>
+        <div style={{ marginTop: '8px', padding: '14px', borderRadius: '10px', background: 'rgba(192,80,80,0.05)', border: '1px solid rgba(192,80,80,0.2)' }}>
           <div style={{ marginBottom: '10px', fontSize: '0.8rem', color: 'var(--danger-400)', fontWeight: 600 }}>Requisitos — Izaje de maquinaria</div>
           <div>
             <label style={labelStyle}>TIPO DE EQUIPO <span style={{ color: 'var(--danger-400)' }}>*</span></label>
@@ -909,7 +909,7 @@ function Paso3Clasificacion({
 
     if (key === 'personal_extranjero') {
       return (
-        <div style={{ marginTop: '8px', padding: '14px', borderRadius: '10px', background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.25)' }}>
+        <div style={{ marginTop: '8px', padding: '14px', borderRadius: '10px', background: 'rgba(40,149,108,0.06)', border: '1px solid rgba(40,149,108,0.25)' }}>
           <div style={{ marginBottom: '10px', fontSize: '0.8rem', color: 'var(--success-400)', fontWeight: 600 }}>Requisitos — Personal extranjero</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
             <div>
@@ -942,7 +942,7 @@ function Paso3Clasificacion({
 
     if (key === 'genera_residuos') {
       return (
-        <div style={{ marginTop: '8px', padding: '14px', borderRadius: '10px', background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.25)' }}>
+        <div style={{ marginTop: '8px', padding: '14px', borderRadius: '10px', background: 'rgba(40,149,108,0.06)', border: '1px solid rgba(40,149,108,0.25)' }}>
           <div style={{ marginBottom: '10px', fontSize: '0.8rem', color: 'var(--success-400)', fontWeight: 600 }}>Requisitos — Generación de residuos</div>
           <div>
             <label style={labelStyle}>TIPO DE RESIDUOS <span style={{ color: 'var(--danger-400)' }}>*</span></label>
@@ -964,7 +964,7 @@ function Paso3Clasificacion({
 
     if (key === 'visita_sin_riesgo') {
       return (
-        <div style={{ marginTop: '8px', padding: '12px', borderRadius: '10px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.3)', color: 'var(--success-400)', fontSize: '0.78rem' }}>
+        <div style={{ marginTop: '8px', padding: '12px', borderRadius: '10px', background: 'rgba(40,149,108,0.08)', border: '1px solid rgba(40,149,108,0.3)', color: 'var(--success-400)', fontSize: '0.78rem' }}>
           ✓ Visita sin riesgo: no se requieren documentos adicionales en esta sección.
         </div>
       )
@@ -997,10 +997,10 @@ function Paso3Clasificacion({
                 justifyContent: 'space-between',
                 padding:        '12px 16px',
                 background:     form[p.key]
-                  ? p.riesgo ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)'
+                  ? p.riesgo ? 'rgba(192,80,80,0.08)' : 'rgba(40,149,108,0.08)'
                   : 'rgba(255,255,255,0.03)',
                 border:         `1px solid ${form[p.key]
-                  ? p.riesgo ? 'rgba(239,68,68,0.3)' : 'rgba(16,185,129,0.3)'
+                  ? p.riesgo ? 'rgba(192,80,80,0.3)' : 'rgba(40,149,108,0.3)'
                   : 'rgba(255,255,255,0.08)'}`,
                 borderRadius:   '10px',
                 cursor:         'pointer',
@@ -1063,9 +1063,9 @@ function VigenciaBadge({ fecha }: { fecha: string | undefined }) {
   const estado = estadoVigencia(fecha)
   if (!estado) return null
   const cfg = {
-    vencido: { color: 'var(--danger-400)',  bg: 'rgba(239,68,68,0.08)',   texto: '⚠ Vencido — no podrás ingresar' },
-    proximo: { color: '#F59E0B',            bg: 'rgba(245,158,11,0.08)', texto: '⚠ Vence pronto (menos de 30 días)' },
-    vigente: { color: 'var(--success-400)', bg: 'rgba(16,185,129,0.08)', texto: '✓ Vigente' },
+    vencido: { color: 'var(--danger-400)',  bg: 'rgba(192,80,80,0.08)',   texto: '⚠ Vencido — no podrás ingresar' },
+    proximo: { color: '#4574C4',            bg: 'rgba(69,116,196,0.08)', texto: '⚠ Vence pronto (menos de 30 días)' },
+    vigente: { color: 'var(--success-400)', bg: 'rgba(40,149,108,0.08)', texto: '✓ Vigente' },
   }[estado]
   return (
     <div style={{
@@ -1124,7 +1124,7 @@ function Paso4SeguridadSocial({
       {hayVencido && (
         <div style={{
           marginBottom: '16px', padding: '10px 14px',
-          background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)',
+          background: 'rgba(192,80,80,0.08)', border: '1px solid rgba(192,80,80,0.25)',
           borderRadius: '10px', fontSize: '0.78rem', color: 'var(--danger-400)',
         }}>
           ⚠ Tienes documentos vencidos. Con documentos vencidos no podrás ser autorizado para ingresar. Actualiza tu afiliación antes de continuar.
@@ -1135,7 +1135,7 @@ function Paso4SeguridadSocial({
       <div style={{
         padding: '14px 16px', marginBottom: '10px',
         background: 'rgba(255,255,255,0.03)',
-        border: `1px solid ${estadoVigencia(form.eps_vigencia) === 'vencido' ? 'rgba(239,68,68,0.35)' : 'rgba(255,255,255,0.08)'}`,
+        border: `1px solid ${estadoVigencia(form.eps_vigencia) === 'vencido' ? 'rgba(192,80,80,0.35)' : 'rgba(255,255,255,0.08)'}`,
         borderRadius: '10px',
       }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
@@ -1149,7 +1149,7 @@ function Paso4SeguridadSocial({
           <div>
             <label style={labelStyle}>VIGENCIA EPS</label>
             <input type="date" value={form.eps_vigencia ?? ''} onChange={e => setForm((f: any) => ({ ...f, eps_vigencia: e.target.value || undefined }))}
-              style={{ ...inputStyle, borderColor: estadoVigencia(form.eps_vigencia) === 'vencido' ? 'rgba(239,68,68,0.5)' : undefined }} />
+              style={{ ...inputStyle, borderColor: estadoVigencia(form.eps_vigencia) === 'vencido' ? 'rgba(192,80,80,0.5)' : undefined }} />
             <VigenciaBadge fecha={form.eps_vigencia} />
           </div>
         </div>
@@ -1159,7 +1159,7 @@ function Paso4SeguridadSocial({
       <div style={{
         padding: '14px 16px', marginBottom: '10px',
         background: 'rgba(255,255,255,0.03)',
-        border: `1px solid ${estadoVigencia(form.arl_vigencia) === 'vencido' ? 'rgba(239,68,68,0.35)' : 'rgba(255,255,255,0.08)'}`,
+        border: `1px solid ${estadoVigencia(form.arl_vigencia) === 'vencido' ? 'rgba(192,80,80,0.35)' : 'rgba(255,255,255,0.08)'}`,
         borderRadius: '10px',
       }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
@@ -1173,7 +1173,7 @@ function Paso4SeguridadSocial({
           <div>
             <label style={labelStyle}>VIGENCIA ARL</label>
             <input type="date" value={form.arl_vigencia ?? ''} onChange={e => setForm((f: any) => ({ ...f, arl_vigencia: e.target.value || undefined }))}
-              style={{ ...inputStyle, borderColor: estadoVigencia(form.arl_vigencia) === 'vencido' ? 'rgba(239,68,68,0.5)' : undefined }} />
+              style={{ ...inputStyle, borderColor: estadoVigencia(form.arl_vigencia) === 'vencido' ? 'rgba(192,80,80,0.5)' : undefined }} />
             <VigenciaBadge fecha={form.arl_vigencia} />
           </div>
         </div>
@@ -1183,7 +1183,7 @@ function Paso4SeguridadSocial({
       <div style={{
         padding: '14px 16px', marginBottom: '14px',
         background: 'rgba(255,255,255,0.03)',
-        border: `1px solid ${estadoVigencia(form.afp_vigencia) === 'vencido' ? 'rgba(239,68,68,0.35)' : 'rgba(255,255,255,0.08)'}`,
+        border: `1px solid ${estadoVigencia(form.afp_vigencia) === 'vencido' ? 'rgba(192,80,80,0.35)' : 'rgba(255,255,255,0.08)'}`,
         borderRadius: '10px',
       }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
@@ -1197,7 +1197,7 @@ function Paso4SeguridadSocial({
           <div>
             <label style={labelStyle}>VIGENCIA AFP</label>
             <input type="date" value={form.afp_vigencia ?? ''} onChange={e => setForm((f: any) => ({ ...f, afp_vigencia: e.target.value || undefined }))}
-              style={{ ...inputStyle, borderColor: estadoVigencia(form.afp_vigencia) === 'vencido' ? 'rgba(239,68,68,0.5)' : undefined }} />
+              style={{ ...inputStyle, borderColor: estadoVigencia(form.afp_vigencia) === 'vencido' ? 'rgba(192,80,80,0.5)' : undefined }} />
             <VigenciaBadge fecha={form.afp_vigencia} />
           </div>
         </div>
@@ -1215,7 +1215,7 @@ function Paso4SeguridadSocial({
         <div>
           <label style={labelStyle}>ESTADO PILA <span style={{ color: 'var(--danger-400)' }}>*</span></label>
           <select value={form.pila_estado ?? ''} onChange={e => setForm((f: any) => ({ ...f, pila_estado: e.target.value || undefined }))}
-            style={{ ...selectStyle, borderColor: form.pila_estado === 'VENCIDA' ? 'rgba(239,68,68,0.5)' : undefined,
+            style={{ ...selectStyle, borderColor: form.pila_estado === 'VENCIDA' ? 'rgba(192,80,80,0.5)' : undefined,
               color: form.pila_estado === 'VENCIDA' ? 'var(--danger-400)' : form.pila_estado === 'PAGADA' ? 'var(--success-400)' : undefined }}>
             <option value="">Seleccionar...</option>
             <option value="PENDIENTE">Pendiente</option>
@@ -1262,8 +1262,8 @@ function Paso4SeguridadSocial({
               onClick={() => setDraftOpen(true)}
               style={{
                 padding: '6px 14px', fontSize: '0.75rem', fontWeight: 600,
-                background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.3)',
-                borderRadius: '8px', color: '#818CF8', cursor: 'pointer', whiteSpace: 'nowrap',
+                background: 'rgba(86,104,184,0.12)', border: '1px solid rgba(86,104,184,0.3)',
+                borderRadius: '8px', color: '#7080CC', cursor: 'pointer', whiteSpace: 'nowrap',
               }}
             >
               + Agregar persona
@@ -1312,10 +1312,10 @@ function Paso4SeguridadSocial({
         {/* Formulario inline para agregar persona */}
         {draftOpen && (
           <div style={{
-            padding: '16px', background: 'rgba(99,102,241,0.04)',
-            border: '1px solid rgba(99,102,241,0.2)', borderRadius: '10px',
+            padding: '16px', background: 'rgba(86,104,184,0.04)',
+            border: '1px solid rgba(86,104,184,0.2)', borderRadius: '10px',
           }}>
-            <div style={{ fontSize: '0.72rem', color: '#818CF8', fontWeight: 600, letterSpacing: '0.06em', marginBottom: '12px' }}>
+            <div style={{ fontSize: '0.72rem', color: '#7080CC', fontWeight: 600, letterSpacing: '0.06em', marginBottom: '12px' }}>
               NUEVA PERSONA
             </div>
 
@@ -1424,7 +1424,7 @@ function Paso4SeguridadSocial({
                 style={{
                   padding: '7px 16px', fontSize: '0.78rem', fontWeight: 600,
                   background: (!draft.nombre_persona?.trim() || !draft.cedula_persona?.trim())
-                    ? 'rgba(99,102,241,0.3)' : 'rgba(99,102,241,0.8)',
+                    ? 'rgba(86,104,184,0.3)' : 'rgba(86,104,184,0.8)',
                   border: 'none', borderRadius: '8px', color: '#fff',
                   cursor: (!draft.nombre_persona?.trim() || !draft.cedula_persona?.trim()) ? 'not-allowed' : 'pointer',
                 }}
@@ -1466,8 +1466,8 @@ function Paso5Certificaciones({
       <div style={{
         marginBottom:  '20px',
         padding:       '16px',
-        background:    'rgba(245,158,11,0.05)',
-        border:        '1px solid rgba(245,158,11,0.2)',
+        background:    'rgba(69,116,196,0.05)',
+        border:        '1px solid rgba(69,116,196,0.2)',
         borderRadius:  '10px',
       }}>
         <div style={{ marginBottom: '8px' }}>
@@ -1501,11 +1501,11 @@ function Paso5Certificaciones({
       {/* PERMISO DE TRABAJO — opcional */}
       <div style={{
         padding:      '16px',
-        background:   'rgba(99,102,241,0.04)',
-        border:       '1px solid rgba(99,102,241,0.15)',
+        background:   'rgba(86,104,184,0.04)',
+        border:       '1px solid rgba(86,104,184,0.15)',
         borderRadius: '10px',
       }}>
-        <div style={{ fontSize: '0.72rem', color: '#818CF8', fontWeight: 600, letterSpacing: '0.06em', marginBottom: '12px' }}>
+        <div style={{ fontSize: '0.72rem', color: '#7080CC', fontWeight: 600, letterSpacing: '0.06em', marginBottom: '12px' }}>
           PERMISO DE TRABAJO <span style={{ fontSize: '0.65rem', fontWeight: 400, color: 'var(--text-muted)', marginLeft: '6px' }}>OPCIONAL</span>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '12px' }}>
@@ -2394,7 +2394,7 @@ export default function AutogestionView() {
             width:          '64px',
             height:         '64px',
             borderRadius:   '50%',
-            background:     'rgba(239,68,68,0.1)',
+            background:     'rgba(192,80,80,0.1)',
             display:        'flex',
             alignItems:     'center',
             justifyContent: 'center',
@@ -2430,15 +2430,15 @@ export default function AutogestionView() {
           padding:      '48px 40px',
           background:   'var(--bg-surface)',
           borderRadius: 'var(--radius-xl)',
-          border:       '1px solid rgba(16,185,129,0.2)',
+          border:       '1px solid rgba(40,149,108,0.2)',
         }}
         className="animate-fade-up">
           <div style={{
             width:          '72px',
             height:         '72px',
             borderRadius:   '50%',
-            background:     'rgba(16,185,129,0.1)',
-            border:         '2px solid rgba(16,185,129,0.3)',
+            background:     'rgba(40,149,108,0.1)',
+            border:         '2px solid rgba(40,149,108,0.3)',
             display:        'flex',
             alignItems:     'center',
             justifyContent: 'center',
@@ -2454,8 +2454,8 @@ export default function AutogestionView() {
           </p>
           <div style={{
             padding:      '14px 18px',
-            background:   'rgba(16,185,129,0.06)',
-            border:       '1px solid rgba(16,185,129,0.15)',
+            background:   'rgba(40,149,108,0.06)',
+            border:       '1px solid rgba(40,149,108,0.15)',
             borderRadius: '10px',
             fontSize:     '0.78rem',
             color:        'var(--success-400)',
@@ -2553,7 +2553,7 @@ export default function AutogestionView() {
         }}>
           {tokenData.empresa_proveedor && (
             <span style={{ color: 'var(--text-muted)' }}>
-              Empresa: <strong style={{ color: '#818CF8' }}>{tokenData.empresa_proveedor}</strong>
+              Empresa: <strong style={{ color: '#7080CC' }}>{tokenData.empresa_proveedor}</strong>
             </span>
           )}
           <span style={{ color: 'var(--text-muted)' }}>
@@ -2579,8 +2579,8 @@ export default function AutogestionView() {
             <div style={{
               margin:         '0 clamp(14px, 3vw, 32px) 20px',
               padding:        '10px 14px',
-              background:     'rgba(245,158,11,0.08)',
-              border:         '1px solid rgba(245,158,11,0.25)',
+              background:     'rgba(69,116,196,0.08)',
+              border:         '1px solid rgba(69,116,196,0.25)',
               borderRadius:   '8px',
               fontSize:       '0.8rem',
               color:          '#f59e0b',

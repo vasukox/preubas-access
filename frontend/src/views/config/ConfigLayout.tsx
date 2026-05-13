@@ -8,12 +8,12 @@ import { useLocation, Outlet } from 'react-router-dom'
 type ConfigRoute = 'sistema' | 'estructura' | 'catalogos' | 'normas' | 'actividades' | 'usuarios-generales'
 
 const ROUTE_META: Record<ConfigRoute, { title: string; subtitle: string; accent: string; area: string }> = {
-  sistema:     { title: 'Parámetros globales',  subtitle: 'Variables de entorno y seguridad del sistema (solo lectura).',             accent: '#6366F1', area: 'SISTEMA'    },
-  estructura:  { title: 'Sedes y Ubicaciones',  subtitle: 'Gestiona la jerarquía física: sedes operativas y sus zonas internas.',      accent: '#10B981', area: 'ESTRUCTURA' },
-  catalogos:   { title: 'Catálogos HSE',        subtitle: 'Administra las entidades base: EPS, ARL y AFP vinculadas a autorizaciones.', accent: '#F59E0B', area: 'REGLAS HSE' },
-  normas:      { title: 'Normas de seguridad',  subtitle: 'Configura las normas HSE del flujo de autorización.',                       accent: '#F59E0B', area: 'REGLAS HSE' },
+  sistema:     { title: 'Parámetros globales',  subtitle: 'Variables de entorno y seguridad del sistema (solo lectura).',             accent: '#5668B8', area: 'SISTEMA'    },
+  estructura:  { title: 'Sedes y Ubicaciones',  subtitle: 'Gestiona la jerarquía física: sedes operativas y sus zonas internas.',      accent: '#28956C', area: 'ESTRUCTURA' },
+  catalogos:   { title: 'Catálogos HSE',        subtitle: 'Administra las entidades base: EPS, ARL y AFP vinculadas a autorizaciones.', accent: '#4574C4', area: 'REGLAS HSE' },
+  normas:      { title: 'Normas de seguridad',  subtitle: 'Configura las normas HSE del flujo de autorización.',                       accent: '#4574C4', area: 'REGLAS HSE' },
   actividades: { title: 'Actividades HSE',      subtitle: 'Gestión de actividades y clasificaciones operativas del módulo HSE.',         accent: '#EC4899', area: 'REGLAS HSE' },
-  'usuarios-generales': { title: 'Usuarios generales del sistema', subtitle: 'Listado global de contratistas/personas por sede, con filtros y eliminación administrativa segura.', accent: '#EF4444', area: 'GOBIERNO OPERATIVO' },
+  'usuarios-generales': { title: 'Usuarios generales del sistema', subtitle: 'Listado global de contratistas/personas por sede, con filtros y eliminación administrativa segura.', accent: '#C05050', area: 'GOBIERNO OPERATIVO' },
 }
 
 function pathToRoute(pathname: string): ConfigRoute {
@@ -85,3 +85,4 @@ export default function ConfigLayout() {
     </div>
   )
 }
+

@@ -17,7 +17,19 @@
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\" -Directory -Force)",
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\frontend\\\\src\\\\views\\\\gh\" -Recurse -File)",
       "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\frontend\\\\src\" -Recurse -File | Where-Object {$_.Name -match \"\\(hse|seguridad|contrata|authorization\\)\" -or $_.Directory -match \"\\(hse|seguridad|contrata\\)\"} | Select-Object -ExpandProperty FullName)",
-      "PowerShell(head -20)"
+      "PowerShell(head -20)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\" -Force)",
+      "Bash(npm.cmd run *)",
+      "Bash(powershell -command \"\\(Get-Content 'c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\frontend\\\\src\\\\views\\\\hse\\\\PanelGeneralView.tsx'\\).Count\")",
+      "PowerShell(\\(Get-Content \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\frontend\\\\src\\\\views\\\\hse\\\\PanelGeneralView.tsx\"\\).Count)",
+      "PowerShell(Get-Process -Name \"node\" -ErrorAction SilentlyContinue | Select-Object Id, CPU, WorkingSet, @{N='Runtime';E={\\(\\(Get-Date\\) - $_.StartTime\\).ToString\\('hh\\\\:mm\\\\:ss'\\)}} | Format-Table -AutoSize)",
+      "PowerShell(Test-Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\\\\dist\\\\main.js\"; \\(Get-Item \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\\\\dist\\\\main.js\" -ErrorAction SilentlyContinue\\).Length)",
+      "Bash(node \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\\\\dist\\\\main.js\")",
+      "PowerShell(node \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\\\\dist\\\\main.js\" 2>&1)",
+      "PowerShell(Set-Location \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\"; $result = npm run build 2>&1; $result; Write-Host \"Exit code: $LASTEXITCODE\")",
+      "PowerShell(Start-Sleep -Seconds 3; try { $r = Invoke-WebRequest -Uri \"http://localhost:8000/api/v1/health\" -TimeoutSec 5 -ErrorAction Stop; $r.StatusCode } catch { $_.Exception.Message })",
+      "PowerShell(Set-Location \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\"; $r = npm run build 2>&1; $r; Write-Host \"Exit: $LASTEXITCODE\")",
+      "PowerShell(Set-Location \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\"; $b = npm run build 2>&1; $b; Write-Host \"Build exit: $LASTEXITCODE\"; $t = npm test 2>&1; $t; Write-Host \"Test exit: $LASTEXITCODE\")"
     ]
   }
 }

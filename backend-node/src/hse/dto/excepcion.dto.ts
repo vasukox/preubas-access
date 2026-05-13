@@ -1,44 +1,95 @@
-import { IsInt, IsString, IsDateString, IsArray, ArrayMinSize, IsOptional } from 'class-validator';
+import { IsInt, IsString, IsDateString, IsArray, ArrayMinSize, IsOptional, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateExcepcionDto {
   @IsOptional()
   @IsInt()
-  personaId?: number;
+  persona_id?: number;
 
   @IsOptional()
   @IsString()
-  tipoDocumento?: string;
+  tipo_documento?: string;
 
   @IsOptional()
   @IsString()
-  numeroDocumento?: string;
+  numero_documento?: string;
 
   @IsOptional()
   @IsString()
-  nombreCompleto?: string;
+  nombre_completo?: string;
 
   @IsOptional()
   @IsInt()
-  proveedorId?: number;
+  proveedor_id?: number;
 
   @IsOptional()
   @IsInt()
-  sedeId?: number;
+  sede_id?: number;
 
   @IsString()
   motivo: string;
 
   @IsOptional()
   @IsDateString()
-  fechaInicio?: string;
+  fecha_inicio?: string;
 
   @IsOptional()
   @IsDateString()
-  fechaFin?: string;
+  fecha_fin?: string;
 
   @IsOptional()
   @IsInt()
-  ubicacionId?: number;
+  ubicacion_id?: number;
+}
+
+export class UpdateExcepcionDto {
+  @IsOptional()
+  @IsString()
+  tipo_documento?: string;
+
+  @IsOptional()
+  @IsString()
+  numero_documento?: string;
+
+  @IsOptional()
+  @IsString()
+  nombre_completo?: string;
+
+  @IsOptional()
+  @IsInt()
+  proveedor_id?: number;
+
+  @IsOptional()
+  @IsString()
+  motivo?: string;
+
+  @IsOptional()
+  @IsDateString()
+  fecha_inicio?: string;
+
+  @IsOptional()
+  @IsDateString()
+  fecha_fin?: string;
+
+  @IsOptional()
+  @IsInt()
+  sede_id?: number;
+
+  @IsOptional()
+  @IsInt()
+  ubicacion_id?: number;
+}
+
+export class ExcepcionLoteContratistaDto {
+  @IsOptional()
+  @IsString()
+  tipo_documento?: string;
+
+  @IsString()
+  numero_documento: string;
+
+  @IsString()
+  nombre_completo: string;
 }
 
 export class CreateExcepcionLoteDto {
@@ -46,32 +97,30 @@ export class CreateExcepcionLoteDto {
   @IsArray()
   @ArrayMinSize(1)
   @IsInt({ each: true })
-  personasIds?: number[];
+  personas_ids?: number[];
 
   @IsOptional()
   @IsArray()
-  contratistas?: Array<{
-    tipoDocumento?: string;
-    numeroDocumento: string;
-    nombreCompleto: string;
-  }>;
+  @ValidateNested({ each: true })
+  @Type(() => ExcepcionLoteContratistaDto)
+  contratistas?: ExcepcionLoteContratistaDto[];
 
   @IsOptional()
   @IsInt()
-  sedeId?: number;
+  sede_id?: number;
 
   @IsOptional()
   @IsInt()
-  proveedorId?: number;
+  proveedor_id?: number;
 
   @IsString()
   motivo: string;
 
   @IsOptional()
   @IsDateString()
-  fechaInicio?: string;
+  fecha_inicio?: string;
 
   @IsOptional()
   @IsDateString()
-  fechaFin?: string;
+  fecha_fin?: string;
 }

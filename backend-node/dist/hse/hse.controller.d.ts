@@ -1,15 +1,17 @@
 import { HseService } from './hse.service';
 import { CreateAutorizacionDto, UpdateAutorizacionDto, ChangeEstadoAutorizacionDto } from './dto/autorizacion.dto';
-import { CreateContratistaDto } from './dto/contratista.dto';
+import { CreateContratistaDto, EliminarContratistaDto, EliminarAdjuntoContratistaDto } from './dto/contratista.dto';
 import { ClasificacionDto, CertificacionesDto, ExamenMedicoDto, ContactoEmergenciaDto, AceptacionNormasDto } from './dto/autogestion.dto';
-import { VerificarAccesoDto, RegistrarAccesoDto } from './dto/acceso.dto';
-import { CreateExcepcionDto, CreateExcepcionLoteDto } from './dto/excepcion.dto';
+import { VerificarAccesoDto, RegistrarAccesoDto, RegistrarEntradaSalidaDto } from './dto/acceso.dto';
+import { CumplimientoIniciarDto, CumplimientoActualizarDto, CumplimientoCerrarDto, MarcarItemCumplimientoDto } from './dto/cumplimiento.dto';
+import { CreateExcepcionDto, CreateExcepcionLoteDto, UpdateExcepcionDto } from './dto/excepcion.dto';
 import { AutorizacionService } from './services/autorizacion.service';
 import { AutogestionService } from './services/autogestion.service';
 import { AccesoService } from './services/acceso.service';
 import { CumplimientoService } from './services/cumplimiento.service';
 import { ExcepcionService } from './services/excepcion.service';
 import { ReportesService } from './services/reportes.service';
+import { UploadSecurityService } from './services/upload-security.service';
 import { ProveedorService } from '../persona/proveedor.service';
 import type { Response } from 'express';
 export declare class CrearProveedorFrontendDto {
@@ -30,7 +32,8 @@ export declare class HseController {
     private readonly excepcionService;
     private readonly reportesService;
     private readonly proveedorService;
-    constructor(hseService: HseService, autorizacionService: AutorizacionService, autogestionService: AutogestionService, accesoService: AccesoService, cumplimientoService: CumplimientoService, excepcionService: ExcepcionService, reportesService: ReportesService, proveedorService: ProveedorService);
+    private readonly uploadSecurityService;
+    constructor(hseService: HseService, autorizacionService: AutorizacionService, autogestionService: AutogestionService, accesoService: AccesoService, cumplimientoService: CumplimientoService, excepcionService: ExcepcionService, reportesService: ReportesService, proveedorService: ProveedorService, uploadSecurityService: UploadSecurityService);
     getSedes(req: any): Promise<import("../sede/entities/sede.entity").Sede[]>;
     getEps(): Promise<import("./entities/cat-eps.entity").CatEps[]>;
     getArl(): Promise<import("./entities/cat-arl.entity").CatArl[]>;
@@ -101,10 +104,10 @@ export declare class HseController {
     aprobarContratista(id: number, req: any): Promise<import("./entities/hse-contratista.entity").HseContratista>;
     denegarContratista(id: number, motivo: string, req: any): Promise<import("./entities/hse-contratista.entity").HseContratista>;
     actualizarProveedorContratista(id: number, proveedorId: number): Promise<import("./entities/hse-contratista.entity").HseContratista>;
-    eliminarContratista(id: number, data: any, req: any): Promise<{
+    eliminarContratista(id: number, dto: EliminarContratistaDto, req: any): Promise<{
         success: boolean;
     }>;
-    eliminarAdjuntoContratista(id: number, data: any): Promise<import("./entities/hse-contratista.entity").HseContratista>;
+    eliminarAdjuntoContratista(id: number, dto: EliminarAdjuntoContratistaDto): Promise<import("./entities/hse-contratista.entity").HseContratista>;
     getAutogestionDatos(req: any): Promise<{
         contratista_id: number;
         autorizacion_id: number;
@@ -134,9 +137,9 @@ export declare class HseController {
         modulo: string;
         campo: string;
         path: string;
-        filename: any;
-        contentType: any;
-        sizeBytes: any;
+        filename: string;
+        contentType: string;
+        sizeBytes: number;
     }>;
     guardarDatosPersonales(req: any, dto: any): Promise<{
         success: boolean;
@@ -153,9 +156,9 @@ export declare class HseController {
         message: string;
     }>;
     getDashboard(sedeId: number): Promise<any>;
-    registrarEntrada(req: any, body: any): Promise<import("./entities/hse-acceso.entity").HseAcceso>;
-    registrarSalida(req: any, body: any): Promise<import("./entities/hse-acceso.entity").HseAcceso>;
-    getAccesosSede(sedeId: number): Promise<import("./entities/hse-acceso.entity").HseAcceso[]>;
+    registrarEntrada(req: any, dto: RegistrarEntradaSalidaDto): Promise<import("./entities/hse-acceso.entity").HseAcceso>;
+    registrarSalida(req: any, dto: RegistrarEntradaSalidaDto): Promise<import("./entities/hse-acceso.entity").HseAcceso>;
+    getAccesosSede(sedeId: number, limit?: string): Promise<import("./entities/hse-acceso.entity").HseAcceso[]>;
     getPersonasDentro(sedeId: number): Promise<{
         contratistaId: number;
         nombre: any;
@@ -222,11 +225,11 @@ export declare class HseController {
         autorizacionCodigo: string;
         encargadoNombre: string;
     }[]>;
-    iniciarCumplimiento(req: any, dto: any): Promise<import("./entities/hse-cumplimiento.entity").HseCumplimiento | null>;
-    iniciarCumplimientoFrontend(req: any, dto: any): Promise<import("./entities/hse-cumplimiento.entity").HseCumplimiento | null>;
-    actualizarCumplimiento(id: number, body: any): Promise<import("./entities/hse-cumplimiento.entity").HseCumplimiento>;
-    marcarItemCumplimiento(id: number, itemId: number, body: any): Promise<import("./entities/hse-cumplimiento-item.entity").HseCumplimientoItem>;
-    cerrarCumplimiento(id: number, body: any): Promise<import("./entities/hse-cumplimiento.entity").HseCumplimiento>;
+    iniciarCumplimiento(req: any, dto: CumplimientoIniciarDto): Promise<import("./entities/hse-cumplimiento.entity").HseCumplimiento | null>;
+    iniciarCumplimientoFrontend(req: any, dto: CumplimientoIniciarDto): Promise<import("./entities/hse-cumplimiento.entity").HseCumplimiento | null>;
+    actualizarCumplimiento(id: number, dto: CumplimientoActualizarDto): Promise<import("./entities/hse-cumplimiento.entity").HseCumplimiento>;
+    marcarItemCumplimiento(id: number, itemId: number, dto: MarcarItemCumplimientoDto): Promise<import("./entities/hse-cumplimiento-item.entity").HseCumplimientoItem>;
+    cerrarCumplimiento(id: number, dto: CumplimientoCerrarDto): Promise<import("./entities/hse-cumplimiento.entity").HseCumplimiento>;
     crearExcepcion(req: any, dto: CreateExcepcionDto): Promise<import("./entities/hse-excepcion.entity").HseExcepcion>;
     crearExcepcionLote(req: any, dto: CreateExcepcionLoteDto): Promise<import("./entities/hse-excepcion.entity").HseExcepcion[]>;
     getExcepcionesActivas(personaId: number): Promise<import("./entities/hse-excepcion.entity").HseExcepcion[]>;
@@ -302,11 +305,13 @@ export declare class HseController {
     anularExcepcion(id: number): Promise<import("./entities/hse-excepcion.entity").HseExcepcion>;
     desactivarExcepcion(id: number): Promise<import("./entities/hse-excepcion.entity").HseExcepcion>;
     activarExcepcion(id: number): Promise<import("./entities/hse-excepcion.entity").HseExcepcion>;
-    actualizarExcepcion(id: number, dto: any): Promise<import("./entities/hse-excepcion.entity").HseExcepcion>;
+    actualizarExcepcion(id: number, dto: UpdateExcepcionDto): Promise<import("./entities/hse-excepcion.entity").HseExcepcion>;
+    eliminarExcepcion(id: number): Promise<{
+        success: boolean;
+        message: string;
+    }>;
     getReporteAccesos(query: any): Promise<import("./entities/hse-acceso.entity").HseAcceso[]>;
     getReporteCumplimiento(query: any): Promise<import("./entities/hse-cumplimiento.entity").HseCumplimiento[]>;
     getReporteVencimientos(): Promise<import("./entities/hse-contratista.entity").HseContratista[]>;
     servirArchivoHse(req: any, res: Response): Promise<void>;
-    private validarSegmentoArchivo;
-    private resolveUploadPath;
 }

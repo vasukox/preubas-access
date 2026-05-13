@@ -40,6 +40,7 @@ const cumplimiento_service_1 = require("./services/cumplimiento.service");
 const validacion_service_1 = require("./services/validacion.service");
 const excepcion_service_1 = require("./services/excepcion.service");
 const reportes_service_1 = require("./services/reportes.service");
+const upload_security_service_1 = require("./services/upload-security.service");
 let HseModule = class HseModule {
 };
 exports.HseModule = HseModule;
@@ -81,6 +82,7 @@ exports.HseModule = HseModule = __decorate([
             validacion_service_1.ValidacionService,
             excepcion_service_1.ExcepcionService,
             reportes_service_1.ReportesService,
+            upload_security_service_1.UploadSecurityService,
         ],
         exports: [typeorm_1.TypeOrmModule],
     })

@@ -6,31 +6,31 @@ import { CreateContratistaDto } from './contratista.dto';
 export class CreateAutorizacionDto {
   @IsOptional()
   @IsInt()
-  proveedorId?: number;
+  proveedor_id?: number;
 
   @IsNotEmpty()
   @IsInt()
-  sedeId: number;
+  sede_id: number;
 
   @IsOptional()
   @IsInt()
-  responsableInternoId?: number;
+  responsable_interno_id?: number;
 
   @IsNotEmpty()
   @IsEnum(TipoContratista)
-  tipoContratista: TipoContratista;
+  tipo_contratista: TipoContratista;
 
   @IsNotEmpty()
   @IsString()
-  descripcionActividad: string;
+  descripcion_actividad: string;
 
   @IsNotEmpty()
   @IsDateString()
-  fechaInicio: string;
+  fecha_inicio: string;
 
   @IsNotEmpty()
   @IsDateString()
-  fechaFin: string;
+  fecha_fin: string;
 
   @IsOptional()
   @IsArray()
@@ -42,31 +42,31 @@ export class CreateAutorizacionDto {
 export class UpdateAutorizacionDto {
   @IsOptional()
   @IsInt()
-  proveedorId?: number;
+  proveedor_id?: number;
 
   @IsOptional()
   @IsInt()
-  sedeId?: number;
+  sede_id?: number;
 
   @IsOptional()
   @IsInt()
-  responsableInternoId?: number;
+  responsable_interno_id?: number;
 
   @IsOptional()
   @IsEnum(TipoContratista)
-  tipoContratista?: TipoContratista;
+  tipo_contratista?: TipoContratista;
 
   @IsOptional()
   @IsString()
-  descripcionActividad?: string;
+  descripcion_actividad?: string;
 
   @IsOptional()
   @IsDateString()
-  fechaInicio?: string;
+  fecha_inicio?: string;
 
   @IsOptional()
   @IsDateString()
-  fechaFin?: string;
+  fecha_fin?: string;
 }
 
 export class ChangeEstadoAutorizacionDto {
@@ -76,5 +76,5 @@ export class ChangeEstadoAutorizacionDto {
 
   @IsOptional()
   @IsString()
-  motivoDenegacion?: string;
+  motivo_denegacion?: string;
 }

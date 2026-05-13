@@ -46,11 +46,11 @@ function formatDateShort(iso: string) {
 }
 
 const ESTADO_META: Record<GhEstadoEntregaDotacion, { label: string; color: string; bg: string; border: string }> = {
-  PENDIENTE:    { label: 'Pendiente',    color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.25)' },
+  PENDIENTE:    { label: 'Pendiente',    color: '#f59e0b', bg: 'rgba(69,116,196,0.08)', border: 'rgba(69,116,196,0.25)' },
   PARCIAL:      { label: 'Parcial',      color: '#0ea5e9', bg: 'rgba(14,165,233,0.08)', border: 'rgba(14,165,233,0.25)' },
-  COMPLETA:     { label: 'Completa',     color: '#10b981', bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.25)' },
-  REPROGRAMADA: { label: 'Reprogramada', color: '#6366f1', bg: 'rgba(99,102,241,0.08)', border: 'rgba(99,102,241,0.25)' },
-  ANULADA:      { label: 'Anulada',      color: '#ef4444', bg: 'rgba(239,68,68,0.08)',  border: 'rgba(239,68,68,0.25)' },
+  COMPLETA:     { label: 'Completa',     color: '#10b981', bg: 'rgba(40,149,108,0.08)', border: 'rgba(40,149,108,0.25)' },
+  REPROGRAMADA: { label: 'Reprogramada', color: '#6366f1', bg: 'rgba(86,104,184,0.08)', border: 'rgba(86,104,184,0.25)' },
+  ANULADA:      { label: 'Anulada',      color: '#ef4444', bg: 'rgba(192,80,80,0.08)',  border: 'rgba(192,80,80,0.25)' },
 }
 
 // ─── EstadoBadge ──────────────────────────────────────────────────────────────
@@ -67,7 +67,7 @@ function EstadoBadge({ estado }: { estado: GhEstadoEntregaDotacion }) {
 
 // ─── Progress bar ─────────────────────────────────────────────────────────────
 
-function ProgressBar({ value, color = '#10b981', bg = 'rgba(16,185,129,0.08)' }: { value: number; color?: string; bg?: string }) {
+function ProgressBar({ value, color = '#10b981', bg = 'rgba(40,149,108,0.08)' }: { value: number; color?: string; bg?: string }) {
   return (
     <div style={{ height: '6px', borderRadius: '999px', background: bg, overflow: 'hidden', position: 'relative' }}>
       <div style={{ position: 'absolute', inset: 0, width: `${Math.min(100, value)}%`, background: color, borderRadius: '999px', transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)' }} />
@@ -82,8 +82,8 @@ function KitPreviewCard({ maestro }: { maestro: GhMaestroDotacion }) {
     <div
       style={{
         padding: '16px', borderRadius: 'var(--radius-lg)',
-        border: '1px solid rgba(245,158,11,0.3)',
-        background: 'linear-gradient(135deg, rgba(245,158,11,0.06), rgba(245,158,11,0.02))',
+        border: '1px solid rgba(69,116,196,0.3)',
+        background: 'linear-gradient(135deg, rgba(69,116,196,0.06), rgba(69,116,196,0.02))',
         animation: 'slideDown 0.25s ease',
       }}
     >
@@ -92,7 +92,7 @@ function KitPreviewCard({ maestro }: { maestro: GhMaestroDotacion }) {
         <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#f59e0b', letterSpacing: '0.08em' }}>KIT ASIGNADO POR REGLA</span>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-primary)', padding: '4px 10px', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 'var(--radius-md)' }}>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-primary)', padding: '4px 10px', background: 'rgba(69,116,196,0.1)', border: '1px solid rgba(69,116,196,0.2)', borderRadius: 'var(--radius-md)' }}>
           {maestro.kit_codigo}
         </span>
         <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
@@ -168,7 +168,7 @@ function NuevoMaestroModal({
     >
       <div style={{ width: '100%', maxWidth: '520px', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xl)', boxShadow: '0 24px 80px rgba(0,0,0,0.4)', overflow: 'hidden' }}>
         <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '36px', height: '36px', borderRadius: 'var(--radius-md)', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '36px', height: '36px', borderRadius: 'var(--radius-md)', background: 'rgba(69,116,196,0.1)', border: '1px solid rgba(69,116,196,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Hash size={16} color="#f59e0b" />
           </div>
           <div style={{ flex: 1 }}>
@@ -206,7 +206,7 @@ function NuevoMaestroModal({
             </div>
           </div>
 
-          <div style={{ padding: '14px', background: 'rgba(245,158,11,0.04)', border: '1px solid rgba(245,158,11,0.15)', borderRadius: 'var(--radius-lg)', display: 'grid', gap: '10px' }}>
+          <div style={{ padding: '14px', background: 'rgba(69,116,196,0.04)', border: '1px solid rgba(69,116,196,0.15)', borderRadius: 'var(--radius-lg)', display: 'grid', gap: '10px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
               <Sparkles size={13} color="#f59e0b" />
               <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#f59e0b', letterSpacing: '0.08em' }}>DETALLES DEL KIT</span>
@@ -252,7 +252,7 @@ function AreaCard({ area, reglas, onAddRegla }: { area: string; reglas: GhMaestr
         onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-elevated)' }}
         onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
       >
-        <div style={{ width: '40px', height: '40px', borderRadius: 'var(--radius-md)', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <div style={{ width: '40px', height: '40px', borderRadius: 'var(--radius-md)', background: 'rgba(69,116,196,0.1)', border: '1px solid rgba(69,116,196,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <Briefcase size={18} color="#f59e0b" />
         </div>
         <div style={{ flex: 1 }}>
@@ -264,7 +264,7 @@ function AreaCard({ area, reglas, onAddRegla }: { area: string; reglas: GhMaestr
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); onAddRegla(area) }}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '6px 12px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(245,158,11,0.3)', background: 'rgba(245,158,11,0.06)', color: '#f59e0b', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '6px 12px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(69,116,196,0.3)', background: 'rgba(69,116,196,0.06)', color: '#f59e0b', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}
         >
           <Plus size={13} /> Agregar regla
         </button>
@@ -286,7 +286,7 @@ function AreaCard({ area, reglas, onAddRegla }: { area: string; reglas: GhMaestr
             </thead>
             <tbody>
               {reglas.map((r) => (
-                <tr key={r.id} style={{ borderTop: '1px solid var(--border-subtle)', transition: 'background 0.1s' }} onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(245,158,11,0.03)' }} onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}>
+                <tr key={r.id} style={{ borderTop: '1px solid var(--border-subtle)', transition: 'background 0.1s' }} onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(69,116,196,0.03)' }} onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}>
                   <td style={{ padding: '12px 16px', fontWeight: 600, fontSize: '0.82rem', color: 'var(--text-primary)' }}>{r.cargo}</td>
                   <td style={{ padding: '12px 16px' }}>
                     <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', padding: '3px 8px', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-full)', fontWeight: 500 }}>
@@ -294,7 +294,7 @@ function AreaCard({ area, reglas, onAddRegla }: { area: string; reglas: GhMaestr
                     </span>
                   </td>
                   <td style={{ padding: '12px 16px' }}>
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem', fontWeight: 700, color: '#f59e0b', padding: '4px 10px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 'var(--radius-md)', display: 'inline-block' }}>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem', fontWeight: 700, color: '#f59e0b', padding: '4px 10px', background: 'rgba(69,116,196,0.08)', border: '1px solid rgba(69,116,196,0.2)', borderRadius: 'var(--radius-md)', display: 'inline-block' }}>
                       {r.kit_codigo}
                     </span>
                   </td>
@@ -365,7 +365,7 @@ function EntregaCard({
               </span>
             )}
             {entrega.maestro_dotacion && (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', borderRadius: 'var(--radius-full)', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', fontSize: '0.7rem', color: '#f59e0b', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', borderRadius: 'var(--radius-full)', background: 'rgba(69,116,196,0.08)', border: '1px solid rgba(69,116,196,0.2)', fontSize: '0.7rem', color: '#f59e0b', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
                 <Tag size={11} />
                 {entrega.maestro_dotacion.kit_codigo}
               </span>
@@ -408,7 +408,7 @@ function EntregaCard({
 
           {/* Maestro info box */}
           {entrega.maestro_dotacion && (
-            <div style={{ marginBottom: '14px', padding: '10px 14px', borderRadius: 'var(--radius-md)', background: 'rgba(245,158,11,0.04)', border: '1px solid rgba(245,158,11,0.12)' }}>
+            <div style={{ marginBottom: '14px', padding: '10px 14px', borderRadius: 'var(--radius-md)', background: 'rgba(69,116,196,0.04)', border: '1px solid rgba(69,116,196,0.12)' }}>
               <div style={{ fontSize: '0.72rem', color: '#f59e0b', fontWeight: 700, marginBottom: '4px' }}>REGLA DE DOTACIÓN VINCULADA — {entrega.maestro_dotacion.kit_codigo}</div>
               <p style={{ margin: 0, fontSize: '0.76rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>{entrega.maestro_dotacion.kit_descripcion}</p>
               <div style={{ marginTop: '6px', fontSize: '0.7rem', color: 'var(--text-muted)' }}>
@@ -480,7 +480,7 @@ function EntregaCard({
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); onCerrar(entrega.id) }}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(16,185,129,0.3)', background: 'rgba(16,185,129,0.06)', color: '#10b981', fontSize: '0.74rem', fontWeight: 600, cursor: 'pointer' }}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(40,149,108,0.3)', background: 'rgba(40,149,108,0.06)', color: '#10b981', fontSize: '0.74rem', fontWeight: 600, cursor: 'pointer' }}
                 >
                   <CheckCircle2 size={13} /> Cerrar entrega
                 </button>
@@ -532,7 +532,7 @@ function AgregarDetalleModal({ entrega, onClose }: { entrega: GhDotacionEntrega;
           </div>
         </div>
         <div style={{ padding: '20px 22px', display: 'grid', gap: '14px' }}>
-          {error && <div style={{ padding: '8px 12px', borderRadius: 'var(--radius-md)', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#ef4444', fontSize: '0.78rem' }}>{error}</div>}
+          {error && <div style={{ padding: '8px 12px', borderRadius: 'var(--radius-md)', background: 'rgba(192,80,80,0.08)', border: '1px solid rgba(192,80,80,0.25)', color: '#ef4444', fontSize: '0.78rem' }}>{error}</div>}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
               <span style={labelStyle}>Código</span>
@@ -617,7 +617,7 @@ function NuevaEntregaModal({ sedeId, maestroList, initialArea, onClose }: { sede
       <div style={{ width: '100%', maxWidth: '680px', maxHeight: '90vh', overflowY: 'auto', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xl)', boxShadow: '0 24px 80px rgba(0,0,0,0.4)' }}>
         {/* Header */}
         <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ width: '38px', height: '38px', borderRadius: 'var(--radius-md)', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '38px', height: '38px', borderRadius: 'var(--radius-md)', background: 'rgba(69,116,196,0.1)', border: '1px solid rgba(69,116,196,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Shirt size={17} color="#f59e0b" />
           </div>
           <div style={{ flex: 1 }}>
@@ -632,7 +632,7 @@ function NuevaEntregaModal({ sedeId, maestroList, initialArea, onClose }: { sede
         {/* Body */}
         <div style={{ padding: '22px 24px', display: 'grid', gap: '22px' }}>
           {error && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', borderRadius: 'var(--radius-md)', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#ef4444', fontSize: '0.78rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', borderRadius: 'var(--radius-md)', background: 'rgba(192,80,80,0.08)', border: '1px solid rgba(192,80,80,0.25)', color: '#ef4444', fontSize: '0.78rem' }}>
               <AlertCircle size={14} /> {error}
             </div>
           )}
@@ -641,8 +641,8 @@ function NuevaEntregaModal({ sedeId, maestroList, initialArea, onClose }: { sede
           <section>
             <span style={labelStyle}>Persona que recibe la dotación</span>
             {candidatoSeleccionado ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(16,185,129,0.3)', background: 'rgba(16,185,129,0.06)' }}>
-                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(40,149,108,0.3)', background: 'rgba(40,149,108,0.06)' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(40,149,108,0.1)', border: '1px solid rgba(40,149,108,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <Check size={16} color="#10b981" strokeWidth={3} />
                 </div>
                 <div style={{ flex: 1 }}>
@@ -733,7 +733,7 @@ function NuevaEntregaModal({ sedeId, maestroList, initialArea, onClose }: { sede
             {maestroMatch ? (
               <KitPreviewCard maestro={maestroMatch} />
             ) : area.trim().length > 0 ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(99,102,241,0.04)', fontSize: '0.76rem', color: 'var(--text-muted)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(86,104,184,0.2)', background: 'rgba(86,104,184,0.04)', fontSize: '0.76rem', color: 'var(--text-muted)' }}>
                 <Info size={14} color="#6366f1" />
                 No hay regla de dotación configurada para esta área. La entrega se creará sin kit vinculado.
               </div>
@@ -879,10 +879,10 @@ export default function GHDotacionView() {
       {/* ── Stats bar ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px' }} className="animate-fade-up stagger-1">
         {([
-          { key: '', label: 'Total', value: stats.total, color: '#6366f1', bg: 'rgba(99,102,241,0.08)', border: 'rgba(99,102,241,0.18)' },
-          { key: 'PENDIENTE', label: 'Pendientes', value: stats.pendientes, color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.18)' },
+          { key: '', label: 'Total', value: stats.total, color: '#6366f1', bg: 'rgba(86,104,184,0.08)', border: 'rgba(86,104,184,0.18)' },
+          { key: 'PENDIENTE', label: 'Pendientes', value: stats.pendientes, color: '#f59e0b', bg: 'rgba(69,116,196,0.08)', border: 'rgba(69,116,196,0.18)' },
           { key: 'PARCIAL', label: 'Parciales', value: stats.parciales, color: '#0ea5e9', bg: 'rgba(14,165,233,0.08)', border: 'rgba(14,165,233,0.18)' },
-          { key: 'COMPLETA', label: 'Completas', value: stats.completas, color: '#10b981', bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.18)' },
+          { key: 'COMPLETA', label: 'Completas', value: stats.completas, color: '#10b981', bg: 'rgba(40,149,108,0.08)', border: 'rgba(40,149,108,0.18)' },
         ] as const).map((s) => (
           <button
             key={s.key}
@@ -929,7 +929,7 @@ export default function GHDotacionView() {
             </div>
             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
               {(['', 'PENDIENTE', 'PARCIAL', 'COMPLETA', 'ANULADA'] as const).map((e) => {
-                const meta = e ? ESTADO_META[e as GhEstadoEntregaDotacion] : { label: 'Todos', color: '#6366f1', bg: 'rgba(99,102,241,0.08)', border: 'rgba(99,102,241,0.2)' }
+                const meta = e ? ESTADO_META[e as GhEstadoEntregaDotacion] : { label: 'Todos', color: '#6366f1', bg: 'rgba(86,104,184,0.08)', border: 'rgba(86,104,184,0.2)' }
                 const isActive = filtroEstado === e
                 return (
                   <button key={e} type="button" onClick={() => setFiltroEstado(e)} style={{ padding: '5px 12px', borderRadius: 'var(--radius-full)', fontSize: '0.72rem', fontWeight: 600, border: `1px solid ${isActive ? meta.color : 'var(--border-subtle)'}`, background: isActive ? meta.bg : 'transparent', color: isActive ? meta.color : 'var(--text-muted)', cursor: 'pointer', transition: 'all 0.15s' }}>
@@ -965,7 +965,7 @@ export default function GHDotacionView() {
       {activeTab === 'areas' && (
         <div style={{ display: 'grid', gap: '12px' }} className="animate-fade-up">
           {/* Info bar */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', background: 'rgba(245,158,11,0.04)', border: '1px solid rgba(245,158,11,0.15)', borderRadius: 'var(--radius-lg)', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', background: 'rgba(69,116,196,0.04)', border: '1px solid rgba(69,116,196,0.15)', borderRadius: 'var(--radius-lg)', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
             <Info size={15} color="#f59e0b" style={{ flexShrink: 0 }} />
             <span>Cada área puede tener múltiples reglas de dotación según cargo y tipo de contrato. El sistema usará estas reglas para sugerir automáticamente el kit al crear una entrega.</span>
           </div>
@@ -1018,4 +1018,5 @@ export default function GHDotacionView() {
     </div>
   )
 }
+
 

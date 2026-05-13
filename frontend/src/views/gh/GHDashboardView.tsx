@@ -107,7 +107,7 @@ function SesionActivaCard({ sesion, onClick }: { sesion: GhSesionInduccion; onCl
       onClick={onClick}
       style={{
         background: 'var(--bg-surface)',
-        border: '1px solid rgba(99,102,241,0.18)',
+        border: '1px solid rgba(86,104,184,0.18)',
         borderRadius: 'var(--radius-lg)',
         padding: '14px 16px',
         textAlign: 'left',
@@ -118,11 +118,11 @@ function SesionActivaCard({ sesion, onClick }: { sesion: GhSesionInduccion; onCl
       onMouseEnter={(e) => {
         const el = e.currentTarget as HTMLElement
         el.style.borderColor = '#6366f1'
-        el.style.boxShadow = '0 4px 16px rgba(99,102,241,0.12)'
+        el.style.boxShadow = '0 4px 16px rgba(86,104,184,0.12)'
       }}
       onMouseLeave={(e) => {
         const el = e.currentTarget as HTMLElement
-        el.style.borderColor = 'rgba(99,102,241,0.18)'
+        el.style.borderColor = 'rgba(86,104,184,0.18)'
         el.style.boxShadow = 'none'
       }}
     >
@@ -134,7 +134,7 @@ function SesionActivaCard({ sesion, onClick }: { sesion: GhSesionInduccion; onCl
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <div style={{ fontSize: '0.68rem', padding: '3px 8px', borderRadius: 'var(--radius-full)', background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', color: '#6366f1', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <div style={{ fontSize: '0.68rem', padding: '3px 8px', borderRadius: 'var(--radius-full)', background: 'rgba(86,104,184,0.1)', border: '1px solid rgba(86,104,184,0.2)', color: '#6366f1', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
             <TipoIcon size={11} />
             {sesion.tipo_sesion}
           </div>
@@ -233,10 +233,10 @@ export default function GHDashboardView() {
 
   const estadoData = useMemo(
     () => [
-      { label: 'Confirmadas', value: metrics.confirmadas, color: 'var(--success-400)', bg: 'rgba(16,185,129,0.12)' },
-      { label: 'En curso', value: metrics.enCurso, color: '#6366F1', bg: 'rgba(99,102,241,0.12)' },
+      { label: 'Confirmadas', value: metrics.confirmadas, color: 'var(--success-400)', bg: 'rgba(40,149,108,0.12)' },
+      { label: 'En curso', value: metrics.enCurso, color: '#5668B8', bg: 'rgba(86,104,184,0.12)' },
       { label: 'Pendientes', value: pendientes, color: '#0ea5e9', bg: 'rgba(14,165,233,0.12)' },
-      { label: 'No asistió', value: metrics.noAsistio, color: 'var(--danger-400)', bg: 'rgba(239,68,68,0.12)' },
+      { label: 'No asistió', value: metrics.noAsistio, color: 'var(--danger-400)', bg: 'rgba(192,80,80,0.12)' },
     ],
     [metrics, pendientes],
   )
@@ -318,20 +318,20 @@ export default function GHDashboardView() {
       {/* ── Metric cards ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }} className="animate-fade-up stagger-1">
         <MetricCard label="Citas hoy" value={metrics.citasHoy} icon={CalendarDays} color="var(--primary-400)" bg="rgba(14,165,233,0.08)" border="rgba(14,165,233,0.2)" onClick={() => navigate('/gh/citas')} />
-        <MetricCard label="Confirmadas" value={metrics.confirmadas} icon={CalendarCheck2} color="var(--success-400)" bg="rgba(16,185,129,0.08)" border="rgba(16,185,129,0.2)" badge={`${asistenciaPct}% asistencia`} />
-        <MetricCard label="En curso" value={metrics.enCurso} icon={Clock3} color="#6366F1" bg="rgba(99,102,241,0.08)" border="rgba(99,102,241,0.2)" />
-        <MetricCard label="No asistió" value={metrics.noAsistio} icon={CalendarX2} color="var(--danger-400)" bg="rgba(239,68,68,0.08)" border="rgba(239,68,68,0.2)" badge={`${noShowPct}% inasistencia`} />
+        <MetricCard label="Confirmadas" value={metrics.confirmadas} icon={CalendarCheck2} color="var(--success-400)" bg="rgba(40,149,108,0.08)" border="rgba(40,149,108,0.2)" badge={`${asistenciaPct}% asistencia`} />
+        <MetricCard label="En curso" value={metrics.enCurso} icon={Clock3} color="#5668B8" bg="rgba(86,104,184,0.08)" border="rgba(86,104,184,0.2)" />
+        <MetricCard label="No asistió" value={metrics.noAsistio} icon={CalendarX2} color="var(--danger-400)" bg="rgba(192,80,80,0.08)" border="rgba(192,80,80,0.2)" badge={`${noShowPct}% inasistencia`} />
       </div>
 
       {/* ── Sesiones activas (EN_CURSO) ── */}
       {sesionesEnCurso.length > 0 && (
         <div
-          style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.04), rgba(14,165,233,0.04))', border: '1px solid rgba(99,102,241,0.18)', borderRadius: 'var(--radius-lg)', padding: '18px 20px', marginBottom: '24px' }}
+          style={{ background: 'linear-gradient(135deg, rgba(86,104,184,0.04), rgba(14,165,233,0.04))', border: '1px solid rgba(86,104,184,0.18)', borderRadius: 'var(--radius-lg)', padding: '18px 20px', marginBottom: '24px' }}
           className="animate-fade-up stagger-2"
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: '#6366f1', boxShadow: '0 0 0 3px rgba(99,102,241,0.2)', animation: 'pulse 2s cubic-bezier(0.4,0,0.6,1) infinite' }} />
+              <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: '#6366f1', boxShadow: '0 0 0 3px rgba(86,104,184,0.2)', animation: 'pulse 2s cubic-bezier(0.4,0,0.6,1) infinite' }} />
               <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>
                 Sesiones de inducción en curso ({sesionesEnCurso.length})
               </span>
@@ -457,9 +457,9 @@ export default function GHDashboardView() {
           </div>
           <div style={{ display: 'grid', gap: '10px', marginBottom: '10px' }}>
             {[
-              { label: 'Conversión a confirmación', value: `${kpisProxy.conversionConfirmacion}%`, color: 'var(--success-400)', bg: 'rgba(16,185,129,0.06)' },
-              { label: 'Tasa de inasistencia', value: `${kpisProxy.noShow}%`, color: 'var(--danger-400)', bg: 'rgba(239,68,68,0.06)' },
-              { label: 'Operación activa del día', value: `${kpisProxy.operacionActiva}%`, color: '#6366F1', bg: 'rgba(99,102,241,0.06)' },
+              { label: 'Conversión a confirmación', value: `${kpisProxy.conversionConfirmacion}%`, color: 'var(--success-400)', bg: 'rgba(40,149,108,0.06)' },
+              { label: 'Tasa de inasistencia', value: `${kpisProxy.noShow}%`, color: 'var(--danger-400)', bg: 'rgba(192,80,80,0.06)' },
+              { label: 'Operación activa del día', value: `${kpisProxy.operacionActiva}%`, color: '#5668B8', bg: 'rgba(86,104,184,0.06)' },
             ].map((item) => (
               <div
                 key={item.label}
@@ -483,9 +483,9 @@ export default function GHDashboardView() {
           <div style={{ padding: '12px' }}>
             {[
               { label: 'Agendar citas', desc: 'Listado y filtros operativos de citas', icon: CalendarDays, color: 'var(--primary-400)', bg: 'rgba(14,165,233,0.08)', path: '/gh/citas' },
-              { label: 'Inducciones', desc: 'Sesiones sincrónicas y virtuales con control de asistencia', icon: UserCheck, color: 'var(--success-400)', bg: 'rgba(16,185,129,0.08)', path: '/gh/inducciones' },
-              { label: 'Dotación', desc: 'Matriz por área, cargo y kit de entrega', icon: Briefcase, color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', path: '/gh/dotacion' },
-              { label: 'Importación GH', desc: 'Carga masiva de candidatos por sede', icon: Upload, color: '#6366F1', bg: 'rgba(99,102,241,0.08)', path: '/gh/importacion' },
+              { label: 'Inducciones', desc: 'Sesiones sincrónicas y virtuales con control de asistencia', icon: UserCheck, color: 'var(--success-400)', bg: 'rgba(40,149,108,0.08)', path: '/gh/inducciones' },
+              { label: 'Dotación', desc: 'Matriz por área, cargo y kit de entrega', icon: Briefcase, color: '#f59e0b', bg: 'rgba(69,116,196,0.08)', path: '/gh/dotacion' },
+              { label: 'Importación GH', desc: 'Carga masiva de candidatos por sede', icon: Upload, color: '#5668B8', bg: 'rgba(86,104,184,0.08)', path: '/gh/importacion' },
             ].map((item) => (
               <button
                 key={item.path}
@@ -510,3 +510,4 @@ export default function GHDashboardView() {
     </div>
   )
 }
+

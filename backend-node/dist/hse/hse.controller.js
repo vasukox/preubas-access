@@ -56,8 +56,10 @@ const public_decorator_1 = require("../common/decorators/public.decorator");
 const rol_enum_1 = require("../common/enums/rol.enum");
 const autogestion_token_guard_1 = require("../common/guards/autogestion-token.guard");
 const autorizacion_dto_1 = require("./dto/autorizacion.dto");
+const contratista_dto_1 = require("./dto/contratista.dto");
 const autogestion_dto_1 = require("./dto/autogestion.dto");
 const acceso_dto_1 = require("./dto/acceso.dto");
+const cumplimiento_dto_1 = require("./dto/cumplimiento.dto");
 const excepcion_dto_1 = require("./dto/excepcion.dto");
 const autorizacion_service_1 = require("./services/autorizacion.service");
 const autogestion_service_1 = require("./services/autogestion.service");
@@ -65,11 +67,11 @@ const acceso_service_1 = require("./services/acceso.service");
 const cumplimiento_service_1 = require("./services/cumplimiento.service");
 const excepcion_service_1 = require("./services/excepcion.service");
 const reportes_service_1 = require("./services/reportes.service");
+const upload_security_service_1 = require("./services/upload-security.service");
 const proveedor_service_1 = require("../persona/proveedor.service");
 const platform_express_1 = require("@nestjs/platform-express");
 const common_2 = require("@nestjs/common");
 const fs = __importStar(require("fs"));
-const path = __importStar(require("path"));
 class CrearProveedorFrontendDto {
     nombre;
     nit;
@@ -113,7 +115,8 @@ let HseController = class HseController {
     excepcionService;
     reportesService;
     proveedorService;
-    constructor(hseService, autorizacionService, autogestionService, accesoService, cumplimientoService, excepcionService, reportesService, proveedorService) {
+    uploadSecurityService;
+    constructor(hseService, autorizacionService, autogestionService, accesoService, cumplimientoService, excepcionService, reportesService, proveedorService, uploadSecurityService) {
         this.hseService = hseService;
         this.autorizacionService = autorizacionService;
         this.autogestionService = autogestionService;
@@ -122,6 +125,7 @@ let HseController = class HseController {
         this.excepcionService = excepcionService;
         this.reportesService = reportesService;
         this.proveedorService = proveedorService;
+        this.uploadSecurityService = uploadSecurityService;
     }
     async getSedes(req) {
         return this.hseService.getCatalogosSedes(req.user || {});
@@ -162,15 +166,10 @@ let HseController = class HseController {
         return this.proveedorService.remove(id);
     }
     async getAutorizaciones(sedeId, estado, page, perPage) {
-        try {
-            const p = page ? parseInt(page, 10) : 1;
-            const pp = perPage ? parseInt(perPage, 10) : 20;
-            const result = await this.autorizacionService.findAll(sedeId, estado, p, pp);
-            return result.items;
-        }
-        catch (e) {
-            throw new common_1.HttpException({ error: e.message, stack: e.stack }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        const p = page ? parseInt(page, 10) : 1;
+        const pp = perPage ? parseInt(perPage, 10) : 20;
+        const result = await this.autorizacionService.findAll(sedeId, estado, p, pp);
+        return result.items;
     }
     async getAutorizacion(id) {
         return this.autorizacionService.findOne(id);
@@ -212,11 +211,11 @@ let HseController = class HseController {
     async actualizarProveedorContratista(id, proveedorId) {
         return this.autorizacionService.actualizarProveedorContratista(id, proveedorId ?? null);
     }
-    async eliminarContratista(id, data, req) {
-        return this.autorizacionService.eliminarContratista(id, data?.motivo, req.user?.id);
+    async eliminarContratista(id, dto, req) {
+        return this.autorizacionService.eliminarContratista(id, dto.motivo, req.user?.id);
     }
-    async eliminarAdjuntoContratista(id, data) {
-        return this.autorizacionService.eliminarAdjuntoContratista(id, data);
+    async eliminarAdjuntoContratista(id, dto) {
+        return this.autorizacionService.eliminarAdjuntoContratista(id, dto);
     }
     async getAutogestionDatos(req) {
         return this.autogestionService.getDatosIniciales(req.contratista);
@@ -225,22 +224,7 @@ let HseController = class HseController {
         if (!archivo) {
             throw new common_1.BadRequestException('Archivo requerido');
         }
-        const moduloSeguro = this.validarSegmentoArchivo(modulo);
-        const campoSeguro = this.validarSegmentoArchivo(campo);
-        const ext = path.extname(archivo.originalname || '').toLowerCase();
-        const nombreArchivo = `${Date.now()}-${Math.random().toString(16).slice(2)}${ext}`;
-        const relativePath = path.posix.join('hse', String(req.contratista.id), moduloSeguro, campoSeguro, nombreArchivo);
-        const fullPath = this.resolveUploadPath(relativePath);
-        fs.mkdirSync(path.dirname(fullPath), { recursive: true });
-        fs.writeFileSync(fullPath, archivo.buffer);
-        return {
-            modulo,
-            campo,
-            path: relativePath,
-            filename: archivo.originalname,
-            contentType: archivo.mimetype,
-            sizeBytes: archivo.size,
-        };
+        return this.uploadSecurityService.saveHseAutogestionFile(req.contratista.id, modulo, campo, archivo);
     }
     async guardarDatosPersonales(req, dto) {
         return this.autogestionService.guardarDatosPersonales(req.contratista.id, dto);
@@ -273,30 +257,24 @@ let HseController = class HseController {
     async getDashboard(sedeId) {
         return this.hseService.getDashboard(sedeId);
     }
-    async registrarEntrada(req, body) {
-        const contratistaId = body.contratistaId ?? body.contratista_id;
-        const sedeId = body.sedeId ?? body.sede_id;
-        const metodo = body.metodo ?? body.puerta;
-        const observacion = body.observacion ?? body.observaciones;
-        const ubicacionId = body.ubicacionId ?? body.ubicacion_id;
-        return this.accesoService.registrarEntrada(contratistaId, sedeId, req.user?.id, metodo, observacion, ubicacionId);
+    async registrarEntrada(req, dto) {
+        return this.accesoService.registrarEntrada(dto.contratista_id, dto.sede_id, req.user?.id, dto.metodo, dto.observacion, dto.ubicacion_id);
     }
-    async registrarSalida(req, body) {
-        const contratistaId = body.contratistaId ?? body.contratista_id;
-        const sedeId = body.sedeId ?? body.sede_id;
-        const metodo = body.metodo ?? body.puerta;
-        const observacion = body.observacion ?? body.observaciones;
-        const ubicacionId = body.ubicacionId ?? body.ubicacion_id;
-        return this.accesoService.registrarSalida(contratistaId, sedeId, req.user?.id, metodo, observacion, ubicacionId);
+    async registrarSalida(req, dto) {
+        return this.accesoService.registrarSalida(dto.contratista_id, dto.sede_id, req.user?.id, dto.metodo, dto.observacion, dto.ubicacion_id);
     }
-    async getAccesosSede(sedeId) {
-        return this.accesoService.getHistorialSede(sedeId);
+    async getAccesosSede(sedeId, limit) {
+        const parsedLimit = limit ? parseInt(limit, 10) : 50;
+        const safeLimit = Number.isFinite(parsedLimit)
+            ? Math.min(Math.max(parsedLimit, 1), 200)
+            : 50;
+        return this.accesoService.getHistorialSede(sedeId, safeLimit);
     }
     async getPersonasDentro(sedeId) {
         return this.accesoService.getPersonasDentro(sedeId);
     }
     async verificarAcceso(dto) {
-        return this.accesoService.verificarAcceso(dto.numeroDocumento, dto.sedeId);
+        return this.accesoService.verificarAcceso(dto.numero_documento, dto.sede_id);
     }
     async registrarAccesoVigilante(req, dto) {
         return this.accesoService.registrarAcceso(dto, req.user?.id);
@@ -309,28 +287,19 @@ let HseController = class HseController {
         return this.cumplimientoService.listarCumplimientos(sedeId, estado);
     }
     async iniciarCumplimiento(req, dto) {
-        const contratistaId = dto.contratistaId ?? dto.contratista_id;
-        const sedeId = dto.sedeId ?? dto.sede_id;
-        const itemsRequisitos = dto.itemsRequisitos ?? dto.items_requisitos;
-        return this.cumplimientoService.iniciarCumplimiento(contratistaId, req.user?.id, sedeId, itemsRequisitos);
+        return this.cumplimientoService.iniciarCumplimiento(dto.contratista_id, req.user?.id, dto.sede_id, undefined);
     }
     async iniciarCumplimientoFrontend(req, dto) {
-        const contratistaId = dto.contratistaId ?? dto.contratista_id;
-        const sedeId = dto.sedeId ?? dto.sede_id;
-        const itemsRequisitos = dto.itemsRequisitos ?? dto.items_requisitos;
-        return this.cumplimientoService.iniciarCumplimiento(contratistaId, req.user?.id, sedeId, itemsRequisitos);
+        return this.cumplimientoService.iniciarCumplimiento(dto.contratista_id, req.user?.id, dto.sede_id, undefined);
     }
-    async actualizarCumplimiento(id, body) {
-        return this.cumplimientoService.actualizarCumplimiento(id, body);
+    async actualizarCumplimiento(id, dto) {
+        return this.cumplimientoService.actualizarCumplimiento(id, dto);
     }
-    async marcarItemCumplimiento(id, itemId, body) {
-        const cumple = body.cumple ?? body.esCumplido;
-        return this.cumplimientoService.marcarItem(id, itemId, cumple, body.observacion);
+    async marcarItemCumplimiento(id, itemId, dto) {
+        return this.cumplimientoService.marcarItem(id, itemId, dto.cumple, dto.observacion);
     }
-    async cerrarCumplimiento(id, body) {
-        const firmaDigital = body.firmaDigital ?? body.firma_digital;
-        const observacionGeneral = body.observacionGeneral ?? body.observacion_general;
-        return this.cumplimientoService.cerrarCumplimiento(id, firmaDigital, observacionGeneral);
+    async cerrarCumplimiento(id, dto) {
+        return this.cumplimientoService.cerrarCumplimiento(id, dto.firma_digital, dto.observacion_general);
     }
     async crearExcepcion(req, dto) {
         return this.excepcionService.crearExcepcion(req.user?.id, dto);
@@ -362,6 +331,9 @@ let HseController = class HseController {
     async actualizarExcepcion(id, dto) {
         return this.excepcionService.actualizarExcepcion(id, dto);
     }
+    async eliminarExcepcion(id) {
+        return this.excepcionService.deleteExcepcion(id);
+    }
     async getReporteAccesos(query) {
         return this.reportesService.getReporteAccesos(query);
     }
@@ -373,26 +345,11 @@ let HseController = class HseController {
     }
     async servirArchivoHse(req, res) {
         const rawPath = req.params?.[0] ?? '';
-        const fullPath = this.resolveUploadPath(rawPath);
+        const fullPath = this.uploadSecurityService.resolveUploadPath(rawPath);
         if (!fs.existsSync(fullPath) || !fs.statSync(fullPath).isFile()) {
             throw new common_1.NotFoundException('Archivo no encontrado');
         }
         return res.sendFile(fullPath);
-    }
-    validarSegmentoArchivo(value) {
-        if (!value || !/^[a-zA-Z0-9_-]+$/.test(value)) {
-            throw new common_1.BadRequestException('Ruta de archivo invalida');
-        }
-        return value;
-    }
-    resolveUploadPath(relativePath) {
-        const uploadRoot = path.resolve(process.env.UPLOAD_DIR || path.join(process.cwd(), 'uploads'));
-        const normalized = relativePath.replace(/\\/g, '/').replace(/^\/+/, '');
-        const fullPath = path.resolve(uploadRoot, normalized);
-        if (!fullPath.startsWith(uploadRoot)) {
-            throw new common_1.BadRequestException('Ruta de archivo invalida');
-        }
-        return fullPath;
     }
 };
 exports.HseController = HseController;
@@ -595,7 +552,7 @@ __decorate([
     __param(1, (0, common_1.Body)()),
     __param(2, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object, Object]),
+    __metadata("design:paramtypes", [Number, contratista_dto_1.EliminarContratistaDto, Object]),
     __metadata("design:returntype", Promise)
 ], HseController.prototype, "eliminarContratista", null);
 __decorate([
@@ -604,7 +561,7 @@ __decorate([
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:paramtypes", [Number, contratista_dto_1.EliminarAdjuntoContratistaDto]),
     __metadata("design:returntype", Promise)
 ], HseController.prototype, "eliminarAdjuntoContratista", null);
 __decorate([
@@ -733,7 +690,7 @@ __decorate([
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Object, acceso_dto_1.RegistrarEntradaSalidaDto]),
     __metadata("design:returntype", Promise)
 ], HseController.prototype, "registrarEntrada", null);
 __decorate([
@@ -742,15 +699,16 @@ __decorate([
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Object, acceso_dto_1.RegistrarEntradaSalidaDto]),
     __metadata("design:returntype", Promise)
 ], HseController.prototype, "registrarSalida", null);
 __decorate([
     (0, common_1.Get)('accesos/sede/:sede_id'),
     (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_HSE, rol_enum_1.RolNombre.GESTION_HSE, rol_enum_1.RolNombre.VIGILANTE_HSE, rol_enum_1.RolNombre.VISUALIZADOR),
     __param(0, (0, common_1.Param)('sede_id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Number, String]),
     __metadata("design:returntype", Promise)
 ], HseController.prototype, "getAccesosSede", null);
 __decorate([
@@ -801,7 +759,7 @@ __decorate([
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Object, cumplimiento_dto_1.CumplimientoIniciarDto]),
     __metadata("design:returntype", Promise)
 ], HseController.prototype, "iniciarCumplimiento", null);
 __decorate([
@@ -810,7 +768,7 @@ __decorate([
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Object, cumplimiento_dto_1.CumplimientoIniciarDto]),
     __metadata("design:returntype", Promise)
 ], HseController.prototype, "iniciarCumplimientoFrontend", null);
 __decorate([
@@ -819,7 +777,7 @@ __decorate([
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:paramtypes", [Number, cumplimiento_dto_1.CumplimientoActualizarDto]),
     __metadata("design:returntype", Promise)
 ], HseController.prototype, "actualizarCumplimiento", null);
 __decorate([
@@ -829,7 +787,7 @@ __decorate([
     __param(1, (0, common_1.Param)('itemId', common_1.ParseIntPipe)),
     __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number, Object]),
+    __metadata("design:paramtypes", [Number, Number, cumplimiento_dto_1.MarcarItemCumplimientoDto]),
     __metadata("design:returntype", Promise)
 ], HseController.prototype, "marcarItemCumplimiento", null);
 __decorate([
@@ -838,7 +796,7 @@ __decorate([
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:paramtypes", [Number, cumplimiento_dto_1.CumplimientoCerrarDto]),
     __metadata("design:returntype", Promise)
 ], HseController.prototype, "cerrarCumplimiento", null);
 __decorate([
@@ -921,9 +879,17 @@ __decorate([
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:paramtypes", [Number, excepcion_dto_1.UpdateExcepcionDto]),
     __metadata("design:returntype", Promise)
 ], HseController.prototype, "actualizarExcepcion", null);
+__decorate([
+    (0, common_1.Delete)('excepciones/:id'),
+    (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_HSE, rol_enum_1.RolNombre.GESTION_HSE),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], HseController.prototype, "eliminarExcepcion", null);
 __decorate([
     (0, common_1.Get)('reportes/accesos'),
     (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_HSE, rol_enum_1.RolNombre.GESTION_HSE, rol_enum_1.RolNombre.VISUALIZADOR),
@@ -949,6 +915,7 @@ __decorate([
 ], HseController.prototype, "getReporteVencimientos", null);
 __decorate([
     (0, common_1.Get)('archivos/*'),
+    (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_HSE, rol_enum_1.RolNombre.GESTION_HSE, rol_enum_1.RolNombre.VISUALIZADOR, rol_enum_1.RolNombre.ADMIN_GLOBAL),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
@@ -965,6 +932,7 @@ exports.HseController = HseController = __decorate([
         cumplimiento_service_1.CumplimientoService,
         excepcion_service_1.ExcepcionService,
         reportes_service_1.ReportesService,
-        proveedor_service_1.ProveedorService])
+        proveedor_service_1.ProveedorService,
+        upload_security_service_1.UploadSecurityService])
 ], HseController);
 //# sourceMappingURL=hse.controller.js.map

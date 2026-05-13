@@ -42,9 +42,9 @@ function formatDateTime(value: string | null | undefined): string {
 // ── Badge estado cumplimiento ─────────────────────────────────────
 function CumplimientoBadge({ estado }: { estado: EstadoCumplimiento }) {
   const config = {
-    EN_PROGRESO:    { color: 'var(--primary-400)',  bg: 'rgba(245,158,11,0.08)',  label: 'En progreso' },
-    COMPLETADO:     { color: 'var(--success-400)',  bg: 'rgba(16,185,129,0.08)', label: 'Completado'  },
-    INCUMPLIMIENTO: { color: 'var(--danger-400)',   bg: 'rgba(239,68,68,0.08)',  label: 'Incumplimiento' },
+    EN_PROGRESO:    { color: 'var(--primary-400)',  bg: 'rgba(69,116,196,0.08)',  label: 'En progreso' },
+    COMPLETADO:     { color: 'var(--success-400)',  bg: 'rgba(40,149,108,0.08)', label: 'Completado'  },
+    INCUMPLIMIENTO: { color: 'var(--danger-400)',   bg: 'rgba(192,80,80,0.08)',  label: 'Incumplimiento' },
   }
   const { color, bg, label } = config[estado]
   return (
@@ -75,15 +75,15 @@ function ChecklistItem({
   const [obs,     setObs]     = useState(item.observacion ?? '')
 
   const bgColor = item.cumple === true
-    ? 'rgba(16,185,129,0.06)'
+    ? 'rgba(40,149,108,0.06)'
     : item.cumple === false
-      ? 'rgba(239,68,68,0.06)'
+      ? 'rgba(192,80,80,0.06)'
       : 'var(--bg-elevated)'
 
   const borderColor = item.cumple === true
-    ? 'rgba(16,185,129,0.2)'
+    ? 'rgba(40,149,108,0.2)'
     : item.cumple === false
-      ? 'rgba(239,68,68,0.2)'
+      ? 'rgba(192,80,80,0.2)'
       : 'var(--border-subtle)'
 
   return (
@@ -128,8 +128,8 @@ function ChecklistItem({
               }}
               style={{
                 padding:      '5px 12px',
-                background:   item.cumple === true ? 'rgba(16,185,129,0.15)' : 'var(--bg-surface)',
-                border:       `1px solid ${item.cumple === true ? 'rgba(16,185,129,0.4)' : 'var(--border-default)'}`,
+                background:   item.cumple === true ? 'rgba(40,149,108,0.15)' : 'var(--bg-surface)',
+                border:       `1px solid ${item.cumple === true ? 'rgba(40,149,108,0.4)' : 'var(--border-default)'}`,
                 borderRadius: 'var(--radius-md)',
                 color:        item.cumple === true ? 'var(--success-400)' : 'var(--text-muted)',
                 fontSize:     '0.75rem',
@@ -148,8 +148,8 @@ function ChecklistItem({
               }}
               style={{
                 padding:      '5px 12px',
-                background:   item.cumple === false ? 'rgba(239,68,68,0.1)' : 'var(--bg-surface)',
-                border:       `1px solid ${item.cumple === false ? 'rgba(239,68,68,0.3)' : 'var(--border-default)'}`,
+                background:   item.cumple === false ? 'rgba(192,80,80,0.1)' : 'var(--bg-surface)',
+                border:       `1px solid ${item.cumple === false ? 'rgba(192,80,80,0.3)' : 'var(--border-default)'}`,
                 borderRadius: 'var(--radius-md)',
                 color:        item.cumple === false ? 'var(--danger-400)' : 'var(--text-muted)',
                 fontSize:     '0.75rem',
@@ -256,14 +256,14 @@ function DocumentoAccionRow({
   return (
     <div style={{
       padding: '8px 10px',
-      border: '1px solid rgba(99,102,241,0.2)',
+      border: '1px solid rgba(86,104,184,0.2)',
       borderRadius: '8px',
-      background: 'rgba(99,102,241,0.06)',
+      background: 'rgba(86,104,184,0.06)',
       display: 'grid',
       gap: '6px',
     }}>
       <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{label}</div>
-      <div style={{ fontSize: '0.7rem', color: '#6366F1', fontFamily: 'var(--font-mono)' }}>{nombreArchivo}</div>
+      <div style={{ fontSize: '0.7rem', color: '#5668B8', fontFamily: 'var(--font-mono)' }}>{nombreArchivo}</div>
       <div style={{ display: 'flex', gap: '6px' }}>
         <button onClick={handleVer} disabled={!!cargando} className="btn-ghost" style={{ padding: '4px 8px', fontSize: '0.72rem' }}>
           <Eye size={12} /> {cargando === 'ver' ? '...' : 'Ver'}
@@ -278,8 +278,8 @@ function DocumentoAccionRow({
             style={{
               padding: '4px 8px',
               borderRadius: '8px',
-              border: '1px solid rgba(239,68,68,0.35)',
-              background: 'rgba(239,68,68,0.1)',
+              border: '1px solid rgba(192,80,80,0.35)',
+              background: 'rgba(192,80,80,0.1)',
               color: 'var(--danger-400)',
               fontSize: '0.72rem',
               cursor: (!!cargando || removing) ? 'not-allowed' : 'pointer',
@@ -365,11 +365,11 @@ function ModalIniciar({
 
   const estadoStyle: Record<EstadoContratista, { color: string; bg: string }> = {
     PENDIENTE_AUTOGESTION:   { color: 'var(--text-muted)',  bg: 'var(--bg-elevated)' },
-    AUTOGESTION_EN_PROGRESO: { color: 'var(--primary-400)', bg: 'rgba(245,158,11,0.08)' },
-    AUTOGESTION_COMPLETADA:  { color: '#6366F1',            bg: 'rgba(99,102,241,0.08)' },
-    EN_REVISION:             { color: '#6366F1',            bg: 'rgba(99,102,241,0.08)' },
-    APROBADO:                { color: 'var(--success-400)', bg: 'rgba(16,185,129,0.08)' },
-    DENEGADO:                { color: 'var(--danger-400)',  bg: 'rgba(239,68,68,0.08)' },
+    AUTOGESTION_EN_PROGRESO: { color: 'var(--primary-400)', bg: 'rgba(69,116,196,0.08)' },
+    AUTOGESTION_COMPLETADA:  { color: '#5668B8',            bg: 'rgba(86,104,184,0.08)' },
+    EN_REVISION:             { color: '#5668B8',            bg: 'rgba(86,104,184,0.08)' },
+    APROBADO:                { color: 'var(--success-400)', bg: 'rgba(40,149,108,0.08)' },
+    DENEGADO:                { color: 'var(--danger-400)',  bg: 'rgba(192,80,80,0.08)' },
   }
 
   const registros = useMemo(() => {
@@ -499,8 +499,8 @@ function ModalIniciar({
           {error && (
             <div style={{
               padding:      '10px 14px',
-              background:   'rgba(239,68,68,0.08)',
-              border:       '1px solid rgba(239,68,68,0.2)',
+              background:   'rgba(192,80,80,0.08)',
+              border:       '1px solid rgba(192,80,80,0.2)',
               borderRadius: 'var(--radius-md)',
               fontSize:     '0.8rem',
               color:        'var(--danger-400)',
@@ -1134,7 +1134,7 @@ export default function CumplimientoView() {
                       padding: '10px 14px',
                       borderRadius: 'var(--radius-md)',
                       border: `1px solid ${tabHistorial === tab.key ? 'var(--primary-500)' : 'var(--border-subtle)'}`,
-                      background: tabHistorial === tab.key ? 'rgba(99,102,241,0.12)' : 'var(--bg-surface)',
+                      background: tabHistorial === tab.key ? 'rgba(86,104,184,0.12)' : 'var(--bg-surface)',
                       color: tabHistorial === tab.key ? 'var(--primary-500)' : 'var(--text-secondary)',
                       fontSize: '0.84rem',
                       fontWeight: tabHistorial === tab.key ? 700 : 500,
@@ -1232,8 +1232,8 @@ export default function CumplimientoView() {
                       fontSize: '0.78rem',
                       fontWeight: 700,
                       color: h.estado === 'COMPLETADO' ? 'var(--success-400)' : 'var(--danger-400)',
-                      background: h.estado === 'COMPLETADO' ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
-                      border: h.estado === 'COMPLETADO' ? '1px solid rgba(16,185,129,0.25)' : '1px solid rgba(239,68,68,0.25)',
+                      background: h.estado === 'COMPLETADO' ? 'rgba(40,149,108,0.1)' : 'rgba(192,80,80,0.1)',
+                      border: h.estado === 'COMPLETADO' ? '1px solid rgba(40,149,108,0.25)' : '1px solid rgba(192,80,80,0.25)',
                       whiteSpace: 'nowrap',
                     }}>
                       {h.estado === 'COMPLETADO' ? 'Aprobada' : 'No aprobada'}
@@ -1330,8 +1330,8 @@ export default function CumplimientoView() {
               alignItems:   'center',
               gap:          '8px',
               padding:      '10px 14px',
-              background:   'rgba(239,68,68,0.08)',
-              border:       '1px solid rgba(239,68,68,0.2)',
+              background:   'rgba(192,80,80,0.08)',
+              border:       '1px solid rgba(192,80,80,0.2)',
               borderRadius: 'var(--radius-md)',
               fontSize:     '0.8rem',
               color:        'var(--danger-400)',
@@ -1392,7 +1392,7 @@ export default function CumplimientoView() {
                       padding: '7px 9px',
                       borderRadius: '8px',
                       border: '1px solid var(--border-subtle)',
-                      background: item.cumple === true ? 'rgba(16,185,129,0.08)' : item.cumple === false ? 'rgba(239,68,68,0.08)' : 'var(--bg-elevated)',
+                      background: item.cumple === true ? 'rgba(40,149,108,0.08)' : item.cumple === false ? 'rgba(192,80,80,0.08)' : 'var(--bg-elevated)',
                     }}>
                       <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{item.orden}. {item.pregunta}</span>
                       <span style={{ fontSize: '0.72rem', color: item.cumple === true ? 'var(--success-400)' : item.cumple === false ? 'var(--danger-400)' : 'var(--text-muted)', fontWeight: 700 }}>
@@ -1603,9 +1603,9 @@ export default function CumplimientoView() {
             <div style={{
               padding:      '16px 20px',
               background:   cumplimiento.estado === 'COMPLETADO'
-                ? 'rgba(16,185,129,0.06)' : 'rgba(239,68,68,0.06)',
+                ? 'rgba(40,149,108,0.06)' : 'rgba(192,80,80,0.06)',
               border:       `1px solid ${cumplimiento.estado === 'COMPLETADO'
-                ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}`,
+                ? 'rgba(40,149,108,0.2)' : 'rgba(192,80,80,0.2)'}`,
               borderRadius: 'var(--radius-lg)',
               display:      'flex',
               alignItems:   'center',
@@ -1792,7 +1792,7 @@ export default function CumplimientoView() {
                         padding: '8px 10px',
                         borderRadius: '8px',
                         border: '1px solid var(--border-subtle)',
-                        background: item.cumple === true ? 'rgba(16,185,129,0.08)' : item.cumple === false ? 'rgba(239,68,68,0.08)' : 'var(--bg-elevated)',
+                        background: item.cumple === true ? 'rgba(40,149,108,0.08)' : item.cumple === false ? 'rgba(192,80,80,0.08)' : 'var(--bg-elevated)',
                       }}>
                         <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>{item.orden}. {item.pregunta}</span>
                         <span style={{ fontSize: '0.74rem', fontWeight: 700, color: item.cumple === true ? 'var(--success-400)' : item.cumple === false ? 'var(--danger-400)' : 'var(--text-muted)' }}>

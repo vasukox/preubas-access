@@ -228,6 +228,9 @@ export const hseService = {
   activarExcepcion: (id: number) =>
     post<null>(`/hse/excepciones/${id}/activar`),
 
+  eliminarExcepcion: (id: number) =>
+    del<{ success: boolean; message: string }>(`/hse/excepciones/${id}`),
+
   // ── Dashboard ──────────────────────────────────────────────────
   getDashboard: (sedeId: number) =>
     get<DashboardHSEResponse>(`/hse/dashboard/${sedeId}`),

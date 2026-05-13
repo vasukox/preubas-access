@@ -112,8 +112,8 @@ export default function CambiarPasswordView() {
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
           background: `
-            radial-gradient(ellipse at 20% 50%, rgba(245,158,11,0.08) 0%, transparent 60%),
-            radial-gradient(ellipse at 80% 20%, rgba(99,102,241,0.06) 0%, transparent 50%)
+            radial-gradient(ellipse at 20% 50%, rgba(69,116,196,0.08) 0%, transparent 60%),
+            radial-gradient(ellipse at 80% 20%, rgba(86,104,184,0.06) 0%, transparent 50%)
           `,
         }} />
         <div className="bg-grid" style={{ position: 'absolute', inset: 0, opacity: 0.4, pointerEvents: 'none' }} />
@@ -199,7 +199,7 @@ export default function CambiarPasswordView() {
         {/* Gradiente sutil */}
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, height: '300px', pointerEvents: 'none',
-          background: 'radial-gradient(ellipse at 50% 0%, rgba(245,158,11,0.04) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse at 50% 0%, rgba(69,116,196,0.04) 0%, transparent 70%)',
         }} />
 
         <div style={{ position: 'relative', zIndex: 1 }}>
@@ -209,7 +209,7 @@ export default function CambiarPasswordView() {
             {/* Ícono */}
             <div style={{
               width: '48px', height: '48px', marginBottom: '20px',
-              background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)',
+              background: 'rgba(69,116,196,0.1)', border: '1px solid rgba(69,116,196,0.2)',
               borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
               <KeyRound size={22} color="var(--primary-500)" />
@@ -225,7 +225,7 @@ export default function CambiarPasswordView() {
           {/* Aviso */}
           <div style={{
             padding: '10px 14px', marginBottom: '28px',
-            background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)',
+            background: 'rgba(69,116,196,0.06)', border: '1px solid rgba(69,116,196,0.15)',
             borderRadius: 'var(--radius-md)', fontSize: '0.8rem', color: 'var(--primary-400)', lineHeight: 1.5,
           }}>
             Por seguridad, debes cambiar tu contraseña antes de continuar.
@@ -236,7 +236,7 @@ export default function CambiarPasswordView() {
             <div style={{
               display: 'flex', alignItems: 'flex-start', gap: '10px',
               padding: '12px 14px', marginBottom: '20px',
-              background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)',
+              background: 'rgba(192,80,80,0.08)', border: '1px solid rgba(192,80,80,0.2)',
               borderRadius: 'var(--radius-md)', animation: 'fadeUp 0.2s ease both',
             }}>
               <AlertCircle size={16} color="var(--danger-400)" style={{ flexShrink: 0, marginTop: '1px' }} />

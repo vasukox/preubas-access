@@ -66,7 +66,7 @@ export function Pagination({ currentPage, totalPages, onNext, onPrev, onGoTo, to
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               minWidth: '28px', height: '28px', borderRadius: '6px', padding: '0 8px',
               border: p === currentPage ? '1px solid var(--primary-400)' : '1px solid var(--border-subtle)',
-              background: p === currentPage ? 'rgba(245,158,11,0.1)' : 'var(--bg-raised)',
+              background: p === currentPage ? 'rgba(69,116,196,0.1)' : 'var(--bg-raised)',
               color: p === currentPage ? 'var(--primary-400)' : 'var(--text-secondary)',
               fontSize: '0.75rem', fontWeight: p === currentPage ? 700 : 500,
               cursor: 'pointer'
@@ -94,3 +94,4 @@ export function Pagination({ currentPage, totalPages, onNext, onPrev, onGoTo, to
     </div>
   )
 }
+

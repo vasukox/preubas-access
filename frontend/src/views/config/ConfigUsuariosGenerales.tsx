@@ -571,11 +571,11 @@ type ContratistaRow = {
 function estadoColor(estado: EstadoContratista): { text: string; bg: string; border: string } {
   const map: Record<EstadoContratista, { text: string; bg: string; border: string }> = {
     PENDIENTE_AUTOGESTION: { text: 'var(--text-muted)', bg: 'rgba(148,163,184,0.12)', border: 'rgba(148,163,184,0.35)' },
-    AUTOGESTION_EN_PROGRESO: { text: 'var(--primary-400)', bg: 'rgba(99,102,241,0.10)', border: 'rgba(99,102,241,0.35)' },
-    AUTOGESTION_COMPLETADA: { text: '#6366F1', bg: 'rgba(99,102,241,0.10)', border: 'rgba(99,102,241,0.35)' },
-    EN_REVISION: { text: 'var(--warning-500)', bg: 'rgba(245,158,11,0.10)', border: 'rgba(245,158,11,0.35)' },
-    APROBADO: { text: 'var(--success-400)', bg: 'rgba(16,185,129,0.10)', border: 'rgba(16,185,129,0.35)' },
-    DENEGADO: { text: 'var(--danger-400)', bg: 'rgba(239,68,68,0.10)', border: 'rgba(239,68,68,0.35)' },
+    AUTOGESTION_EN_PROGRESO: { text: 'var(--primary-400)', bg: 'rgba(86,104,184,0.10)', border: 'rgba(86,104,184,0.35)' },
+    AUTOGESTION_COMPLETADA: { text: '#5668B8', bg: 'rgba(86,104,184,0.10)', border: 'rgba(86,104,184,0.35)' },
+    EN_REVISION: { text: 'var(--warning-500)', bg: 'rgba(69,116,196,0.10)', border: 'rgba(69,116,196,0.35)' },
+    APROBADO: { text: 'var(--success-400)', bg: 'rgba(40,149,108,0.10)', border: 'rgba(40,149,108,0.35)' },
+    DENEGADO: { text: 'var(--danger-400)', bg: 'rgba(192,80,80,0.10)', border: 'rgba(192,80,80,0.35)' },
   }
   return map[estado]
 }
@@ -595,3 +595,4 @@ const tdStyle: React.CSSProperties = {
   padding: '12px 14px',
   verticalAlign: 'middle',
 }
+

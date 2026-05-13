@@ -4,15 +4,15 @@ import { TipoDocumento } from '../../common/enums/hse.enum';
 export class CreateContratistaDto {
   @IsOptional()
   @IsInt()
-  personaId?: number;
+  persona_id?: number;
 
   @IsNotEmpty()
   @IsEnum(TipoDocumento)
-  tipoDocumento: TipoDocumento;
+  tipo_documento: TipoDocumento;
 
   @IsNotEmpty()
   @IsString()
-  numeroDocumento: string;
+  numero_documento: string;
 
   @IsNotEmpty()
   @IsString()
@@ -32,19 +32,39 @@ export class CreateContratistaDto {
 
   @IsOptional()
   @IsBoolean()
-  esExtranjero?: boolean;
+  es_extranjero?: boolean;
 
   @IsOptional()
   @IsString()
-  sstResponsableNombre?: string;
+  sst_responsable_nombre?: string;
 
   @IsOptional()
   @IsString()
-  sstResponsableTelefono?: string;
+  sst_responsable_telefono?: string;
 }
 
 export class GenerarTokenDto {
   @IsOptional()
   @IsInt()
   duracionHoras?: number;
+}
+
+export class EliminarContratistaDto {
+  @IsOptional()
+  @IsString()
+  motivo?: string;
+}
+
+export class EliminarAdjuntoContratistaDto {
+  @IsNotEmpty()
+  @IsString()
+  modulo: string;
+
+  @IsNotEmpty()
+  @IsString()
+  campo: string;
+
+  @IsOptional()
+  @IsInt()
+  seg_social_id?: number;
 }

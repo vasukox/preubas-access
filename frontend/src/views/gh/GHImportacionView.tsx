@@ -24,9 +24,9 @@ function StatusIcon({ estado }: { estado: RowStatus }) {
 }
 
 function rowColor(estado: RowStatus) {
-  if (estado === 'EXITOSO') return { color: '#10b981', bg: 'rgba(16,185,129,0.04)', border: 'rgba(16,185,129,0.15)' }
-  if (estado === 'ERROR') return { color: '#ef4444', bg: 'rgba(239,68,68,0.04)', border: 'rgba(239,68,68,0.15)' }
-  return { color: '#f59e0b', bg: 'rgba(245,158,11,0.04)', border: 'rgba(245,158,11,0.15)' }
+  if (estado === 'EXITOSO') return { color: '#10b981', bg: 'rgba(40,149,108,0.04)', border: 'rgba(40,149,108,0.15)' }
+  if (estado === 'ERROR') return { color: '#ef4444', bg: 'rgba(192,80,80,0.04)', border: 'rgba(192,80,80,0.15)' }
+  return { color: '#f59e0b', bg: 'rgba(69,116,196,0.04)', border: 'rgba(69,116,196,0.15)' }
 }
 
 // ─── Step indicator ───────────────────────────────────────────────────────────
@@ -159,11 +159,11 @@ export default function GHImportacionView() {
             onDragLeave={() => setDragging(false)}
             onDrop={handleDrop}
             style={{
-              border: `2px dashed ${dragging ? '#6366f1' : file ? 'rgba(16,185,129,0.4)' : 'var(--border-default)'}`,
+              border: `2px dashed ${dragging ? '#6366f1' : file ? 'rgba(40,149,108,0.4)' : 'var(--border-default)'}`,
               borderRadius: 'var(--radius-xl)',
               padding: '40px 24px',
               textAlign: 'center',
-              background: dragging ? 'rgba(99,102,241,0.04)' : file ? 'rgba(16,185,129,0.03)' : 'var(--bg-surface)',
+              background: dragging ? 'rgba(86,104,184,0.04)' : file ? 'rgba(40,149,108,0.03)' : 'var(--bg-surface)',
               transition: 'all 0.2s',
               cursor: 'pointer',
             }}
@@ -178,7 +178,7 @@ export default function GHImportacionView() {
             />
             {file ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-                <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-md)', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-md)', background: 'rgba(40,149,108,0.1)', border: '1px solid rgba(40,149,108,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <FileText size={22} color="#10b981" />
                 </div>
                 <div>
@@ -197,7 +197,7 @@ export default function GHImportacionView() {
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-                <div style={{ width: '52px', height: '52px', borderRadius: 'var(--radius-md)', background: dragging ? 'rgba(99,102,241,0.1)' : 'var(--bg-elevated)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '52px', height: '52px', borderRadius: 'var(--radius-md)', background: dragging ? 'rgba(86,104,184,0.1)' : 'var(--bg-elevated)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Upload size={22} color={dragging ? '#6366f1' : 'var(--text-muted)'} />
                 </div>
                 <div>
@@ -213,7 +213,7 @@ export default function GHImportacionView() {
           </div>
 
           {/* Info + submit */}
-          <div style={{ padding: '14px 18px', background: 'rgba(99,102,241,0.04)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 'var(--radius-lg)', fontSize: '0.76rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
+          <div style={{ padding: '14px 18px', background: 'rgba(86,104,184,0.04)', border: '1px solid rgba(86,104,184,0.15)', borderRadius: 'var(--radius-lg)', fontSize: '0.76rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
             El archivo debe contener columnas: <strong style={{ color: 'var(--text-secondary)' }}>tipo_documento, numero_documento, nombres, apellidos, email, telefono</strong>. La primera fila debe ser el encabezado.
           </div>
 
@@ -240,9 +240,9 @@ export default function GHImportacionView() {
           {/* Summary bar */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px' }}>
             {[
-              { label: 'Total filas', value: statsRows.total, color: '#6366f1', bg: 'rgba(99,102,241,0.08)', border: 'rgba(99,102,241,0.18)' },
-              { label: 'Exitosas', value: statsRows.exitosos, color: '#10b981', bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.18)' },
-              { label: 'Con error', value: statsRows.errores, color: '#ef4444', bg: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.18)' },
+              { label: 'Total filas', value: statsRows.total, color: '#6366f1', bg: 'rgba(86,104,184,0.08)', border: 'rgba(86,104,184,0.18)' },
+              { label: 'Exitosas', value: statsRows.exitosos, color: '#10b981', bg: 'rgba(40,149,108,0.08)', border: 'rgba(40,149,108,0.18)' },
+              { label: 'Con error', value: statsRows.errores, color: '#ef4444', bg: 'rgba(192,80,80,0.08)', border: 'rgba(192,80,80,0.18)' },
             ].map((s) => (
               <div key={s.label} style={{ padding: '14px 16px', borderRadius: 'var(--radius-lg)', border: `1px solid ${s.border}`, background: s.bg }}>
                 <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>{s.label}</div>
@@ -300,3 +300,4 @@ export default function GHImportacionView() {
     </div>
   )
 }
+

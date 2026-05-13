@@ -40,6 +40,7 @@ async function bootstrap() {
     app.useWebSocketAdapter(new platform_ws_1.WsAdapter(app));
     app.useGlobalPipes(new common_1.ValidationPipe({
         whitelist: true,
+        forbidNonWhitelisted: true,
         transform: true,
         transformOptions: {
             enableImplicitConversion: true,

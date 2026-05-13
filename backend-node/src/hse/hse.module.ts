@@ -42,6 +42,7 @@ import { CumplimientoService } from './services/cumplimiento.service';
 import { ValidacionService } from './services/validacion.service';
 import { ExcepcionService } from './services/excepcion.service';
 import { ReportesService } from './services/reportes.service';
+import { UploadSecurityService } from './services/upload-security.service';
 
 /**
  * HseModule — registra todas las entidades del módulo HSE en TypeORM.
@@ -90,6 +91,7 @@ import { ReportesService } from './services/reportes.service';
     ValidacionService,
     ExcepcionService,
     ReportesService,
+    UploadSecurityService,
   ],
   exports: [TypeOrmModule],
 })

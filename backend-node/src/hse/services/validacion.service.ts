@@ -64,24 +64,19 @@ export class ValidacionService {
       throw new BadRequestException('La autorizacion esta vencida');
     }
 
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-    
-    const inicio = new Date(autorizacion.fechaInicio);
-    inicio.setHours(0, 0, 0, 0);
-    
-    const fin = new Date(autorizacion.fechaFin);
-    fin.setHours(23, 59, 59, 999);
+    const hoy = this.fechaHoyLocal();
+    const inicioStr = this.formatearFecha(autorizacion.fechaInicio);
+    const finStr    = this.formatearFecha(autorizacion.fechaFin);
 
-    if (hoy < inicio || hoy > fin) {
-      throw new BadRequestException(`La autorización no está vigente. Válida desde ${inicio.toLocaleDateString()} hasta ${fin.toLocaleDateString()}`);
+    if (hoy < inicioStr || hoy > finStr) {
+      throw new BadRequestException(`La autorización no está vigente. Válida desde ${inicioStr} hasta ${finStr}`);
     }
 
     return true;
   }
 
   async obtenerEstadoAccesoPorDocumento(documento: string, sedeId: number) {
-    const contratista = await this.buscarContratistaPorDocumentoYSede(documento, sedeId, true);
+    const contratista = await this.buscarContratistaPorDocumentoYSede(documento, sedeId, false);
 
     if (!contratista) {
       const excepcion = await this.buscarExcepcionActiva(documento, sedeId);
@@ -181,7 +176,7 @@ export class ValidacionService {
   }
 
   private async buscarExcepcionActiva(documento: string, sedeId: number) {
-    const hoy = this.fechaHoyIso();
+    const hoy = this.fechaHoyLocal();
     return this.excepcionRepo.createQueryBuilder('excepcion')
       .leftJoinAndSelect('excepcion.persona', 'persona')
       .where('excepcion.sede_id = :sedeId', { sedeId })
@@ -320,11 +315,23 @@ export class ValidacionService {
     return full || (fallback ?? null);
   }
 
-  private estaFechaVencida(fecha: Date | string) {
-    return String(fecha) < this.fechaHoyIso();
+  private formatearFecha(fecha: Date | string): string {
+    if (!fecha) return '';
+    if (fecha instanceof Date) {
+      const y = fecha.getUTCFullYear();
+      const m = String(fecha.getUTCMonth() + 1).padStart(2, '0');
+      const d = String(fecha.getUTCDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+    return String(fecha).slice(0, 10);
   }
 
-  private fechaHoyIso() {
-    return new Date().toISOString().slice(0, 10);
+  private estaFechaVencida(fecha: Date | string) {
+    const str = this.formatearFecha(fecha);
+    return str < this.fechaHoyLocal();
+  }
+
+  private fechaHoyLocal(): string {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota' }).format(new Date());
   }
 }

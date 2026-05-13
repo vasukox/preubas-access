@@ -2,11 +2,11 @@ import type { GhEstadoCita } from '@/types/gh'
 
 const CONFIG: Record<GhEstadoCita, { label: string; color: string; bg: string; dot: string }> = {
   PROGRAMADA:  { label: 'Programada',  color: '#0ea5e9', bg: 'rgba(14,165,233,0.1)',  dot: '#0ea5e9' },
-  CONFIRMADA:  { label: 'Confirmada',  color: '#10b981', bg: 'rgba(16,185,129,0.1)',  dot: '#10b981' },
-  EN_CURSO:    { label: 'En curso',    color: '#6366f1', bg: 'rgba(99,102,241,0.1)',  dot: '#6366f1' },
+  CONFIRMADA:  { label: 'Confirmada',  color: '#10b981', bg: 'rgba(40,149,108,0.1)',  dot: '#10b981' },
+  EN_CURSO:    { label: 'En curso',    color: '#6366f1', bg: 'rgba(86,104,184,0.1)',  dot: '#6366f1' },
   FINALIZADA:  { label: 'Finalizada',  color: '#16a34a', bg: 'rgba(22,163,74,0.1)',   dot: '#16a34a' },
-  NO_ASISTIO:  { label: 'No asistió',  color: '#f59e0b', bg: 'rgba(245,158,11,0.1)',  dot: '#f59e0b' },
-  CANCELADA:   { label: 'Cancelada',   color: '#ef4444', bg: 'rgba(239,68,68,0.1)',   dot: '#ef4444' },
+  NO_ASISTIO:  { label: 'No asistió',  color: '#f59e0b', bg: 'rgba(69,116,196,0.1)',  dot: '#f59e0b' },
+  CANCELADA:   { label: 'Cancelada',   color: '#ef4444', bg: 'rgba(192,80,80,0.1)',   dot: '#ef4444' },
 }
 
 export function EstadoBadge({ estado }: { estado: GhEstadoCita }) {
@@ -43,3 +43,4 @@ export function EstadoBadge({ estado }: { estado: GhEstadoCita }) {
     </span>
   )
 }
+

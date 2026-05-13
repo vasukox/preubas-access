@@ -4,13 +4,12 @@ import { CreateAutorizacionDto } from '../dto/autorizacion.dto';
 @Injectable()
 export class AutorizacionValidator {
   validarFechas(fechaInicio: string | Date, fechaFin: string | Date) {
-    const start = new Date(fechaInicio);
-    const end = new Date(fechaFin);
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
+    const hoy   = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota' }).format(new Date());
+    const start = String(fechaInicio).slice(0, 10);
+    const end   = String(fechaFin).slice(0, 10);
 
     if (start < hoy) {
-      throw new BadRequestException('La fecha de inicio no puede ser en el pasado');
+      throw new BadRequestException('La fecha de inicio no puede ser anterior al día de hoy');
     }
 
     if (end < start) {

@@ -234,9 +234,9 @@ export function UsuariosPanel({
                               fontSize: '0.65rem',
                               padding: '4px 10px',
                               borderRadius: '999px',
-                              border: `1px solid ${ u.activo ? 'rgba(16,185,129,0.35)' : 'rgba(239,68,68,0.25)' }`,
+                              border: `1px solid ${ u.activo ? 'rgba(40,149,108,0.35)' : 'rgba(192,80,80,0.25)' }`,
                               color: u.activo ? 'var(--success-400)' : 'var(--danger-400)',
-                              background: u.activo ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.06)',
+                              background: u.activo ? 'rgba(40,149,108,0.08)' : 'rgba(192,80,80,0.06)',
                               fontFamily: 'var(--font-mono)',
                               fontWeight: 700,
                             }}
@@ -299,17 +299,17 @@ export function UsuariosPanel({
                             justifyContent: 'center',
                             width: '32px', height: '32px',
                             borderRadius: 'var(--radius-md)',
-                            border: `1px solid ${ u.activo ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)' }`,
-                            background: u.activo ? 'rgba(239,68,68,0.05)' : 'rgba(16,185,129,0.05)',
+                            border: `1px solid ${ u.activo ? 'rgba(192,80,80,0.2)' : 'rgba(40,149,108,0.2)' }`,
+                            background: u.activo ? 'rgba(192,80,80,0.05)' : 'rgba(40,149,108,0.05)',
                             color: u.activo ? 'var(--danger-400)' : 'var(--success-400)',
                             cursor: 'pointer',
                             transition: 'all 0.2s',
                           }}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.background = u.activo ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)'
+                            e.currentTarget.style.background = u.activo ? 'rgba(192,80,80,0.15)' : 'rgba(40,149,108,0.15)'
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.background = u.activo ? 'rgba(239,68,68,0.05)' : 'rgba(16,185,129,0.05)'
+                            e.currentTarget.style.background = u.activo ? 'rgba(192,80,80,0.05)' : 'rgba(40,149,108,0.05)'
                           }}
                         >
                           {u.activo ? <UserX size={14} /> : <Check size={14} />}
@@ -323,17 +323,17 @@ export function UsuariosPanel({
                             justifyContent: 'center',
                             width: '32px', height: '32px',
                             borderRadius: 'var(--radius-md)',
-                            border: `1px solid rgba(239,68,68,0.2)`,
-                            background: 'rgba(239,68,68,0.05)',
+                            border: `1px solid rgba(192,80,80,0.2)`,
+                            background: 'rgba(192,80,80,0.05)',
                             color: 'var(--danger-500)',
                             cursor: 'pointer',
                             transition: 'all 0.2s',
                           }}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(239,68,68,0.15)'
+                            e.currentTarget.style.background = 'rgba(192,80,80,0.15)'
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'rgba(239,68,68,0.05)'
+                            e.currentTarget.style.background = 'rgba(192,80,80,0.05)'
                           }}
                         >
                           <Trash2 size={14} />
@@ -374,3 +374,4 @@ export function UsuariosPanel({
     </>
   )
 }
+

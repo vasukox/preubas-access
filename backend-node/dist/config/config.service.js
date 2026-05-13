@@ -95,6 +95,9 @@ let ConfigService = ConfigService_1 = class ConfigService {
             throw new Error('JWT_SECRET debe ser cambiado antes de ir a producción. ' +
                 'Genera uno con: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"');
         }
+        if (this.jwtSecret.length < 32) {
+            throw new Error('JWT_SECRET debe tener al menos 32 caracteres en produccion.');
+        }
         if (this.databasePassword === 'root') {
             throw new Error('DATABASE_PASSWORD no puede usar credenciales de desarrollo en producción.');
         }

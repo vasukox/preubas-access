@@ -130,6 +130,10 @@ export class ConfigService {
       );
     }
 
+    if (this.jwtSecret.length < 32) {
+      throw new Error('JWT_SECRET debe tener al menos 32 caracteres en produccion.');
+    }
+
     if (this.databasePassword === 'root') {
       throw new Error(
         'DATABASE_PASSWORD no puede usar credenciales de desarrollo en producción.',

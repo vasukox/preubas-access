@@ -93,12 +93,12 @@ describe('AutorizacionService', () => {
   describe('create', () => {
     it('should create an autorizacion and contratistas within a transaction', async () => {
       const dto = {
-        empresaContratista: 'Test Corp',
-        nit: '123456',
-        sedeId: 1,
-        fechaInicio: '2023-01-01',
-        fechaFin: '2023-12-31',
-        contratistas: [{ nombreCompleto: 'Juan Perez', tipoDocumento: 'CC' as any, numeroDocumento: '123' }],
+        sede_id: 1,
+        fecha_inicio: '2023-01-01',
+        fecha_fin: '2023-12-31',
+        tipo_contratista: 'NORMAL' as any,
+        descripcion_actividad: 'Prueba',
+        contratistas: [{ nombres: 'Juan', apellidos: 'Perez', tipo_documento: 'CC' as any, numero_documento: '123', email: 'j@test.com' }],
       };
 
       qrMock.manager.save.mockResolvedValueOnce({ id: 1 }); // Save Aut
@@ -115,12 +115,12 @@ describe('AutorizacionService', () => {
 
     it('should rollback transaction on error', async () => {
       const dto = {
-        empresaContratista: 'Test Corp',
-        nit: '123456',
-        sedeId: 1,
-        fechaInicio: '2023-01-01',
-        fechaFin: '2023-12-31',
-        contratistas: [{ nombreCompleto: 'Juan Perez', tipoDocumento: 'CC' as any, numeroDocumento: '123' }],
+        sede_id: 1,
+        fecha_inicio: '2023-01-01',
+        fecha_fin: '2023-12-31',
+        tipo_contratista: 'NORMAL' as any,
+        descripcion_actividad: 'Prueba',
+        contratistas: [{ nombres: 'Juan', apellidos: 'Perez', tipo_documento: 'CC' as any, numero_documento: '123', email: 'j@test.com' }],
       };
 
       qrMock.manager.save.mockRejectedValueOnce(new Error('DB Error'));

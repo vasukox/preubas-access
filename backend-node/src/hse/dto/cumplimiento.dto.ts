@@ -1,36 +1,52 @@
-import { IsInt, IsOptional, IsArray, IsString, IsBoolean } from 'class-validator';
+import { IsInt, IsOptional, IsArray, IsString, IsBoolean, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CumplimientoIniciarDto {
   @IsInt()
-  contratistaId: number;
+  contratista_id: number;
 
   @IsInt()
-  sedeId: number;
-
-  @IsOptional()
-  @IsArray()
-  itemsRequisitos?: string[];
+  sede_id: number;
 }
 
-export class CumplimientoActualizarDto {
+export class CumplimientoItemActualizarDto {
+  @IsInt()
+  item_id: number;
+
   @IsOptional()
-  @IsArray()
-  items?: Array<{
-    itemId: number;
-    cumple?: boolean;
-    observacion?: string;
-  }>;
+  @IsBoolean()
+  cumple?: boolean;
 
   @IsOptional()
   @IsString()
-  observacionGeneral?: string;
+  observacion?: string;
+}
+
+export class CumplimientoActualizarDto {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CumplimientoItemActualizarDto)
+  items: CumplimientoItemActualizarDto[];
+
+  @IsOptional()
+  @IsString()
+  observacion_general?: string;
 }
 
 export class CumplimientoCerrarDto {
   @IsString()
-  firmaDigital: string;
+  firma_digital: string;
 
   @IsOptional()
   @IsString()
-  observacionGeneral?: string;
+  observacion_general?: string;
+}
+
+export class MarcarItemCumplimientoDto {
+  @IsBoolean()
+  cumple: boolean;
+
+  @IsOptional()
+  @IsString()
+  observacion?: string;
 }

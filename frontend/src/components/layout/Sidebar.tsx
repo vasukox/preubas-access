@@ -316,8 +316,8 @@ function NavGroup({
           padding:        sidebarCollapsed ? '10px 18px' : '10px 12px',
           width:          '100%',
           borderRadius:   'var(--radius-md)',
-          border:         `1px solid ${isInGroup ? 'rgba(245,158,11,0.2)' : 'transparent'}`,
-          background:     isInGroup ? 'rgba(245,158,11,0.1)' : 'transparent',
+          border:         `1px solid ${isInGroup ? 'rgba(69,116,196,0.2)' : 'transparent'}`,
+          background:     isInGroup ? 'rgba(69,116,196,0.1)' : 'transparent',
           color:          isInGroup ? 'var(--primary-400)' : 'var(--text-secondary)',
           cursor:         'pointer',
           fontFamily:     'var(--font-ui)',
@@ -332,7 +332,7 @@ function NavGroup({
           if (!isInGroup) e.currentTarget.style.color      = 'var(--text-primary)'
         }}
         onMouseLeave={e => {
-          e.currentTarget.style.background = isInGroup ? 'rgba(245,158,11,0.1)' : 'transparent'
+          e.currentTarget.style.background = isInGroup ? 'rgba(69,116,196,0.1)' : 'transparent'
           e.currentTarget.style.color      = isInGroup ? 'var(--primary-400)'   : 'var(--text-secondary)'
         }}
       >
@@ -411,7 +411,7 @@ function NavGroup({
                   fontSize:       '0.8rem',
                   fontWeight:     isActive ? 600 : 400,
                   color:          isActive ? 'var(--primary-400)' : 'var(--text-muted)',
-                  background:     isActive ? 'rgba(245,158,11,0.08)' : 'transparent',
+                  background:     isActive ? 'rgba(69,116,196,0.08)' : 'transparent',
                   transition:     'all var(--transition-fast)',
                 }}
                 onMouseEnter={e => {
@@ -421,7 +421,7 @@ function NavGroup({
                   }
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.background = isActive ? 'rgba(245,158,11,0.08)' : 'transparent'
+                  e.currentTarget.style.background = isActive ? 'rgba(69,116,196,0.08)' : 'transparent'
                   e.currentTarget.style.color      = isActive ? 'var(--primary-400)' : 'var(--text-muted)'
                 }}
               >
@@ -516,9 +516,9 @@ export function Sidebar({ collapsed, onToggle, usuario, sedeActiva, filteredNav 
                 width:          collapsed ? '40px' : '26px',
                 height:         collapsed ? '40px' : '26px',
                 borderRadius:   'var(--radius-md)',
-                background:     collapsed ? 'rgba(245,158,11,0.12)' : 'transparent',
+                background:     collapsed ? 'rgba(69,116,196,0.12)' : 'transparent',
                 border:         collapsed
-                  ? '1px solid rgba(245,158,11,0.3)'
+                  ? '1px solid rgba(69,116,196,0.3)'
                   : '1px solid transparent',
                 color:          collapsed ? 'var(--primary-400)' : 'var(--text-muted)',
                 cursor:         'pointer',
@@ -528,14 +528,14 @@ export function Sidebar({ collapsed, onToggle, usuario, sedeActiva, filteredNav 
                 transition:     'width var(--transition-base), height var(--transition-base), background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast)',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background  = 'rgba(245,158,11,0.2)'
+                e.currentTarget.style.background  = 'rgba(69,116,196,0.2)'
                 e.currentTarget.style.color       = 'var(--primary-300)'
-                e.currentTarget.style.borderColor = 'rgba(245,158,11,0.5)'
+                e.currentTarget.style.borderColor = 'rgba(69,116,196,0.5)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background  = collapsed ? 'rgba(245,158,11,0.12)' : 'transparent'
+                e.currentTarget.style.background  = collapsed ? 'rgba(69,116,196,0.12)' : 'transparent'
                 e.currentTarget.style.color       = collapsed ? 'var(--primary-400)' : 'var(--text-muted)'
-                e.currentTarget.style.borderColor = collapsed ? 'rgba(245,158,11,0.3)' : 'transparent'
+                e.currentTarget.style.borderColor = collapsed ? 'rgba(69,116,196,0.3)' : 'transparent'
               }}
             >
               {collapsed ? <ChevronRight size={15} /> : <ChevronLeft size={14} />}
@@ -611,9 +611,9 @@ export function Sidebar({ collapsed, onToggle, usuario, sedeActiva, filteredNav 
                   textDecoration: 'none',
                   transition:     'all var(--transition-fast)',
                   background:     isActive
-                    ? 'rgba(245,158,11,0.1)'
+                    ? 'rgba(69,116,196,0.1)'
                     : isHovered ? 'var(--bg-raised)' : 'transparent',
-                  border:         `1px solid ${isActive ? 'rgba(245,158,11,0.2)' : 'transparent'}`,
+                  border:         `1px solid ${isActive ? 'rgba(69,116,196,0.2)' : 'transparent'}`,
                   color:          isActive
                     ? 'var(--primary-400)'
                     : isHovered ? 'var(--text-primary)' : 'var(--text-secondary)',
@@ -701,3 +701,4 @@ export function Sidebar({ collapsed, onToggle, usuario, sedeActiva, filteredNav 
     </aside>
   )
 }
+

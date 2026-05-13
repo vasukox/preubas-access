@@ -98,8 +98,8 @@ function CodeTimer({ expiraEn }: { expiraEn: string }) {
 // ─── TipoSesionBadge ──────────────────────────────────────────────────────────
 
 const TIPO_CONFIG: Record<GhTipoSesion, { Icon: any; label: string; color: string; bg: string }> = {
-  PRESENCIAL: { Icon: Building2, label: 'Presencial', color: '#10b981', bg: 'rgba(16,185,129,0.10)' },
-  VIRTUAL: { Icon: Video, label: 'Virtual', color: '#6366f1', bg: 'rgba(99,102,241,0.10)' },
+  PRESENCIAL: { Icon: Building2, label: 'Presencial', color: '#10b981', bg: 'rgba(40,149,108,0.10)' },
+  VIRTUAL: { Icon: Video, label: 'Virtual', color: '#6366f1', bg: 'rgba(86,104,184,0.10)' },
   HIBRIDA: { Icon: Wifi, label: 'Híbrida', color: '#0ea5e9', bg: 'rgba(14,165,233,0.10)' },
 }
 
@@ -116,11 +116,11 @@ function TipoSesionBadge({ tipo }: { tipo: GhTipoSesion }) {
 // ─── EstadoBadge ──────────────────────────────────────────────────────────────
 
 const ESTADO_CONFIG: Record<string, { color: string; bg: string; pulse?: boolean }> = {
-  EN_CURSO: { color: '#10b981', bg: 'rgba(16,185,129,0.10)', pulse: true },
-  PROGRAMADA: { color: '#6366f1', bg: 'rgba(99,102,241,0.08)' },
+  EN_CURSO: { color: '#10b981', bg: 'rgba(40,149,108,0.10)', pulse: true },
+  PROGRAMADA: { color: '#6366f1', bg: 'rgba(86,104,184,0.08)' },
   FINALIZADA: { color: '#0ea5e9', bg: 'rgba(14,165,233,0.08)' },
   CERRADA: { color: '#0ea5e9', bg: 'rgba(14,165,233,0.08)' },
-  CANCELADA: { color: '#ef4444', bg: 'rgba(239,68,68,0.08)' },
+  CANCELADA: { color: '#ef4444', bg: 'rgba(192,80,80,0.08)' },
 }
 
 function EstadoBadge({ estado }: { estado: string }) {
@@ -183,11 +183,11 @@ function SesionCard({
     <div
       className="animate-fade-up"
       style={{
-        border: sesion.estado_sesion === 'EN_CURSO' ? '1.5px solid rgba(16,185,129,0.30)' : '1px solid var(--border-subtle)',
+        border: sesion.estado_sesion === 'EN_CURSO' ? '1.5px solid rgba(40,149,108,0.30)' : '1px solid var(--border-subtle)',
         borderRadius: 'var(--radius-xl)',
-        background: sesion.estado_sesion === 'EN_CURSO' ? 'rgba(16,185,129,0.03)' : 'var(--bg-surface)',
+        background: sesion.estado_sesion === 'EN_CURSO' ? 'rgba(40,149,108,0.03)' : 'var(--bg-surface)',
         overflow: 'hidden',
-        boxShadow: sesion.estado_sesion === 'EN_CURSO' ? '0 0 24px rgba(16,185,129,0.08)' : '0 2px 12px rgba(0,0,0,0.04)',
+        boxShadow: sesion.estado_sesion === 'EN_CURSO' ? '0 0 24px rgba(40,149,108,0.08)' : '0 2px 12px rgba(0,0,0,0.04)',
         transition: 'all 0.2s ease',
       }}
     >
@@ -238,7 +238,7 @@ function SesionCard({
               <div style={{ fontSize: '1.1rem', fontFamily: 'var(--font-mono)', fontWeight: 800, color: 'var(--text-primary)' }}>{sesion.total_asistentes}</div>
               <div style={{ fontSize: '0.62rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Asistentes</div>
             </div>
-            <div style={{ textAlign: 'center', padding: '8px 14px', background: pctCheckin > 0 ? 'rgba(16,185,129,0.06)' : 'var(--bg-elevated)', borderRadius: 'var(--radius-lg)', border: `1px solid ${pctCheckin > 0 ? 'rgba(16,185,129,0.2)' : 'var(--border-subtle)'}` }}>
+            <div style={{ textAlign: 'center', padding: '8px 14px', background: pctCheckin > 0 ? 'rgba(40,149,108,0.06)' : 'var(--bg-elevated)', borderRadius: 'var(--radius-lg)', border: `1px solid ${pctCheckin > 0 ? 'rgba(40,149,108,0.2)' : 'var(--border-subtle)'}` }}>
               <div style={{ fontSize: '1.1rem', fontFamily: 'var(--font-mono)', fontWeight: 800, color: pctCheckin > 0 ? '#10b981' : 'var(--text-primary)' }}>{sesion.total_checkin}</div>
               <div style={{ fontSize: '0.62rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Check-in</div>
             </div>
@@ -695,15 +695,15 @@ export default function GHInduccionesView() {
       {/* Metrics */}
       <div className="animate-fade-up stagger-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
         <MetricCard label="Total sesiones" value={metrics.total} icon={CalendarDays} color="#0ea5e9" bg="rgba(14,165,233,0.12)" />
-        <MetricCard label="En curso ahora" value={metrics.activas} icon={Play} color="#10b981" bg="rgba(16,185,129,0.12)" />
-        <MetricCard label="Programadas" value={metrics.programadas} icon={Clock} color="#6366f1" bg="rgba(99,102,241,0.12)" />
-        <MetricCard label="Asistentes activos" value={metrics.asistentesHoy} icon={UserCheck} color="#f59e0b" bg="rgba(245,158,11,0.12)" />
+        <MetricCard label="En curso ahora" value={metrics.activas} icon={Play} color="#10b981" bg="rgba(40,149,108,0.12)" />
+        <MetricCard label="Programadas" value={metrics.programadas} icon={Clock} color="#6366f1" bg="rgba(86,104,184,0.12)" />
+        <MetricCard label="Asistentes activos" value={metrics.asistentesHoy} icon={UserCheck} color="#f59e0b" bg="rgba(69,116,196,0.12)" />
       </div>
 
       {/* Pending citations panel */}
       {eligibleCitas.length > 0 && (
-        <div className="animate-fade-up stagger-2" style={{ border: '1px solid rgba(99,102,241,0.25)', borderRadius: 'var(--radius-xl)', background: 'rgba(99,102,241,0.03)', overflow: 'hidden' }}>
-          <div style={{ padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', borderBottom: '1px solid rgba(99,102,241,0.15)' }}>
+        <div className="animate-fade-up stagger-2" style={{ border: '1px solid rgba(86,104,184,0.25)', borderRadius: 'var(--radius-xl)', background: 'rgba(86,104,184,0.03)', overflow: 'hidden' }}>
+          <div style={{ padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', borderBottom: '1px solid rgba(86,104,184,0.15)' }}>
             <div>
               <div style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <CalendarDays size={15} color="#6366f1" />
@@ -811,7 +811,7 @@ export default function GHInduccionesView() {
                 <div style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--text-primary)' }}>
                   Citas a vincular
                   {selectedCitaIds.length > 0 && (
-                    <span style={{ marginLeft: '8px', padding: '2px 10px', background: 'rgba(99,102,241,0.1)', color: '#6366f1', borderRadius: 'var(--radius-full)', fontSize: '0.72rem', fontWeight: 700 }}>
+                    <span style={{ marginLeft: '8px', padding: '2px 10px', background: 'rgba(86,104,184,0.1)', color: '#6366f1', borderRadius: 'var(--radius-full)', fontSize: '0.72rem', fontWeight: 700 }}>
                       {selectedCitaIds.length} seleccionadas
                     </span>
                   )}
@@ -831,7 +831,7 @@ export default function GHInduccionesView() {
                       return (
                         <label
                           key={cita.id}
-                          style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '12px 14px', borderRadius: 'var(--radius-lg)', border: selected ? '1.5px solid rgba(99,102,241,0.4)' : '1px solid var(--border-subtle)', background: selected ? 'rgba(99,102,241,0.06)' : 'var(--bg-surface)', cursor: 'pointer', transition: 'all 0.12s ease' }}
+                          style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '12px 14px', borderRadius: 'var(--radius-lg)', border: selected ? '1.5px solid rgba(86,104,184,0.4)' : '1px solid var(--border-subtle)', background: selected ? 'rgba(86,104,184,0.06)' : 'var(--bg-surface)', cursor: 'pointer', transition: 'all 0.12s ease' }}
                         >
                           <input type="checkbox" checked={selected} onChange={() => setSelectedCitaIds((p) => p.includes(cita.id) ? p.filter((id) => id !== cita.id) : [...p, cita.id])} style={{ accentColor: '#6366f1', width: '15px', height: '15px' }} />
                           <div style={{ flex: 1, minWidth: 0 }}>
@@ -960,3 +960,4 @@ export default function GHInduccionesView() {
     </div>
   )
 }
+
