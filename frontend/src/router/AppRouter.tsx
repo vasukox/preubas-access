@@ -89,13 +89,16 @@ const GHPortalInduccionView = lazy(() => import('@/views/gh/GHPortalInduccionVie
 
 // ⏳ Sprint 9 — Reportes + Config
 const ReportesView    = lazy(() => import('@/views/reportes/ReportesView'))
+const ReportesHSEView = lazy(() => import('@/views/reportes/ReportesHSEView'))
 const ConfigLayout      = lazy(() => import('@/views/config/ConfigLayout'))
 const ConfigSistema     = lazy(() => import('@/views/config/ConfigSistema'))
 const ConfigEstructura  = lazy(() => import('@/views/config/ConfigEstructura'))
 const ConfigCatalogos   = lazy(() => import('@/views/config/ConfigCatalogos'))
 const ConfigNormas      = lazy(() => import('@/views/config/ConfigNormas'))
-const ConfigActividades = lazy(() => import('@/views/config/ConfigActividades'))
-const ConfigUsuariosGenerales = lazy(() => import('@/views/config/ConfigUsuariosGenerales'))
+const ConfigTiempos     = lazy(() => import('@/views/config/ConfigTiempos'))
+const ConfigUsuarios         = lazy(() => import('@/views/config/ConfigUsuarios'))
+const ConfigAuditoria        = lazy(() => import('@/views/config/ConfigAuditoria'))
+const ConfigProveedoresHSE   = lazy(() => import('@/views/config/ConfigProveedoresHSE'))
 
 
 // ── Fallback de carga ─────────────────────────────────────────────
@@ -251,7 +254,8 @@ export function AppRouter() {
           <Route path="gh/importacion"  element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_GH']}><GHImportacionView /></RoleRoute>} />
 
           {/* ⏳ Sprint 9 — Reportes + Config */}
-          <Route path="reportes" element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','VISUALIZADOR']}><ReportesView /></RoleRoute>} />
+          <Route path="reportes"     element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','VISUALIZADOR']}><ReportesView /></RoleRoute>} />
+          <Route path="reportes/hse" element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE','VISUALIZADOR']}><ReportesHSEView /></RoleRoute>} />
 
           {/* Config — sub-rutas por área */}
           <Route path="config" element={<RoleRoute roles={['ADMIN_GLOBAL']}><ConfigLayout /></RoleRoute>}>
@@ -260,8 +264,10 @@ export function AppRouter() {
             <Route path="estructura" element={<ConfigEstructura />} />
             <Route path="catalogos"  element={<ConfigCatalogos />} />
             <Route path="normas"     element={<ConfigNormas />} />
-            <Route path="actividades" element={<ConfigActividades />} />
-            <Route path="usuarios-generales" element={<ConfigUsuariosGenerales />} />
+            <Route path="tiempos"      element={<ConfigTiempos />} />
+            <Route path="proveedores" element={<ConfigProveedoresHSE />} />
+            <Route path="usuarios"    element={<ConfigUsuarios />} />
+            <Route path="auditoria"   element={<ConfigAuditoria />} />
           </Route>
 
         </Route>

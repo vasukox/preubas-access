@@ -1071,7 +1071,7 @@ function ModalDetalle({
                     color:      'var(--text-muted)',
                     fontFamily: 'var(--font-mono)',
                   }}>
-                    Disponible al pasar a estado: AUTOGESTION_COMPLETADA.
+                    Disponible al pasar a estado: AUTOGESTION COMPLETADA.
                   </span>
                 )}
               </div>
@@ -1299,7 +1299,7 @@ const ESTADOS_GESTION = [
 export default function GestionHSEView() {
   const sedeActiva = useSedeStore(s => s.sedeActiva)
   const [searchParams, setSearchParams] = useSearchParams()
-  const [paginaActiva, setPaginaActiva] = useState<'normales' | 'alto_riesgo' | 'excepciones'>('normales')
+  const [paginaActiva, setPaginaActiva] = useState<'normales' | 'alto_riesgo'>('normales')
 
   const [autorizaciones, setAutorizaciones] = useState<AutorizacionListResponse[]>([])
   const [proveedores, setProveedores] = useState<ProveedorHSEOption[]>([])
@@ -1401,10 +1401,9 @@ export default function GestionHSEView() {
 
   const resolverProveedorId = (a: AutorizacionListResponse): number | null => a.proveedor_id ?? null
 
-  // Tres grupos mutuamente excluyentes
-  const autorizacionesNormales   = autorizaciones.filter(a => !esExcepcion(a) && a.tipo_contratista === 'NORMAL')
-  const autorizacionesAltoRiesgo = autorizaciones.filter(a => !esExcepcion(a) && a.tipo_contratista === 'ALTO_RIESGO')
-  const excepciones              = autorizaciones.filter(esExcepcion)
+  // Dos grupos por tipo — las excepciones se muestran dentro de su módulo correspondiente
+  const autorizacionesNormales   = autorizaciones.filter(a => a.tipo_contratista === 'NORMAL')
+  const autorizacionesAltoRiesgo = autorizaciones.filter(a => a.tipo_contratista === 'ALTO_RIESGO')
 
   const buildGrupos = (
     lista: AutorizacionListResponse[],
@@ -1437,23 +1436,14 @@ export default function GestionHSEView() {
       .map(g => ({ title: `${prefixTitle} · ${g.label}`, items: g.items, tone: g.tone }))
       .filter(s => s.items.length > 0)
 
-  const seccionesNormales    = buildGrupos(autorizacionesNormales,   () => 'rgba(86,104,184,0.05)',   'Flujo estándar')
-  const seccionesAltoRiesgo  = buildGrupos(autorizacionesAltoRiesgo, () => 'rgba(192,80,80,0.04)',    'Alto Riesgo')
-  const seccionesExcepciones = buildGrupos(excepciones,              () => 'rgba(69,116,196,0.06)',   'Excepciones')
+  const seccionesNormales   = buildGrupos(autorizacionesNormales,   () => 'rgba(86,104,184,0.05)', 'Flujo estándar')
+  const seccionesAltoRiesgo = buildGrupos(autorizacionesAltoRiesgo, () => 'rgba(192,80,80,0.04)',  'Alto Riesgo')
 
-  const seccionesRender =
-    paginaActiva === 'normales'    ? seccionesNormales    :
-    paginaActiva === 'alto_riesgo' ? seccionesAltoRiesgo  :
-    seccionesExcepciones
+  const seccionesRender    = paginaActiva === 'normales' ? seccionesNormales : seccionesAltoRiesgo
+  const totalPaginaActiva  = paginaActiva === 'normales' ? autorizacionesNormales.length : autorizacionesAltoRiesgo.length
 
-  const totalPaginaActiva =
-    paginaActiva === 'normales'    ? autorizacionesNormales.length   :
-    paginaActiva === 'alto_riesgo' ? autorizacionesAltoRiesgo.length :
-    excepciones.length
-
-  const totalNormales    = autorizacionesNormales.length
-  const totalAltoRiesgo  = autorizacionesAltoRiesgo.length
-  const totalExcepciones = excepciones.length
+  const totalNormales   = autorizacionesNormales.length
+  const totalAltoRiesgo = autorizacionesAltoRiesgo.length
 
   const pendientesRevision = autorizaciones.flatMap(a =>
     a.contratistas.filter(c =>
@@ -1675,39 +1665,14 @@ export default function GestionHSEView() {
             </span>
           </button>
 
-          {/* Tab: Canal Excepciones */}
-          <button
-            onClick={() => setPaginaActiva('excepciones')}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '8px', padding: '9px 14px',
-              borderRadius: 'var(--radius-lg)',
-              border:      `1px solid ${paginaActiva === 'excepciones' ? 'rgba(69,116,196,0.45)' : 'transparent'}`,
-              background:  paginaActiva === 'excepciones' ? 'rgba(69,116,196,0.14)' : 'transparent',
-              color:       paginaActiva === 'excepciones' ? '#B45309' : 'var(--text-secondary)',
-              fontSize: '0.79rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-ui)',
-              transition: 'all var(--transition-fast)',
-              boxShadow: paginaActiva === 'excepciones' ? '0 8px 18px rgba(69,116,196,0.2)' : 'none',
-            }}
-          >
-            <ShieldCheck size={13} />
-            Canal Excepciones
-            <span style={{
-              padding: '1px 8px', borderRadius: '999px',
-              background: paginaActiva === 'excepciones' ? 'rgba(69,116,196,0.2)' : 'var(--bg-elevated)',
-              color: 'inherit', fontSize: '0.7rem', fontFamily: 'var(--font-mono)',
-            }}>
-              {totalExcepciones}
-            </span>
-          </button>
         </div>
 
         <div style={{
           fontSize: '0.72rem', color: 'var(--text-muted)',
           fontFamily: 'var(--font-mono)', padding: '0 8px',
         }}>
-          {paginaActiva === 'normales'    && 'Contratistas NORMAL — autogestión directa, sin revisión HSE.'}
-          {paginaActiva === 'alto_riesgo' && 'Contratistas ALTO RIESGO — requieren revisión y aprobación HSE.'}
-          {paginaActiva === 'excepciones' && 'Ingresos autorizados por excepción desde el submódulo de Excepciones.'}
+          {paginaActiva === 'normales'    && 'Contratistas NORMAL'}
+          {paginaActiva === 'alto_riesgo' && 'Contratistas ALTO RIESGO'}
         </div>
       </div>
 
@@ -1748,9 +1713,7 @@ export default function GestionHSEView() {
             border:       '1px solid var(--border-subtle)',
           }}>
             No hay autorizaciones en{' '}
-          {paginaActiva === 'normales'    ? 'el flujo estándar (NORMAL)'       :
-           paginaActiva === 'alto_riesgo' ? 'el canal de alto riesgo'          :
-           'el canal de excepciones'}
+          {paginaActiva === 'normales' ? 'el flujo estándar (NORMAL)' : 'el canal de alto riesgo'}
           {filtroEstado !== 'todos' ? ` con estado "${ESTADOS_GESTION.find(e => e.value === filtroEstado)?.label}"` : ''}.
           </div>
         ) : (
@@ -1862,7 +1825,7 @@ export default function GestionHSEView() {
                         c.numero_documento.includes(busqueda)
                       )
                       .map((c, i, arr) => {
-                        const esFilaExcepcion = paginaActiva === 'excepciones' || esExcepcion(a)
+                        const esFilaExcepcion = esExcepcion(a)
                         return (
                         <div
                           key={c.id}

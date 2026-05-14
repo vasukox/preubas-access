@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateNormaDto = exports.CreateNormaDto = exports.UpdateCatalogoDto = exports.CreateCatalogoDto = exports.UpdateUbicacionDto = exports.CreateUbicacionDto = exports.UpdateSedeDto = exports.CreateSedeDto = void 0;
+exports.UpdateTiemposContratistaDto = exports.UpdateNormaDto = exports.CreateNormaDto = exports.UpdateCatalogoDto = exports.CreateCatalogoDto = exports.UpdateUbicacionDto = exports.CreateUbicacionDto = exports.UpdateSedeDto = exports.CreateSedeDto = void 0;
 const class_validator_1 = require("class-validator");
 class CreateSedeDto {
     nombre;
@@ -343,4 +343,40 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
 ], UpdateNormaDto.prototype, "sedeId", void 0);
+class UpdateTiemposContratistaDto {
+    tokenDuracionHoras;
+    autorizacionDuracionDias;
+    alertaVencimientoDias;
+    requiereExamenMedico;
+    requiereSeguridadSocial;
+}
+exports.UpdateTiemposContratistaDto = UpdateTiemposContratistaDto;
+__decorate([
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.Min)(1),
+    __metadata("design:type", Number)
+], UpdateTiemposContratistaDto.prototype, "tokenDuracionHoras", void 0);
+__decorate([
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.Min)(1),
+    __metadata("design:type", Number)
+], UpdateTiemposContratistaDto.prototype, "autorizacionDuracionDias", void 0);
+__decorate([
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.Min)(0),
+    __metadata("design:type", Number)
+], UpdateTiemposContratistaDto.prototype, "alertaVencimientoDias", void 0);
+__decorate([
+    (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Boolean)
+], UpdateTiemposContratistaDto.prototype, "requiereExamenMedico", void 0);
+__decorate([
+    (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Boolean)
+], UpdateTiemposContratistaDto.prototype, "requiereSeguridadSocial", void 0);
 //# sourceMappingURL=config-koaj.dto.js.map

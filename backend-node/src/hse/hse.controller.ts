@@ -267,7 +267,8 @@ export class HseController {
   @Public()
   @UseGuards(AutogestionTokenGuard)
   @Post('autogestion/:token/upload')
-  @UseInterceptors(FileInterceptor('archivo'))
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  @UseInterceptors(FileInterceptor('archivo', { storage: require('multer').memoryStorage() }))
   async uploadArchivo(
     @Request() req: any,
     @Param('token') token: string,
@@ -363,7 +364,7 @@ export class HseController {
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VIGILANTE_HSE)
   async registrarEntrada(@Request() req: any, @Body() dto: RegistrarEntradaSalidaDto) {
     return this.accesoService.registrarEntrada(
-      dto.contratista_id, dto.sede_id, req.user?.id, dto.metodo, dto.observacion, dto.ubicacion_id,
+      dto.contratistaId, dto.sedeId, req.user?.id, dto.metodo, dto.observacion, dto.ubicacionId,
     );
   }
 
@@ -371,7 +372,7 @@ export class HseController {
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VIGILANTE_HSE)
   async registrarSalida(@Request() req: any, @Body() dto: RegistrarEntradaSalidaDto) {
     return this.accesoService.registrarSalida(
-      dto.contratista_id, dto.sede_id, req.user?.id, dto.metodo, dto.observacion, dto.ubicacion_id,
+      dto.contratistaId, dto.sedeId, req.user?.id, dto.metodo, dto.observacion, dto.ubicacionId,
     );
   }
 
@@ -397,7 +398,7 @@ export class HseController {
   @Post('vigilante/verificar')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.VIGILANTE_HSE)
   async verificarAcceso(@Body() dto: VerificarAccesoDto) {
-    return this.accesoService.verificarAcceso(dto.numero_documento, dto.sede_id);
+    return this.accesoService.verificarAcceso(dto.numeroDocumento, dto.sedeId);
   }
 
   @Post('vigilante/acceso')
@@ -426,13 +427,13 @@ export class HseController {
   @Post('cumplimiento')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE)
   async iniciarCumplimiento(@Request() req: any, @Body() dto: CumplimientoIniciarDto) {
-    return this.cumplimientoService.iniciarCumplimiento(dto.contratista_id, req.user?.id, dto.sede_id, undefined);
+    return this.cumplimientoService.iniciarCumplimiento(dto.contratistaId, req.user?.id, dto.sedeId, undefined);
   }
 
   @Post('cumplimiento/iniciar')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE)
   async iniciarCumplimientoFrontend(@Request() req: any, @Body() dto: CumplimientoIniciarDto) {
-    return this.cumplimientoService.iniciarCumplimiento(dto.contratista_id, req.user?.id, dto.sede_id, undefined);
+    return this.cumplimientoService.iniciarCumplimiento(dto.contratistaId, req.user?.id, dto.sedeId, undefined);
   }
 
   @Put('cumplimiento/:id')
@@ -454,7 +455,7 @@ export class HseController {
   @Post('cumplimiento/:id/cerrar')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE)
   async cerrarCumplimiento(@Param('id', ParseIntPipe) id: number, @Body() dto: CumplimientoCerrarDto) {
-    return this.cumplimientoService.cerrarCumplimiento(id, dto.firma_digital, dto.observacion_general);
+    return this.cumplimientoService.cerrarCumplimiento(id, dto.firmaDigital, dto.observacionGeneral);
   }
 
   // --- Excepciones ---
@@ -547,10 +548,22 @@ export class HseController {
   }
 
   // --- Archivos ---
-  @Get('archivos/*')
+  @Get('archivos/*path')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VISUALIZADOR, RolNombre.ADMIN_GLOBAL)
   async servirArchivoHse(@Request() req: any, @Res() res: Response) {
-    const rawPath = req.params?.[0] ?? '';
+    // req.originalUrl siempre contiene la URL completa sin modificar.
+    // Extraemos todo lo que viene después de "/archivos/" para evitar
+    // problemas con cómo NestJS 11 captura wildcards multi-segmento.
+    const originalUrl: string = decodeURIComponent(req.originalUrl ?? '');
+    const archivosIdx = originalUrl.indexOf('/archivos/');
+    const rawPath = archivosIdx >= 0
+      ? originalUrl.slice(archivosIdx + '/archivos/'.length).split('?')[0]
+      : '';
+
+    if (!rawPath) {
+      throw new NotFoundException('Archivo no encontrado');
+    }
+
     const fullPath = this.uploadSecurityService.resolveUploadPath(rawPath);
 
     if (!fs.existsSync(fullPath) || !fs.statSync(fullPath).isFile()) {

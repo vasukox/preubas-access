@@ -200,8 +200,8 @@ export default function VigilanteView() {
 
     try {
       const res = await hseService.verificarAcceso({
-        numero_documento: documento.trim(),
-        sede_id:          sedeActiva.id,
+        numeroDocumento: documento.trim(),
+        sedeId:          sedeActiva.id,
       })
       setResultado(res)
     } catch (e) {
@@ -230,7 +230,7 @@ export default function VigilanteView() {
         contratista_id: resultado.contratista_id,
         sede_id:        sedeActiva.id,
         tipo,
-        metodo:         'LECTOR_USB',
+        metodo:        'LECTOR_USB',
       })
       const msg = `${tipo === 'ENTRADA' ? 'Entrada' : 'Salida'} registrada correctamente.`
       setSuccessMsg(msg)

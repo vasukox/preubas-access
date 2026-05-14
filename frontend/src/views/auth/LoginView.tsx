@@ -110,8 +110,8 @@ export default function LoginView() {
             position:   'absolute',
             inset:      0,
             background: `
-              radial-gradient(ellipse at 20% 50%, rgba(69,116,196,0.08) 0%, transparent 60%),
-              radial-gradient(ellipse at 80% 20%, rgba(86,104,184,0.06) 0%, transparent 50%)
+              radial-gradient(ellipse at 20% 50%, var(--primary-50) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 20%, var(--primary-50) 0%, transparent 50%)
             `,
             pointerEvents: 'none',
           }}
@@ -157,15 +157,14 @@ export default function LoginView() {
               style={{
                 width:          '44px',
                 height:         '44px',
-                background:     'var(--primary-500)',
+                background:     'var(--primary-100)',
                 borderRadius:   'var(--radius-md)',
                 display:        'flex',
                 alignItems:     'center',
                 justifyContent: 'center',
-                boxShadow:      'var(--shadow-glow-primary)',
               }}
             >
-              <ShieldCheck size={24} color="var(--text-inverted)" strokeWidth={2.5} />
+              <ShieldCheck size={24} color="var(--primary-600)" strokeWidth={2.5} />
             </div>
             <div>
               <div
@@ -187,7 +186,7 @@ export default function LoginView() {
                   letterSpacing: '0.05em',
                 }}
               >
-                Permoda S.A.S.
+                Permoda LTDA
               </div>
             </div>
           </div>
@@ -207,10 +206,7 @@ export default function LoginView() {
             Control de{' '}
             <span
               style={{
-                color:             'transparent',
-                backgroundImage:   'linear-gradient(135deg, var(--primary-400), var(--primary-600))',
-                WebkitBackgroundClip: 'text',
-                backgroundClip:    'text',
+                color: 'var(--primary-600)',
               }}
             >
               accesos
@@ -261,7 +257,7 @@ export default function LoginView() {
             left:          0,
             right:         0,
             height:        '300px',
-            background:    'radial-gradient(ellipse at 50% 0%, rgba(69,116,196,0.04) 0%, transparent 70%)',
+            background:    'radial-gradient(ellipse at 50% 0%, var(--primary-50) 0%, transparent 70%)',
             pointerEvents: 'none',
           }}
         />
@@ -443,7 +439,7 @@ export default function LoginView() {
                 justifyContent: 'center',
                 gap:            '8px',
                 transition:     'all var(--transition-fast)',
-                boxShadow:      isLoading ? 'none' : 'var(--shadow-glow-primary)',
+                boxShadow:      isLoading ? 'none' : 'var(--shadow-md)',
                 letterSpacing:  '0.02em',
               }}
               onMouseEnter={(e) => {
@@ -487,7 +483,7 @@ export default function LoginView() {
           >
             <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
               Sistema de uso exclusivo para personal autorizado de{' '}
-              <span style={{ color: 'var(--text-secondary)' }}>Permoda S.A.S.</span>
+              <span style={{ color: 'var(--text-secondary)' }}>Permoda LTDA</span>
               <br />
               v2.0.0 — {new Date().getFullYear()}
             </p>

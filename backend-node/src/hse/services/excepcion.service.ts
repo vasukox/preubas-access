@@ -15,33 +15,33 @@ export class ExcepcionService {
   ) {}
 
   async crearExcepcion(aprobadoPor: number, dto: CreateExcepcionDto) {
-    const sedeId = dto.sede_id;
-    const fechaInicio = dto.fecha_inicio;
-    const fechaFin = dto.fecha_fin;
-    const personaId = dto.persona_id ?? null;
+    const sedeId = dto.sedeId;
+    const fechaInicio = dto.fechaInicio;
+    const fechaFin = dto.fechaFin;
+    const personaId = dto.personaId ?? null;
 
     this.validarBase(sedeId, fechaInicio, fechaFin, dto.motivo);
 
     const persona = personaId
       ? await this.personaRepo.findOne({ where: { id: personaId }, relations: ['proveedor'] })
       : await this.buscarOCrearPersonaDesdeDocumento({
-          tipoDocumento: dto.tipo_documento,
-          numeroDocumento: dto.numero_documento,
-          nombreCompleto: dto.nombre_completo,
-          proveedorId: dto.proveedor_id,
+          tipoDocumento: dto.tipoDocumento,
+          numeroDocumento: dto.numeroDocumento,
+          nombreCompleto: dto.nombreCompleto,
+          proveedorId: dto.proveedorId,
         });
 
     const excepcion = this.excepcionRepo.create({
       aprobadoPor,
       personaId: persona?.id ?? null,
-      tipoDocumento: dto.tipo_documento ?? persona?.tipoDocumento ?? null,
-      numeroDocumento: dto.numero_documento ?? persona?.numeroDocumento ?? null,
-      nombreCompleto: dto.nombre_completo ?? this.nombrePersona(persona),
-      proveedorId: dto.proveedor_id ?? persona?.proveedorId ?? null,
+      tipoDocumento: dto.tipoDocumento ?? persona?.tipoDocumento ?? null,
+      numeroDocumento: dto.numeroDocumento ?? persona?.numeroDocumento ?? null,
+      nombreCompleto: dto.nombreCompleto ?? this.nombrePersona(persona),
+      proveedorId: dto.proveedorId ?? persona?.proveedorId ?? null,
       origenExcepcion: 'INDIVIDUAL',
       sedeId,
       motivo: dto.motivo.trim(),
-      ubicacionId: dto.ubicacion_id ?? null,
+      ubicacionId: dto.ubicacionId ?? null,
       fechaInicio: fechaInicio as any,
       fechaFin: fechaFin as any,
       activa: true,
@@ -50,14 +50,14 @@ export class ExcepcionService {
   }
 
   async crearExcepcionLote(aprobadoPor: number, dto: CreateExcepcionLoteDto) {
-    const sedeId = dto.sede_id;
-    const fechaInicio = dto.fecha_inicio;
-    const fechaFin = dto.fecha_fin;
+    const sedeId = dto.sedeId;
+    const fechaInicio = dto.fechaInicio;
+    const fechaFin = dto.fechaFin;
     this.validarBase(sedeId, fechaInicio, fechaFin, dto.motivo);
 
     const excepciones: HseExcepcion[] = [];
 
-    for (const personaId of dto.personas_ids ?? []) {
+    for (const personaId of dto.personasIds ?? []) {
       const persona = await this.personaRepo.findOne({ where: { id: personaId } });
       if (!persona) throw new NotFoundException(`Persona ${personaId} no encontrada`);
       excepciones.push(this.excepcionRepo.create({
@@ -66,7 +66,7 @@ export class ExcepcionService {
         tipoDocumento: persona.tipoDocumento,
         numeroDocumento: persona.numeroDocumento,
         nombreCompleto: this.nombrePersona(persona),
-        proveedorId: dto.proveedor_id ?? persona.proveedorId ?? null,
+        proveedorId: dto.proveedorId ?? persona.proveedorId ?? null,
         origenExcepcion: 'EMPRESA',
         sedeId,
         motivo: dto.motivo.trim(),
@@ -78,19 +78,19 @@ export class ExcepcionService {
 
     for (const contratista of dto.contratistas ?? []) {
       const persona = await this.buscarOCrearPersonaDesdeDocumento({
-        tipoDocumento: contratista.tipo_documento,
-        numeroDocumento: contratista.numero_documento,
-        nombreCompleto: contratista.nombre_completo,
-        proveedorId: dto.proveedor_id,
+        tipoDocumento: contratista.tipoDocumento,
+        numeroDocumento: contratista.numeroDocumento,
+        nombreCompleto: contratista.nombreCompleto,
+        proveedorId: dto.proveedorId,
       });
 
       excepciones.push(this.excepcionRepo.create({
         aprobadoPor,
         personaId: persona?.id ?? null,
-        tipoDocumento: contratista.tipo_documento ?? persona?.tipoDocumento ?? 'CC',
-        numeroDocumento: contratista.numero_documento,
-        nombreCompleto: contratista.nombre_completo,
-        proveedorId: dto.proveedor_id ?? persona?.proveedorId ?? null,
+        tipoDocumento: contratista.tipoDocumento ?? persona?.tipoDocumento ?? 'CC',
+        numeroDocumento: contratista.numeroDocumento,
+        nombreCompleto: contratista.nombreCompleto,
+        proveedorId: dto.proveedorId ?? persona?.proveedorId ?? null,
         origenExcepcion: 'EMPRESA',
         sedeId,
         motivo: dto.motivo.trim(),
@@ -184,19 +184,19 @@ export class ExcepcionService {
     const excepcion = await this.excepcionRepo.findOne({ where: { id } });
     if (!excepcion) throw new BadRequestException('Excepcion no encontrada');
 
-    const fechaInicio = dto.fecha_inicio ?? String(excepcion.fechaInicio);
-    const fechaFin = dto.fecha_fin ?? String(excepcion.fechaFin);
-    this.validarBase(dto.sede_id ?? excepcion.sedeId, fechaInicio, fechaFin, dto.motivo ?? excepcion.motivo);
+    const fechaInicio = dto.fechaInicio ?? String(excepcion.fechaInicio);
+    const fechaFin = dto.fechaFin ?? String(excepcion.fechaFin);
+    this.validarBase(dto.sedeId ?? excepcion.sedeId, fechaInicio, fechaFin, dto.motivo ?? excepcion.motivo);
 
-    if (dto.sede_id) excepcion.sedeId = dto.sede_id;
+    if (dto.sedeId) excepcion.sedeId = dto.sedeId;
     if (dto.motivo !== undefined) excepcion.motivo = dto.motivo.trim();
-    if (dto.fecha_inicio) excepcion.fechaInicio = fechaInicio as any;
-    if (dto.fecha_fin) excepcion.fechaFin = fechaFin as any;
-    if (dto.tipo_documento !== undefined) excepcion.tipoDocumento = dto.tipo_documento;
-    if (dto.numero_documento !== undefined) excepcion.numeroDocumento = dto.numero_documento;
-    if (dto.nombre_completo !== undefined) excepcion.nombreCompleto = dto.nombre_completo;
-    if (dto.proveedor_id !== undefined) excepcion.proveedorId = dto.proveedor_id;
-    if (dto.ubicacion_id !== undefined) excepcion.ubicacionId = dto.ubicacion_id;
+    if (dto.fechaInicio) excepcion.fechaInicio = fechaInicio as any;
+    if (dto.fechaFin) excepcion.fechaFin = fechaFin as any;
+    if (dto.tipoDocumento !== undefined) excepcion.tipoDocumento = dto.tipoDocumento;
+    if (dto.numeroDocumento !== undefined) excepcion.numeroDocumento = dto.numeroDocumento;
+    if (dto.nombreCompleto !== undefined) excepcion.nombreCompleto = dto.nombreCompleto;
+    if (dto.proveedorId !== undefined) excepcion.proveedorId = dto.proveedorId;
+    if (dto.ubicacionId !== undefined) excepcion.ubicacionId = dto.ubicacionId;
 
     return this.excepcionRepo.save(excepcion);
   }

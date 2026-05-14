@@ -11,6 +11,7 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const persona_module_1 = require("../persona/persona.module");
 const sede_entity_1 = require("../sede/entities/sede.entity");
+const config_tiempos_contratista_entity_1 = require("../config-koaj/entities/config-tiempos-contratista.entity");
 const cat_eps_entity_1 = require("./entities/cat-eps.entity");
 const cat_arl_entity_1 = require("./entities/cat-arl.entity");
 const cat_afp_entity_1 = require("./entities/cat-afp.entity");
@@ -50,6 +51,7 @@ exports.HseModule = HseModule = __decorate([
             persona_module_1.PersonaModule,
             typeorm_1.TypeOrmModule.forFeature([
                 sede_entity_1.Sede,
+                config_tiempos_contratista_entity_1.ConfigTiemposContratista,
                 cat_eps_entity_1.CatEps,
                 cat_arl_entity_1.CatArl,
                 cat_afp_entity_1.CatAfp,

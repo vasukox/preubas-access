@@ -6,6 +6,7 @@ const platform_ws_1 = require("@nestjs/platform-ws");
 const app_module_1 = require("./app.module");
 const api_response_interceptor_1 = require("./common/interceptors/api-response.interceptor");
 const snake_case_interceptor_1 = require("./common/interceptors/snake-case.interceptor");
+const snake_to_camel_pipe_1 = require("./common/pipes/snake-to-camel.pipe");
 const http_exception_filter_1 = require("./common/filters/http-exception.filter");
 async function bootstrap() {
     const logger = new common_1.Logger('Bootstrap');
@@ -38,6 +39,7 @@ async function bootstrap() {
         maxAge: 86400,
     });
     app.useWebSocketAdapter(new platform_ws_1.WsAdapter(app));
+    app.useGlobalPipes(new snake_to_camel_pipe_1.SnakeToCamelPipe());
     app.useGlobalPipes(new common_1.ValidationPipe({
         whitelist: true,
         forbidNonWhitelisted: true,

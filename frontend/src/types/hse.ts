@@ -395,22 +395,22 @@ export interface AceptacionNormasResponse extends AceptacionNormasRequest {
 // ═══════════════════════════════════════════════════════════════════
 
 export interface VerificarAccesoRequest {
-  numero_documento: string
-  sede_id:          number
+  numeroDocumento: string
+  sedeId:          number
 }
 
 export interface VerificarAccesoResponse {
-  estado:             EstadoAccesoVigilante
-  color:              'green' | 'red' | 'gray' | 'blue'
-  nombre:             string | null
-  empresa:            string | null
-  tipo_contratista:   TipoContratista | null
-  mensaje:            string
-  problemas:          string[]
-  dentro_actualmente: boolean
-  ultima_entrada:     string | null
-  contratista_id:     number | null
-  autorizacion_id:    number | null
+  estado:              EstadoAccesoVigilante
+  color:               'green' | 'red' | 'gray' | 'blue'
+  nombre:              string | null
+  empresa:             string | null
+  tipo_contratista:    TipoContratista | null
+  mensaje:             string
+  problemas:           string[]
+  dentro_actualmente:  boolean
+  ultima_entrada:      string | null
+  contratista_id:      number | null
+  autorizacion_id:     number | null
 }
 
 export interface RegistrarAccesoRequest {
@@ -424,24 +424,24 @@ export interface RegistrarAccesoRequest {
 
 export interface AccesoResponse {
   id:             number
-  contratista_id: number
-  sede_id:        number
-  registrado_por: number
+  contratistaId:  number
+  sedeId:         number
+  registradoPor:  number
   tipo:           TipoAccesoHSE
   metodo:         MetodoAccesoHSE
   observacion:    string | null
-  fecha_hora:     string
+  fechaHora:      string
 }
 
 export interface PersonaDentroResponse {
-  contratista_id:   number
-  nombre:           string
-  numero_documento: string
-  empresa:          string | null
-  tipo_contratista: TipoContratista
-  hora_entrada:     string
-  minutos_dentro:   number
-  alerta_tiempo:    boolean
+  contratista_id:    number
+  nombre:            string
+  numero_documento:  string
+  empresa:           string | null
+  tipo_contratista:  TipoContratista
+  hora_entrada:      string
+  minutos_dentro:    number
+  alerta_tiempo:     boolean
 }
 
 
@@ -450,24 +450,24 @@ export interface PersonaDentroResponse {
 // ═══════════════════════════════════════════════════════════════════
 
 export interface CumplimientoIniciarRequest {
-  contratista_id: number
-  sede_id:        number
+  contratistaId: number
+  sedeId:        number
 }
 
 export interface CumplimientoItemRequest {
-  item_id:      number
+  itemId:       number
   cumple?:      boolean
   observacion?: string
 }
 
 export interface CumplimientoActualizarRequest {
-  items:               CumplimientoItemRequest[]
-  observacion_general?: string
+  items:                  CumplimientoItemRequest[]
+  observacionGeneral?:    string
 }
 
 export interface CumplimientoCerrarRequest {
-  firma_digital:        string
-  observacion_general?: string
+  firmaDigital:         string
+  observacionGeneral?:  string
 }
 
 export interface CumplimientoItemResponse {
@@ -480,34 +480,68 @@ export interface CumplimientoItemResponse {
 }
 
 export interface CumplimientoResponse {
-  id:                  number
-  contratista_id:      number
-  sede_id:             number
-  encargado_id:        number
-  estado:              EstadoCumplimiento
-  observacion_general: string | null
-  fecha_inicio:        string
-  fecha_cierre:        string | null
+  id:                   number
+  contratistaId:        number
+  sedeId:               number
+  encargadoId:          number
+  estado:               EstadoCumplimiento
+  observacionGeneral:   string | null
+  fechaInicio:          string
+  fechaCierre:          string | null
   firma_digital:       string | null
   items:               CumplimientoItemResponse[]
 }
 
 export interface CumplimientoListadoResponse {
-  id:                 number
-  estado:             EstadoCumplimiento
-  fecha_inicio:       string
-  fecha_cierre:       string | null
-  firma_digital:      string | null
-  contratista_id:     number
-  contratista_nombre: string
-  tipo_documento:     TipoDocumentoHSE
-  numero_documento:   string
+  id:                  number
+  estado:              EstadoCumplimiento
+  fecha_inicio:        string
+  fecha_cierre:        string | null
+  firma_digital:       string | null
+  contratista_id:      number
+  contratista_nombre:  string
+  tipo_documento:      TipoDocumentoHSE
+  numero_documento:    string
   autorizacion_codigo: string | null
-  proveedor_id:       number | null
-  total_items:        number
-  respondidos:        number
+  proveedor_id:        number | null
+  total_items:         number
+  respondidos:         number
+  encargado_nombre:    string | null
+  dias_restantes:      number | null  // null = EN_PROGRESO; 0..3 = días antes de auto-eliminación
 }
 
+
+// ═══════════════════════════════════════════════════════════════════
+// REPORTES
+// ═══════════════════════════════════════════════════════════════════
+
+export interface ReporteCumplimientoRow {
+  id:                  number
+  estado:              EstadoCumplimiento
+  archivado:           boolean
+  fecha_inicio:        string
+  fecha_cierre:        string | null
+  observacion_general: string | null
+  firma_digital:       string | null
+  sede_id:             number
+  contratista_id:      number
+  contratista_nombre:  string
+  tipo_documento:      TipoDocumentoHSE
+  numero_documento:    string
+  autorizacion_codigo: string | null
+  encargado_nombre:    string | null
+  total_items:         number
+  items_cumplen:       number
+  items_nos_cumplen:   number
+}
+
+export interface ReporteCumplimientoResponse {
+  total:  number
+  page:   number
+  limit:  number
+  pages:  number
+  data:   ReporteCumplimientoRow[]
+}
 
 // ═══════════════════════════════════════════════════════════════════
 // EXCEPCIONES

@@ -4,6 +4,7 @@ import { PersonaModule } from '../persona/persona.module';
 
 // ── Entities comunes ────────────────────────────────────────────────────────
 import { Sede } from '../sede/entities/sede.entity';
+import { ConfigTiemposContratista } from '../config-koaj/entities/config-tiempos-contratista.entity';
 
 // ── Entities HSE — catálogos ────────────────────────────────────────────────
 import { CatEps } from './entities/cat-eps.entity';
@@ -54,6 +55,7 @@ import { UploadSecurityService } from './services/upload-security.service';
     PersonaModule,
     TypeOrmModule.forFeature([
       Sede,
+      ConfigTiemposContratista,
       // Catálogos
       CatEps,
       CatArl,

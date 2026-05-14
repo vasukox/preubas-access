@@ -60,17 +60,17 @@ interface CitasTableProps {
 }
 
 function resolveActionColor(tone: EstadoAction['tone']) {
-  if (tone === 'danger') return { base: 'var(--text-muted)', hoverBg: 'rgba(192,80,80,0.1)', hoverColor: '#ef4444', border: 'var(--border-subtle)' }
-  if (tone === 'warn') return { base: 'var(--text-muted)', hoverBg: 'rgba(69,116,196,0.1)', hoverColor: '#f59e0b', border: 'var(--border-subtle)' }
-  if (tone === 'success') return { base: 'var(--text-muted)', hoverBg: 'rgba(40,149,108,0.1)', hoverColor: '#10b981', border: 'var(--border-subtle)' }
-  return { base: 'var(--text-muted)', hoverBg: 'rgba(86,104,184,0.1)', hoverColor: '#6366f1', border: 'var(--border-subtle)' }
+  if (tone === 'danger') return { base: 'var(--text-muted)', hoverBg: 'var(--danger-50)', hoverColor: 'var(--danger-600)', border: 'var(--border-subtle)' }
+  if (tone === 'warn') return { base: 'var(--text-muted)', hoverBg: 'var(--warning-50)', hoverColor: 'var(--warning-600)', border: 'var(--border-subtle)' }
+  if (tone === 'success') return { base: 'var(--text-muted)', hoverBg: 'var(--success-50)', hoverColor: 'var(--success-600)', border: 'var(--border-subtle)' }
+  return { base: 'var(--text-muted)', hoverBg: 'var(--primary-50)', hoverColor: 'var(--primary-600)', border: 'var(--border-subtle)' }
 }
 
 function resolveHighlightColor(estado: GhEstadoCita) {
-  if (estado === 'CONFIRMADA' || estado === 'FINALIZADA') return 'rgba(40,149,108,0.15)'
-  if (estado === 'NO_ASISTIO') return 'rgba(69,116,196,0.15)'
-  if (estado === 'CANCELADA') return 'rgba(192,80,80,0.15)'
-  if (estado === 'EN_CURSO') return 'rgba(86,104,184,0.15)'
+  if (estado === 'CONFIRMADA' || estado === 'FINALIZADA') return 'var(--success-50)'
+  if (estado === 'NO_ASISTIO') return 'var(--warning-50)'
+  if (estado === 'CANCELADA') return 'var(--danger-50)'
+  if (estado === 'EN_CURSO') return 'var(--primary-50)'
   return 'transparent'
 }
 
@@ -133,7 +133,7 @@ function CitaTableRow({
 
       <td style={{ padding: '14px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-          <Clock size={14} color="#6366f1" />
+          <Clock size={14} color="var(--primary-500)" />
           <span style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
             {formatTimeOnly(cita.fecha_hora_inicio)} <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>→</span> {formatTimeOnly(cita.fecha_hora_fin)}
           </span>
@@ -152,7 +152,7 @@ function CitaTableRow({
             </span>
           </div>
           {cita.sesion_induccion ? (
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 10px', borderRadius: 'var(--radius-full)', border: '1px solid rgba(14,165,233,0.25)', background: 'rgba(14,165,233,0.08)', color: '#0ea5e9', fontSize: '0.72rem', fontWeight: 600 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 10px', borderRadius: 'var(--radius-full)', border: '1px solid var(--info-400)', background: 'var(--info-50)', color: 'var(--info-600)', fontSize: '0.72rem', fontWeight: 600 }}>
               Sesion #{cita.sesion_induccion.sesion_id} {cita.sesion_induccion.estado_sesion.replace('_', ' ')}
             </div>
           ) : null}
@@ -189,9 +189,9 @@ function CitaTableRow({
               type="button"
               onClick={() => navigate('/gh/inducciones')}
               style={{
-                border: '1px solid rgba(14,165,233,0.25)',
-                color: '#0ea5e9',
-                background: 'rgba(14,165,233,0.06)',
+                border: '1px solid var(--info-400)',
+                color: 'var(--info-600)',
+                background: 'var(--info-50)',
                 borderRadius: 'var(--radius-sm)',
                 padding: '5px 12px',
                 fontSize: '0.72rem',
@@ -258,7 +258,7 @@ function CitaTableRow({
               alignItems: 'center',
               gap: '5px',
               border: '1px solid var(--border-subtle)',
-              color: '#ef4444',
+              color: 'var(--danger-600)',
               background: 'transparent',
               borderRadius: 'var(--radius-md)',
               padding: '6px 12px',

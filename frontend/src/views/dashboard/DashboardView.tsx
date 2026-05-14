@@ -9,10 +9,13 @@ import {
   ShieldCheck, Car, Cpu, Users, Activity,
   UserCheck, AlertTriangle, ArrowRight, UserX,
   LayoutGrid, ClipboardList, Eye, ClipboardCheck,
+  CalendarDays, Briefcase, Upload, BookOpen,
 } from 'lucide-react'
 import { useAuthStore, useSedeStore } from '@/store'
 import { hseService } from '@/services/hse.service'
+import { ghService } from '@/services/gh.service'
 import type { DashboardHSEResponse } from '@/types/hse'
+import type { GhDashboard } from '@/types/gh'
 
 // ── Dashboard para roles HSE ──────────────────────────────────────
 function HSEFocusedDashboard({
@@ -164,6 +167,178 @@ function HSEFocusedDashboard({
   )
 }
 
+// ── Dashboard para ADMIN_GH ───────────────────────────────────────
+function GHFocusedDashboard({
+  metrics,
+}: {
+  metrics: GhDashboard | null
+}) {
+  const navigate = useNavigate()
+
+  const accesos = [
+    { label: 'Citas',       desc: 'Agenda operativa del día',               icon: CalendarDays, color: 'var(--primary-400)', bg: 'rgba(14,165,233,0.08)',    path: '/gh/citas' },
+    { label: 'Inducciones', desc: 'Sesiones sincrónicas y control asistencia', icon: BookOpen,    color: 'var(--success-400)', bg: 'rgba(40,149,108,0.08)',   path: '/gh/inducciones' },
+    { label: 'Dotación',    desc: 'Matriz de entrega por área y cargo',      icon: Briefcase,   color: '#f59e0b',             bg: 'rgba(245,158,11,0.08)',  path: '/gh/dotacion' },
+    { label: 'Importación', desc: 'Carga masiva de candidatos por sede',      icon: Upload,      color: '#5668B8',             bg: 'rgba(86,104,184,0.08)', path: '/gh/importacion' },
+  ]
+
+  return (
+    <div style={{ padding: '32px', maxWidth: '1000px' }}>
+
+      {/* Métricas GH */}
+      <div
+        style={{ marginBottom: '24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '14px' }}
+        className="animate-fade-up stagger-2"
+      >
+        <MetricBox label="Citas hoy"    value={metrics?.citas_hoy_total    ?? '—'} color="var(--primary-400)"  bg="rgba(14,165,233,0.08)"    icon={CalendarDays} />
+        <MetricBox label="Confirmadas"  value={metrics?.citas_hoy_confirmadas ?? '—'} color="var(--success-400)" bg="rgba(40,149,108,0.08)"    icon={UserCheck} />
+        <MetricBox label="En curso"     value={metrics?.citas_en_curso       ?? '—'} color="#5668B8"            bg="rgba(86,104,184,0.08)"   icon={Activity} />
+        {(metrics?.citas_hoy_no_asistio ?? 0) > 0 && (
+          <MetricBox label="No asistió" value={metrics!.citas_hoy_no_asistio} color="var(--danger-400)" bg="rgba(192,80,80,0.08)" icon={UserX} alert />
+        )}
+      </div>
+
+      {/* Accesos rápidos */}
+      <div
+        style={{
+          background:   'var(--bg-surface)',
+          border:       '1px solid var(--border-subtle)',
+          borderRadius: 'var(--radius-lg)',
+          overflow:     'hidden',
+        }}
+        className="animate-fade-up stagger-3"
+      >
+        <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border-subtle)' }}>
+          <span style={{ fontSize: '0.83rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+            Accesos rápidos — Gestión Humana
+          </span>
+        </div>
+        <div style={{ padding: '8px' }}>
+          {accesos.map((item) => (
+            <button
+              key={item.path}
+              onClick={() => navigate(item.path)}
+              style={{
+                width:        '100%',
+                display:      'flex',
+                alignItems:   'center',
+                gap:          '12px',
+                padding:      '12px',
+                background:   'transparent',
+                border:       '1px solid transparent',
+                borderRadius: 'var(--radius-md)',
+                cursor:       'pointer',
+                textAlign:    'left',
+                marginBottom: '4px',
+                transition:   'all var(--transition-fast)',
+              }}
+              onMouseEnter={e => {
+                const el = e.currentTarget as HTMLElement
+                el.style.background  = item.bg
+                el.style.borderColor = 'var(--border-subtle)'
+              }}
+              onMouseLeave={e => {
+                const el = e.currentTarget as HTMLElement
+                el.style.background  = 'transparent'
+                el.style.borderColor = 'transparent'
+              }}
+            >
+              <div style={{
+                width: '36px', height: '36px', background: item.bg,
+                borderRadius: 'var(--radius-md)', display: 'flex',
+                alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              }}>
+                <item.icon size={16} color={item.color} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '0.83rem', fontWeight: 500, color: 'var(--text-primary)' }}>{item.label}</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '1px' }}>{item.desc}</div>
+              </div>
+              <ArrowRight size={14} color="var(--text-muted)" />
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Dashboard para VIGILANTE_PARKING ─────────────────────────────
+function ParkingVigilanteDashboard() {
+  return (
+    <div style={{ padding: '32px', maxWidth: '700px' }}>
+      <div
+        style={{
+          background:   'var(--bg-surface)',
+          border:       '1px solid var(--border-subtle)',
+          borderRadius: 'var(--radius-lg)',
+          overflow:     'hidden',
+        }}
+        className="animate-fade-up stagger-2"
+      >
+        <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border-subtle)' }}>
+          <span style={{ fontSize: '0.83rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+            Portería Parking — Acciones disponibles
+          </span>
+        </div>
+        <div style={{ padding: '8px' }}>
+          {[
+            { label: 'Registrar ingreso',  desc: 'Escanear placa o buscar vehículo para entrada', icon: ArrowRight,     color: 'var(--success-400)', bg: 'rgba(40,149,108,0.08)',  available: false },
+            { label: 'Registrar salida',   desc: 'Marcar salida de vehículo del parqueadero',     icon: Car,           color: 'var(--primary-400)', bg: 'rgba(14,165,233,0.08)',  available: false },
+            { label: 'Consulta rápida',    desc: 'Verificar estado de un vehículo por placa',     icon: ClipboardCheck, color: '#5668B8',             bg: 'rgba(86,104,184,0.08)', available: false },
+            { label: 'Parqueadero',        desc: 'Panel del módulo Parking',                       icon: Car,           color: '#f59e0b',             bg: 'rgba(245,158,11,0.08)', available: false },
+          ].map((item) => (
+            <div
+              key={item.label}
+              style={{
+                width:        '100%',
+                display:      'flex',
+                alignItems:   'center',
+                gap:          '12px',
+                padding:      '12px',
+                opacity:      0.5,
+                cursor:       'default',
+                marginBottom: '4px',
+              }}
+            >
+              <div style={{
+                width: '36px', height: '36px', background: item.bg,
+                borderRadius: 'var(--radius-md)', display: 'flex',
+                alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              }}>
+                <item.icon size={16} color={item.color} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '0.83rem', fontWeight: 500, color: 'var(--text-primary)' }}>{item.label}</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '1px' }}>{item.desc}</div>
+              </div>
+              <div style={{
+                display: 'inline-flex', alignItems: 'center',
+                padding: '3px 8px', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-sm)',
+                fontSize: '0.65rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', letterSpacing: '0.05em',
+              }}>
+                PRÓXIMAMENTE
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div
+        style={{
+          marginTop: '16px', padding: '12px 16px',
+          background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)',
+          borderRadius: 'var(--radius-md)', fontSize: '0.78rem', color: 'var(--text-muted)',
+        }}
+        className="animate-fade-up stagger-3"
+      >
+        <span style={{ color: '#f59e0b', fontWeight: 600 }}>Módulo Parking en desarrollo.</span>{' '}
+        La portería de parqueadero estará disponible en el próximo sprint. Contacta al administrador si necesitas acceso urgente.
+      </div>
+    </div>
+  )
+}
+
 // ── Métrica compacta ──────────────────────────────────────────────
 function MetricBox({
   label, value, color, bg, icon: Icon, alert,
@@ -211,13 +386,16 @@ export default function DashboardView() {
   const sedeActiva   = useSedeStore((s) => s.sedeActiva)
 
   const [hseMetrics, setHseMetrics] = useState<DashboardHSEResponse | null>(null)
+  const [ghMetrics, setGhMetrics]   = useState<GhDashboard | null>(null)
 
   // Determinar rol predominante
-  const esAdminGlobal   = isAdmin()
-  const esAdminHSE      = hasAnyRole(['ADMIN_HSE'])
-  const esGestionHSE    = hasAnyRole(['GESTION_HSE'])
-  const esVigilanteHSE  = hasAnyRole(['VIGILANTE_HSE'])
-  const esRolHSE        = esAdminHSE || esGestionHSE || esVigilanteHSE
+  const esAdminGlobal      = isAdmin()
+  const esAdminHSE         = hasAnyRole(['ADMIN_HSE'])
+  const esGestionHSE       = hasAnyRole(['GESTION_HSE'])
+  const esVigilanteHSE     = hasAnyRole(['VIGILANTE_HSE'])
+  const esRolHSE           = esAdminHSE || esGestionHSE || esVigilanteHSE
+  const esAdminGH          = hasAnyRole(['ADMIN_GH'])
+  const esVigilanteParking = hasAnyRole(['VIGILANTE_PARKING'])
 
   useEffect(() => {
     if (!sedeActiva?.id) return
@@ -226,14 +404,21 @@ export default function DashboardView() {
       .catch(() => {/* silencioso */})
   }, [sedeActiva?.id])
 
+  useEffect(() => {
+    if (!sedeActiva?.id || !esAdminGH) return
+    ghService.getDashboard(sedeActiva.id)
+      .then(setGhMetrics)
+      .catch(() => {/* silencioso */})
+  }, [sedeActiva?.id, esAdminGH])
+
+  const primerNombre = usuario?.nombre_completo?.split(' ')[0] || 'Usuario'
+
   // ── Vista para roles HSE (no admin global) ────────────────────
   if (!esAdminGlobal && esRolHSE) {
-    const primerNombre = usuario?.nombre_completo?.split(' ')[0] || 'Usuario'
     const rolLabel = esAdminHSE ? 'Admin HSE' : esGestionHSE ? 'Gestión HSE' : 'Vigilante HSE'
 
     return (
       <div style={{ padding: '0', maxWidth: '1000px' }}>
-        {/* Header rol HSE */}
         <div style={{ padding: '32px 32px 0', marginBottom: '24px' }} className="animate-fade-up">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
             <ShieldCheck size={14} color="var(--success-400)" />
@@ -248,12 +433,57 @@ export default function DashboardView() {
             KOAJ Access v2.0 — {sedeActiva?.nombre || 'Sin sede seleccionada'}
           </p>
         </div>
-
         <HSEFocusedDashboard
           metrics={hseMetrics}
           canSeeVigilante={esAdminHSE || esVigilanteHSE}
           canManage={esAdminHSE || esGestionHSE}
         />
+      </div>
+    )
+  }
+
+  // ── Vista para ADMIN_GH ───────────────────────────────────────
+  if (!esAdminGlobal && esAdminGH) {
+    return (
+      <div style={{ padding: '0', maxWidth: '1000px' }}>
+        <div style={{ padding: '32px 32px 0', marginBottom: '24px' }} className="animate-fade-up">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+            <Users size={14} color="#EC4899" />
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: '#EC4899', letterSpacing: '0.12em' }}>
+              MÓDULO GH · ADMIN GESTIÓN HUMANA
+            </span>
+          </div>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em', marginBottom: '6px' }}>
+            Hola, <span style={{ color: '#EC4899' }}>{primerNombre}</span>
+          </h1>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+            KOAJ Access v2.0 — {sedeActiva?.nombre || 'Sin sede seleccionada'}
+          </p>
+        </div>
+        <GHFocusedDashboard metrics={ghMetrics} />
+      </div>
+    )
+  }
+
+  // ── Vista para VIGILANTE_PARKING ──────────────────────────────
+  if (!esAdminGlobal && esVigilanteParking) {
+    return (
+      <div style={{ padding: '0', maxWidth: '1000px' }}>
+        <div style={{ padding: '32px 32px 0', marginBottom: '24px' }} className="animate-fade-up">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+            <Car size={14} color="var(--primary-400)" />
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--primary-400)', letterSpacing: '0.12em' }}>
+              MÓDULO PARKING · VIGILANTE PORTERÍA
+            </span>
+          </div>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em', marginBottom: '6px' }}>
+            Hola, <span style={{ color: 'var(--primary-400)' }}>{primerNombre}</span>
+          </h1>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+            KOAJ Access v2.0 — {sedeActiva?.nombre || 'Sin sede seleccionada'}
+          </p>
+        </div>
+        <ParkingVigilanteDashboard />
       </div>
     )
   }
@@ -301,8 +531,8 @@ export default function DashboardView() {
       bg:          'rgba(236,72,153,0.08)',
       border:      'rgba(236,72,153,0.15)',
       visible:     esAdminGlobal || hasAnyRole(['ADMIN_GH','VISUALIZADOR']),
-      disponible:  false,
-      path:        null,
+      disponible:  true,
+      path:        '/gh',
     },
   ].filter(mod => mod.visible)
 

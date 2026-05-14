@@ -5,7 +5,8 @@ import { CatEps } from '../hse/entities/cat-eps.entity';
 import { CatArl } from '../hse/entities/cat-arl.entity';
 import { CatAfp } from '../hse/entities/cat-afp.entity';
 import { CatNormaSeguridad } from '../hse/entities/cat-norma-seguridad.entity';
-import { CreateSedeDto, UpdateSedeDto, CreateUbicacionDto, UpdateUbicacionDto, CreateCatalogoDto, UpdateCatalogoDto, CreateNormaDto, UpdateNormaDto } from './dto/config-koaj.dto';
+import { ConfigTiemposContratista, TipoContratistaConfig } from './entities/config-tiempos-contratista.entity';
+import { CreateSedeDto, UpdateSedeDto, CreateUbicacionDto, UpdateUbicacionDto, CreateCatalogoDto, UpdateCatalogoDto, CreateNormaDto, UpdateNormaDto, UpdateTiemposContratistaDto } from './dto/config-koaj.dto';
 type TipoCatalogo = 'eps' | 'arl' | 'afp';
 export declare class ConfigKoajService {
     private readonly sedeRepo;
@@ -14,8 +15,10 @@ export declare class ConfigKoajService {
     private readonly arlRepo;
     private readonly afpRepo;
     private readonly normaRepo;
+    private readonly tiemposRepo;
     private readonly logger;
-    constructor(sedeRepo: Repository<Sede>, ubicacionRepo: Repository<Ubicacion>, epsRepo: Repository<CatEps>, arlRepo: Repository<CatArl>, afpRepo: Repository<CatAfp>, normaRepo: Repository<CatNormaSeguridad>);
+    private static readonly TIEMPOS_DEFAULTS;
+    constructor(sedeRepo: Repository<Sede>, ubicacionRepo: Repository<Ubicacion>, epsRepo: Repository<CatEps>, arlRepo: Repository<CatArl>, afpRepo: Repository<CatAfp>, normaRepo: Repository<CatNormaSeguridad>, tiemposRepo: Repository<ConfigTiemposContratista>);
     listarSedes(): Promise<Sede[]>;
     getSede(id: number): Promise<Sede>;
     crearSede(dto: CreateSedeDto): Promise<Sede>;
@@ -33,5 +36,10 @@ export declare class ConfigKoajService {
     crearNorma(dto: CreateNormaDto): Promise<CatNormaSeguridad>;
     actualizarNorma(id: number, dto: UpdateNormaDto): Promise<CatNormaSeguridad>;
     eliminarNorma(id: number): Promise<void>;
+    listarTiemposContratista(): Promise<ConfigTiemposContratista[]>;
+    getTiemposContratista(tipo: TipoContratistaConfig): Promise<ConfigTiemposContratista>;
+    actualizarTiemposContratista(tipo: TipoContratistaConfig, dto: UpdateTiemposContratistaDto): Promise<ConfigTiemposContratista>;
+    private asegurarFilasDefecto;
+    private asegurarFilaDefecto;
 }
 export {};

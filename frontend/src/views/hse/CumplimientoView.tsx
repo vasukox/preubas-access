@@ -1168,79 +1168,125 @@ export default function CumplimientoView() {
             </div>
 
             {loadingHistorial ? (
-              <div style={{ padding: '22px', fontSize: '0.92rem', color: 'var(--text-muted)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '22px', fontSize: '0.84rem', color: 'var(--text-muted)' }}>
+                <div style={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid var(--border-default)', borderTopColor: 'var(--primary-400)', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
                 Cargando verificaciones...
               </div>
             ) : errorHistorial ? (
-              <div style={{ padding: '22px', fontSize: '0.92rem', color: 'var(--danger-400)' }}>
+              <div style={{ padding: '22px', fontSize: '0.84rem', color: 'var(--danger-400)' }}>
                 {errorHistorial}
               </div>
             ) : historialFiltrado.length === 0 ? (
-              <div style={{ padding: '22px', fontSize: '0.92rem', color: 'var(--text-muted)' }}>
+              <div style={{ padding: '28px 22px', textAlign: 'center', fontSize: '0.84rem', color: 'var(--text-muted)' }}>
                 No hay verificaciones para esta pestaña.
               </div>
             ) : (
-              historialPagination.paginatedData.map((h, idx) => (
-                <div
-                  key={h.id}
-                  style={{
-                    padding: '16px 20px',
-                    borderBottom: idx < historialFiltrado.length - 1 ? '1px solid var(--border-subtle)' : 'none',
-                    display: 'grid',
-                    gridTemplateColumns: '1fr auto',
-                    gap: '14px',
-                    alignItems: 'center',
-                  }}
-                >
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{
-                      fontSize: '0.96rem',
-                      color: 'var(--text-primary)',
-                      fontWeight: 600,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}>
-                      {h.contratista_nombre}
-                    </div>
-                    <div style={{
-                      marginTop: '4px',
-                      fontSize: '0.8rem',
-                      color: 'var(--text-muted)',
-                      fontFamily: 'var(--font-mono)',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}>
-                      {h.tipo_documento} {h.numero_documento}
-                      {h.autorizacion_codigo ? ` · ${h.autorizacion_codigo}` : ''}
-                      {` · ${h.respondidos}/${h.total_items} ítems`}
-                    </div>
-                  </div>
+              historialPagination.paginatedData.map((h, idx) => {
+                const aprobada   = h.estado === 'COMPLETADO'
+                const colorRes   = aprobada ? 'var(--success-400)' : 'var(--danger-400)'
+                const bgRes      = aprobada ? 'rgba(40,149,108,0.08)' : 'rgba(192,80,80,0.08)'
+                const borderRes  = aprobada ? 'rgba(40,149,108,0.25)' : 'rgba(192,80,80,0.25)'
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <button
-                      onClick={() => handleAbrirDesgloseHistorial(h.id, h.contratista_id)}
-                      className="btn-ghost"
-                      style={{ padding: '6px 10px', fontSize: '0.75rem' }}
-                    >
-                      <Eye size={12} /> Desglose
-                    </button>
-                    <div style={{
-                      padding: '6px 12px',
-                      borderRadius: '999px',
-                      fontSize: '0.78rem',
-                      fontWeight: 700,
-                      color: h.estado === 'COMPLETADO' ? 'var(--success-400)' : 'var(--danger-400)',
-                      background: h.estado === 'COMPLETADO' ? 'rgba(40,149,108,0.1)' : 'rgba(192,80,80,0.1)',
-                      border: h.estado === 'COMPLETADO' ? '1px solid rgba(40,149,108,0.25)' : '1px solid rgba(192,80,80,0.25)',
-                      whiteSpace: 'nowrap',
-                    }}>
-                      {h.estado === 'COMPLETADO' ? 'Aprobada' : 'No aprobada'}
+                // Badge de días restantes antes de auto-eliminación
+                const dr = h.dias_restantes
+                const diasBadge = dr !== null ? (
+                  <span style={{
+                    padding: '2px 7px', borderRadius: '999px', fontSize: '0.65rem',
+                    fontFamily: 'var(--font-mono)', fontWeight: 700, letterSpacing: '0.04em',
+                    whiteSpace: 'nowrap',
+                    background: dr === 0 ? 'rgba(192,80,80,0.12)' : dr === 1 ? 'rgba(212,134,10,0.12)' : 'rgba(100,100,100,0.08)',
+                    border:     dr === 0 ? '1px solid rgba(192,80,80,0.3)' : dr === 1 ? '1px solid rgba(212,134,10,0.3)' : '1px solid var(--border-subtle)',
+                    color:      dr === 0 ? 'var(--danger-400)' : dr === 1 ? '#D4860A' : 'var(--text-muted)',
+                  }}>
+                    {dr === 0 ? 'Se elimina hoy' : `${dr}d restante${dr !== 1 ? 's' : ''}`}
+                  </span>
+                ) : null
+
+                return (
+                  <div
+                    key={h.id}
+                    style={{
+                      padding: '14px 20px',
+                      borderBottom: idx < historialPagination.paginatedData.length - 1 ? '1px solid var(--border-subtle)' : 'none',
+                      display: 'grid',
+                      gridTemplateColumns: '1fr auto',
+                      gap: '12px',
+                      alignItems: 'center',
+                      background: 'transparent',
+                      transition: 'background 0.1s',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-raised)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    {/* Columna izquierda */}
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{
+                        fontSize: '0.88rem', fontWeight: 600,
+                        color: 'var(--text-primary)',
+                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                        marginBottom: '3px',
+                      }}>
+                        {h.contratista_nombre}
+                      </div>
+                      <div style={{
+                        fontSize: '0.72rem', color: 'var(--text-muted)',
+                        fontFamily: 'var(--font-mono)',
+                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                        marginBottom: '5px',
+                      }}>
+                        {h.tipo_documento} {h.numero_documento}
+                        {h.autorizacion_codigo ? ` · ${h.autorizacion_codigo}` : ''}
+                        {h.encargado_nombre ? ` · Enc: ${h.encargado_nombre}` : ''}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                        {/* Ítems respondidos */}
+                        <span style={{
+                          fontSize: '0.67rem', padding: '1px 6px', borderRadius: '999px',
+                          background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)',
+                          color: 'var(--text-muted)', fontFamily: 'var(--font-mono)',
+                        }}>
+                          {h.respondidos}/{h.total_items} ítems
+                        </span>
+                        {/* Fecha de cierre */}
+                        {h.fecha_cierre && (
+                          <span style={{ fontSize: '0.67rem', color: 'var(--text-muted)' }}>
+                            {formatDateTime(h.fecha_cierre)}
+                          </span>
+                        )}
+                        {/* Días restantes */}
+                        {diasBadge}
+                      </div>
+                    </div>
+
+                    {/* Columna derecha */}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
+                      {/* Badge resultado */}
+                      <div style={{
+                        padding: '4px 11px', borderRadius: '999px',
+                        fontSize: '0.72rem', fontWeight: 700,
+                        color: colorRes, background: bgRes,
+                        border: `1px solid ${borderRes}`,
+                        whiteSpace: 'nowrap',
+                      }}>
+                        {aprobada ? '✓ Aprobada' : '✗ No aprobada'}
+                      </div>
+                      {/* Botón desglose */}
+                      <button
+                        onClick={() => handleAbrirDesgloseHistorial(h.id, h.contratista_id)}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: '4px',
+                          padding: '4px 9px', borderRadius: 'var(--radius-md)',
+                          border: '1px solid var(--border-default)', background: 'transparent',
+                          color: 'var(--text-muted)', fontSize: '0.72rem',
+                          fontFamily: 'var(--font-ui)', cursor: 'pointer',
+                        }}
+                      >
+                        <Eye size={11} /> Ver detalle
+                      </button>
                     </div>
                   </div>
-                </div>
-              ))
+                )
+              })
             )}
             <Pagination
               currentPage={historialPagination.currentPage}

@@ -49,27 +49,51 @@ const queryClient = new QueryClient({
 const toastOptions = {
   duration: 4000,
   style: {
-    background:  'var(--bg-overlay)',
-    color:       'var(--text-primary)',
-    border:      '1px solid var(--border-default)',
-    borderRadius: 'var(--radius-lg)',
-    fontFamily:  'var(--font-ui)',
-    fontSize:    '0.875rem',
-    padding:     '12px 16px',
-    boxShadow:   'var(--shadow-lg)',
+    background:   '#ffffff',
+    color:        '#0F172A',
+    border:       '1px solid #E2E8F0',
+    borderRadius: '14px',
+    fontFamily:   'Inter, sans-serif',
+    fontSize:     '0.84rem',
+    fontWeight:   '500',
+    padding:      '13px 16px',
+    boxShadow:    '0 8px 32px rgba(15,23,42,0.10), 0 2px 8px rgba(15,23,42,0.06)',
+    maxWidth:     '380px',
+    gap:          '10px',
   },
   success: {
+    style: {
+      background:  '#ffffff',
+      borderLeft:  '4px solid #10B981',
+      paddingLeft: '14px',
+    },
     iconTheme: {
-      primary: 'var(--success-500)',
-      secondary: 'var(--bg-overlay)',
+      primary:   '#10B981',
+      secondary: '#ffffff',
     },
   },
   error: {
-    iconTheme: {
-      primary: 'var(--danger-500)',
-      secondary: 'var(--bg-overlay)',
-    },
     duration: 6000,
+    style: {
+      background:  '#ffffff',
+      borderLeft:  '4px solid #EF4444',
+      paddingLeft: '14px',
+    },
+    iconTheme: {
+      primary:   '#EF4444',
+      secondary: '#ffffff',
+    },
+  },
+  loading: {
+    style: {
+      background:  '#ffffff',
+      borderLeft:  '4px solid #3B82F6',
+      paddingLeft: '14px',
+    },
+    iconTheme: {
+      primary:   '#3B82F6',
+      secondary: '#EFF6FF',
+    },
   },
 }
 
@@ -91,9 +115,11 @@ createRoot(container).render(
         </SessionProvider>
       </BrowserRouter>
 
-      {/* Toast notifications — posición top-right */}
+      {/* Toast notifications */}
       <Toaster
         position="top-right"
+        gutter={10}
+        containerStyle={{ top: 20, right: 20 }}
         toastOptions={toastOptions}
       >
         {(t) => (
@@ -102,8 +128,8 @@ createRoot(container).render(
             style={{
               ...t.style,
               animation: t.visible
-                ? 'toast-enter-right 320ms var(--transition-spring) both'
-                : 'toast-exit-right 220ms ease-in forwards',
+                ? 'toast-enter 360ms cubic-bezier(0.175,0.885,0.32,1.275) both'
+                : 'toast-exit 220ms cubic-bezier(0.4,0,1,1) forwards',
             }}
           />
         )}

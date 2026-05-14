@@ -1,5 +1,5 @@
 import { ConfigKoajService } from './config-koaj.service';
-import { CreateSedeDto, UpdateSedeDto, CreateUbicacionDto, UpdateUbicacionDto, CreateCatalogoDto, UpdateCatalogoDto, CreateNormaDto, UpdateNormaDto } from './dto/config-koaj.dto';
+import { CreateSedeDto, UpdateSedeDto, CreateUbicacionDto, UpdateUbicacionDto, CreateCatalogoDto, UpdateCatalogoDto, CreateNormaDto, UpdateNormaDto, UpdateTiemposContratistaDto } from './dto/config-koaj.dto';
 export declare class ConfigKoajController {
     private readonly configService;
     constructor(configService: ConfigKoajService);
@@ -27,4 +27,6 @@ export declare class ConfigKoajController {
     crearNorma(dto: CreateNormaDto): Promise<import("../hse/entities/cat-norma-seguridad.entity").CatNormaSeguridad>;
     actualizarNorma(id: number, dto: UpdateNormaDto): Promise<import("../hse/entities/cat-norma-seguridad.entity").CatNormaSeguridad>;
     eliminarNorma(id: number): Promise<void>;
+    listarTiemposContratista(): Promise<import("./entities/config-tiempos-contratista.entity").ConfigTiemposContratista[]>;
+    actualizarTiemposContratista(tipo: string, dto: UpdateTiemposContratistaDto): Promise<import("./entities/config-tiempos-contratista.entity").ConfigTiemposContratista>;
 }

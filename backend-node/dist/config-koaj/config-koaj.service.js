@@ -23,21 +23,30 @@ const cat_eps_entity_1 = require("../hse/entities/cat-eps.entity");
 const cat_arl_entity_1 = require("../hse/entities/cat-arl.entity");
 const cat_afp_entity_1 = require("../hse/entities/cat-afp.entity");
 const cat_norma_seguridad_entity_1 = require("../hse/entities/cat-norma-seguridad.entity");
-let ConfigKoajService = ConfigKoajService_1 = class ConfigKoajService {
+const config_tiempos_contratista_entity_1 = require("./entities/config-tiempos-contratista.entity");
+let ConfigKoajService = class ConfigKoajService {
+    static { ConfigKoajService_1 = this; }
     sedeRepo;
     ubicacionRepo;
     epsRepo;
     arlRepo;
     afpRepo;
     normaRepo;
+    tiemposRepo;
     logger = new common_1.Logger(ConfigKoajService_1.name);
-    constructor(sedeRepo, ubicacionRepo, epsRepo, arlRepo, afpRepo, normaRepo) {
+    static TIEMPOS_DEFAULTS = {
+        [config_tiempos_contratista_entity_1.TipoContratistaConfig.NORMAL]: { tokenDuracionHoras: 72, autorizacionDuracionDias: 30, alertaVencimientoDias: 3, requiereExamenMedico: false, requiereSeguridadSocial: false },
+        [config_tiempos_contratista_entity_1.TipoContratistaConfig.ALTO_RIESGO]: { tokenDuracionHoras: 72, autorizacionDuracionDias: 15, alertaVencimientoDias: 5, requiereExamenMedico: true, requiereSeguridadSocial: true },
+        [config_tiempos_contratista_entity_1.TipoContratistaConfig.EXCEPCION]: { tokenDuracionHoras: 72, autorizacionDuracionDias: 7, alertaVencimientoDias: 2, requiereExamenMedico: false, requiereSeguridadSocial: false },
+    };
+    constructor(sedeRepo, ubicacionRepo, epsRepo, arlRepo, afpRepo, normaRepo, tiemposRepo) {
         this.sedeRepo = sedeRepo;
         this.ubicacionRepo = ubicacionRepo;
         this.epsRepo = epsRepo;
         this.arlRepo = arlRepo;
         this.afpRepo = afpRepo;
         this.normaRepo = normaRepo;
+        this.tiemposRepo = tiemposRepo;
     }
     async listarSedes() {
         return this.sedeRepo.find({
@@ -264,6 +273,43 @@ let ConfigKoajService = ConfigKoajService_1 = class ConfigKoajService {
         await this.normaRepo.softDelete(id);
         this.logger.log(`Norma eliminada (soft): id=${id}`);
     }
+    async listarTiemposContratista() {
+        await this.asegurarFilasDefecto();
+        return this.tiemposRepo.find({
+            order: { tipoContratista: 'ASC' },
+        });
+    }
+    async getTiemposContratista(tipo) {
+        await this.asegurarFilaDefecto(tipo);
+        const config = await this.tiemposRepo.findOne({ where: { tipoContratista: tipo } });
+        return config;
+    }
+    async actualizarTiemposContratista(tipo, dto) {
+        if (!Object.values(config_tiempos_contratista_entity_1.TipoContratistaConfig).includes(tipo)) {
+            throw new common_1.BadRequestException({
+                error: { code: 'TIPO_INVALIDO', message: `Tipo '${tipo}' no válido. Use: NORMAL, ALTO_RIESGO, EXCEPCION.` },
+            });
+        }
+        await this.asegurarFilaDefecto(tipo);
+        const config = await this.tiemposRepo.findOne({ where: { tipoContratista: tipo } });
+        Object.assign(config, dto);
+        const saved = await this.tiemposRepo.save(config);
+        this.logger.log(`Tiempos contratista ${tipo} actualizados`);
+        return saved;
+    }
+    async asegurarFilasDefecto() {
+        for (const tipo of Object.values(config_tiempos_contratista_entity_1.TipoContratistaConfig)) {
+            await this.asegurarFilaDefecto(tipo);
+        }
+    }
+    async asegurarFilaDefecto(tipo) {
+        const existe = await this.tiemposRepo.findOne({ where: { tipoContratista: tipo } });
+        if (!existe) {
+            const defaults = ConfigKoajService_1.TIEMPOS_DEFAULTS[tipo];
+            await this.tiemposRepo.save(this.tiemposRepo.create({ tipoContratista: tipo, ...defaults }));
+            this.logger.log(`Fila por defecto creada para tipo contratista: ${tipo}`);
+        }
+    }
 };
 exports.ConfigKoajService = ConfigKoajService;
 exports.ConfigKoajService = ConfigKoajService = ConfigKoajService_1 = __decorate([
@@ -274,7 +320,9 @@ exports.ConfigKoajService = ConfigKoajService = ConfigKoajService_1 = __decorate
     __param(3, (0, typeorm_1.InjectRepository)(cat_arl_entity_1.CatArl)),
     __param(4, (0, typeorm_1.InjectRepository)(cat_afp_entity_1.CatAfp)),
     __param(5, (0, typeorm_1.InjectRepository)(cat_norma_seguridad_entity_1.CatNormaSeguridad)),
+    __param(6, (0, typeorm_1.InjectRepository)(config_tiempos_contratista_entity_1.ConfigTiemposContratista)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository,

@@ -44,6 +44,9 @@ export class HseCumplimiento extends BaseEntity {
   @JoinColumn({ name: 'sede_id' })
   sede: Sede;
 
+  @Column({ name: 'archivado', type: 'boolean', default: false })
+  archivado: boolean;
+
   @OneToMany(() => HseCumplimientoItem, (item) => item.cumplimiento, { cascade: true })
   items: HseCumplimientoItem[];
 }

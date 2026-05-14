@@ -12,15 +12,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChangePasswordDto = void 0;
 const class_validator_1 = require("class-validator");
 class ChangePasswordDto {
-    password_actual;
-    password_nueva;
+    passwordActual;
+    passwordNueva;
 }
 exports.ChangePasswordDto = ChangePasswordDto;
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(1, { message: 'La contraseña actual es requerida.' }),
     __metadata("design:type", String)
-], ChangePasswordDto.prototype, "password_actual", void 0);
+], ChangePasswordDto.prototype, "passwordActual", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(8, { message: 'La nueva contraseña debe tener al menos 8 caracteres.' }),
@@ -29,5 +29,5 @@ __decorate([
         message: 'La contraseña debe contener al menos una mayúscula, una minúscula y un número.',
     }),
     __metadata("design:type", String)
-], ChangePasswordDto.prototype, "password_nueva", void 0);
+], ChangePasswordDto.prototype, "passwordNueva", void 0);
 //# sourceMappingURL=change-password.dto.js.map

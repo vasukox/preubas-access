@@ -1,129 +1,107 @@
 /* ═══════════════════════════════════════════════════════════════════
    KOAJ Access v2.0 — Permoda S.A.S.
-   Design System — Industrial Luxury Dark
+   Design System — Premium Clean Light
    ═══════════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700&display=swap');
 
 @import "tailwindcss";
 
 /* ── Tokens de color ──────────────────────────────────────────────── */
 :root {
   /* Fondos */
-  --bg-base:        #0E1014;   /* Fondo principal — negro cálido       */
-  --bg-surface:     #14161C;   /* Cards, paneles                       */
-  --bg-raised:      #1A1D26;   /* Hover states, dropdowns              */
-  --bg-elevated:    #1A1D26;   /* Alias para compatibilidad            */
-  --bg-overlay:     #20232E;   /* Modals, drawers                      */
-  --bg-glass:       rgba(20, 22, 28, 0.72); /* Glassmorphism          */
+  --bg-base:        #F4F7F9;   /* Fondo principal — gris perla muy claro */
+  --bg-surface:     #FFFFFF;   /* Cards, paneles — blanco puro           */
+  --bg-raised:      #F8FAFC;   /* Hover states, dropdowns                */
+  --bg-elevated:    #FFFFFF;   /* Superficies elevadas                   */
+  --bg-overlay:     rgba(15, 23, 42, 0.4); /* Modals, drawers (oscuro semitransparente) */
+  --bg-glass:       rgba(255, 255, 255, 0.85); /* Glassmorphism          */
 
   /* Bordes */
-  --border-subtle:  #1C2030;   /* Bordes muy sutiles                   */
-  --border-default: #242838;   /* Bordes estándar                      */
-  --border-strong:  #323848;   /* Bordes con énfasis                   */
+  --border-subtle:  #E2E8F0;   /* Bordes muy sutiles                     */
+  --border-default: #CBD5E1;   /* Bordes estándar                        */
+  --border-strong:  #94A3B8;   /* Bordes con énfasis                     */
 
-  /* Primario — Azul pizarra (profesional, sobrio) */
-  --primary-50:     #EEF3FC;
-  --primary-100:    #D8E5F8;
-  --primary-200:    #B0CAF0;
-  --primary-300:    #7AAAE4;
-  --primary-400:    #5E8FD8;   /* hover                               */
-  --primary-500:    #4574C4;   /* ← Principal                         */
-  --primary-600:    #345DA8;
-  --primary-700:    #264888;
-  --primary-800:    #1C356A;
-  --primary-900:    #142550;
+  /* Primario — Azul Indigo Profesional */
+  --primary-50:     #EFF6FF;
+  --primary-100:    #DBEAFE;
+  --primary-200:    #BFDBFE;
+  --primary-300:    #93C5FD;
+  --primary-400:    #60A5FA;
+  --primary-500:    #3B82F6;   /* ← Principal                         */
+  --primary-600:    #2563EB;   /* hover                               */
+  --primary-700:    #1D4ED8;
+  --primary-800:    #1E40AF;
+  --primary-900:    #1E3A8A;
 
-  /* Éxito — Verde salvia (no neón) */
-  --success-50:     #EDFAF4;
-  --success-400:    #3BAE84;
-  --success-500:    #28956C;   /* ← Principal                         */
-  --success-600:    #1D7A57;
-  --success-700:    #156046;
+  /* Éxito — Verde Esmeralda Suave */
+  --success-50:     #ECFDF5;
+  --success-400:    #34D399;
+  --success-500:    #10B981;   /* ← Principal                         */
+  --success-600:    #059669;
+  --success-700:    #047857;
 
-  /* Peligro — Rojo profundo */
-  --danger-400:     #D46A6A;
-  --danger-500:     #C05050;
-  --danger-600:     #A33D3D;
+  /* Peligro — Rojo Coral */
+  --danger-50:      #FEF2F2;
+  --danger-400:     #F87171;
+  --danger-500:     #EF4444;
+  --danger-600:     #DC2626;
 
-  /* Advertencia — Ámbar oscuro */
-  --warning-400:    #C8893A;
-  --warning-500:    #AD7028;
-  --warning-600:    #8E5A1C;
+  /* Advertencia — Ámbar */
+  --warning-50:     #FFFBEB;
+  --warning-400:    #FBBF24;
+  --warning-500:    #F59E0B;
+  --warning-600:    #D97706;
 
-  /* Información — Índigo suave */
-  --info-400:       #7080CC;
-  --info-500:       #5668B8;
-  --info-600:       #4155A0;
+  /* Información — Azul Cielo */
+  --info-400:       #38BDF8;
+  --info-500:       #0EA5E9;
+  --info-600:       #0284C7;
 
   /* Texto */
-  --text-primary:   #E8EAF0;   /* Texto principal                     */
-  --text-secondary: #8C94B0;   /* Texto secundario                    */
-  --text-muted:     #454E66;   /* Texto deshabilitado / placeholders  */
+  --text-primary:   #0F172A;   /* Texto principal (casi negro)        */
+  --text-secondary: #475569;   /* Texto secundario                    */
+  --text-muted:     #94A3B8;   /* Texto deshabilitado / placeholders  */
   --text-inverted:  #FFFFFF;   /* Texto sobre fondos de color         */
 
   /* Tipografía */
-  --font-ui:        'Sora', sans-serif;
+  --font-ui:        'Inter', sans-serif;
   --font-mono:      'Space Mono', monospace;
 
   /* Espaciado base */
-  --radius-sm:      4px;
-  --radius-md:      8px;
-  --radius-lg:      12px;
-  --radius-xl:      16px;
-  --radius-2xl:     24px;
+  --radius-sm:      6px;
+  --radius-md:      10px;
+  --radius-lg:      16px;
+  --radius-xl:      20px;
+  --radius-2xl:     28px;
   --radius-full:    9999px;
 
-  /* Sombras — sin glow, solo profundidad */
-  --shadow-sm:      0 1px 3px rgba(0,0,0,0.35);
-  --shadow-md:      0 4px 14px rgba(0,0,0,0.42);
-  --shadow-lg:      0 8px 28px rgba(0,0,0,0.50);
-  --shadow-xl:      0 16px 44px rgba(0,0,0,0.58);
-  --shadow-glow-primary: 0 2px 12px rgba(69,116,196,0.18);
-  --shadow-glow-success: 0 2px 12px rgba(40,149,108,0.15);
-  --shadow-glow-danger:  0 2px 12px rgba(192,80,80,0.16);
+  /* Sombras — Limpias, difuminadas y corporativas */
+  --shadow-sm:      0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md:      0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg:      0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  --shadow-xl:      0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  
+  /* Fallbacks para las clases "glow" antiguas (se mantienen por compatibilidad, pero con estilo limpio) */
+  --shadow-glow-primary: 0 4px 14px 0 rgba(59, 130, 246, 0.2);
+  --shadow-glow-success: 0 4px 14px 0 rgba(16, 185, 129, 0.2);
+  --shadow-glow-danger:  0 4px 14px 0 rgba(239, 68, 68, 0.2);
 
   /* Transiciones */
-  --transition-fast:   150ms ease;
-  --transition-base:   250ms ease;
-  --transition-slow:   400ms ease;
-  --transition-spring: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-fast:   150ms ease-out;
+  --transition-base:   250ms ease-out;
+  --transition-slow:   400ms ease-out;
+  --transition-spring: 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
   /* Sidebar */
-  --sidebar-width:          240px;
-  --sidebar-width-collapsed: 64px;
-  --topbar-height:           60px;
+  --sidebar-width:          260px;
+  --sidebar-width-collapsed: 72px;
+  --topbar-height:           72px;
 }
 
-/* ── Tema claro ─────────────────────────────────────────────────── */
-html[data-theme='light'] {
-  /* Fondos */
-  --bg-base:        #F3F5FA;
-  --bg-surface:     #FFFFFF;
-  --bg-raised:      #E8EDF6;
-  --bg-elevated:    #E8EDF6;
-  --bg-overlay:     #FFFFFF;
-  --bg-glass:       rgba(255, 255, 255, 0.82);
-
-  /* Bordes */
-  --border-subtle:  #DDE2EE;
-  --border-default: #C4CDE0;
-  --border-strong:  #8A96B8;
-
-  /* Texto */
-  --text-primary:   #0C1120;
-  --text-secondary: #2C3552;
-  --text-muted:     #647090;
-  --text-inverted:  #FFFFFF;
-
-  /* Sombras — ligeras, sin glow neón */
-  --shadow-sm:      0 1px 3px rgba(12, 17, 42, 0.08);
-  --shadow-md:      0 4px 14px rgba(12, 17, 42, 0.10);
-  --shadow-lg:      0 8px 24px rgba(12, 17, 42, 0.12);
-  --shadow-xl:      0 16px 40px rgba(12, 17, 42, 0.14);
-  --shadow-glow-primary: 0 2px 10px rgba(69, 116, 196, 0.14);
-  --shadow-glow-success: 0 2px 10px rgba(40, 149, 108, 0.12);
-  --shadow-glow-danger:  0 2px 10px rgba(192, 80, 80, 0.12);
+/* ── Tema claro y oscuro (forzado a claro según requerimiento) ────── */
+html[data-theme='light'], html {
+  /* Esto asegura que incluso si hay variables de data-theme, prevalezca el tema claro */
 }
 
 /* ── Reset base ───────────────────────────────────────────────────── */
@@ -155,22 +133,22 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-surface);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border-strong);
+  background: var(--border-default);
   border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+  background: var(--border-strong);
 }
 
 /* ── Selección de texto ───────────────────────────────────────────── */
 ::selection {
-  background-color: rgba(69, 116, 196, 0.22);
-  color: var(--primary-200);
+  background-color: var(--primary-100);
+  color: var(--primary-800);
 }
 
 /* ── Tipografía ───────────────────────────────────────────────────── */
@@ -179,24 +157,21 @@ body {
   letter-spacing: 0.05em;
 }
 
-/* Clase especial para placas, UIDs NFC, timestamps */
 .data-display {
   font-family: var(--font-mono);
   font-size: 0.875rem;
-  letter-spacing: 0.1em;
-  color: var(--primary-400);
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  background: var(--bg-raised);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border-subtle);
 }
 
-/* ── Animaciones ──────────────────────────────────────────────────── */
+/* ── Keyframes ────────────────────────────────────────────────────── */
 @keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(14px) scale(0.99); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
 }
 
 @keyframes fadeIn {
@@ -205,25 +180,44 @@ body {
 }
 
 @keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  from { opacity: 0; transform: translateX(-18px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  from { opacity: 0; transform: translateX(18px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.93); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Toasts — entrada con spring bounce desde la derecha */
+@keyframes toast-enter {
+  0%   { opacity: 0; transform: translateX(110%) scale(0.88); }
+  55%  { opacity: 1; transform: translateX(-8px)  scale(1.02); }
+  75%  { transform: translateX(4px)  scale(0.995); }
+  100% { opacity: 1; transform: translateX(0)    scale(1); }
+}
+
+/* Toasts — salida rápida hacia la derecha */
+@keyframes toast-exit {
+  0%   { opacity: 1; transform: translateX(0)          scale(1);    }
+  100% { opacity: 0; transform: translateX(calc(100% + 24px)) scale(0.94); }
+}
+
+/* Modales — entrada con leve escala + fade */
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(20px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+/* Overlay de modal */
+@keyframes overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 @keyframes shimmer {
@@ -231,122 +225,54 @@ body {
   100% { background-position:  200% center; }
 }
 
-@keyframes pulseRing {
-  0%   { transform: scale(0.8); opacity: 1; }
-  100% { transform: scale(2);   opacity: 0; }
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
+@keyframes breathe {
+  0%, 100% { transform: scale(1);    opacity: 0.8; }
+  50%       { transform: scale(1.12); opacity: 1;   }
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-@keyframes bounceIn {
-  0%   { transform: scale(0.3); opacity: 0; }
-  50%  { transform: scale(1.05); }
-  70%  { transform: scale(0.9); }
-  100% { transform: scale(1); opacity: 1; }
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
 }
 
-@keyframes toast-enter-right {
-  0% {
-    opacity: 0;
-    transform: translateX(22px) translateY(-6px) scale(0.96);
-    filter: blur(1.5px);
-  }
-  65% {
-    opacity: 1;
-    transform: translateX(-2px) translateY(0) scale(1.01);
-    filter: blur(0);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0) translateY(0) scale(1);
-    filter: blur(0);
-  }
-}
-
-@keyframes toast-exit-right {
-  0% {
-    opacity: 1;
-    transform: translateX(0) translateY(0) scale(1);
-    filter: blur(0);
-  }
-  100% {
-    opacity: 0;
-    transform: translateX(24px) translateY(-2px) scale(0.96);
-    filter: blur(1px);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  @keyframes toast-enter-right {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-  }
-
-  @keyframes toast-exit-right {
-    from { opacity: 1; }
-    to   { opacity: 0; }
-  }
-}
-
-/* Clases de animación utilitarias */
-.animate-fade-up {
-  animation: fadeUp var(--transition-base) both;
-}
-
-.animate-fade-in {
-  animation: fadeIn var(--transition-base) both;
-}
-
-.animate-slide-left {
-  animation: slideInLeft var(--transition-base) both;
-}
-
-.animate-slide-right {
-  animation: slideInRight var(--transition-base) both;
-}
+/* ── Clases de animación ──────────────────────────────────────────── */
+.animate-fade-up    { animation: fadeUp       280ms cubic-bezier(0.22,1,0.36,1) both; }
+.animate-fade-in    { animation: fadeIn       220ms ease-out both; }
+.animate-slide-left { animation: slideInLeft  240ms cubic-bezier(0.22,1,0.36,1) both; }
+.animate-slide-right{ animation: slideInRight 240ms cubic-bezier(0.22,1,0.36,1) both; }
+.animate-scale-in   { animation: scaleIn      220ms cubic-bezier(0.22,1,0.36,1) both; }
+.animate-spin       { animation: spin 0.8s linear infinite; }
+.animate-pulse-dot  { animation: pulse-dot 1.6s ease-in-out infinite; }
 
 .animate-shimmer {
   background: linear-gradient(
     90deg,
-    var(--bg-surface) 25%,
-    var(--bg-raised) 50%,
-    var(--bg-surface) 75%
+    var(--bg-raised) 25%,
+    var(--border-subtle) 50%,
+    var(--bg-raised) 75%
   );
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  animation: shimmer 1.8s infinite linear;
 }
 
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
+.stagger-1 { animation-delay: 40ms;  }
+.stagger-2 { animation-delay: 80ms;  }
+.stagger-3 { animation-delay: 120ms; }
+.stagger-4 { animation-delay: 160ms; }
+.stagger-5 { animation-delay: 210ms; }
 
-.animate-blink {
-  animation: blink 1s step-end infinite;
-}
-
-/* Stagger delays para listas animadas */
-.stagger-1 { animation-delay: 50ms; }
-.stagger-2 { animation-delay: 100ms; }
-.stagger-3 { animation-delay: 150ms; }
-.stagger-4 { animation-delay: 200ms; }
-.stagger-5 { animation-delay: 250ms; }
-.stagger-6 { animation-delay: 300ms; }
-
-/* ── Estados de acceso (colores semánticos del negocio) ───────────── */
-.status-authorized   { color: var(--success-400); }
-.status-pending      { color: var(--primary-400); }
-.status-denied       { color: var(--danger-400); }
-.status-inside       { color: var(--info-400); }
+/* ── Estados de acceso ────────────────────────────────────────────── */
+.status-authorized   { color: var(--success-600); }
+.status-pending      { color: var(--primary-600); }
+.status-denied       { color: var(--danger-600); }
+.status-inside       { color: var(--info-600); }
 .status-not-found    { color: var(--text-muted); }
 
-/* ── Dot de estado con pulso ──────────────────────────────────────── */
+/* ── Dot de estado (Limpios, sin glow excesivo) ───────────────────── */
 .status-dot {
   position: relative;
   display: inline-block;
@@ -355,52 +281,34 @@ body {
   border-radius: 50%;
 }
 
-.status-dot::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  animation: pulseRing 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-}
+.status-dot.active    { background-color: var(--success-500); box-shadow: 0 0 0 2px var(--success-50); }
+.status-dot.warning   { background-color: var(--warning-500); box-shadow: 0 0 0 2px var(--warning-50); }
+.status-dot.danger    { background-color: var(--danger-500); box-shadow: 0 0 0 2px var(--danger-50); }
 
-.status-dot.active    { background-color: var(--success-500); }
-.status-dot.active::after  { background-color: var(--success-500); }
-.status-dot.warning   { background-color: var(--warning-500); }
-.status-dot.warning::after { background-color: var(--warning-500); }
-.status-dot.danger    { background-color: var(--danger-500); }
-.status-dot.danger::after  { background-color: var(--danger-500); }
-
-/* ── Glassmorphism ────────────────────────────────────────────────── */
+/* ── Glassmorphism Suave ──────────────────────────────────────────── */
 .glass {
   background: var(--bg-glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
 }
 
-/* ── Glow effects ─────────────────────────────────────────────────── */
+/* ── Compatibilidad Glow (Reinterpretado como sombras suaves) ─────── */
 .glow-primary { box-shadow: var(--shadow-glow-primary); }
 .glow-success { box-shadow: var(--shadow-glow-success); }
 .glow-danger  { box-shadow: var(--shadow-glow-danger); }
 
-/* ── Gradientes de fondo decorativos ──────────────────────────────── */
+/* ── Gradientes decorativos muy sutiles ───────────────────────────── */
 .bg-gradient-radial-primary {
-  background: radial-gradient(
-    ellipse at top right,
-    rgba(245, 158, 11, 0.06) 0%,
-    transparent 60%
-  );
+  background: radial-gradient(ellipse at top right, var(--primary-50) 0%, transparent 70%);
 }
 
 .bg-gradient-radial-success {
-  background: radial-gradient(
-    ellipse at top left,
-    rgba(16, 185, 129, 0.06) 0%,
-    transparent 60%
-  );
+  background: radial-gradient(ellipse at top left, var(--success-50) 0%, transparent 70%);
 }
 
-/* ── Patrón de fondo sutil (grid decorativo) ──────────────────────── */
+/* ── Patrón de fondo sutil ────────────────────────────────────────── */
 .bg-grid {
   background-image:
     linear-gradient(var(--border-subtle) 1px, transparent 1px),
@@ -418,12 +326,13 @@ body {
 /* ── Inputs base ──────────────────────────────────────────────────── */
 input, textarea, select {
   font-family: var(--font-ui);
-  background-color: var(--bg-raised);
+  background-color: var(--bg-surface);
   border: 1px solid var(--border-default);
   color: var(--text-primary);
   border-radius: var(--radius-md);
-  transition: border-color var(--transition-fast),
-              box-shadow var(--transition-fast);
+  padding: 0.6rem 0.8rem;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
 }
 
 input::placeholder,
@@ -431,271 +340,211 @@ textarea::placeholder {
   color: var(--text-muted);
 }
 
-/* ── Select options — forzar tema oscuro en el dropdown nativo ─────── */
 select option {
-  background-color: var(--bg-raised);
+  background-color: var(--bg-surface);
   color: var(--text-primary);
-}
-
-select option:disabled,
-select option[value=""] {
-  color: var(--text-muted);
 }
 
 input:focus,
 textarea:focus,
 select:focus {
   outline: none;
-  border-color: var(--primary-500);
-  box-shadow: 0 0 0 3px rgba(69, 116, 196, 0.14);
+  border-color: var(--primary-400);
+  box-shadow: 0 0 0 3px var(--primary-100);
 }
 
-/* ── Divider decorativo ───────────────────────────────────────────── */
-.divider {
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--border-default),
-    transparent
-  );
-}
-
-/* ── Keyframes adicionales ────────────────────────────────────────── */
-@keyframes pressDown {
-  0%   { transform: scale(1); }
-  50%  { transform: scale(0.96); }
-  100% { transform: scale(1); }
-}
-
-@keyframes glowPulse {
-  0%, 100% { box-shadow: 0 2px 10px rgba(69,116,196,0.15); }
-  50%       { box-shadow: 0 2px 18px rgba(69,116,196,0.28); }
-}
-
-@keyframes glowPulseDanger {
-  0%, 100% { box-shadow: 0 2px 10px rgba(192,80,80,0.14); }
-  50%       { box-shadow: 0 2px 18px rgba(192,80,80,0.26); }
-}
-
-@keyframes glowPulseSuccess {
-  0%, 100% { box-shadow: 0 2px 10px rgba(40,149,108,0.14); }
-  50%       { box-shadow: 0 2px 18px rgba(40,149,108,0.26); }
-}
-
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.92); }
-  to   { opacity: 1; transform: scale(1); }
-}
-
-@keyframes ripple {
-  0%   { transform: scale(0); opacity: 0.4; }
-  100% { transform: scale(4); opacity: 0; }
-}
-
-/* ── Clases utilitarias de botones ────────────────────────────────── */
-
-/* Botón primario — ámbar */
-.btn-primary {
-  display:         inline-flex;
-  align-items:     center;
-  gap:             6px;
-  padding:         9px 20px;
-  background:      var(--primary-500);
-  border:          none;
-  border-radius:   var(--radius-md);
-  color:           var(--text-inverted);
-  font-family:     var(--font-ui);
-  font-size:       0.83rem;
-  font-weight:     600;
-  cursor:          pointer;
-  box-shadow:      var(--shadow-sm);
-  transition:      background var(--transition-fast),
-                   box-shadow  var(--transition-fast),
-                   transform   var(--transition-fast);
-  position:        relative;
-  overflow:        hidden;
-  user-select:     none;
-}
-.btn-primary:hover:not(:disabled) {
-  background:  var(--primary-400);
-  box-shadow:  var(--shadow-md);
-  transform:   translateY(-1px);
-}
-.btn-primary:active:not(:disabled) {
-  transform:   translateY(0) scale(0.97);
-  box-shadow:  var(--shadow-sm);
-}
-.btn-primary:disabled {
-  opacity:    0.45;
-  cursor:     not-allowed;
-  box-shadow: none;
-}
-
-/* Botón danger — rojo */
-.btn-danger {
-  display:         inline-flex;
-  align-items:     center;
-  gap:             6px;
-  padding:         9px 20px;
-  background:      var(--danger-500);
-  border:          none;
-  border-radius:   var(--radius-md);
-  color:           white;
-  font-family:     var(--font-ui);
-  font-size:       0.83rem;
-  font-weight:     600;
-  cursor:          pointer;
-  box-shadow:      var(--shadow-sm);
-  transition:      background var(--transition-fast),
-                   box-shadow  var(--transition-fast),
-                   transform   var(--transition-fast);
-  position:        relative;
-  overflow:        hidden;
-  user-select:     none;
-}
-.btn-danger:hover:not(:disabled) {
-  background:  var(--danger-400);
-  box-shadow:  var(--shadow-md);
-  transform:   translateY(-1px);
-}
-.btn-danger:active:not(:disabled) {
-  transform:   translateY(0) scale(0.97);
-  box-shadow:  var(--shadow-sm);
-}
-.btn-danger:disabled {
-  opacity:    0.45;
-  cursor:     not-allowed;
-  box-shadow: none;
-}
-
-/* Botón ghost — borde sutil */
-.btn-ghost {
-  display:         inline-flex;
-  align-items:     center;
-  gap:             6px;
-  padding:         9px 18px;
-  background:      transparent;
-  border:          1px solid var(--border-default);
-  border-radius:   var(--radius-md);
-  color:           var(--text-secondary);
-  font-family:     var(--font-ui);
-  font-size:       0.83rem;
-  font-weight:     500;
-  cursor:          pointer;
-  transition:      background    var(--transition-fast),
-                   border-color  var(--transition-fast),
-                   color         var(--transition-fast),
-                   transform     var(--transition-fast);
-  user-select:     none;
-}
-.btn-ghost:hover:not(:disabled) {
-  background:    var(--bg-raised);
-  border-color:  var(--border-strong);
-  color:         var(--text-primary);
-  transform:     translateY(-1px);
-}
-.btn-ghost:active:not(:disabled) {
-  transform: translateY(0) scale(0.97);
-}
-.btn-ghost:disabled {
-  opacity: 0.4;
-  cursor:  not-allowed;
-}
-
-/* Botón ícono cuadrado */
-.btn-icon {
-  display:         flex;
-  align-items:     center;
-  justify-content: center;
-  width:           36px;
-  height:          36px;
-  background:      var(--bg-surface);
-  border:          1px solid var(--border-subtle);
-  border-radius:   var(--radius-md);
-  color:           var(--text-muted);
-  cursor:          pointer;
-  transition:      background    var(--transition-fast),
-                   border-color  var(--transition-fast),
-                   color         var(--transition-fast),
-                   transform     var(--transition-fast);
-  flex-shrink:     0;
-}
-.btn-icon:hover {
-  background:    var(--bg-raised);
-  border-color:  var(--border-strong);
-  color:         var(--text-primary);
-  transform:     rotate(12deg) scale(1.08);
-}
-.btn-icon:active {
-  transform: scale(0.94);
-}
-
-/* Botón ícono peligro */
-.btn-icon-danger {
-  display:         flex;
-  align-items:     center;
-  justify-content: center;
-  padding:         5px 12px;
-  background:      rgba(239,68,68,0.06);
-  border:          1px solid rgba(239,68,68,0.15);
-  border-radius:   var(--radius-md);
-  color:           var(--danger-400);
-  font-size:       0.72rem;
-  font-weight:     500;
-  font-family:     var(--font-ui);
-  cursor:          pointer;
-  transition:      background   var(--transition-fast),
-                   border-color var(--transition-fast),
-                   transform    var(--transition-fast),
-                   box-shadow   var(--transition-fast);
-}
-.btn-icon-danger:hover:not(:disabled) {
-  background:  rgba(239,68,68,0.14);
-  border-color: rgba(239,68,68,0.35);
-  box-shadow:  0 0 12px rgba(239,68,68,0.2);
-  transform:   scale(1.04);
-}
-.btn-icon-danger:active:not(:disabled) {
-  transform: scale(0.96);
-}
-.btn-icon-danger:disabled {
-  opacity: 0.4;
-  cursor:  not-allowed;
-}
-
-/* Animación de entrada de modales */
-.modal-enter {
-  animation: scaleIn 0.2s var(--transition-spring) both;
-}
-
-/* Animación slide down para submenús / paneles */
-.slide-down {
-  animation: slideDown 0.2s ease both;
-}
-
-/* Animaciones de tarjetas stat */
-.stat-card {
-  transition: transform var(--transition-fast),
-              box-shadow var(--transition-fast),
-              border-color var(--transition-fast);
-}
-.stat-card:hover {
-  transform:    translateY(-2px);
-  box-shadow:   var(--shadow-md);
+input:hover:not(:disabled):not(:focus),
+textarea:hover:not(:disabled):not(:focus),
+select:hover:not(:disabled):not(:focus) {
   border-color: var(--border-strong);
 }
 
-/* Fila de tabla con hover suave */
+input:disabled, textarea:disabled, select:disabled {
+  background-color: var(--bg-raised);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+/* ── Divider ──────────────────────────────────────────────────────── */
+.divider {
+  height: 1px;
+  background: var(--border-subtle);
+  width: 100%;
+}
+
+/* ── Clases utilitarias de botones (Modernas y limpias) ───────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 24px;
+  background: var(--primary-600);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  color: var(--text-inverted);
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-700);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  background: var(--primary-800);
+}
+.btn-primary:disabled {
+  background: var(--border-default);
+  color: var(--bg-surface);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 24px;
+  background: var(--danger-500);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  color: var(--text-inverted);
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+.btn-danger:hover:not(:disabled) {
+  background: var(--danger-600);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+.btn-danger:active:not(:disabled) {
+  transform: translateY(0);
+  background: var(--danger-700);
+}
+.btn-danger:disabled {
+  background: var(--border-default);
+  color: var(--bg-surface);
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+  background-color: var(--bg-surface);
+}
+.btn-ghost:hover:not(:disabled) {
+  background: var(--bg-raised);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+.btn-ghost:active:not(:disabled) {
+  background: var(--border-default);
+}
+.btn-ghost:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+}
+.btn-icon:hover:not(:disabled) {
+  background: var(--bg-raised);
+  border-color: var(--border-default);
+  color: var(--primary-600);
+  transform: translateY(-1px);
+}
+.btn-icon:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.btn-icon-danger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  background: var(--danger-50);
+  border: 1px solid var(--danger-100);
+  border-radius: var(--radius-md);
+  color: var(--danger-600);
+  font-size: 0.8rem;
+  font-weight: 500;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.btn-icon-danger:hover:not(:disabled) {
+  background: var(--danger-100);
+  border-color: var(--danger-200);
+  color: var(--danger-700);
+}
+
+/* ── Modales y paneles ────────────────────────────────────────────── */
+.modal-enter {
+  animation: fadeUp 0.3s var(--transition-spring) both;
+}
+
+.slide-down {
+  animation: fadeUp 0.2s ease-out both;
+}
+
+/* ── Tarjetas ─────────────────────────────────────────────────────── */
+.stat-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+}
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--border-default);
+}
+
+/* ── Tablas ───────────────────────────────────────────────────────── */
 .table-row {
   transition: background var(--transition-fast);
-  cursor: default;
+  border-bottom: 1px solid var(--border-subtle);
 }
 .table-row:hover {
-  background: var(--bg-elevated, var(--bg-raised)) !important;
+  background: var(--bg-raised) !important;
 }

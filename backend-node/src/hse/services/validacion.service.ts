@@ -48,14 +48,17 @@ export class ValidacionService {
       autorizacion.sedeId,
     );
 
-    if (!tieneExcepcionActiva) {
-      if (contratista.estado !== EstadoContratista.APROBADO) {
-        throw new BadRequestException(`El contratista no está aprobado. Estado actual: ${contratista.estado}`);
-      }
+    // La excepción activa anula todos los chequeos de estado y fechas de la autorización
+    if (tieneExcepcionActiva) {
+      return true;
+    }
 
-      if (autorizacion.estado !== EstadoAutorizacion.APROBADO) {
-        throw new BadRequestException(`La autorización no está aprobada. Estado actual: ${autorizacion.estado}`);
-      }
+    if (contratista.estado !== EstadoContratista.APROBADO) {
+      throw new BadRequestException(`El contratista no está aprobado. Estado actual: ${contratista.estado}`);
+    }
+
+    if (autorizacion.estado !== EstadoAutorizacion.APROBADO) {
+      throw new BadRequestException(`La autorización no está aprobada. Estado actual: ${autorizacion.estado}`);
     }
 
     if (this.estaFechaVencida(autorizacion.fechaFin)) {
@@ -123,6 +126,31 @@ export class ValidacionService {
       };
     }
 
+    // Verificar excepción activa incluso cuando el contratista ya existe
+    const excepcionActiva = await this.buscarExcepcionActiva(documento, sedeId);
+
+    const ultimoAcceso = await this.accesoRepo.findOne({
+      where: { contratistaId: contratista.id, sedeId },
+      order: { fechaHora: 'DESC' },
+    });
+    const dentroActualmente = ultimoAcceso?.tipoAcceso === 'ENTRADA';
+
+    if (excepcionActiva) {
+      return {
+        estado: 'EXCEPCION',
+        color: 'blue',
+        nombre: `${contratista.nombres} ${contratista.apellidos}`.trim(),
+        empresa: contratista.autorizacion?.proveedor?.nomProveedor ?? null,
+        tipoContratista: contratista.autorizacion?.tipoContratista ?? null,
+        mensaje: 'Acceso permitido por excepcion activa',
+        problemas: [],
+        dentroActualmente,
+        ultimaEntrada: dentroActualmente ? ultimoAcceso?.fechaHora ?? null : null,
+        contratistaId: contratista.id,
+        autorizacionId: contratista.autorizacionId,
+      };
+    }
+
     let permitido = false;
     let mensaje = '';
 
@@ -133,12 +161,6 @@ export class ValidacionService {
       permitido = false;
       mensaje = e.message;
     }
-
-    const ultimoAcceso = await this.accesoRepo.findOne({
-      where: { contratistaId: contratista.id, sedeId },
-      order: { fechaHora: 'DESC' },
-    });
-    const dentroActualmente = ultimoAcceso?.tipoAcceso === 'ENTRADA';
 
     return {
       estado: permitido ? 'AUTORIZADO' : 'NO_AUTORIZADO',
@@ -175,15 +197,31 @@ export class ValidacionService {
     return qb.getOne();
   }
 
-  private async buscarExcepcionActiva(documento: string, sedeId: number) {
+  private async buscarExcepcionActiva(documento: string, sedeId: number): Promise<HseExcepcion | null> {
     const hoy = this.fechaHoyLocal();
-    return this.excepcionRepo.createQueryBuilder('excepcion')
-      .leftJoinAndSelect('excepcion.persona', 'persona')
+
+    // 1) Match directo por excepcion.numero_documento (modo empresa/lote)
+    const porDocumento = await this.excepcionRepo
+      .createQueryBuilder('excepcion')
       .where('excepcion.sede_id = :sedeId', { sedeId })
-      .andWhere('excepcion.activa = :activa', { activa: true })
-      .andWhere('excepcion.fecha_inicio <= :hoy', { hoy })
-      .andWhere('excepcion.fecha_fin >= :hoy', { hoy })
-      .andWhere('(persona.numero_documento = :documento OR excepcion.numero_documento = :documento)', { documento })
+      .andWhere('excepcion.activa = 1')
+      .andWhere('DATE(excepcion.fecha_inicio) <= :hoy', { hoy })
+      .andWhere('DATE(excepcion.fecha_fin) >= :hoy', { hoy })
+      .andWhere('excepcion.numero_documento = :documento', { documento })
+      .orderBy('excepcion.fecha_fin', 'DESC')
+      .getOne();
+
+    if (porDocumento) return porDocumento;
+
+    // 2) Fallback: buscar a través de la persona vinculada (modo individual)
+    return this.excepcionRepo
+      .createQueryBuilder('excepcion')
+      .innerJoin('excepcion.persona', 'persona')
+      .where('excepcion.sede_id = :sedeId', { sedeId })
+      .andWhere('excepcion.activa = 1')
+      .andWhere('DATE(excepcion.fecha_inicio) <= :hoy', { hoy })
+      .andWhere('DATE(excepcion.fecha_fin) >= :hoy', { hoy })
+      .andWhere('persona.numero_documento = :documento', { documento })
       .orderBy('excepcion.fecha_fin', 'DESC')
       .getOne();
   }

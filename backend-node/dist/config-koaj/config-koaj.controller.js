@@ -84,6 +84,12 @@ let ConfigKoajController = class ConfigKoajController {
     eliminarNorma(id) {
         return this.configService.eliminarNorma(id);
     }
+    listarTiemposContratista() {
+        return this.configService.listarTiemposContratista();
+    }
+    actualizarTiemposContratista(tipo, dto) {
+        return this.configService.actualizarTiemposContratista(tipo, dto);
+    }
 };
 exports.ConfigKoajController = ConfigKoajController;
 __decorate([
@@ -217,6 +223,20 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", void 0)
 ], ConfigKoajController.prototype, "eliminarNorma", null);
+__decorate([
+    (0, common_1.Get)('tiempos-contratista'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], ConfigKoajController.prototype, "listarTiemposContratista", null);
+__decorate([
+    (0, common_1.Put)('tiempos-contratista/:tipo'),
+    __param(0, (0, common_1.Param)('tipo')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, config_koaj_dto_1.UpdateTiemposContratistaDto]),
+    __metadata("design:returntype", void 0)
+], ConfigKoajController.prototype, "actualizarTiemposContratista", null);
 exports.ConfigKoajController = ConfigKoajController = __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_GLOBAL),

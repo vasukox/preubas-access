@@ -195,21 +195,21 @@ let AuthService = AuthService_1 = class AuthService {
         if (!usuario) {
             throw new common_1.UnauthorizedException({ code: 'USUARIO_NO_ENCONTRADO', message: 'Usuario no encontrado.' });
         }
-        const esValida = await bcrypt.compare(dto.password_actual, usuario.passwordHash);
+        const esValida = await bcrypt.compare(dto.passwordActual, usuario.passwordHash);
         if (!esValida) {
             throw new common_1.BadRequestException({
                 code: 'PASSWORD_INCORRECTO',
                 message: 'La contraseña actual es incorrecta.',
             });
         }
-        const esIgual = await bcrypt.compare(dto.password_nueva, usuario.passwordHash);
+        const esIgual = await bcrypt.compare(dto.passwordNueva, usuario.passwordHash);
         if (esIgual) {
             throw new common_1.BadRequestException({
                 code: 'PASSWORD_IGUAL',
                 message: 'La nueva contraseña no puede ser igual a la actual.',
             });
         }
-        const nuevoHash = await bcrypt.hash(dto.password_nueva, 12);
+        const nuevoHash = await bcrypt.hash(dto.passwordNueva, 12);
         await this.usuarioRepo.update(usuario.id, {
             passwordHash: nuevoHash,
             debeCambiarPassword: false,

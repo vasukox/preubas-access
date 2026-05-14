@@ -291,7 +291,7 @@ export class AuthService {
     }
 
     // Verificar contraseña actual
-    const esValida = await bcrypt.compare(dto.password_actual, usuario.passwordHash);
+    const esValida = await bcrypt.compare(dto.passwordActual, usuario.passwordHash);
     if (!esValida) {
       throw new BadRequestException({
         code: 'PASSWORD_INCORRECTO',
@@ -300,7 +300,7 @@ export class AuthService {
     }
 
     // Verificar que la nueva no sea igual a la actual
-    const esIgual = await bcrypt.compare(dto.password_nueva, usuario.passwordHash);
+    const esIgual = await bcrypt.compare(dto.passwordNueva, usuario.passwordHash);
     if (esIgual) {
       throw new BadRequestException({
         code: 'PASSWORD_IGUAL',
@@ -309,7 +309,7 @@ export class AuthService {
     }
 
     // Hashear y guardar
-    const nuevoHash = await bcrypt.hash(dto.password_nueva, 12);
+    const nuevoHash = await bcrypt.hash(dto.passwordNueva, 12);
     await this.usuarioRepo.update(usuario.id, {
       passwordHash: nuevoHash,
       debeCambiarPassword: false,

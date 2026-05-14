@@ -3,15 +3,15 @@ import { Type } from 'class-transformer';
 
 export class CumplimientoIniciarDto {
   @IsInt()
-  contratista_id: number;
+  contratistaId: number;
 
   @IsInt()
-  sede_id: number;
+  sedeId: number;
 }
 
 export class CumplimientoItemActualizarDto {
   @IsInt()
-  item_id: number;
+  itemId: number;
 
   @IsOptional()
   @IsBoolean()
@@ -30,16 +30,16 @@ export class CumplimientoActualizarDto {
 
   @IsOptional()
   @IsString()
-  observacion_general?: string;
+  observacionGeneral?: string;
 }
 
 export class CumplimientoCerrarDto {
   @IsString()
-  firma_digital: string;
+  firmaDigital: string;
 
   @IsOptional()
   @IsString()
-  observacion_general?: string;
+  observacionGeneral?: string;
 }
 
 export class MarcarItemCumplimientoDto {

@@ -253,3 +253,32 @@ export class UpdateNormaDto {
   @IsOptional()
   sedeId?: number;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TIEMPOS POR TIPO DE CONTRATISTA
+// ─────────────────────────────────────────────────────────────────────────────
+
+export class UpdateTiemposContratistaDto {
+  @IsInt()
+  @IsOptional()
+  @Min(1)
+  tokenDuracionHoras?: number;
+
+  @IsInt()
+  @IsOptional()
+  @Min(1)
+  autorizacionDuracionDias?: number;
+
+  @IsInt()
+  @IsOptional()
+  @Min(0)
+  alertaVencimientoDias?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  requiereExamenMedico?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  requiereSeguridadSocial?: boolean;
+}

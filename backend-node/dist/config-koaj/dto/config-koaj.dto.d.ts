@@ -61,3 +61,10 @@ export declare class UpdateNormaDto {
     activa?: boolean;
     sedeId?: number;
 }
+export declare class UpdateTiemposContratistaDto {
+    tokenDuracionHoras?: number;
+    autorizacionDuracionDias?: number;
+    alertaVencimientoDias?: number;
+    requiereExamenMedico?: boolean;
+    requiereSeguridadSocial?: boolean;
+}

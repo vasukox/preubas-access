@@ -43,6 +43,45 @@ export class AutogestionService {
     private readonly historialRepo: Repository<HseHistorial>,
   ) {}
 
+    private mapClasificacionToDto(entity: HseClasificacion | null): Partial<ClasificacionDto> | null {
+      if (!entity) return null;
+
+      return {
+        trabajoAlturas: entity.trabajoAlturas,
+        espaciosConfinados: entity.espaciosConfinados,
+        trabajoElectrico: entity.trabajoElectrico,
+        trabajoCaliente: entity.trabajoCaliente,
+        izajeMaquinaria: entity.izajeMaquinaria,
+        visitaSinRiesgo: entity.visitaSinRiesgo,
+        personalExtranjero: entity.personalExtranjero,
+        generaResiduos: entity.generaResiduos,
+        alturasNivel: entity.alturasNivel ?? undefined,
+        alturasCertFechaVenc: entity.alturasCertFechaVenc ? String(entity.alturasCertFechaVenc).slice(0, 10) : undefined,
+        alturasCertArchivo: entity.alturasCertArchivo ?? undefined,
+        confinadosRol: entity.confinadosRol ?? undefined,
+        confinadosCertFecha: entity.confinadosCertFecha ? String(entity.confinadosCertFecha).slice(0, 10) : undefined,
+        confinadosCertArchivo: entity.confinadosCertArchivo ?? undefined,
+        electricoMatriculaContec: entity.electricoMatriculaContec ?? undefined,
+        electricoNumMatricula: entity.electricoNumMatricula ?? undefined,
+        electricoMatriculaVenc: entity.electricoMatriculaVenc ? String(entity.electricoMatriculaVenc).slice(0, 10) : undefined,
+        electricoMatriculaArchivo: entity.electricoMatriculaArchivo ?? undefined,
+        calienteExtintorFecha: entity.calienteExtintorFecha ? String(entity.calienteExtintorFecha).slice(0, 10) : undefined,
+        calienteExtintorArchivo: entity.calienteExtintorArchivo ?? undefined,
+        calientePermisoFecha: entity.calientePermisoFecha ? String(entity.calientePermisoFecha).slice(0, 10) : undefined,
+        calientePermisoArchivo: entity.calientePermisoArchivo ?? undefined,
+        izajeTipoEquipo: entity.izajeTipoEquipo ?? undefined,
+        izajeInspeccionArchivo: entity.izajeInspeccionArchivo ?? undefined,
+        izajeDocLegalArchivo: entity.izajeDocLegalArchivo ?? undefined,
+        izajeLicenciaArchivo: entity.izajeLicenciaArchivo ?? undefined,
+        extranAseguradora: entity.extranAseguradora ?? undefined,
+        extranNumPoliza: entity.extranNumPoliza ?? undefined,
+        extranPolizaVenc: entity.extranPolizaVenc ? String(entity.extranPolizaVenc).slice(0, 10) : undefined,
+        extranPolizaArchivo: entity.extranPolizaArchivo ?? undefined,
+        residuosTipo: entity.residuosTipo ?? undefined,
+        residuosPlanArchivo: entity.residuosPlanArchivo ?? undefined,
+      };
+    }
+
   async getDatosIniciales(contratista: HseContratista) {
     const c = await this.contratistaRepo.findOne({
       where: { id: contratista.id },
@@ -84,7 +123,7 @@ export class AutogestionService {
       descripcion_actividad: a?.descripcionActividad ?? '',
       fecha_inicio:          a?.fechaInicio ?? null,
       fecha_fin:             a?.fechaFin ?? null,
-      clasificacion:         c.clasificacion ?? null,
+      clasificacion:         this.mapClasificacionToDto(c.clasificacion),
       seguridad_social:      c.seguridadSocial ?? [],
       certificaciones:       c.certificaciones ?? null,
       examen_medico:         c.examenMedico ?? null,

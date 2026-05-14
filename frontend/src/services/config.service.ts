@@ -53,6 +53,18 @@ export interface NormaConfig {
   sede_id: number | null
 }
 
+export type TipoContratistaConfig = 'NORMAL' | 'ALTO_RIESGO' | 'EXCEPCION'
+
+export interface TiemposContratista {
+  id: number
+  tipo_contratista: TipoContratistaConfig
+  token_duracion_horas: number
+  autorizacion_duracion_dias: number
+  alerta_vencimiento_dias: number
+  requiere_examen_medico: boolean
+  requiere_seguridad_social: boolean
+}
+
 export const configService = {
   getSistema: () => get<GlobalParams>('/config/sistema'),
 
@@ -81,4 +93,9 @@ export const configService = {
   updateNorma: (id: number, data: Partial<{ numero: number; titulo: string; contenido: string; activa: boolean; sede_id: number | null }>) =>
     put<NormaConfig>(`/config/normas/${id}`, data),
   deleteNorma: (id: number) => del<null>(`/config/normas/${id}`),
+
+  listTiemposContratista: () =>
+    get<TiemposContratista[]>('/config/tiempos-contratista'),
+  updateTiemposContratista: (tipo: TipoContratistaConfig, data: Partial<Omit<TiemposContratista, 'id' | 'tipo_contratista'>>) =>
+    put<TiemposContratista>(`/config/tiempos-contratista/${tipo}`, data),
 }

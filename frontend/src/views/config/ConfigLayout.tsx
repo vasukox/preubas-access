@@ -5,23 +5,27 @@
  */
 import { useLocation, Outlet } from 'react-router-dom'
 
-type ConfigRoute = 'sistema' | 'estructura' | 'catalogos' | 'normas' | 'actividades' | 'usuarios-generales'
+type ConfigRoute = 'sistema' | 'estructura' | 'catalogos' | 'normas' | 'tiempos' | 'usuarios' | 'auditoria' | 'proveedores'
 
 const ROUTE_META: Record<ConfigRoute, { title: string; subtitle: string; accent: string; area: string }> = {
-  sistema:     { title: 'Parámetros globales',  subtitle: 'Variables de entorno y seguridad del sistema (solo lectura).',             accent: '#5668B8', area: 'SISTEMA'    },
-  estructura:  { title: 'Sedes y Ubicaciones',  subtitle: 'Gestiona la jerarquía física: sedes operativas y sus zonas internas.',      accent: '#28956C', area: 'ESTRUCTURA' },
-  catalogos:   { title: 'Catálogos HSE',        subtitle: 'Administra las entidades base: EPS, ARL y AFP vinculadas a autorizaciones.', accent: '#4574C4', area: 'REGLAS HSE' },
-  normas:      { title: 'Normas de seguridad',  subtitle: 'Configura las normas HSE del flujo de autorización.',                       accent: '#4574C4', area: 'REGLAS HSE' },
-  actividades: { title: 'Actividades HSE',      subtitle: 'Gestión de actividades y clasificaciones operativas del módulo HSE.',         accent: '#EC4899', area: 'REGLAS HSE' },
-  'usuarios-generales': { title: 'Usuarios generales del sistema', subtitle: 'Listado global de contratistas/personas por sede, con filtros y eliminación administrativa segura.', accent: '#C05050', area: 'GOBIERNO OPERATIVO' },
+  sistema:      { title: 'Parámetros globales',             subtitle: 'Variables de entorno y seguridad del sistema (solo lectura).',             accent: '#5668B8', area: 'INFRAESTRUCTURA' },
+  estructura:   { title: 'Sedes y Ubicaciones',             subtitle: 'Gestiona la jerarquía física: sedes operativas y sus zonas internas.',      accent: '#28956C', area: 'INFRAESTRUCTURA' },
+  catalogos:    { title: 'Catálogos HSE',                   subtitle: 'Administra las entidades base: EPS, ARL y AFP vinculadas a autorizaciones.', accent: '#4574C4', area: 'REGLAS HSE' },
+  normas:       { title: 'Normas de seguridad',             subtitle: 'Configura las normas HSE del flujo de autorización.',                       accent: '#4574C4', area: 'REGLAS HSE' },
+  tiempos:      { title: 'Tiempos por tipo de contratista', subtitle: 'Parámetros de duración y requisitos según el tipo de contratista (Normal, Alto Riesgo, Excepción).', accent: '#D4860A', area: 'REGLAS HSE' },
+  proveedores:  { title: 'Proveedores HSE',                 subtitle: 'Gestión de empresas contratistas: creación, edición y estado activo.',      accent: '#28956C', area: 'REGLAS HSE' },
+  usuarios:     { title: 'Usuarios del sistema',            subtitle: 'Listado global de cuentas con acceso al aplicativo (login).', accent: '#C05050', area: 'GOBIERNO' },
+  auditoria:    { title: 'Auditoría',                       subtitle: 'Registro de cambios y acciones realizadas por los usuarios.', accent: '#C05050', area: 'GOBIERNO' },
 }
 
 function pathToRoute(pathname: string): ConfigRoute {
-  if (pathname.includes('/config/usuarios-generales')) return 'usuarios-generales'
+  if (pathname.includes('/config/usuarios'))    return 'usuarios'
+  if (pathname.includes('/config/auditoria'))   return 'auditoria'
   if (pathname.includes('/config/estructura'))  return 'estructura'
   if (pathname.includes('/config/catalogos'))   return 'catalogos'
   if (pathname.includes('/config/normas'))      return 'normas'
-  if (pathname.includes('/config/actividades')) return 'actividades'
+  if (pathname.includes('/config/tiempos'))     return 'tiempos'
+  if (pathname.includes('/config/proveedores')) return 'proveedores'
   return 'sistema'
 }
 

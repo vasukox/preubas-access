@@ -8,6 +8,7 @@ import { CatAfp } from '../hse/entities/cat-afp.entity';
 import { CatNormaSeguridad } from '../hse/entities/cat-norma-seguridad.entity';
 import { Sede } from '../sede/entities/sede.entity';
 import { Ubicacion } from '../sede/entities/ubicacion.entity';
+import { ConfigTiemposContratista } from './entities/config-tiempos-contratista.entity';
 
 // ── Capa de negocio y presentación ───────────────────────────────────────────
 import { ConfigKoajController } from './config-koaj.controller';
@@ -36,6 +37,7 @@ import { ConfigKoajService } from './config-koaj.service';
       CatArl,
       CatAfp,
       CatNormaSeguridad,
+      ConfigTiemposContratista,
     ]),
   ],
   controllers: [ConfigKoajController],

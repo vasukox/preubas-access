@@ -3,12 +3,13 @@ import { IsString, MinLength, MaxLength, Matches } from 'class-validator';
 /**
  * Body para POST /auth/change-password
  *
- * El frontend envía { password_actual, password_nueva } en snake_case.
+ * El frontend envía snake_case; el SnakeToCamelPipe global lo convierte
+ * a camelCase antes de llegar aquí.
  */
 export class ChangePasswordDto {
   @IsString()
   @MinLength(1, { message: 'La contraseña actual es requerida.' })
-  password_actual: string;
+  passwordActual: string;
 
   @IsString()
   @MinLength(8, { message: 'La nueva contraseña debe tener al menos 8 caracteres.' })
@@ -17,5 +18,5 @@ export class ChangePasswordDto {
     message:
       'La contraseña debe contener al menos una mayúscula, una minúscula y un número.',
   })
-  password_nueva: string;
+  passwordNueva: string;
 }

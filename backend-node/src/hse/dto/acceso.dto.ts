@@ -2,18 +2,18 @@ import { IsString, IsInt, IsEnum, IsOptional } from 'class-validator';
 
 export class VerificarAccesoDto {
   @IsString()
-  numero_documento: string;
+  numeroDocumento: string;
 
   @IsInt()
-  sede_id: number;
+  sedeId: number;
 }
 
 export class RegistrarEntradaSalidaDto {
   @IsInt()
-  contratista_id: number;
+  contratistaId: number;
 
   @IsInt()
-  sede_id: number;
+  sedeId: number;
 
   @IsOptional()
   @IsString()
@@ -25,15 +25,15 @@ export class RegistrarEntradaSalidaDto {
 
   @IsOptional()
   @IsInt()
-  ubicacion_id?: number;
+  ubicacionId?: number;
 }
 
 export class RegistrarAccesoDto {
   @IsInt()
-  contratista_id: number;
+  contratistaId: number;
 
   @IsInt()
-  sede_id: number;
+  sedeId: number;
 
   @IsEnum(['ENTRADA', 'SALIDA'])
   tipo: 'ENTRADA' | 'SALIDA';
@@ -44,7 +44,7 @@ export class RegistrarAccesoDto {
 
   @IsOptional()
   @IsInt()
-  ubicacion_id?: number;
+  ubicacionId?: number;
 
   @IsOptional()
   @IsString()

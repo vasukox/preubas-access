@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
+import { ConfigTiemposContratista, TipoContratistaConfig } from '../../config-koaj/entities/config-tiempos-contratista.entity';
 import { HseAutorizacion } from '../entities/hse-autorizacion.entity';
 import { HseContratista } from '../entities/hse-contratista.entity';
 import { HseHistorial } from '../entities/hse-historial.entity';
@@ -24,6 +25,8 @@ export class AutorizacionService {
     private readonly contratistaRepo: Repository<HseContratista>,
     @InjectRepository(HseHistorial)
     private readonly historialRepo: Repository<HseHistorial>,
+    @InjectRepository(ConfigTiemposContratista)
+    private readonly tiemposRepo: Repository<ConfigTiemposContratista>,
     private readonly codigoGenerator: CodigoGeneratorService,
     private readonly validator: AutorizacionValidator,
     private dataSource: DataSource,
@@ -75,7 +78,7 @@ export class AutorizacionService {
   }
 
   async create(createDto: CreateAutorizacionDto, userId: number) {
-    this.validator.validarFechas(createDto.fecha_inicio, createDto.fecha_fin);
+    this.validator.validarFechas(createDto.fechaInicio, createDto.fechaFin);
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -85,13 +88,13 @@ export class AutorizacionService {
       const codigo = await this.codigoGenerator.generarCodigo();
 
       const autorizacion = this.autorizacionRepo.create({
-        proveedorId: createDto.proveedor_id,
-        sedeId: createDto.sede_id,
-        responsableInternoId: createDto.responsable_interno_id,
-        tipoContratista: createDto.tipo_contratista,
-        descripcionActividad: createDto.descripcion_actividad,
-        fechaInicio: this.toDateOnly(createDto.fecha_inicio),
-        fechaFin: this.toDateOnly(createDto.fecha_fin),
+        proveedorId: createDto.proveedorId,
+        sedeId: createDto.sedeId,
+        responsableInternoId: createDto.responsableInternoId,
+        tipoContratista: createDto.tipoContratista,
+        descripcionActividad: createDto.descripcionActividad,
+        fechaInicio: this.toDateOnly(createDto.fechaInicio),
+        fechaFin: this.toDateOnly(createDto.fechaFin),
         codigo,
         creadoPor: userId,
         estado: EstadoAutorizacion.BORRADOR,
@@ -100,19 +103,19 @@ export class AutorizacionService {
       const savedAutorizacion = await queryRunner.manager.save(autorizacion);
 
       if (createDto.contratistas && createDto.contratistas.length > 0) {
-        const duracionHoras = 72;
+        const duracionHoras = await this.getTokenDuracionHoras(createDto.tipoContratista);
         const contratistas = createDto.contratistas.map(c =>
           this.contratistaRepo.create({
-            personaId: c.persona_id,
-            tipoDocumento: c.tipo_documento,
-            numeroDocumento: c.numero_documento,
+            personaId: c.personaId,
+            tipoDocumento: c.tipoDocumento,
+            numeroDocumento: c.numeroDocumento,
             nombres: c.nombres,
             apellidos: c.apellidos,
             email: c.email,
             telefono: c.telefono,
-            esExtranjero: c.es_extranjero ?? false,
-            sstResponsableNombre: c.sst_responsable_nombre,
-            sstResponsableTelefono: c.sst_responsable_telefono,
+            esExtranjero: c.esExtranjero ?? false,
+            sstResponsableNombre: c.sstResponsableNombre,
+            sstResponsableTelefono: c.sstResponsableTelefono,
             autorizacionId: savedAutorizacion.id,
             estado: EstadoContratista.PENDIENTE_AUTOGESTION,
             tokenAutogestion: crypto.randomBytes(32).toString('hex'),
@@ -137,20 +140,20 @@ export class AutorizacionService {
   async update(id: number, updateDto: UpdateAutorizacionDto) {
     const autorizacion = await this.findOne(id);
 
-    if (updateDto.fecha_inicio || updateDto.fecha_fin) {
-      const fInicio = updateDto.fecha_inicio ?? String(autorizacion.fechaInicio);
-      const fFin = updateDto.fecha_fin ?? String(autorizacion.fechaFin);
+    if (updateDto.fechaInicio || updateDto.fechaFin) {
+      const fInicio = updateDto.fechaInicio ?? String(autorizacion.fechaInicio);
+      const fFin = updateDto.fechaFin ?? String(autorizacion.fechaFin);
       this.validator.validarFechas(fInicio, fFin);
     }
 
     await this.autorizacionRepo.update(id, {
-      ...(updateDto.proveedor_id !== undefined && { proveedorId: updateDto.proveedor_id }),
-      ...(updateDto.sede_id !== undefined && { sedeId: updateDto.sede_id }),
-      ...(updateDto.responsable_interno_id !== undefined && { responsableInternoId: updateDto.responsable_interno_id }),
-      ...(updateDto.tipo_contratista !== undefined && { tipoContratista: updateDto.tipo_contratista }),
-      ...(updateDto.descripcion_actividad !== undefined && { descripcionActividad: updateDto.descripcion_actividad }),
-      ...(updateDto.fecha_inicio !== undefined && { fechaInicio: this.toDateOnly(updateDto.fecha_inicio) }),
-      ...(updateDto.fecha_fin !== undefined && { fechaFin: this.toDateOnly(updateDto.fecha_fin) }),
+      ...(updateDto.proveedorId !== undefined && { proveedorId: updateDto.proveedorId }),
+      ...(updateDto.sedeId !== undefined && { sedeId: updateDto.sedeId }),
+      ...(updateDto.responsableInternoId !== undefined && { responsableInternoId: updateDto.responsableInternoId }),
+      ...(updateDto.tipoContratista !== undefined && { tipoContratista: updateDto.tipoContratista }),
+      ...(updateDto.descripcionActividad !== undefined && { descripcionActividad: updateDto.descripcionActividad }),
+      ...(updateDto.fechaInicio !== undefined && { fechaInicio: this.toDateOnly(updateDto.fechaInicio) }),
+      ...(updateDto.fechaFin !== undefined && { fechaFin: this.toDateOnly(updateDto.fechaFin) }),
     });
 
     return this.findOne(id);
@@ -171,12 +174,12 @@ export class AutorizacionService {
       throw new NotFoundException(`Autorizacion con ID ${id} no encontrada`);
     }
 
-    this.validarCambioEstadoAutorizacion(autorizacion, changeEstadoDto.estado, changeEstadoDto.motivo_denegacion);
+    this.validarCambioEstadoAutorizacion(autorizacion, changeEstadoDto.estado, changeEstadoDto.motivoDenegacion);
 
     autorizacion.estado = changeEstadoDto.estado;
     autorizacion.motivoDenegacion =
       changeEstadoDto.estado === EstadoAutorizacion.DENEGADO
-        ? changeEstadoDto.motivo_denegacion ?? null
+        ? changeEstadoDto.motivoDenegacion ?? null
         : null;
 
     await this.autorizacionRepo.save(autorizacion);
@@ -197,16 +200,16 @@ export class AutorizacionService {
 
     const contratistas = contratistasDto.map(c =>
       this.contratistaRepo.create({
-        personaId: c.persona_id,
-        tipoDocumento: c.tipo_documento,
-        numeroDocumento: c.numero_documento,
+        personaId: c.personaId,
+        tipoDocumento: c.tipoDocumento,
+        numeroDocumento: c.numeroDocumento,
         nombres: c.nombres,
         apellidos: c.apellidos,
         email: c.email,
         telefono: c.telefono,
-        esExtranjero: c.es_extranjero ?? false,
-        sstResponsableNombre: c.sst_responsable_nombre,
-        sstResponsableTelefono: c.sst_responsable_telefono,
+        esExtranjero: c.esExtranjero ?? false,
+        sstResponsableNombre: c.sstResponsableNombre,
+        sstResponsableTelefono: c.sstResponsableTelefono,
         autorizacionId,
         estado: EstadoContratista.PENDIENTE_AUTOGESTION,
       })
@@ -225,7 +228,9 @@ export class AutorizacionService {
     }
 
     const token = crypto.randomBytes(32).toString('hex');
-    const duracionHoras = 72;
+    const duracionHoras = await this.getTokenDuracionHoras(
+      contratista.autorizacion?.tipoContratista,
+    );
     const expiraEn = new Date();
     expiraEn.setHours(expiraEn.getHours() + duracionHoras);
 
@@ -611,5 +616,11 @@ export class AutorizacionService {
   private toDateOnly(value: string): Date {
     const [year, month, day] = value.split('-').map(Number);
     return new Date(year, month - 1, day);
+  }
+
+  private async getTokenDuracionHoras(tipoContratista?: string): Promise<number> {
+    const tipo = (tipoContratista as TipoContratistaConfig) ?? TipoContratistaConfig.NORMAL;
+    const config = await this.tiemposRepo.findOne({ where: { tipoContratista: tipo } });
+    return config?.tokenDuracionHoras ?? 72;
   }
 }

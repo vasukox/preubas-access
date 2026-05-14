@@ -16,5 +16,6 @@ export declare class HseCumplimiento extends BaseEntity {
     contratista: HseContratista;
     encargado: Usuario;
     sede: Sede;
+    archivado: boolean;
     items: HseCumplimientoItem[];
 }

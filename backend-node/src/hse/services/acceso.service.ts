@@ -82,11 +82,11 @@ export class AccesoService {
   }
 
   async registrarAcceso(dto: any, registradoPor: number) {
-    const { contratista_id, sede_id, tipo, metodo, observacion, ubicacion_id } = dto;
+    const { contratistaId, sedeId, tipo, metodo, observacion, ubicacionId } = dto;
     if (tipo === 'ENTRADA') {
-      return this.registrarEntrada(contratista_id, sede_id, registradoPor, metodo, observacion, ubicacion_id);
+      return this.registrarEntrada(contratistaId, sedeId, registradoPor, metodo, observacion, ubicacionId);
     } else {
-      return this.registrarSalida(contratista_id, sede_id, registradoPor, metodo, observacion, ubicacion_id);
+      return this.registrarSalida(contratistaId, sedeId, registradoPor, metodo, observacion, ubicacionId);
     }
   }
 

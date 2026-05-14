@@ -14,6 +14,7 @@ import { CatEps } from '../hse/entities/cat-eps.entity';
 import { CatArl } from '../hse/entities/cat-arl.entity';
 import { CatAfp } from '../hse/entities/cat-afp.entity';
 import { CatNormaSeguridad } from '../hse/entities/cat-norma-seguridad.entity';
+import { ConfigTiemposContratista, TipoContratistaConfig } from './entities/config-tiempos-contratista.entity';
 
 import {
   CreateSedeDto,
@@ -24,6 +25,7 @@ import {
   UpdateCatalogoDto,
   CreateNormaDto,
   UpdateNormaDto,
+  UpdateTiemposContratistaDto,
 } from './dto/config-koaj.dto';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -48,6 +50,12 @@ type TipoCatalogo = 'eps' | 'arl' | 'afp';
 export class ConfigKoajService {
   private readonly logger = new Logger(ConfigKoajService.name);
 
+  private static readonly TIEMPOS_DEFAULTS: Record<TipoContratistaConfig, Partial<ConfigTiemposContratista>> = {
+    [TipoContratistaConfig.NORMAL]:      { tokenDuracionHoras: 72, autorizacionDuracionDias: 30, alertaVencimientoDias: 3,  requiereExamenMedico: false, requiereSeguridadSocial: false },
+    [TipoContratistaConfig.ALTO_RIESGO]: { tokenDuracionHoras: 72, autorizacionDuracionDias: 15, alertaVencimientoDias: 5,  requiereExamenMedico: true,  requiereSeguridadSocial: true  },
+    [TipoContratistaConfig.EXCEPCION]:   { tokenDuracionHoras: 72, autorizacionDuracionDias: 7,  alertaVencimientoDias: 2,  requiereExamenMedico: false, requiereSeguridadSocial: false },
+  };
+
   constructor(
     @InjectRepository(Sede)
     private readonly sedeRepo: Repository<Sede>,
@@ -66,6 +74,9 @@ export class ConfigKoajService {
 
     @InjectRepository(CatNormaSeguridad)
     private readonly normaRepo: Repository<CatNormaSeguridad>,
+
+    @InjectRepository(ConfigTiemposContratista)
+    private readonly tiemposRepo: Repository<ConfigTiemposContratista>,
   ) {}
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -431,5 +442,68 @@ export class ConfigKoajService {
 
     await this.normaRepo.softDelete(id);
     this.logger.log(`Norma eliminada (soft): id=${id}`);
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // TIEMPOS POR TIPO DE CONTRATISTA
+  // ══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Retorna la configuración de los 3 tipos de contratista.
+   * Si alguno no existe en BD lo crea con valores por defecto antes de responder.
+   */
+  async listarTiemposContratista(): Promise<ConfigTiemposContratista[]> {
+    await this.asegurarFilasDefecto();
+    return this.tiemposRepo.find({
+      order: { tipoContratista: 'ASC' },
+    });
+  }
+
+  /**
+   * Retorna la configuración de un tipo específico de contratista.
+   * Útil para consumo interno (p.ej. AutorizacionService).
+   */
+  async getTiemposContratista(tipo: TipoContratistaConfig): Promise<ConfigTiemposContratista> {
+    await this.asegurarFilaDefecto(tipo);
+    const config = await this.tiemposRepo.findOne({ where: { tipoContratista: tipo } });
+    return config!;
+  }
+
+  /**
+   * Actualiza los parámetros de tiempo de un tipo de contratista.
+   */
+  async actualizarTiemposContratista(
+    tipo: TipoContratistaConfig,
+    dto: UpdateTiemposContratistaDto,
+  ): Promise<ConfigTiemposContratista> {
+    if (!Object.values(TipoContratistaConfig).includes(tipo)) {
+      throw new BadRequestException({
+        error: { code: 'TIPO_INVALIDO', message: `Tipo '${tipo}' no válido. Use: NORMAL, ALTO_RIESGO, EXCEPCION.` },
+      });
+    }
+
+    await this.asegurarFilaDefecto(tipo);
+    const config = await this.tiemposRepo.findOne({ where: { tipoContratista: tipo } });
+    Object.assign(config!, dto);
+    const saved = await this.tiemposRepo.save(config!);
+    this.logger.log(`Tiempos contratista ${tipo} actualizados`);
+    return saved;
+  }
+
+  private async asegurarFilasDefecto(): Promise<void> {
+    for (const tipo of Object.values(TipoContratistaConfig)) {
+      await this.asegurarFilaDefecto(tipo);
+    }
+  }
+
+  private async asegurarFilaDefecto(tipo: TipoContratistaConfig): Promise<void> {
+    const existe = await this.tiemposRepo.findOne({ where: { tipoContratista: tipo } });
+    if (!existe) {
+      const defaults = ConfigKoajService.TIEMPOS_DEFAULTS[tipo];
+      await this.tiemposRepo.save(
+        this.tiemposRepo.create({ tipoContratista: tipo, ...defaults }),
+      );
+      this.logger.log(`Fila por defecto creada para tipo contratista: ${tipo}`);
+    }
   }
 }

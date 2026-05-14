@@ -18,7 +18,7 @@ import {
   Building2, Wifi, WifiOff, Loader2,
   ChevronDown, Wrench,
   LayoutGrid, ClipboardList, Eye, AlertTriangle, ClipboardCheck,
-  Globe, BookOpen, ListChecks, Hammer, UserX,
+  Globe, BookOpen, ListChecks, Hammer, Clock, FileBarChart2,
 } from 'lucide-react'
 import { useWSStore } from '@/store'
 import type { RolNombre, UsuarioMe, SedeBasica } from '@/types'
@@ -174,7 +174,16 @@ export const NAV_ITEMS: NavItem[] = [
     label: 'Reportes',
     path:  '/reportes',
     icon:  <BarChart3 size={18} />,
-    roles: ['ADMIN_GLOBAL','ADMIN_HSE','VISUALIZADOR'],
+    roles: ['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE','VISUALIZADOR'],
+    children: [
+      {
+        id:    'reportes-hse',
+        label: 'Reportes HSE',
+        path:  '/reportes/hse',
+        icon:  <FileBarChart2 size={14} />,
+        roles: ['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE','VISUALIZADOR'],
+      },
+    ],
   },
   {
     id:    'config',
@@ -212,17 +221,31 @@ export const NAV_ITEMS: NavItem[] = [
         roles: ['ADMIN_GLOBAL'],
       },
       {
-        id:    'config-actividades',
-        label: 'Actividades HSE',
-        path:  '/config/actividades',
-        icon:  <Hammer size={14} />,
+        id:    'config-tiempos',
+        label: 'Tiempos HSE',
+        path:  '/config/tiempos',
+        icon:  <Clock size={14} />,
         roles: ['ADMIN_GLOBAL'],
       },
       {
-        id:    'config-usuarios-generales',
-        label: 'Usuarios Generales',
-        path:  '/config/usuarios-generales',
-        icon:  <UserX size={14} />,
+        id:    'config-proveedores',
+        label: 'Proveedores HSE',
+        path:  '/config/proveedores',
+        icon:  <Building2 size={14} />,
+        roles: ['ADMIN_GLOBAL'],
+      },
+      {
+        id:    'config-usuarios',
+        label: 'Usuarios del sistema',
+        path:  '/config/usuarios',
+        icon:  <Users size={14} />,
+        roles: ['ADMIN_GLOBAL'],
+      },
+      {
+        id:    'config-auditoria',
+        label: 'Auditoría',
+        path:  '/config/auditoria',
+        icon:  <Clock size={14} />,
         roles: ['ADMIN_GLOBAL'],
       },
     ],
@@ -316,8 +339,8 @@ function NavGroup({
           padding:        sidebarCollapsed ? '10px 18px' : '10px 12px',
           width:          '100%',
           borderRadius:   'var(--radius-md)',
-          border:         `1px solid ${isInGroup ? 'rgba(69,116,196,0.2)' : 'transparent'}`,
-          background:     isInGroup ? 'rgba(69,116,196,0.1)' : 'transparent',
+          border:         `1px solid ${isInGroup ? 'var(--primary-200)' : 'transparent'}`,
+          background:     isInGroup ? 'var(--primary-50)' : 'transparent',
           color:          isInGroup ? 'var(--primary-400)' : 'var(--text-secondary)',
           cursor:         'pointer',
           fontFamily:     'var(--font-ui)',
@@ -332,8 +355,8 @@ function NavGroup({
           if (!isInGroup) e.currentTarget.style.color      = 'var(--text-primary)'
         }}
         onMouseLeave={e => {
-          e.currentTarget.style.background = isInGroup ? 'rgba(69,116,196,0.1)' : 'transparent'
-          e.currentTarget.style.color      = isInGroup ? 'var(--primary-400)'   : 'var(--text-secondary)'
+          e.currentTarget.style.background = isInGroup ? 'var(--primary-50)' : 'transparent'
+          e.currentTarget.style.color      = isInGroup ? 'var(--primary-600)'   : 'var(--text-secondary)'
         }}
       >
         {/* Indicador activo */}
@@ -347,7 +370,6 @@ function NavGroup({
             height:       '60%',
             background:   'var(--primary-500)',
             borderRadius: '0 var(--radius-full) var(--radius-full) 0',
-            boxShadow:    'var(--shadow-glow-primary)',
           }} />
         )}
         <span style={{ flexShrink: 0 }}>{item.icon}</span>
@@ -410,8 +432,8 @@ function NavGroup({
                   textDecoration: 'none',
                   fontSize:       '0.8rem',
                   fontWeight:     isActive ? 600 : 400,
-                  color:          isActive ? 'var(--primary-400)' : 'var(--text-muted)',
-                  background:     isActive ? 'rgba(69,116,196,0.08)' : 'transparent',
+                  color:          isActive ? 'var(--primary-600)' : 'var(--text-muted)',
+                  background:     isActive ? 'var(--primary-50)' : 'transparent',
                   transition:     'all var(--transition-fast)',
                 }}
                 onMouseEnter={e => {
@@ -421,8 +443,8 @@ function NavGroup({
                   }
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.background = isActive ? 'rgba(69,116,196,0.08)' : 'transparent'
-                  e.currentTarget.style.color      = isActive ? 'var(--primary-400)' : 'var(--text-muted)'
+                  e.currentTarget.style.background = isActive ? 'var(--primary-50)' : 'transparent'
+                  e.currentTarget.style.color      = isActive ? 'var(--primary-600)' : 'var(--text-muted)'
                 }}
               >
                 <span style={{ flexShrink: 0, opacity: isActive ? 1 : 0.7 }}>{sub.icon}</span>
@@ -483,7 +505,6 @@ export function Sidebar({ collapsed, onToggle, usuario, sedeActiva, filteredNav 
                 alignItems:     'center',
                 justifyContent: 'center',
                 flexShrink:     0,
-                boxShadow:      'var(--shadow-glow-primary)',
               }}
             >
               <ShieldCheck size={16} color="var(--text-inverted)" strokeWidth={2.5} />
@@ -516,11 +537,11 @@ export function Sidebar({ collapsed, onToggle, usuario, sedeActiva, filteredNav 
                 width:          collapsed ? '40px' : '26px',
                 height:         collapsed ? '40px' : '26px',
                 borderRadius:   'var(--radius-md)',
-                background:     collapsed ? 'rgba(69,116,196,0.12)' : 'transparent',
+                background:     collapsed ? 'var(--primary-50)' : 'transparent',
                 border:         collapsed
-                  ? '1px solid rgba(69,116,196,0.3)'
+                  ? '1px solid var(--primary-200)'
                   : '1px solid transparent',
-                color:          collapsed ? 'var(--primary-400)' : 'var(--text-muted)',
+                color:          collapsed ? 'var(--primary-600)' : 'var(--text-muted)',
                 cursor:         'pointer',
                 display:        'flex',
                 alignItems:     'center',
@@ -528,14 +549,14 @@ export function Sidebar({ collapsed, onToggle, usuario, sedeActiva, filteredNav 
                 transition:     'width var(--transition-base), height var(--transition-base), background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast)',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background  = 'rgba(69,116,196,0.2)'
-                e.currentTarget.style.color       = 'var(--primary-300)'
-                e.currentTarget.style.borderColor = 'rgba(69,116,196,0.5)'
+                e.currentTarget.style.background  = 'var(--primary-100)'
+                e.currentTarget.style.color       = 'var(--primary-700)'
+                e.currentTarget.style.borderColor = 'var(--primary-300)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background  = collapsed ? 'rgba(69,116,196,0.12)' : 'transparent'
-                e.currentTarget.style.color       = collapsed ? 'var(--primary-400)' : 'var(--text-muted)'
-                e.currentTarget.style.borderColor = collapsed ? 'rgba(69,116,196,0.3)' : 'transparent'
+                e.currentTarget.style.background  = collapsed ? 'var(--primary-50)' : 'transparent'
+                e.currentTarget.style.color       = collapsed ? 'var(--primary-600)' : 'var(--text-muted)'
+                e.currentTarget.style.borderColor = collapsed ? 'var(--primary-200)' : 'transparent'
               }}
             >
               {collapsed ? <ChevronRight size={15} /> : <ChevronLeft size={14} />}
@@ -611,11 +632,11 @@ export function Sidebar({ collapsed, onToggle, usuario, sedeActiva, filteredNav 
                   textDecoration: 'none',
                   transition:     'all var(--transition-fast)',
                   background:     isActive
-                    ? 'rgba(69,116,196,0.1)'
+                    ? 'var(--primary-50)'
                     : isHovered ? 'var(--bg-raised)' : 'transparent',
-                  border:         `1px solid ${isActive ? 'rgba(69,116,196,0.2)' : 'transparent'}`,
+                  border:         `1px solid ${isActive ? 'var(--primary-200)' : 'transparent'}`,
                   color:          isActive
-                    ? 'var(--primary-400)'
+                    ? 'var(--primary-600)'
                     : isHovered ? 'var(--text-primary)' : 'var(--text-secondary)',
                   position:       'relative',
                   whiteSpace:     'nowrap',
@@ -633,7 +654,6 @@ export function Sidebar({ collapsed, onToggle, usuario, sedeActiva, filteredNav 
                       height:       '60%',
                       background:   'var(--primary-500)',
                       borderRadius: '0 var(--radius-full) var(--radius-full) 0',
-                      boxShadow:    'var(--shadow-glow-primary)',
                     }}
                   />
                 )}
@@ -675,13 +695,13 @@ export function Sidebar({ collapsed, onToggle, usuario, sedeActiva, filteredNav 
                   width:          '32px',
                   height:         '32px',
                   borderRadius:   'var(--radius-full)',
-                  background:     'linear-gradient(135deg, var(--primary-600), var(--primary-400))',
+                  background:     'var(--primary-100)',
                   display:        'flex',
                   alignItems:     'center',
                   justifyContent: 'center',
-                  fontSize:       '0.75rem',
-                  fontWeight:     700,
-                  color:          'var(--text-inverted)',
+                  fontSize:       '0.85rem',
+                  fontWeight:     600,
+                  color:          'var(--primary-700)',
                   flexShrink:     0,
                 }}
               >

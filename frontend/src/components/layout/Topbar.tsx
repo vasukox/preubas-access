@@ -10,7 +10,7 @@
  * - Botón menú mobile
  */
 
-import { Bell, Menu, Building2, ChevronDown, Moon, Sun, LogOut } from 'lucide-react'
+import { Bell, Menu, Building2, ChevronDown, LogOut } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import type { UsuarioMe, SedeBasica } from '@/types'
 import type { ThemeMode } from '@/store/uiStore'
@@ -103,9 +103,9 @@ function SedeSelectorDropdown({
                 width:      '100%',
                 textAlign:  'left',
                 padding:    '9px 12px',
-                background: sedeActiva?.id === sede.id ? 'rgba(69,116,196,0.1)' : 'transparent',
+                background: sedeActiva?.id === sede.id ? 'var(--primary-50)' : 'transparent',
                 border:     'none',
-                color:      sedeActiva?.id === sede.id ? 'var(--primary-400)' : 'var(--text-secondary)',
+                color:      sedeActiva?.id === sede.id ? 'var(--primary-600)' : 'var(--text-secondary)',
                 cursor:     'pointer',
                 fontSize:   '0.78rem',
                 fontWeight: sedeActiva?.id === sede.id ? 600 : 400,
@@ -182,14 +182,13 @@ function UserMenuDropdown({
             width:          '32px',
             height:         '32px',
             borderRadius:   'var(--radius-full)',
-            background:     'linear-gradient(135deg, var(--primary-600), var(--primary-400))',
+            background:     'var(--primary-100)',
             display:        'flex',
             alignItems:     'center',
             justifyContent: 'center',
-            fontSize:       '0.75rem',
-            fontWeight:     700,
-            color:          'var(--text-inverted)',
-            boxShadow:      'var(--shadow-glow-primary)',
+            fontSize:       '0.85rem',
+            fontWeight:     600,
+            color:          'var(--primary-700)',
             flexShrink:     0,
           }}
         >
@@ -261,9 +260,9 @@ function UserMenuDropdown({
               fontWeight:     500,
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(192,80,80,0.1)'
-              e.currentTarget.style.color = 'var(--danger-400)'
-              e.currentTarget.style.borderColor = 'rgba(192,80,80,0.35)'
+              e.currentTarget.style.background = 'var(--danger-50)'
+              e.currentTarget.style.color = 'var(--danger-600)'
+              e.currentTarget.style.borderColor = 'var(--danger-200)'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'transparent'
@@ -338,12 +337,12 @@ export function Topbar({ usuario, noLeidas, paginaActual, onMenuClick, themeMode
           alignItems:   'center',
           gap:          '6px',
           padding:      '6px 10px',
-          background:   'rgba(69,116,196,0.08)',
-          border:       '1px solid rgba(69,116,196,0.35)',
+          background:   'var(--primary-50)',
+          border:       '1px solid var(--primary-200)',
           borderRadius: 'var(--radius-md)',
           fontSize:     '0.78rem',
           fontWeight:   600,
-          color:        'var(--primary-400)',
+          color:        'var(--primary-600)',
           whiteSpace:   'nowrap',
         }}>
           <Building2 size={13} />
@@ -363,34 +362,7 @@ export function Topbar({ usuario, noLeidas, paginaActual, onMenuClick, themeMode
       {/* Acciones */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 
-        {/* Toggle tema */}
-        <button
-          onClick={onToggleTheme}
-          title={themeMode === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-          style={{
-            position:       'relative',
-            background:     'transparent',
-            border:         '1px solid var(--border-default)',
-            borderRadius:   'var(--radius-md)',
-            color:          'var(--text-secondary)',
-            cursor:         'pointer',
-            padding:        '7px',
-            display:        'flex',
-            alignItems:     'center',
-            justifyContent: 'center',
-            transition:     'all var(--transition-fast)',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = 'var(--border-strong)'
-            e.currentTarget.style.color       = 'var(--primary-500)'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = 'var(--border-default)'
-            e.currentTarget.style.color       = 'var(--text-secondary)'
-          }}
-        >
-          {themeMode === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-        </button>
+
 
         {/* Botón alertas */}
         <button

@@ -126,7 +126,7 @@ export declare class HseController {
         descripcion_actividad: string;
         fecha_inicio: Date;
         fecha_fin: Date;
-        clasificacion: import("./entities/hse-clasificacion.entity").HseClasificacion;
+        clasificacion: Partial<ClasificacionDto> | null;
         seguridad_social: import("./entities/hse-seg-social.entity").HseSegSocial[];
         certificaciones: import("./entities/hse-certificaciones.entity").HseCertificaciones;
         examen_medico: import("./entities/hse-examen-medico.entity").HseExamenMedico;
@@ -220,10 +220,11 @@ export declare class HseController {
         sedeId: number;
         contratistaId: number;
         contratistaNombre: string;
-        tipoDocumento: string;
+        tipoDocumento: import("../common/enums/hse.enum").TipoDocumento;
         numeroDocumento: string;
         autorizacionCodigo: string;
-        encargadoNombre: string;
+        encargadoNombre: string | null;
+        diasRestantes: number | null;
     }[]>;
     iniciarCumplimiento(req: any, dto: CumplimientoIniciarDto): Promise<import("./entities/hse-cumplimiento.entity").HseCumplimiento | null>;
     iniciarCumplimientoFrontend(req: any, dto: CumplimientoIniciarDto): Promise<import("./entities/hse-cumplimiento.entity").HseCumplimiento | null>;
@@ -311,7 +312,31 @@ export declare class HseController {
         message: string;
     }>;
     getReporteAccesos(query: any): Promise<import("./entities/hse-acceso.entity").HseAcceso[]>;
-    getReporteCumplimiento(query: any): Promise<import("./entities/hse-cumplimiento.entity").HseCumplimiento[]>;
+    getReporteCumplimiento(query: any): Promise<{
+        total: number;
+        page: number;
+        limit: number;
+        pages: number;
+        data: {
+            id: number;
+            estado: import("../common/enums/hse.enum").CumplimientoEstado;
+            archivado: boolean;
+            fechaInicio: Date;
+            fechaCierre: Date;
+            observacionGeneral: string;
+            firmaDigital: string;
+            sedeId: number;
+            contratistaId: number;
+            contratistaNombre: string;
+            tipoDocumento: import("../common/enums/hse.enum").TipoDocumento;
+            numeroDocumento: string;
+            autorizacionCodigo: string;
+            encargadoNombre: string | null;
+            totalItems: number;
+            itemsCumplen: number;
+            itemsNosCumplen: number;
+        }[];
+    }>;
     getReporteVencimientos(): Promise<import("./entities/hse-contratista.entity").HseContratista[]>;
     servirArchivoHse(req: any, res: Response): Promise<void>;
 }

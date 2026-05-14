@@ -258,10 +258,10 @@ let HseController = class HseController {
         return this.hseService.getDashboard(sedeId);
     }
     async registrarEntrada(req, dto) {
-        return this.accesoService.registrarEntrada(dto.contratista_id, dto.sede_id, req.user?.id, dto.metodo, dto.observacion, dto.ubicacion_id);
+        return this.accesoService.registrarEntrada(dto.contratistaId, dto.sedeId, req.user?.id, dto.metodo, dto.observacion, dto.ubicacionId);
     }
     async registrarSalida(req, dto) {
-        return this.accesoService.registrarSalida(dto.contratista_id, dto.sede_id, req.user?.id, dto.metodo, dto.observacion, dto.ubicacion_id);
+        return this.accesoService.registrarSalida(dto.contratistaId, dto.sedeId, req.user?.id, dto.metodo, dto.observacion, dto.ubicacionId);
     }
     async getAccesosSede(sedeId, limit) {
         const parsedLimit = limit ? parseInt(limit, 10) : 50;
@@ -274,7 +274,7 @@ let HseController = class HseController {
         return this.accesoService.getPersonasDentro(sedeId);
     }
     async verificarAcceso(dto) {
-        return this.accesoService.verificarAcceso(dto.numero_documento, dto.sede_id);
+        return this.accesoService.verificarAcceso(dto.numeroDocumento, dto.sedeId);
     }
     async registrarAccesoVigilante(req, dto) {
         return this.accesoService.registrarAcceso(dto, req.user?.id);
@@ -287,10 +287,10 @@ let HseController = class HseController {
         return this.cumplimientoService.listarCumplimientos(sedeId, estado);
     }
     async iniciarCumplimiento(req, dto) {
-        return this.cumplimientoService.iniciarCumplimiento(dto.contratista_id, req.user?.id, dto.sede_id, undefined);
+        return this.cumplimientoService.iniciarCumplimiento(dto.contratistaId, req.user?.id, dto.sedeId, undefined);
     }
     async iniciarCumplimientoFrontend(req, dto) {
-        return this.cumplimientoService.iniciarCumplimiento(dto.contratista_id, req.user?.id, dto.sede_id, undefined);
+        return this.cumplimientoService.iniciarCumplimiento(dto.contratistaId, req.user?.id, dto.sedeId, undefined);
     }
     async actualizarCumplimiento(id, dto) {
         return this.cumplimientoService.actualizarCumplimiento(id, dto);
@@ -299,7 +299,7 @@ let HseController = class HseController {
         return this.cumplimientoService.marcarItem(id, itemId, dto.cumple, dto.observacion);
     }
     async cerrarCumplimiento(id, dto) {
-        return this.cumplimientoService.cerrarCumplimiento(id, dto.firma_digital, dto.observacion_general);
+        return this.cumplimientoService.cerrarCumplimiento(id, dto.firmaDigital, dto.observacionGeneral);
     }
     async crearExcepcion(req, dto) {
         return this.excepcionService.crearExcepcion(req.user?.id, dto);
@@ -344,7 +344,14 @@ let HseController = class HseController {
         return this.reportesService.getReporteVencimientos();
     }
     async servirArchivoHse(req, res) {
-        const rawPath = req.params?.[0] ?? '';
+        const originalUrl = decodeURIComponent(req.originalUrl ?? '');
+        const archivosIdx = originalUrl.indexOf('/archivos/');
+        const rawPath = archivosIdx >= 0
+            ? originalUrl.slice(archivosIdx + '/archivos/'.length).split('?')[0]
+            : '';
+        if (!rawPath) {
+            throw new common_1.NotFoundException('Archivo no encontrado');
+        }
         const fullPath = this.uploadSecurityService.resolveUploadPath(rawPath);
         if (!fs.existsSync(fullPath) || !fs.statSync(fullPath).isFile()) {
             throw new common_1.NotFoundException('Archivo no encontrado');
@@ -577,7 +584,7 @@ __decorate([
     (0, public_decorator_1.Public)(),
     (0, common_1.UseGuards)(autogestion_token_guard_1.AutogestionTokenGuard),
     (0, common_1.Post)('autogestion/:token/upload'),
-    (0, common_2.UseInterceptors)((0, platform_express_1.FileInterceptor)('archivo')),
+    (0, common_2.UseInterceptors)((0, platform_express_1.FileInterceptor)('archivo', { storage: require('multer').memoryStorage() })),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Param)('token')),
     __param(2, (0, common_1.Body)('modulo')),
@@ -914,7 +921,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], HseController.prototype, "getReporteVencimientos", null);
 __decorate([
-    (0, common_1.Get)('archivos/*'),
+    (0, common_1.Get)('archivos/*path'),
     (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_HSE, rol_enum_1.RolNombre.GESTION_HSE, rol_enum_1.RolNombre.VISUALIZADOR, rol_enum_1.RolNombre.ADMIN_GLOBAL),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Res)()),

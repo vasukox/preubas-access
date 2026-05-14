@@ -29,6 +29,7 @@ let HseCumplimiento = class HseCumplimiento extends base_entity_1.BaseEntity {
     contratista;
     encargado;
     sede;
+    archivado;
     items;
 };
 exports.HseCumplimiento = HseCumplimiento;
@@ -79,6 +80,10 @@ __decorate([
     (0, typeorm_1.JoinColumn)({ name: 'sede_id' }),
     __metadata("design:type", sede_entity_1.Sede)
 ], HseCumplimiento.prototype, "sede", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'archivado', type: 'boolean', default: false }),
+    __metadata("design:type", Boolean)
+], HseCumplimiento.prototype, "archivado", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => hse_cumplimiento_item_entity_1.HseCumplimientoItem, (item) => item.cumplimiento, { cascade: true }),
     __metadata("design:type", Array)

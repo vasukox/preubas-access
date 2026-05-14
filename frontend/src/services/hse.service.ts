@@ -7,6 +7,8 @@
 import { get, post, put, del, upload, fetchBlob } from './api'
 import type { SedeBasica } from '@/types'
 import type {
+  // Reportes
+  ReporteCumplimientoResponse,
   // Contratistas
   ContratistaEliminarRequest,
   ContratistaEliminarAdjuntoRequest,
@@ -59,6 +61,43 @@ import type {
   DashboardHSEResponse,
   UploadArchivoResponse,
 } from '@/types/hse'
+
+function sanitizeClasificacionRequest(data: ClasificacionRequest): ClasificacionRequest {
+  return {
+    trabajo_alturas: data.trabajo_alturas,
+    espacios_confinados: data.espacios_confinados,
+    trabajo_electrico: data.trabajo_electrico,
+    trabajo_caliente: data.trabajo_caliente,
+    izaje_maquinaria: data.izaje_maquinaria,
+    visita_sin_riesgo: data.visita_sin_riesgo,
+    personal_extranjero: data.personal_extranjero,
+    genera_residuos: data.genera_residuos,
+    alturas_nivel: data.alturas_nivel,
+    alturas_cert_fecha_venc: data.alturas_cert_fecha_venc,
+    alturas_cert_archivo: data.alturas_cert_archivo,
+    confinados_rol: data.confinados_rol,
+    confinados_cert_fecha: data.confinados_cert_fecha,
+    confinados_cert_archivo: data.confinados_cert_archivo,
+    electrico_matricula_contec: data.electrico_matricula_contec,
+    electrico_num_matricula: data.electrico_num_matricula,
+    electrico_matricula_venc: data.electrico_matricula_venc,
+    electrico_matricula_archivo: data.electrico_matricula_archivo,
+    caliente_extintor_fecha: data.caliente_extintor_fecha,
+    caliente_extintor_archivo: data.caliente_extintor_archivo,
+    caliente_permiso_fecha: data.caliente_permiso_fecha,
+    caliente_permiso_archivo: data.caliente_permiso_archivo,
+    izaje_tipo_equipo: data.izaje_tipo_equipo,
+    izaje_inspeccion_archivo: data.izaje_inspeccion_archivo,
+    izaje_doc_legal_archivo: data.izaje_doc_legal_archivo,
+    izaje_licencia_archivo: data.izaje_licencia_archivo,
+    extran_aseguradora: data.extran_aseguradora,
+    extran_num_poliza: data.extran_num_poliza,
+    extran_poliza_venc: data.extran_poliza_venc,
+    extran_poliza_archivo: data.extran_poliza_archivo,
+    residuos_tipo: data.residuos_tipo,
+    residuos_plan_archivo: data.residuos_plan_archivo,
+  }
+}
 
 
 // ═══════════════════════════════════════════════════════════════════
@@ -156,7 +195,7 @@ export const hseService = {
     post<null>(`/hse/autogestion/${token}/datos-personales`, data),
 
   guardarClasificacion: (token: string, data: ClasificacionRequest) =>
-    post<ClasificacionResponse>(`/hse/autogestion/${token}/clasificacion`, data),
+    post<ClasificacionResponse>(`/hse/autogestion/${token}/clasificacion`, sanitizeClasificacionRequest(data)),
 
   guardarSeguridadSocial: (token: string, data: { personas: SegSocialItemRequest[] }) =>
     post<SegSocialResponse[]>(`/hse/autogestion/${token}/seguridad-social`, data),
@@ -234,6 +273,25 @@ export const hseService = {
   // ── Dashboard ──────────────────────────────────────────────────
   getDashboard: (sedeId: number) =>
     get<DashboardHSEResponse>(`/hse/dashboard/${sedeId}`),
+
+  // ── Reportes ───────────────────────────────────────────────────
+  getReporteCumplimiento: (params: {
+    sede_id?:      number
+    fecha_inicio?: string
+    fecha_fin?:    string
+    estado?:       string
+    page?:         number
+    limit?:        number
+  }) => {
+    const qs = new URLSearchParams()
+    if (params.sede_id)      qs.set('sede_id',      String(params.sede_id))
+    if (params.fecha_inicio) qs.set('fecha_inicio', params.fecha_inicio)
+    if (params.fecha_fin)    qs.set('fecha_fin',    params.fecha_fin)
+    if (params.estado)       qs.set('estado',       params.estado)
+    if (params.page)         qs.set('page',         String(params.page))
+    if (params.limit)        qs.set('limit',        String(params.limit))
+    return get<ReporteCumplimientoResponse>(`/hse/reportes/cumplimiento?${qs.toString()}`)
+  },
 
   // ── Archivos de autogestión (admin) ───────────────────────────
   previsualizarArchivo: async (path: string): Promise<string> => {

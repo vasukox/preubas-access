@@ -376,6 +376,7 @@ function Paso2Datos({
   form,
   setForm,
   empresaProveedor,
+  tipologiaHse,
   formClasif,
   setFormClasif,
   onUploadPdf,
@@ -385,6 +386,7 @@ function Paso2Datos({
   form:    any
   setForm: (f: any) => void
   empresaProveedor?: string | null
+  tipologiaHse: string
   formClasif: any
   setFormClasif: (f: any) => void
   onUploadPdf: (modulo: UploadModulo, campo: string, file: File) => Promise<string>
@@ -580,11 +582,20 @@ function Paso2Datos({
         <label style={labelStyle}>TIPOLOGÍA / PERFIL DEL TRABAJO</label>
         <input
           type="text"
-          value={form.tipologia_hse ?? ''}
-          onChange={e => setForm((f: any) => ({ ...f, tipologia_hse: e.target.value }))}
-          placeholder="Ej: Electricista, Fontanero, Contratista de obra..."
-          style={inputStyle}
+          value={tipologiaHse}
+          readOnly
+          tabIndex={-1}
+          aria-readonly="true"
+          style={{
+            ...inputStyle,
+            opacity: 0.78,
+            cursor: 'not-allowed',
+            background: 'rgba(255,255,255,0.03)',
+          }}
         />
+        <div style={{ marginTop: '6px', fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+          La tipología se determina automáticamente según la autorización creada.
+        </div>
       </div>
 
       {/* Responsable SST */}
@@ -1965,7 +1976,42 @@ export default function AutogestionView() {
             ? 'Contratista de Alto Riesgo'
             : 'Contratista / Visita sin Riesgo',
         })
-        if (data.clasificacion) setFormClasif(data.clasificacion)
+        if (data.clasificacion) {
+          setFormClasif({
+            trabajo_alturas: data.clasificacion.trabajo_alturas,
+            espacios_confinados: data.clasificacion.espacios_confinados,
+            trabajo_electrico: data.clasificacion.trabajo_electrico,
+            trabajo_caliente: data.clasificacion.trabajo_caliente,
+            izaje_maquinaria: data.clasificacion.izaje_maquinaria,
+            visita_sin_riesgo: data.clasificacion.visita_sin_riesgo,
+            personal_extranjero: data.clasificacion.personal_extranjero,
+            genera_residuos: data.clasificacion.genera_residuos,
+            alturas_nivel: data.clasificacion.alturas_nivel,
+            alturas_cert_fecha_venc: data.clasificacion.alturas_cert_fecha_venc,
+            alturas_cert_archivo: data.clasificacion.alturas_cert_archivo,
+            confinados_rol: data.clasificacion.confinados_rol,
+            confinados_cert_fecha: data.clasificacion.confinados_cert_fecha,
+            confinados_cert_archivo: data.clasificacion.confinados_cert_archivo,
+            electrico_matricula_contec: data.clasificacion.electrico_matricula_contec,
+            electrico_num_matricula: data.clasificacion.electrico_num_matricula,
+            electrico_matricula_venc: data.clasificacion.electrico_matricula_venc,
+            electrico_matricula_archivo: data.clasificacion.electrico_matricula_archivo,
+            caliente_extintor_fecha: data.clasificacion.caliente_extintor_fecha,
+            caliente_extintor_archivo: data.clasificacion.caliente_extintor_archivo,
+            caliente_permiso_fecha: data.clasificacion.caliente_permiso_fecha,
+            caliente_permiso_archivo: data.clasificacion.caliente_permiso_archivo,
+            izaje_tipo_equipo: data.clasificacion.izaje_tipo_equipo,
+            izaje_inspeccion_archivo: data.clasificacion.izaje_inspeccion_archivo,
+            izaje_doc_legal_archivo: data.clasificacion.izaje_doc_legal_archivo,
+            izaje_licencia_archivo: data.clasificacion.izaje_licencia_archivo,
+            extran_aseguradora: data.clasificacion.extran_aseguradora,
+            extran_num_poliza: data.clasificacion.extran_num_poliza,
+            extran_poliza_venc: data.clasificacion.extran_poliza_venc,
+            extran_poliza_archivo: data.clasificacion.extran_poliza_archivo,
+            residuos_tipo: data.clasificacion.residuos_tipo,
+            residuos_plan_archivo: data.clasificacion.residuos_plan_archivo,
+          })
+        }
         if (data.seguridad_social?.length) setFormSegSocial(data.seguridad_social[0])
         if (data.certificaciones) setFormCert(data.certificaciones)
         if (data.examen_medico) setFormExamen(data.examen_medico)
@@ -2050,16 +2096,12 @@ export default function AutogestionView() {
       case 'datos': {
         if (!formDatos.tipo_documento?.trim()) return 'Selecciona un tipo de documento.'
         if (!formDatos.numero_documento?.trim()) return 'Ingresa tu número de documento.'
-        if (!formDatos.nombres?.trim()) return 'Ingresa tus nombres.'
-        if (!formDatos.apellidos?.trim()) return 'Ingresa tus apellidos.'
-        if (!formDatos.email?.trim()) return 'Ingresa tu correo electrónico.'
         if (!formDatos.email.includes('@')) return 'El correo electrónico es inválido.'
         if (!formDatos.telefono?.trim()) return 'Ingresa tu número de teléfono.'
         if (!formDatos.tratamiento_datos) return 'Debes aceptar el tratamiento de tus datos personales.'
         const esExt = formDatos.tipo_documento === 'CE' || formDatos.tipo_documento === 'PASAPORTE'
         if (esExt) {
           if (!formClasif.extran_aseguradora?.trim()) return 'Ingresa la aseguradora de tu póliza de seguro.'
-          if (!formClasif.extran_num_poliza?.trim()) return 'Ingresa el número de póliza de seguro.'
           if (!formClasif.extran_poliza_venc) return 'Ingresa la fecha de vencimiento de la póliza.'
           if (!formClasif.extran_poliza_archivo) return 'Adjunta el PDF de la póliza de seguro con cobertura Colombia.'
           if (estadoVigencia(formClasif.extran_poliza_venc) === 'vencido')
@@ -2289,6 +2331,7 @@ export default function AutogestionView() {
             form={formDatos}
             setForm={setFormDatos}
             empresaProveedor={tokenData.empresa_proveedor}
+            tipologiaHse={tokenData.tipo_contratista === 'ALTO_RIESGO' ? 'Contratista de Alto Riesgo' : 'Contratista / Visita sin Riesgo'}
             formClasif={formClasif}
             setFormClasif={setFormClasif}
             onUploadPdf={handleUploadPdf}

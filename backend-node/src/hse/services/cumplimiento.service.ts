@@ -1,18 +1,52 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, OnModuleInit, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In, LessThan, Not } from 'typeorm';
 import { HseCumplimiento } from '../entities/hse-cumplimiento.entity';
 import { HseCumplimientoItem } from '../entities/hse-cumplimiento-item.entity';
 import { CumplimientoEstado } from '../../common/enums/hse.enum';
 
+/** Días que se conservan los registros cerrados antes de eliminarse */
+const DIAS_RETENCION = 3;
+
 @Injectable()
-export class CumplimientoService {
+export class CumplimientoService implements OnModuleInit {
+  private readonly logger = new Logger(CumplimientoService.name);
+
   constructor(
     @InjectRepository(HseCumplimiento)
     private readonly cumplimientoRepo: Repository<HseCumplimiento>,
     @InjectRepository(HseCumplimientoItem)
     private readonly cumplimientoItemRepo: Repository<HseCumplimientoItem>,
   ) {}
+
+  onModuleInit() {
+    // Limpieza inicial al arrancar + cada 24 h
+    void this.limpiarCumplimientosVencidos();
+    setInterval(() => void this.limpiarCumplimientosVencidos(), 24 * 60 * 60 * 1000);
+  }
+
+  /** Archiva cumplimientos cerrados con más de DIAS_RETENCION días (no elimina, preserva trazabilidad) */
+  async limpiarCumplimientosVencidos(): Promise<number> {
+    const fechaLimite = new Date();
+    fechaLimite.setDate(fechaLimite.getDate() - DIAS_RETENCION);
+
+    const result = await this.cumplimientoRepo
+      .createQueryBuilder()
+      .update()
+      .set({ archivado: true })
+      .where('estado IN (:...estados)', { estados: [CumplimientoEstado.COMPLETADO, CumplimientoEstado.INCUMPLIMIENTO] })
+      .andWhere('fecha_cierre < :fechaLimite', { fechaLimite })
+      .andWhere('archivado = false')
+      .execute();
+
+    const total = result.affected ?? 0;
+    if (total > 0) {
+      this.logger.log(
+        `Archivo automático: ${total} cumplimiento(s) archivado(s) (>${DIAS_RETENCION} días desde cierre)`,
+      );
+    }
+    return total;
+  }
 
   async getEstadoActual(contratistaId: number) {
     return this.cumplimientoRepo.findOne({
@@ -33,11 +67,12 @@ export class CumplimientoService {
 
   async listarCumplimientos(sedeId: number, estado?: string) {
     const qb = this.cumplimientoRepo.createQueryBuilder('c')
-      .leftJoinAndSelect('c.contratista', 'contratista')
+      .innerJoinAndSelect('c.contratista', 'contratista')   // INNER: excluye contratistas eliminados
       .leftJoinAndSelect('c.encargado', 'encargado')
       .leftJoinAndSelect('contratista.autorizacion', 'autorizacion')
       .leftJoinAndSelect('c.items', 'items')
-      .where('c.sedeId = :sedeId', { sedeId });
+      .where('c.sedeId = :sedeId', { sedeId })
+      .andWhere('c.archivado = false');
 
     if (estado) {
       qb.andWhere('c.estado = :estado', { estado });
@@ -46,8 +81,19 @@ export class CumplimientoService {
     const cumplimientos = await qb.orderBy('c.created_at', 'DESC').getMany();
 
     return cumplimientos.map(c => {
-      const totalItems = c.items ? c.items.length : 0;
+      const totalItems  = c.items ? c.items.length : 0;
       const respondidos = c.items ? c.items.filter(i => i.cumple !== null).length : 0;
+
+      // Calcular días restantes antes de la eliminación automática
+      let diasRestantes: number | null = null;
+      if (
+        c.fechaCierre &&
+        (c.estado === CumplimientoEstado.COMPLETADO || c.estado === CumplimientoEstado.INCUMPLIMIENTO)
+      ) {
+        const msSinceCierre = Date.now() - new Date(c.fechaCierre).getTime();
+        const diasTranscurridos = Math.floor(msSinceCierre / (1000 * 60 * 60 * 24));
+        diasRestantes = Math.max(0, DIAS_RETENCION - diasTranscurridos);
+      }
 
       return {
         id: c.id,
@@ -60,11 +106,12 @@ export class CumplimientoService {
         respondidos,
         sedeId: c.sedeId,
         contratistaId: c.contratistaId,
-        contratistaNombre: c.contratista ? `${c.contratista.nombres} ${c.contratista.apellidos}` : 'N/A',
-        tipoDocumento: c.contratista ? c.contratista.tipoDocumento : 'N/A',
-        numeroDocumento: c.contratista ? c.contratista.numeroDocumento : 'N/A',
-        autorizacionCodigo: c.contratista?.autorizacion ? c.contratista.autorizacion.codigo : 'N/A',
-        encargadoNombre: c.encargado ? c.encargado.nombreCompleto : 'N/A',
+        contratistaNombre: `${c.contratista.nombres} ${c.contratista.apellidos}`,
+        tipoDocumento: c.contratista.tipoDocumento,
+        numeroDocumento: c.contratista.numeroDocumento,
+        autorizacionCodigo: c.contratista?.autorizacion?.codigo ?? null,
+        encargadoNombre: c.encargado ? c.encargado.nombreCompleto : null,
+        diasRestantes,  // null = EN_PROGRESO, 0..3 = días antes de eliminación
       };
     });
   }
@@ -128,7 +175,6 @@ export class CumplimientoService {
 
     if (dto.estado) cumplimiento.estado = dto.estado;
     if (dto.observacionGeneral !== undefined) cumplimiento.observacionGeneral = dto.observacionGeneral;
-    if (dto.observacion_general !== undefined) cumplimiento.observacionGeneral = dto.observacion_general;
     
     if (dto.estado === CumplimientoEstado.COMPLETADO || dto.estado === CumplimientoEstado.INCUMPLIMIENTO) {
       cumplimiento.fechaCierre = new Date();
@@ -136,8 +182,8 @@ export class CumplimientoService {
 
     if (dto.items && Array.isArray(dto.items)) {
       for (const itemDto of dto.items) {
-        // Soporta tanto camelCase como snake_case desde el frontend
-        const itemId = itemDto.item_id || itemDto.itemId;
+        // Use camelCase itemId from transformed DTO
+        const itemId = itemDto.itemId;
         const item = cumplimiento.items.find(i => i.id === itemId);
         if (item) {
           if (itemDto.cumple !== undefined) item.cumple = itemDto.cumple;

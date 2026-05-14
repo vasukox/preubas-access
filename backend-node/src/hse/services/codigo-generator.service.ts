@@ -16,6 +16,7 @@ export class CodigoGeneratorService {
 
     const lastAutorizacion = await this.autorizacionRepo
       .createQueryBuilder('ha')
+      .withDeleted()
       .where('ha.codigo LIKE :prefix', { prefix: `${prefix}%` })
       .orderBy('ha.id', 'DESC')
       .getOne();

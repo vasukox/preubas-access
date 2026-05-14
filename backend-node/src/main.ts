@@ -4,6 +4,7 @@ import { WsAdapter } from '@nestjs/platform-ws';
 import { AppModule } from './app.module';
 import { ApiResponseInterceptor } from './common/interceptors/api-response.interceptor';
 import { SnakeCaseInterceptor } from './common/interceptors/snake-case.interceptor';
+import { SnakeToCamelPipe } from './common/pipes/snake-to-camel.pipe';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
@@ -48,7 +49,11 @@ async function bootstrap() {
   // ── 3. WebSocket adapter ───────────────────────────────────────────────────
   app.useWebSocketAdapter(new WsAdapter(app));
 
-  // ── 4. ValidationPipe global ───────────────────────────────────────────────
+  // ── 4. Pipes globales ─────────────────────────────────────────────────────
+  // 4a. Transformar snake_case → camelCase en entrada
+  app.useGlobalPipes(new SnakeToCamelPipe());
+  
+  // 4b. Validar y transformar tipos
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

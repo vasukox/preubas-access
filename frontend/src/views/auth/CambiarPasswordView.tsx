@@ -72,7 +72,7 @@ export default function CambiarPasswordView() {
     setIsLoading(true)
     setErrorMsg(null)
     try {
-      await post('/auth/cambiar-password', {
+      await post('/auth/change-password', {
         password_actual: data.password_actual,
         password_nueva:  data.password_nueva,
       })
@@ -112,8 +112,8 @@ export default function CambiarPasswordView() {
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
           background: `
-            radial-gradient(ellipse at 20% 50%, rgba(69,116,196,0.08) 0%, transparent 60%),
-            radial-gradient(ellipse at 80% 20%, rgba(86,104,184,0.06) 0%, transparent 50%)
+            radial-gradient(ellipse at 20% 50%, var(--primary-50) 0%, transparent 60%),
+            radial-gradient(ellipse at 80% 20%, var(--primary-50) 0%, transparent 50%)
           `,
         }} />
         <div className="bg-grid" style={{ position: 'absolute', inset: 0, opacity: 0.4, pointerEvents: 'none' }} />
@@ -127,18 +127,18 @@ export default function CambiarPasswordView() {
           {/* Logo */}
           <div className="animate-fade-up stagger-1" style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '64px' }}>
             <div style={{
-              width: '44px', height: '44px', background: 'var(--primary-500)',
+              width: '44px', height: '44px', background: 'var(--primary-100)',
               borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center',
-              justifyContent: 'center', boxShadow: 'var(--shadow-glow-primary)',
+              justifyContent: 'center',
             }}>
-              <ShieldCheck size={24} color="var(--text-inverted)" strokeWidth={2.5} />
+              <ShieldCheck size={24} color="var(--primary-600)" strokeWidth={2.5} />
             </div>
             <div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '0.15em' }}>
                 KOAJ ACCESS
               </div>
               <div style={{ fontFamily: 'var(--font-ui)', fontSize: '0.7rem', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>
-                Permoda S.A.S.
+                Permoda LTDA
               </div>
             </div>
           </div>
@@ -150,9 +150,7 @@ export default function CambiarPasswordView() {
           }}>
             Configura tu{' '}
             <span style={{
-              color: 'transparent',
-              backgroundImage: 'linear-gradient(135deg, var(--primary-400), var(--primary-600))',
-              WebkitBackgroundClip: 'text', backgroundClip: 'text',
+              color: 'var(--primary-600)',
             }}>
               contraseña
             </span>
@@ -165,7 +163,7 @@ export default function CambiarPasswordView() {
             marginBottom: '48px', maxWidth: '380px',
           }}>
             Es tu primer acceso al sistema. Por seguridad, debes establecer
-            una contraseña personal antes de continuar.
+            una contraseña personal diferente antes de continuar.
           </p>
 
           {/* Requisitos como features */}
@@ -199,7 +197,7 @@ export default function CambiarPasswordView() {
         {/* Gradiente sutil */}
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, height: '300px', pointerEvents: 'none',
-          background: 'radial-gradient(ellipse at 50% 0%, rgba(69,116,196,0.04) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse at 50% 0%, var(--primary-50) 0%, transparent 70%)',
         }} />
 
         <div style={{ position: 'relative', zIndex: 1 }}>
@@ -209,7 +207,7 @@ export default function CambiarPasswordView() {
             {/* Ícono */}
             <div style={{
               width: '48px', height: '48px', marginBottom: '20px',
-              background: 'rgba(69,116,196,0.1)', border: '1px solid rgba(69,116,196,0.2)',
+              background: 'var(--primary-50)', border: '1px solid var(--primary-200)',
               borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
               <KeyRound size={22} color="var(--primary-500)" />
@@ -225,8 +223,8 @@ export default function CambiarPasswordView() {
           {/* Aviso */}
           <div style={{
             padding: '10px 14px', marginBottom: '28px',
-            background: 'rgba(69,116,196,0.06)', border: '1px solid rgba(69,116,196,0.15)',
-            borderRadius: 'var(--radius-md)', fontSize: '0.8rem', color: 'var(--primary-400)', lineHeight: 1.5,
+            background: 'var(--primary-50)', border: '1px solid var(--primary-100)',
+            borderRadius: 'var(--radius-md)', fontSize: '0.8rem', color: 'var(--primary-600)', lineHeight: 1.5,
           }}>
             Por seguridad, debes cambiar tu contraseña antes de continuar.
           </div>
@@ -263,7 +261,7 @@ export default function CambiarPasswordView() {
                 fontFamily: 'var(--font-ui)', cursor: isLoading ? 'not-allowed' : 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                 transition: 'all var(--transition-fast)',
-                boxShadow: todosOk && !isLoading ? 'var(--shadow-glow-primary)' : 'none',
+                boxShadow: todosOk && !isLoading ? 'var(--shadow-md)' : 'none',
                 letterSpacing: '0.02em',
               }}
               onMouseEnter={(e) => { if (!isLoading && todosOk) e.currentTarget.style.background = 'var(--primary-600)' }}

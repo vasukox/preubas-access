@@ -4,60 +4,60 @@ import { Type } from 'class-transformer';
 export class CreateExcepcionDto {
   @IsOptional()
   @IsInt()
-  persona_id?: number;
+  personaId?: number;
 
   @IsOptional()
   @IsString()
-  tipo_documento?: string;
+  tipoDocumento?: string;
 
   @IsOptional()
   @IsString()
-  numero_documento?: string;
+  numeroDocumento?: string;
 
   @IsOptional()
   @IsString()
-  nombre_completo?: string;
+  nombreCompleto?: string;
 
   @IsOptional()
   @IsInt()
-  proveedor_id?: number;
+  proveedorId?: number;
 
   @IsOptional()
   @IsInt()
-  sede_id?: number;
+  sedeId?: number;
 
   @IsString()
   motivo: string;
 
   @IsOptional()
   @IsDateString()
-  fecha_inicio?: string;
+  fechaInicio?: string;
 
   @IsOptional()
   @IsDateString()
-  fecha_fin?: string;
+  fechaFin?: string;
 
   @IsOptional()
   @IsInt()
-  ubicacion_id?: number;
+  ubicacionId?: number;
 }
 
 export class UpdateExcepcionDto {
   @IsOptional()
   @IsString()
-  tipo_documento?: string;
+  tipoDocumento?: string;
 
   @IsOptional()
   @IsString()
-  numero_documento?: string;
+  numeroDocumento?: string;
 
   @IsOptional()
   @IsString()
-  nombre_completo?: string;
+  nombreCompleto?: string;
 
   @IsOptional()
   @IsInt()
-  proveedor_id?: number;
+  proveedorId?: number;
 
   @IsOptional()
   @IsString()
@@ -65,31 +65,31 @@ export class UpdateExcepcionDto {
 
   @IsOptional()
   @IsDateString()
-  fecha_inicio?: string;
+  fechaInicio?: string;
 
   @IsOptional()
   @IsDateString()
-  fecha_fin?: string;
+  fechaFin?: string;
 
   @IsOptional()
   @IsInt()
-  sede_id?: number;
+  sedeId?: number;
 
   @IsOptional()
   @IsInt()
-  ubicacion_id?: number;
+  ubicacionId?: number;
 }
 
 export class ExcepcionLoteContratistaDto {
   @IsOptional()
   @IsString()
-  tipo_documento?: string;
+  tipoDocumento?: string;
 
   @IsString()
-  numero_documento: string;
+  numeroDocumento: string;
 
   @IsString()
-  nombre_completo: string;
+  nombreCompleto: string;
 }
 
 export class CreateExcepcionLoteDto {
@@ -97,7 +97,7 @@ export class CreateExcepcionLoteDto {
   @IsArray()
   @ArrayMinSize(1)
   @IsInt({ each: true })
-  personas_ids?: number[];
+  personasIds?: number[];
 
   @IsOptional()
   @IsArray()
@@ -107,20 +107,20 @@ export class CreateExcepcionLoteDto {
 
   @IsOptional()
   @IsInt()
-  sede_id?: number;
+  sedeId?: number;
 
   @IsOptional()
   @IsInt()
-  proveedor_id?: number;
+  proveedorId?: number;
 
   @IsString()
   motivo: string;
 
   @IsOptional()
   @IsDateString()
-  fecha_inicio?: string;
+  fechaInicio?: string;
 
   @IsOptional()
   @IsDateString()
-  fecha_fin?: string;
+  fechaFin?: string;
 }

@@ -15,6 +15,7 @@ const cat_afp_entity_1 = require("../hse/entities/cat-afp.entity");
 const cat_norma_seguridad_entity_1 = require("../hse/entities/cat-norma-seguridad.entity");
 const sede_entity_1 = require("../sede/entities/sede.entity");
 const ubicacion_entity_1 = require("../sede/entities/ubicacion.entity");
+const config_tiempos_contratista_entity_1 = require("./entities/config-tiempos-contratista.entity");
 const config_koaj_controller_1 = require("./config-koaj.controller");
 const config_koaj_service_1 = require("./config-koaj.service");
 let ConfigKoajModule = class ConfigKoajModule {
@@ -30,6 +31,7 @@ exports.ConfigKoajModule = ConfigKoajModule = __decorate([
                 cat_arl_entity_1.CatArl,
                 cat_afp_entity_1.CatAfp,
                 cat_norma_seguridad_entity_1.CatNormaSeguridad,
+                config_tiempos_contratista_entity_1.ConfigTiemposContratista,
             ]),
         ],
         controllers: [config_koaj_controller_1.ConfigKoajController],
