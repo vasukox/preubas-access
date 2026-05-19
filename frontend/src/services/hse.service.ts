@@ -220,7 +220,14 @@ export const hseService = {
     post<VerificarAccesoResponse>('/hse/vigilante/verificar', data),
 
   registrarAcceso: (data: RegistrarAccesoRequest) =>
-    post<AccesoResponse>('/hse/vigilante/acceso', data),
+    post<AccesoResponse>('/hse/vigilante/acceso', {
+      contratistaId: data.contratista_id,
+      sedeId: data.sede_id,
+      tipo: data.tipo,
+      metodo: data.metodo,
+      ubicacionId: data.ubicacion_id,
+      observacion: data.observacion,
+    }),
 
   getPersonasDentro: (sedeId: number) =>
     get<PersonaDentroResponse[]>(`/hse/vigilante/dentro/${sedeId}`),

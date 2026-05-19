@@ -101,13 +101,13 @@ export class ValidacionService {
             excepcion.nombreCompleto,
           ),
           empresa: null,
-          tipoContratista: contratistaExcepcion.autorizacion?.tipoContratista ?? null,
+          tipo_contratista: contratistaExcepcion.autorizacion?.tipoContratista ?? null,
           mensaje: 'Acceso permitido por excepcion activa',
           problemas: [],
-          dentroActualmente,
-          ultimaEntrada: dentroActualmente ? ultimoAcceso?.fechaHora ?? null : null,
-          contratistaId: contratistaExcepcion.id,
-          autorizacionId: contratistaExcepcion.autorizacionId,
+          dentro_actualmente: dentroActualmente,
+          ultima_entrada: dentroActualmente ? ultimoAcceso?.fechaHora ?? null : null,
+          contratista_id: contratistaExcepcion.id,
+          autorizacion_id: contratistaExcepcion.autorizacionId,
         };
       }
 
@@ -116,13 +116,13 @@ export class ValidacionService {
         color: 'gray',
         nombre: null,
         empresa: null,
-        tipoContratista: null,
+        tipo_contratista: null,
         mensaje: 'Documento no encontrado. El contratista debe tramitar su autorización.',
         problemas: [],
-        dentroActualmente: false,
-        ultimaEntrada: null,
-        contratistaId: null,
-        autorizacionId: null,
+        dentro_actualmente: false,
+        ultima_entrada: null,
+        contratista_id: null,
+        autorizacion_id: null,
       };
     }
 
@@ -141,13 +141,13 @@ export class ValidacionService {
         color: 'blue',
         nombre: `${contratista.nombres} ${contratista.apellidos}`.trim(),
         empresa: contratista.autorizacion?.proveedor?.nomProveedor ?? null,
-        tipoContratista: contratista.autorizacion?.tipoContratista ?? null,
+        tipo_contratista: contratista.autorizacion?.tipoContratista ?? null,
         mensaje: 'Acceso permitido por excepcion activa',
         problemas: [],
-        dentroActualmente,
-        ultimaEntrada: dentroActualmente ? ultimoAcceso?.fechaHora ?? null : null,
-        contratistaId: contratista.id,
-        autorizacionId: contratista.autorizacionId,
+        dentro_actualmente: dentroActualmente,
+        ultima_entrada: dentroActualmente ? ultimoAcceso?.fechaHora ?? null : null,
+        contratista_id: contratista.id,
+        autorizacion_id: contratista.autorizacionId,
       };
     }
 
@@ -167,13 +167,13 @@ export class ValidacionService {
       color: permitido ? 'green' : 'red',
       nombre: `${contratista.nombres} ${contratista.apellidos}`.trim(),
       empresa: contratista.autorizacion?.proveedor?.nomProveedor ?? null,
-      tipoContratista: contratista.autorizacion?.tipoContratista ?? null,
+      tipo_contratista: contratista.autorizacion?.tipoContratista ?? null,
       mensaje,
       problemas: permitido ? [] : [mensaje],
-      dentroActualmente,
-      ultimaEntrada: dentroActualmente ? ultimoAcceso?.fechaHora ?? null : null,
-      contratistaId: contratista.id,
-      autorizacionId: contratista.autorizacionId,
+      dentro_actualmente: dentroActualmente,
+      ultima_entrada: dentroActualmente ? ultimoAcceso?.fechaHora ?? null : null,
+      contratista_id: contratista.id,
+      autorizacion_id: contratista.autorizacionId,
     };
   }
 
@@ -199,15 +199,15 @@ export class ValidacionService {
 
   private async buscarExcepcionActiva(documento: string, sedeId: number): Promise<HseExcepcion | null> {
     const hoy = this.fechaHoyLocal();
+    const docNormalizado = this.normalizarDocumento(documento);
 
     // 1) Match directo por excepcion.numero_documento (modo empresa/lote)
     const porDocumento = await this.excepcionRepo
       .createQueryBuilder('excepcion')
       .where('excepcion.sede_id = :sedeId', { sedeId })
       .andWhere('excepcion.activa = 1')
-      .andWhere('DATE(excepcion.fecha_inicio) <= :hoy', { hoy })
       .andWhere('DATE(excepcion.fecha_fin) >= :hoy', { hoy })
-      .andWhere('excepcion.numero_documento = :documento', { documento })
+      .andWhere('REPLACE(REPLACE(REPLACE(UPPER(excepcion.numero_documento), "-", ""), " ", ""), ".", "") = :docNormalizado', { docNormalizado })
       .orderBy('excepcion.fecha_fin', 'DESC')
       .getOne();
 
@@ -219,9 +219,8 @@ export class ValidacionService {
       .innerJoin('excepcion.persona', 'persona')
       .where('excepcion.sede_id = :sedeId', { sedeId })
       .andWhere('excepcion.activa = 1')
-      .andWhere('DATE(excepcion.fecha_inicio) <= :hoy', { hoy })
       .andWhere('DATE(excepcion.fecha_fin) >= :hoy', { hoy })
-      .andWhere('persona.numero_documento = :documento', { documento })
+      .andWhere('REPLACE(REPLACE(REPLACE(UPPER(persona.numero_documento), "-", ""), " ", ""), ".", "") = :docNormalizado', { docNormalizado })
       .orderBy('excepcion.fecha_fin', 'DESC')
       .getOne();
   }
@@ -371,5 +370,10 @@ export class ValidacionService {
 
   private fechaHoyLocal(): string {
     return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota' }).format(new Date());
+  }
+
+  private normalizarDocumento(documento: string): string {
+    if (!documento) return '';
+    return String(documento).toUpperCase().replace(/[\-\.\s]/g, '');
   }
 }

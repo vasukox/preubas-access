@@ -120,7 +120,7 @@ function ModalDetalleExcepcion({
               <div style={rowStyle}><div style={{ color: 'var(--text-muted)' }}>Origen</div><div style={valueStyle}>{data.origen_excepcion}</div></div>
               <div style={rowStyle}><div style={{ color: 'var(--text-muted)' }}>Motivo</div><div style={valueStyle}>{data.motivo}</div></div>
               <div style={rowStyle}><div style={{ color: 'var(--text-muted)' }}>Vigencia</div><div style={valueStyle}>{data.fecha_inicio} → {data.fecha_fin}</div></div>
-              <div style={{ ...rowStyle, borderBottom: 'none' }}><div style={{ color: 'var(--text-muted)' }}>Estado</div><div style={valueStyle}>{data.activa ? 'Activa' : 'Inactiva'}</div></div>
+              <div style={{ ...rowStyle, borderBottom: 'none' }}><div style={{ color: 'var(--text-muted)' }}>Estado</div><div style={valueStyle}>{data.activa ? (data.fecha_fin < new Date().toISOString().slice(0, 10) ? 'Vencida' : data.fecha_inicio > new Date().toISOString().slice(0, 10) ? 'Próxima (inicia ' + data.fecha_inicio + ')' : 'Activa') : 'Inactiva'}</div></div>
             </div>
           ) : (
             <div style={{ color: 'var(--text-muted)', fontSize: '0.83rem' }}>No se encontró información.</div>
@@ -1058,6 +1058,7 @@ export default function ExcepcionesView() {
   const getVigenciaColor = (e: ExcepcionResponse) => {
     if (!e.activa) return 'var(--text-muted)'
     if (e.fecha_fin < hoy) return 'var(--danger-400)'
+    if (e.fecha_inicio > hoy) return '#B8860B'
     return 'var(--success-400)'
   }
 
@@ -1427,7 +1428,8 @@ export default function ExcepcionesView() {
                             <strong style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Proveedor:</strong> {e.proveedor_nombre || 'Sin proveedor'}
                           </div>
                           <div style={{ color: 'var(--text-secondary)' }}>
-                            <strong style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Estado:</strong> {e.activa ? 'Activa' : 'Inactiva'}
+                            <strong style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Estado:</strong>{' '}
+                            <span style={{ color: getVigenciaColor(e) }}>{getVigenciaLabel(e)}</span>
                           </div>
                         </div>
 
