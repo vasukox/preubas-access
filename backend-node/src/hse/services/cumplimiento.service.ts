@@ -1,8 +1,10 @@
-import { Injectable, NotFoundException, OnModuleInit, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, OnModuleInit, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In, LessThan, Not } from 'typeorm';
+import { Repository, In, LessThan, Not, IsNull } from 'typeorm';
 import { HseCumplimiento } from '../entities/hse-cumplimiento.entity';
 import { HseCumplimientoItem } from '../entities/hse-cumplimiento-item.entity';
+import { HseAcceso } from '../entities/hse-acceso.entity';
+import { CatNormaSeguridad } from '../entities/cat-norma-seguridad.entity';
 import { CumplimientoEstado } from '../../common/enums/hse.enum';
 
 /** Días que se conservan los registros cerrados antes de eliminarse */
@@ -17,6 +19,10 @@ export class CumplimientoService implements OnModuleInit {
     private readonly cumplimientoRepo: Repository<HseCumplimiento>,
     @InjectRepository(HseCumplimientoItem)
     private readonly cumplimientoItemRepo: Repository<HseCumplimientoItem>,
+    @InjectRepository(HseAcceso)
+    private readonly accesoRepo: Repository<HseAcceso>,
+    @InjectRepository(CatNormaSeguridad)
+    private readonly normaRepo: Repository<CatNormaSeguridad>,
   ) {}
 
   onModuleInit() {
@@ -127,6 +133,8 @@ export class CumplimientoService implements OnModuleInit {
     });
 
     if (!cumplimiento) {
+      await this.validarSalidaRegistrada(contratistaId, sedeId);
+
       cumplimiento = this.cumplimientoRepo.create({
         contratistaId,
         encargadoId,
@@ -136,10 +144,10 @@ export class CumplimientoService implements OnModuleInit {
       });
       cumplimiento = await this.cumplimientoRepo.save(cumplimiento);
 
-      // Si no vienen preguntas del frontend, generar defaults según tipo de contratista
+      // Si no vienen preguntas del frontend, construir desde normas de la sede (o defaults si no hay)
       const preguntas = itemsPreguntas && itemsPreguntas.length > 0
         ? itemsPreguntas
-        : this.generarPreguntasDefault();
+        : await this.generarPreguntasDesdeNormas(sedeId);
 
       const cumplimientoId = cumplimiento!.id;
       const items = preguntas.map((pregunta, index) =>
@@ -157,8 +165,57 @@ export class CumplimientoService implements OnModuleInit {
   }
 
   /**
-   * Genera preguntas por defecto para el checklist de cumplimiento.
-   * Alineado con CHECKLIST_NORMAL en hse_service.py de Python.
+   * Construye las preguntas del checklist a partir de las normas activas de la sede.
+   * Incluye normas globales (sede_id IS NULL) + las específicas de la sede.
+   * Si no hay normas configuradas, cae al conjunto por defecto.
+   */
+  private async generarPreguntasDesdeNormas(sedeId: number): Promise<string[]> {
+    const normas = await this.normaRepo.find({
+      where: [
+        { activa: true, sedeId: IsNull() },
+        { activa: true, sedeId },
+      ],
+      order: { numero: 'ASC' },
+    });
+
+    if (normas.length > 0) {
+      this.logger.log(
+        `Checklist generado desde ${normas.length} norma(s) activas para sede ${sedeId}`,
+      );
+      return normas.map(n => `Norma #${n.numero} — ${n.titulo}`);
+    }
+
+    this.logger.warn(
+      `No hay normas configuradas para sede ${sedeId}. Usando preguntas por defecto.`,
+    );
+    return this.generarPreguntasDefault();
+  }
+
+  /**
+   * Verifica que el último acceso del contratista en la sede sea SALIDA.
+   * El cumplimiento solo puede iniciarse una vez que el contratista ha entrado y salido.
+   */
+  private async validarSalidaRegistrada(contratistaId: number, sedeId: number): Promise<void> {
+    const ultimoAcceso = await this.accesoRepo.findOne({
+      where: { contratistaId, sedeId },
+      order: { fechaHora: 'DESC' },
+    });
+
+    if (!ultimoAcceso) {
+      throw new BadRequestException(
+        'El contratista no tiene registro de acceso en esta sede. Debe registrar entrada y salida antes de iniciar el cumplimiento.',
+      );
+    }
+
+    if (ultimoAcceso.tipoAcceso === 'ENTRADA') {
+      throw new BadRequestException(
+        'El contratista aún se encuentra dentro de las instalaciones. El cumplimiento solo puede iniciarse después de registrar su salida.',
+      );
+    }
+  }
+
+  /**
+   * Preguntas de respaldo cuando no hay normas configuradas para la sede.
    */
   private generarPreguntasDefault(): string[] {
     return [
@@ -208,8 +265,15 @@ export class CumplimientoService implements OnModuleInit {
     const cumplimiento = await this.cumplimientoRepo.findOne({ where: { id }, relations: ['items', 'encargado'] });
     if (!cumplimiento) throw new NotFoundException('Cumplimiento no encontrado');
 
-    // Verificar si cumple o no (si todos los aplicables cumplen)
     const itemsAplicables = cumplimiento.items.filter(i => i.aplica);
+
+    const sinResponder = itemsAplicables.filter(i => i.cumple === null);
+    if (sinResponder.length > 0) {
+      throw new BadRequestException(
+        `Hay ${sinResponder.length} ítem(s) sin responder. Responda todos antes de cerrar.`,
+      );
+    }
+
     const todosCumplen = itemsAplicables.length > 0 && itemsAplicables.every(i => i.cumple === true);
     
     cumplimiento.estado = todosCumplen ? CumplimientoEstado.COMPLETADO : CumplimientoEstado.INCUMPLIMIENTO;

@@ -15,6 +15,7 @@ import { Perfil } from './entities/perfil.entity';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { AuditLog } from './entities/audit-log.entity';
 import { Sede } from '../sede/entities/sede.entity';
+import { UsuarioSede } from './entities/usuario-sede.entity';
 
 /**
  * Módulo de autenticación.
@@ -33,6 +34,7 @@ import { Sede } from '../sede/entities/sede.entity';
       RefreshToken,
       AuditLog,
       Sede,
+      UsuarioSede,
     ]),
 
     // JWT Module con configuración desde ConfigService

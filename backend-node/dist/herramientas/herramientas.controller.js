@@ -57,7 +57,7 @@ let HerramientasController = class HerramientasController {
     }
     async asignarRol(id, dto, req) {
         const currentUserName = req.user.nombreCompleto || req.user.email;
-        return this.herramientasService.asignarRol(id, dto.rolNombre, req.user.id, currentUserName);
+        return this.herramientasService.asignarRol(id, dto.rolNombre, req.user.id, currentUserName, dto.sedeAsignadaId, dto.sedesAsignadasIds);
     }
     async quitarRol(id, rolNombre, req) {
         const currentUserName = req.user.nombreCompleto || req.user.email;

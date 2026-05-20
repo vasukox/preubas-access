@@ -19,9 +19,9 @@ export class CreateSedeDto {
   nombre: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(20)
-  codigo: string;
+  codigo?: string;
 
   @IsString()
   @IsOptional()
@@ -71,6 +71,11 @@ export class UpdateSedeDto {
   @IsOptional()
   @MaxLength(100)
   nombre?: string;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(20)
+  codigo?: string;
 
   @IsString()
   @IsOptional()

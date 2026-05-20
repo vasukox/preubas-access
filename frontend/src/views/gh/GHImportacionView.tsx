@@ -258,7 +258,7 @@ export default function GHImportacionView() {
 
           {/* Rows table */}
           {rows.length > 0 && (
-            <div style={{ border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', background: 'var(--bg-surface)', overflow: 'hidden' }}>
+            <div style={{ border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xl)', background: 'var(--bg-surface)', overflow: 'hidden', boxShadow: 'var(--shadow-card)' }}>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '560px' }}>
                   <thead>

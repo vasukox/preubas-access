@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface PaginationProps {
@@ -28,34 +29,54 @@ export function Pagination({ currentPage, totalPages, onNext, onPrev, onGoTo, to
     return pages
   }
 
+  const navBtnBase: CSSProperties = {
+    display:         'flex',
+    alignItems:      'center',
+    justifyContent:  'center',
+    width:           '30px',
+    height:          '30px',
+    borderRadius:    'var(--radius-md)',
+    border:          '1px solid var(--border-subtle)',
+    background:      'var(--bg-surface)',
+    cursor:          'pointer',
+    transition:      'all var(--transition-fast)',
+    color:           'var(--text-secondary)',
+    flexShrink:      0,
+  }
+
   return (
     <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: '12px',
-      borderTop: '1px solid var(--border-subtle)',
-      background: 'var(--bg-surface)',
-      borderRadius: '0 0 var(--radius-xl) var(--radius-xl)'
+      display:         'flex',
+      alignItems:      'center',
+      justifyContent:  'space-between',
+      padding:         '10px 16px',
+      borderTop:       '1px solid var(--border-subtle)',
+      background:      'var(--bg-raised)',
+      borderRadius:    '0 0 var(--radius-xl) var(--radius-xl)',
+      gap:             '12px',
     }}>
-      <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
-        T. registros: {totalItems}
+      <div style={{
+        color:       'var(--text-muted)',
+        fontSize:    '0.73rem',
+        fontFamily:  'var(--font-ui)',
+        whiteSpace:  'nowrap',
+      }}>
+        {totalItems.toLocaleString('es-CO')} {totalItems === 1 ? 'registro' : 'registros'}
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
         <button
           onClick={onPrev}
           disabled={currentPage === 1}
           style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            width: '28px', height: '28px', borderRadius: '6px',
-            border: 'none', background: 'transparent',
-            color: currentPage === 1 ? 'var(--text-muted)' : 'var(--text-primary)',
-            cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-            opacity: currentPage === 1 ? 0.5 : 1
+            ...navBtnBase,
+            opacity: currentPage === 1 ? 0.38 : 1,
+            cursor:  currentPage === 1 ? 'not-allowed' : 'pointer',
           }}
+          onMouseEnter={e => { if (currentPage !== 1) { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-default)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' } }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-subtle)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)' }}
         >
-          <ChevronLeft size={16} />
+          <ChevronLeft size={15} />
         </button>
 
         {getPagesToShow().map(p => (
@@ -63,14 +84,27 @@ export function Pagination({ currentPage, totalPages, onNext, onPrev, onGoTo, to
             key={p}
             onClick={() => onGoTo(p)}
             style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              minWidth: '28px', height: '28px', borderRadius: '6px', padding: '0 8px',
-              border: p === currentPage ? '1px solid var(--primary-400)' : '1px solid var(--border-subtle)',
-              background: p === currentPage ? 'rgba(69,116,196,0.1)' : 'var(--bg-raised)',
-              color: p === currentPage ? 'var(--primary-400)' : 'var(--text-secondary)',
-              fontSize: '0.75rem', fontWeight: p === currentPage ? 700 : 500,
-              cursor: 'pointer'
+              display:      'flex',
+              alignItems:   'center',
+              justifyContent: 'center',
+              minWidth:     '30px',
+              height:       '30px',
+              borderRadius: 'var(--radius-md)',
+              padding:      '0 6px',
+              border:       p === currentPage ? '1px solid var(--primary-300)' : '1px solid transparent',
+              background:   p === currentPage
+                ? 'var(--gradient-primary)'
+                : 'transparent',
+              color:        p === currentPage ? '#FFFFFF' : 'var(--text-secondary)',
+              fontSize:     '0.75rem',
+              fontWeight:   p === currentPage ? 700 : 400,
+              cursor:       'pointer',
+              transition:   'all var(--transition-fast)',
+              boxShadow:    p === currentPage ? '0 1px 4px rgba(59,130,246,0.25)' : 'none',
+              fontFamily:   'var(--font-ui)',
             }}
+            onMouseEnter={e => { if (p !== currentPage) { (e.currentTarget as HTMLElement).style.background = 'var(--bg-surface)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' } }}
+            onMouseLeave={e => { if (p !== currentPage) { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)' } }}
           >
             {p}
           </button>
@@ -80,15 +114,14 @@ export function Pagination({ currentPage, totalPages, onNext, onPrev, onGoTo, to
           onClick={onNext}
           disabled={currentPage === totalPages}
           style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            width: '28px', height: '28px', borderRadius: '6px',
-            border: 'none', background: 'transparent',
-            color: currentPage === totalPages ? 'var(--text-muted)' : 'var(--text-primary)',
-            cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-            opacity: currentPage === totalPages ? 0.5 : 1
+            ...navBtnBase,
+            opacity: currentPage === totalPages ? 0.38 : 1,
+            cursor:  currentPage === totalPages ? 'not-allowed' : 'pointer',
           }}
+          onMouseEnter={e => { if (currentPage !== totalPages) { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-default)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' } }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-subtle)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)' }}
         >
-          <ChevronRight size={16} />
+          <ChevronRight size={15} />
         </button>
       </div>
     </div>

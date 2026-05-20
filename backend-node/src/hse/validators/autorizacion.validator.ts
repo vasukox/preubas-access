@@ -1,12 +1,11 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { CreateAutorizacionDto } from '../dto/autorizacion.dto';
 
 @Injectable()
 export class AutorizacionValidator {
   validarFechas(fechaInicio: string | Date, fechaFin: string | Date) {
     const hoy   = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota' }).format(new Date());
-    const start = String(fechaInicio).slice(0, 10);
-    const end   = String(fechaFin).slice(0, 10);
+    const start = this.toFechaStr(fechaInicio);
+    const end   = this.toFechaStr(fechaFin);
 
     if (start < hoy) {
       throw new BadRequestException('La fecha de inicio no puede ser anterior al día de hoy');
@@ -17,5 +16,10 @@ export class AutorizacionValidator {
     }
   }
 
-  // Other business logic validations could go here
+  private toFechaStr(fecha: string | Date): string {
+    if (fecha instanceof Date) {
+      return fecha.toISOString().slice(0, 10);
+    }
+    return String(fecha).slice(0, 10);
+  }
 }

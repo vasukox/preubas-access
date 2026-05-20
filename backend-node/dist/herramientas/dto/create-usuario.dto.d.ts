@@ -17,4 +17,5 @@ export declare class CreateUsuarioDto {
     firmaCreador?: string;
     permisos?: PermisosDto;
     sedeAsignadaId?: number;
+    sedesAsignadasIds?: number[];
 }

@@ -53,6 +53,13 @@ export class ValidacionService {
       return true;
     }
 
+    // Si la autorización fue generada por una excepción HSE pero ya no hay excepción activa, bloquear entrada
+    if (this.esAutorizacionExcepcion(autorizacion.descripcionActividad)) {
+      throw new BadRequestException(
+        'La excepción HSE que autorizaba el acceso de este contratista ha sido desactivada o ha vencido. Contacte al encargado para reactivarla.',
+      );
+    }
+
     if (contratista.estado !== EstadoContratista.APROBADO) {
       throw new BadRequestException(`El contratista no está aprobado. Estado actual: ${contratista.estado}`);
     }
@@ -265,6 +272,7 @@ export class ValidacionService {
         await this.contratistaRepo.save(existente);
       }
 
+      
       return existente;
     }
 

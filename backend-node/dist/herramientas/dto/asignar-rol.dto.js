@@ -13,6 +13,8 @@ exports.AsignarRolDto = void 0;
 const class_validator_1 = require("class-validator");
 class AsignarRolDto {
     rolNombre;
+    sedeAsignadaId;
+    sedesAsignadasIds;
 }
 exports.AsignarRolDto = AsignarRolDto;
 __decorate([
@@ -20,4 +22,16 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], AsignarRolDto.prototype, "rolNombre", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsInt)(),
+    __metadata("design:type", Number)
+], AsignarRolDto.prototype, "sedeAsignadaId", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.ArrayMinSize)(1),
+    (0, class_validator_1.IsInt)({ each: true }),
+    __metadata("design:type", Array)
+], AsignarRolDto.prototype, "sedesAsignadasIds", void 0);
 //# sourceMappingURL=asignar-rol.dto.js.map

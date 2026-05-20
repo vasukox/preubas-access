@@ -34,12 +34,18 @@ export declare class HerramientasController {
             puedeEditar: boolean;
             puedeEliminar: boolean;
         };
-        sedeAsignadaId: number | null;
+        sedeAsignadaId: number;
         sedeAsignada: {
             id: number;
             nombre: string;
             ciudad: string;
-        } | null;
+        };
+        sedesAsignadasIds: number[];
+        sedesAsignadas: {
+            id: number;
+            nombre: string;
+            ciudad: string;
+        }[];
     }[]>;
     crearUsuario(dto: CreateUsuarioDto, req: Request & {
         user: {
@@ -47,7 +53,37 @@ export declare class HerramientasController {
             email: string;
             nombreCompleto?: string;
         };
-    }): Promise<import("../auth/entities/usuario.entity").Usuario | null>;
+    }): Promise<{
+        id: number;
+        email: string;
+        nombreCompleto: string;
+        numero: string;
+        direccion: string;
+        activo: boolean;
+        ultimoLogin: Date | null;
+        roles: {
+            id: number;
+            nombre: RolNombre;
+        }[];
+        permisos: {
+            puedeVer: boolean;
+            puedeCrear: boolean;
+            puedeEditar: boolean;
+            puedeEliminar: boolean;
+        };
+        sedeAsignadaId: number;
+        sedeAsignada: {
+            id: number;
+            nombre: string;
+            ciudad: string;
+        };
+        sedesAsignadasIds: number[];
+        sedesAsignadas: {
+            id: number;
+            nombre: string;
+            ciudad: string;
+        }[];
+    }>;
     actualizarUsuario(id: number, dto: UpdateUsuarioDto, req: Request & {
         user: {
             id: number;
@@ -78,7 +114,37 @@ export declare class HerramientasController {
             email: string;
             nombreCompleto?: string;
         };
-    }): Promise<import("../auth/entities/usuario.entity").Usuario | null>;
+    }): Promise<{
+        id: number;
+        email: string;
+        nombreCompleto: string;
+        numero: string;
+        direccion: string;
+        activo: boolean;
+        ultimoLogin: Date | null;
+        roles: {
+            id: number;
+            nombre: RolNombre;
+        }[];
+        permisos: {
+            puedeVer: boolean;
+            puedeCrear: boolean;
+            puedeEditar: boolean;
+            puedeEliminar: boolean;
+        };
+        sedeAsignadaId: number;
+        sedeAsignada: {
+            id: number;
+            nombre: string;
+            ciudad: string;
+        };
+        sedesAsignadasIds: number[];
+        sedesAsignadas: {
+            id: number;
+            nombre: string;
+            ciudad: string;
+        }[];
+    }>;
     quitarRol(id: number, rolNombre: string, req: Request & {
         user: {
             id: number;

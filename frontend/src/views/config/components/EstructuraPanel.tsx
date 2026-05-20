@@ -5,6 +5,8 @@ import { configService, type SedeConfig, type UbicacionConfig } from '@/services
 import { getErrorMessage } from '@/services/api'
 import { usePagination } from '@/hooks/usePagination'
 import { Pagination } from '@/components/ui/Pagination'
+import { useSedeStore } from '@/store/sedeStore'
+import type { SedeBasica } from '@/types'
 
 const panelStyle: React.CSSProperties = {
   background: 'var(--bg-surface)',
@@ -27,6 +29,10 @@ const inputStyle: React.CSSProperties = {
 export function EstructuraPanel({ sedes, onReload }: { sedes: SedeConfig[]; onReload: () => void }) {
   const [newSede, setNewSede] = useState({ nombre: '', ciudad: 'Bogotá' })
   const [editingSede, setEditingSede] = useState<SedeConfig | null>(null)
+  const sedesSelector = useSedeStore(s => s.sedes)
+  const sedeActiva = useSedeStore(s => s.sedeActiva)
+  const setSedesSelector = useSedeStore(s => s.setSedes)
+  const setSedeActiva = useSedeStore(s => s.setSedeActiva)
   
   // Array de sede_ids expandidos para ver sus ubicaciones
   const [expandedSedes, setExpandedSedes] = useState<number[]>([])
@@ -42,6 +48,29 @@ export function EstructuraPanel({ sedes, onReload }: { sedes: SedeConfig[]; onRe
 
   const pagination = usePagination(sedes, 8)
 
+  const toSedeBasica = (sede: SedeConfig): SedeBasica => ({
+    id: sede.id,
+    nombre: sede.nombre,
+    ciudad: sede.ciudad,
+  })
+
+  const syncSedeSelector = (sede: SedeConfig) => {
+    const nextSede = toSedeBasica(sede)
+    const nextSedes = sede.activa
+      ? [...sedesSelector.filter(s => s.id !== sede.id), nextSede]
+          .sort((a, b) => a.nombre.localeCompare(b.nombre))
+      : sedesSelector.filter(s => s.id !== sede.id)
+
+    setSedesSelector(nextSedes)
+
+    if (!sedeActiva && sede.activa) {
+      setSedeActiva(nextSede)
+    } else if (sedeActiva?.id === sede.id) {
+      if (sede.activa) setSedeActiva(nextSede)
+      else if (nextSedes.length > 0) setSedeActiva(nextSedes[0])
+    }
+  }
+
   const toggleExpand = (sedeId: number) => {
     setExpandedSedes((prev) => 
       prev.includes(sedeId) ? prev.filter((id) => id !== sedeId) : [...prev, sedeId]
@@ -56,12 +85,13 @@ export function EstructuraPanel({ sedes, onReload }: { sedes: SedeConfig[]; onRe
     }
     try {
       setSaving(true)
-      await configService.createSede({
+      const sedeCreada = await configService.createSede({
         nombre: newSede.nombre.trim(),
         ciudad: newSede.ciudad.trim(),
       })
       toast.success('Sede creada correctamente.')
       setNewSede({ nombre: '', ciudad: 'Bogotá' })
+      syncSedeSelector(sedeCreada)
       onReload()
     } catch (error) {
       toast.error(getErrorMessage(error))
@@ -78,12 +108,13 @@ export function EstructuraPanel({ sedes, onReload }: { sedes: SedeConfig[]; onRe
     }
     try {
       setSaving(true)
-      await configService.updateSede(editingSede.id, {
+      const sedeActualizada = await configService.updateSede(editingSede.id, {
         nombre: editingSede.nombre.trim(),
         ciudad: editingSede.ciudad.trim(),
       })
       toast.success('Sede actualizada correctamente.')
       setEditingSede(null)
+      syncSedeSelector(sedeActualizada)
       onReload()
     } catch (error) {
       toast.error(getErrorMessage(error))
@@ -95,8 +126,9 @@ export function EstructuraPanel({ sedes, onReload }: { sedes: SedeConfig[]; onRe
   const handleToggleSede = async (sede: SedeConfig) => {
     try {
       setSaving(true)
-      await configService.updateSede(sede.id, { activa: !sede.activa })
+      const sedeActualizada = await configService.updateSede(sede.id, { activa: !sede.activa })
       toast.success(`Sede ${!sede.activa ? 'activada' : 'desactivada'} correctamente.`)
+      syncSedeSelector(sedeActualizada)
       onReload()
     } catch (error) {
       toast.error(getErrorMessage(error))

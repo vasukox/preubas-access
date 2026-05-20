@@ -91,6 +91,8 @@ export interface UsuarioMe {
   roles:                 RolResponse[]
   sede_asignada_id:      number | null
   sede_asignada:         { id: number; nombre: string; ciudad: string } | null
+  sedes_asignadas_ids?:  number[]
+  sedes_asignadas?:      { id: number; nombre: string; ciudad: string }[]
 }
 
 export interface RolResponse {

@@ -82,7 +82,14 @@ export class HerramientasController {
     @Req() req: Request & { user: { id: number; email: string; nombreCompleto?: string } },
   ) {
     const currentUserName = req.user.nombreCompleto || req.user.email;
-    return this.herramientasService.asignarRol(id, dto.rolNombre, req.user.id, currentUserName);
+    return this.herramientasService.asignarRol(
+      id,
+      dto.rolNombre,
+      req.user.id,
+      currentUserName,
+      dto.sedeAsignadaId,
+      dto.sedesAsignadasIds,
+    );
   }
 
   @Delete('usuarios/:id/roles/:rolNombre')

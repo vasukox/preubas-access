@@ -16,7 +16,7 @@ import {
   LayoutDashboard, Car, ShieldCheck, Cpu, Users,
   BarChart3, Settings, ChevronLeft, ChevronRight,
   Building2, Wifi, WifiOff, Loader2,
-  ChevronDown, Wrench,
+  ChevronDown,
   LayoutGrid, ClipboardList, Eye, AlertTriangle, ClipboardCheck,
   Globe, BookOpen, ListChecks, Hammer, Clock, FileBarChart2,
 } from 'lucide-react'
@@ -250,13 +250,6 @@ export const NAV_ITEMS: NavItem[] = [
       },
     ],
   },
-  {
-    id:    'herramientas',
-    label: 'Herramientas',
-    path:  '/herramientas',
-    icon:  <Wrench size={18} />,
-    roles: ['ADMIN_GLOBAL'],
-  },
 ]
 
 // ── Indicador WS ──────────────────────────────────────────────────
@@ -340,8 +333,8 @@ function NavGroup({
           width:          '100%',
           borderRadius:   'var(--radius-md)',
           border:         `1px solid ${isInGroup ? 'var(--primary-200)' : 'transparent'}`,
-          background:     isInGroup ? 'var(--primary-50)' : 'transparent',
-          color:          isInGroup ? 'var(--primary-400)' : 'var(--text-secondary)',
+          background:     isInGroup ? 'linear-gradient(90deg, var(--primary-50) 0%, rgba(219,234,254,0.4) 100%)' : 'transparent',
+          color:          isInGroup ? 'var(--primary-600)' : 'var(--text-secondary)',
           cursor:         'pointer',
           fontFamily:     'var(--font-ui)',
           textAlign:      'left',
@@ -355,8 +348,8 @@ function NavGroup({
           if (!isInGroup) e.currentTarget.style.color      = 'var(--text-primary)'
         }}
         onMouseLeave={e => {
-          e.currentTarget.style.background = isInGroup ? 'var(--primary-50)' : 'transparent'
-          e.currentTarget.style.color      = isInGroup ? 'var(--primary-600)'   : 'var(--text-secondary)'
+          e.currentTarget.style.background = isInGroup ? 'linear-gradient(90deg, var(--primary-50) 0%, rgba(219,234,254,0.4) 100%)' : 'transparent'
+          e.currentTarget.style.color      = isInGroup ? 'var(--primary-600)' : 'var(--text-secondary)'
         }}
       >
         {/* Indicador activo */}
@@ -367,9 +360,10 @@ function NavGroup({
             top:          '50%',
             transform:    'translateY(-50%)',
             width:        '3px',
-            height:       '60%',
-            background:   'var(--primary-500)',
+            height:       '65%',
+            background:   'var(--gradient-primary)',
             borderRadius: '0 var(--radius-full) var(--radius-full) 0',
+            boxShadow:    '2px 0 8px rgba(59, 130, 246, 0.35)',
           }} />
         )}
         <span style={{ flexShrink: 0 }}>{item.icon}</span>
@@ -469,7 +463,7 @@ export function Sidebar({ collapsed, onToggle, usuario, sedeActiva, filteredNav 
       style={{
         width:         collapsed ? 'var(--sidebar-width-collapsed)' : 'var(--sidebar-width)',
         minHeight:     '100vh',
-        background:    'var(--bg-surface)',
+        background:    'linear-gradient(180deg, #FFFFFF 0%, #F7FAFE 100%)',
         borderRight:   '1px solid var(--border-subtle)',
         display:       'flex',
         flexDirection: 'column',
@@ -497,17 +491,18 @@ export function Sidebar({ collapsed, onToggle, usuario, sedeActiva, filteredNav 
           {!collapsed && (
             <div
               style={{
-                width:          '28px',
-                height:         '28px',
-                background:     'var(--primary-500)',
-                borderRadius:   'var(--radius-sm)',
+                width:          '32px',
+                height:         '32px',
+                background:     'var(--gradient-brand)',
+                borderRadius:   'var(--radius-md)',
                 display:        'flex',
                 alignItems:     'center',
                 justifyContent: 'center',
                 flexShrink:     0,
+                boxShadow:      '0 2px 8px rgba(37, 99, 235, 0.30)',
               }}
             >
-              <ShieldCheck size={16} color="var(--text-inverted)" strokeWidth={2.5} />
+              <ShieldCheck size={17} color="#FFFFFF" strokeWidth={2.5} />
             </div>
           )}
 
@@ -632,7 +627,7 @@ export function Sidebar({ collapsed, onToggle, usuario, sedeActiva, filteredNav 
                   textDecoration: 'none',
                   transition:     'all var(--transition-fast)',
                   background:     isActive
-                    ? 'var(--primary-50)'
+                    ? 'linear-gradient(90deg, var(--primary-50) 0%, rgba(219,234,254,0.4) 100%)'
                     : isHovered ? 'var(--bg-raised)' : 'transparent',
                   border:         `1px solid ${isActive ? 'var(--primary-200)' : 'transparent'}`,
                   color:          isActive
@@ -651,9 +646,10 @@ export function Sidebar({ collapsed, onToggle, usuario, sedeActiva, filteredNav 
                       top:          '50%',
                       transform:    'translateY(-50%)',
                       width:        '3px',
-                      height:       '60%',
-                      background:   'var(--primary-500)',
+                      height:       '65%',
+                      background:   'var(--gradient-primary)',
                       borderRadius: '0 var(--radius-full) var(--radius-full) 0',
+                      boxShadow:    '2px 0 8px rgba(59, 130, 246, 0.35)',
                     }}
                   />
                 )}
@@ -692,17 +688,18 @@ export function Sidebar({ collapsed, onToggle, usuario, sedeActiva, filteredNav 
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px', borderRadius: 'var(--radius-md)' }}>
               <div
                 style={{
-                  width:          '32px',
-                  height:         '32px',
+                  width:          '34px',
+                  height:         '34px',
                   borderRadius:   'var(--radius-full)',
-                  background:     'var(--primary-100)',
+                  background:     'var(--gradient-brand)',
                   display:        'flex',
                   alignItems:     'center',
                   justifyContent: 'center',
                   fontSize:       '0.85rem',
-                  fontWeight:     600,
-                  color:          'var(--primary-700)',
+                  fontWeight:     700,
+                  color:          '#FFFFFF',
                   flexShrink:     0,
+                  boxShadow:      '0 2px 8px rgba(37, 99, 235, 0.25)',
                 }}
               >
                 {usuario.nombre_completo.charAt(0).toUpperCase()}

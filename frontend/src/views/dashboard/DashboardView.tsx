@@ -3,7 +3,7 @@
  * Dashboard principal — vista post-login adaptativa por rol.
  */
 
-import { useEffect, useState } from 'react'
+import type { ElementType } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ShieldCheck, Car, Cpu, Users, Activity,
@@ -11,23 +11,109 @@ import {
   LayoutGrid, ClipboardList, Eye, ClipboardCheck,
   CalendarDays, Briefcase, Upload, BookOpen,
 } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
 import { useAuthStore, useSedeStore } from '@/store'
 import { hseService } from '@/services/hse.service'
 import { ghService } from '@/services/gh.service'
-import type { DashboardHSEResponse } from '@/types/hse'
+import type { DashboardHSEResponse, PersonaDentroResponse } from '@/types/hse'
 import type { GhDashboard } from '@/types/gh'
+
+function formatMinutos(min: number): string {
+  if (min < 60) return `${min}m`
+  const h = Math.floor(min / 60)
+  const m = min % 60
+  return m > 0 ? `${h}h ${m}m` : `${h}h`
+}
+
+
+function PersonasDentroList({ dentro, isLoading }: { dentro: PersonaDentroResponse[]; isLoading: boolean }) {
+  return (
+    <div style={{ maxHeight: '320px', overflowY: 'auto' }}>
+      {isLoading ? (
+        <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+          Cargando personas dentro…
+        </div>
+      ) : dentro.length === 0 ? (
+        <div style={{ padding: '40px 20px', textAlign: 'center' }}>
+          <Users size={28} color="var(--text-muted)" style={{ opacity: 0.4, marginBottom: '12px' }} />
+          <div style={{ fontSize: '0.83rem', fontWeight: 500, color: 'var(--text-muted)' }}>Sin contratistas dentro</div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px', opacity: 0.7 }}>
+            No hay registros de ingreso activos en esta sede
+          </div>
+        </div>
+      ) : (
+        dentro.map((p) => (
+          <div
+            key={p.contratista_id}
+            style={{
+              padding: '12px 20px', borderBottom: '1px solid var(--border-subtle)',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{
+                width: '32px', height: '32px', borderRadius: '50%',
+                background: p.tipo_contratista === 'ALTO_RIESGO' ? 'rgba(192,80,80,0.1)' : 'rgba(40,149,108,0.1)',
+                border: `1px solid ${p.tipo_contratista === 'ALTO_RIESGO' ? 'rgba(192,80,80,0.2)' : 'rgba(40,149,108,0.2)'}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '0.75rem', fontWeight: 600,
+                color: p.tipo_contratista === 'ALTO_RIESGO' ? 'var(--danger-400)' : 'var(--success-400)',
+              }}>
+                {p.nombre.charAt(0)}
+              </div>
+              <div>
+                <div style={{ fontSize: '0.83rem', fontWeight: 500, color: 'var(--text-primary)' }}>{p.nombre}</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                  {p.numero_documento}
+                </div>
+              </div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{
+                fontSize: '0.78rem', fontFamily: 'var(--font-mono)',
+                color: p.alerta_tiempo ? 'var(--danger-400)' : 'var(--text-secondary)',
+                fontWeight: p.alerta_tiempo ? 600 : 400,
+              }}>
+                {formatMinutos(p.minutos_dentro)}
+              </div>
+              <div style={{
+                fontSize: '0.68rem', marginTop: '2px',
+                color: p.tipo_contratista === 'ALTO_RIESGO' ? 'var(--danger-400)' : 'var(--success-400)',
+              }}>
+                {p.tipo_contratista === 'ALTO_RIESGO' ? 'Alto riesgo' : 'Normal'}
+              </div>
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  )
+}
 
 // ── Dashboard para roles HSE ──────────────────────────────────────
 function HSEFocusedDashboard({
+  sedeId,
   metrics,
   canSeeVigilante,
   canManage,
 }: {
-  metrics:          DashboardHSEResponse | null
+  sedeId:           number | undefined
+  metrics:          DashboardHSEResponse | undefined
   canSeeVigilante:  boolean
   canManage:        boolean
 }) {
   const navigate = useNavigate()
+
+  const {
+    data:      dentro = [],
+    isPending: isPendingDentro,
+    refetch:   refetchDentro,
+  } = useQuery({
+    queryKey: ['hse', 'personas-dentro', sedeId],
+    queryFn:  () => hseService.getPersonasDentro(sedeId!),
+    enabled:  Boolean(sedeId),
+    refetchInterval: 30_000,
+  })
 
   const accesos = [
     canManage && {
@@ -86,7 +172,13 @@ function HSEFocusedDashboard({
         {canManage && (
           <MetricBox label="En revisión" value={metrics?.autorizaciones_pendientes ?? '—'} color="#5668B8" bg="rgba(86,104,184,0.08)" icon={Activity} />
         )}
-        <MetricBox label="Dentro ahora" value={metrics?.contratistas_dentro_ahora ?? '—'} color="var(--primary-400)" bg="rgba(69,116,196,0.08)" icon={Users} />
+        <MetricBox
+          label="Dentro ahora"
+          value={metrics?.contratistas_dentro_ahora ?? dentro.length ?? '—'}
+          color="var(--primary-400)"
+          bg="rgba(69,116,196,0.08)"
+          icon={Users}
+        />
         {canManage && metrics && metrics.autorizaciones_vencidas > 0 && (
           <MetricBox
             label="Vencidas"
@@ -102,12 +194,72 @@ function HSEFocusedDashboard({
         )}
       </div>
 
+      {/* Personas dentro ahora */}
+      <div
+        style={{
+          marginBottom: '24px',
+          background:   'var(--bg-surface)',
+          border:       '1px solid var(--border-subtle)',
+          borderRadius: 'var(--radius-xl)',
+          overflow:     'hidden',
+        }}
+        className="animate-fade-up stagger-3"
+      >
+        <div style={{
+          padding: '14px 20px', borderBottom: '1px solid var(--border-subtle)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Activity size={14} color="var(--success-400)" />
+            <span style={{ fontSize: '0.83rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+              Personas dentro ahora
+            </span>
+            {dentro.length > 0 && (
+              <span style={{
+                padding: '1px 8px', background: 'rgba(40,149,108,0.1)',
+                border: '1px solid rgba(40,149,108,0.2)', borderRadius: '20px',
+                fontSize: '0.7rem', color: 'var(--success-400)', fontFamily: 'var(--font-mono)',
+              }}>
+                {dentro.length}
+              </span>
+            )}
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              type="button"
+              onClick={() => void refetchDentro()}
+              style={{
+                padding: '6px 10px', background: 'var(--bg-raised)',
+                border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)',
+                color: 'var(--text-muted)', fontSize: '0.72rem', cursor: 'pointer', fontFamily: 'var(--font-ui)',
+              }}
+            >
+              Actualizar
+            </button>
+            {canSeeVigilante && (
+              <button
+                type="button"
+                onClick={() => navigate('/hse/vigilante')}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '4px', background: 'transparent',
+                  border: 'none', color: 'var(--primary-500)', fontSize: '0.75rem',
+                  cursor: 'pointer', fontFamily: 'var(--font-ui)', fontWeight: 600,
+                }}
+              >
+                Portería <ArrowRight size={12} />
+              </button>
+            )}
+          </div>
+        </div>
+        <PersonasDentroList dentro={dentro} isLoading={isPendingDentro} />
+      </div>
+
       {/* Accesos rápidos */}
       <div
         style={{
           background:   'var(--bg-surface)',
           border:       '1px solid var(--border-subtle)',
-          borderRadius: 'var(--radius-lg)',
+          borderRadius: 'var(--radius-xl)',
           overflow:     'hidden',
         }}
         className="animate-fade-up stagger-3"
@@ -140,11 +292,13 @@ function HSEFocusedDashboard({
                 const el = e.currentTarget as HTMLElement
                 el.style.background  = item.bg
                 el.style.borderColor = 'var(--border-subtle)'
+                el.style.transform   = 'translateX(3px)'
               }}
               onMouseLeave={e => {
                 const el = e.currentTarget as HTMLElement
                 el.style.background  = 'transparent'
                 el.style.borderColor = 'transparent'
+                el.style.transform   = 'translateX(0)'
               }}
             >
               <div style={{
@@ -171,7 +325,7 @@ function HSEFocusedDashboard({
 function GHFocusedDashboard({
   metrics,
 }: {
-  metrics: GhDashboard | null
+  metrics: GhDashboard | undefined
 }) {
   const navigate = useNavigate()
 
@@ -203,7 +357,7 @@ function GHFocusedDashboard({
         style={{
           background:   'var(--bg-surface)',
           border:       '1px solid var(--border-subtle)',
-          borderRadius: 'var(--radius-lg)',
+          borderRadius: 'var(--radius-xl)',
           overflow:     'hidden',
         }}
         className="animate-fade-up stagger-3"
@@ -236,11 +390,13 @@ function GHFocusedDashboard({
                 const el = e.currentTarget as HTMLElement
                 el.style.background  = item.bg
                 el.style.borderColor = 'var(--border-subtle)'
+                el.style.transform   = 'translateX(3px)'
               }}
               onMouseLeave={e => {
                 const el = e.currentTarget as HTMLElement
                 el.style.background  = 'transparent'
                 el.style.borderColor = 'transparent'
+                el.style.transform   = 'translateX(0)'
               }}
             >
               <div style={{
@@ -271,7 +427,7 @@ function ParkingVigilanteDashboard() {
         style={{
           background:   'var(--bg-surface)',
           border:       '1px solid var(--border-subtle)',
-          borderRadius: 'var(--radius-lg)',
+          borderRadius: 'var(--radius-xl)',
           overflow:     'hidden',
         }}
         className="animate-fade-up stagger-2"
@@ -347,31 +503,34 @@ function MetricBox({
   value:  number | string
   color:  string
   bg:     string
-  icon:   React.ElementType
+  icon:   ElementType
   alert?: boolean
 }) {
   return (
     <div style={{
       padding:      '16px',
       background:   'var(--bg-surface)',
-      border:       `1px solid ${alert ? color.replace(')', ', 0.3)').replace('var(', 'rgba(') : 'var(--border-subtle)'}`,
-      borderRadius: 'var(--radius-lg)',
+      border:       `1px solid ${alert ? 'rgba(239,68,68,0.25)' : 'var(--border-subtle)'}`,
+      borderRadius: 'var(--radius-xl)',
+      boxShadow:    alert ? '0 1px 3px rgba(239,68,68,0.08), 0 4px 16px rgba(239,68,68,0.05)' : 'var(--shadow-card)',
       display:      'flex',
       alignItems:   'center',
       gap:          '12px',
+      transition:   'transform var(--transition-base), box-shadow var(--transition-base)',
     }}>
       <div style={{
-        width: '36px', height: '36px', background: bg,
+        width: '38px', height: '38px', background: bg,
         borderRadius: 'var(--radius-md)', display: 'flex',
         alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+        border: `1px solid ${alert ? 'rgba(239,68,68,0.15)' : 'transparent'}`,
       }}>
-        <Icon size={16} color={color} />
+        <Icon size={17} color={color} />
       </div>
       <div>
-        <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', lineHeight: 1 }}>
+        <div style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', lineHeight: 1 }} className="animate-count">
           {value}
         </div>
-        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '2px' }}>{label}</div>
+        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '3px', letterSpacing: '0.02em' }}>{label}</div>
       </div>
     </div>
   )
@@ -385,9 +544,6 @@ export default function DashboardView() {
   const isAdmin      = useAuthStore((s) => s.isAdmin)
   const sedeActiva   = useSedeStore((s) => s.sedeActiva)
 
-  const [hseMetrics, setHseMetrics] = useState<DashboardHSEResponse | null>(null)
-  const [ghMetrics, setGhMetrics]   = useState<GhDashboard | null>(null)
-
   // Determinar rol predominante
   const esAdminGlobal      = isAdmin()
   const esAdminHSE         = hasAnyRole(['ADMIN_HSE'])
@@ -397,19 +553,17 @@ export default function DashboardView() {
   const esAdminGH          = hasAnyRole(['ADMIN_GH'])
   const esVigilanteParking = hasAnyRole(['VIGILANTE_PARKING'])
 
-  useEffect(() => {
-    if (!sedeActiva?.id) return
-    hseService.getDashboard(sedeActiva.id)
-      .then(setHseMetrics)
-      .catch(() => {/* silencioso */})
-  }, [sedeActiva?.id])
+  const { data: hseMetrics } = useQuery({
+    queryKey: ['hse', 'dashboard', sedeActiva?.id],
+    queryFn:  () => hseService.getDashboard(sedeActiva!.id),
+    enabled:  Boolean(sedeActiva?.id),
+  })
 
-  useEffect(() => {
-    if (!sedeActiva?.id || !esAdminGH) return
-    ghService.getDashboard(sedeActiva.id)
-      .then(setGhMetrics)
-      .catch(() => {/* silencioso */})
-  }, [sedeActiva?.id, esAdminGH])
+  const { data: ghMetrics } = useQuery({
+    queryKey: ['gh', 'dashboard', sedeActiva?.id],
+    queryFn:  () => ghService.getDashboard(sedeActiva!.id),
+    enabled:  Boolean(sedeActiva?.id) && esAdminGH,
+  })
 
   const primerNombre = usuario?.nombre_completo?.split(' ')[0] || 'Usuario'
 
@@ -434,6 +588,7 @@ export default function DashboardView() {
           </p>
         </div>
         <HSEFocusedDashboard
+          sedeId={sedeActiva?.id}
           metrics={hseMetrics}
           canSeeVigilante={esAdminHSE || esVigilanteHSE}
           canManage={esAdminHSE || esGestionHSE}
@@ -561,18 +716,24 @@ export default function DashboardView() {
       {/* Estado del sistema */}
       <div
         style={{
-          display: 'flex', alignItems: 'center', gap: '10px',
-          padding: '14px 20px',
-          background: 'rgba(40,149,108,0.06)',
-          border: '1px solid rgba(40,149,108,0.15)',
-          borderRadius: 'var(--radius-lg)',
+          display:      'flex',
+          alignItems:   'center',
+          gap:          '10px',
+          padding:      '12px 18px',
+          background:   'rgba(16, 185, 129, 0.05)',
+          border:       '1px solid rgba(16, 185, 129, 0.18)',
+          borderRadius: 'var(--radius-xl)',
           marginBottom: '32px',
+          boxShadow:    '0 1px 3px rgba(16,185,129,0.06)',
         }}
         className="animate-fade-up stagger-1"
       >
-        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--success-400)', boxShadow: '0 0 8px var(--success-400)', flexShrink: 0 }} />
-        <span style={{ fontSize: '0.83rem', color: 'var(--success-400)', fontWeight: 500 }}>Sistema operativo</span>
-        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginLeft: '4px' }}>— Backend conectado · Auth verificado</span>
+        <div style={{ position: 'relative', flexShrink: 0 }}>
+          <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--success-500)' }} />
+          <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: 'var(--success-500)', opacity: 0.4, animation: 'pulse-dot 1.8s ease-in-out infinite' }} />
+        </div>
+        <span style={{ fontSize: '0.83rem', color: 'var(--success-700)', fontWeight: 600 }}>Sistema operativo</span>
+        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>— Backend conectado · Auth verificado</span>
       </div>
 
       {/* Grid de módulos */}
@@ -583,15 +744,31 @@ export default function DashboardView() {
             className={`animate-fade-up stagger-${i + 2}`}
             onClick={() => mod.disponible && mod.path && navigate(mod.path)}
             style={{
-              padding: '24px', background: 'var(--bg-surface)',
-              border: `1px solid ${mod.disponible ? mod.border : 'var(--border-subtle)'}`,
-              borderRadius: 'var(--radius-lg)',
-              opacity: mod.disponible ? 1 : 0.5,
-              cursor: mod.disponible ? 'pointer' : 'default',
-              transition: 'all var(--transition-fast)',
+              padding:      '24px',
+              background:   'var(--bg-surface)',
+              border:       `1px solid ${mod.disponible ? mod.border : 'var(--border-subtle)'}`,
+              borderRadius: 'var(--radius-xl)',
+              boxShadow:    mod.disponible ? 'var(--shadow-card)' : 'none',
+              opacity:      mod.disponible ? 1 : 0.5,
+              cursor:       mod.disponible ? 'pointer' : 'default',
+              transition:   'all var(--transition-base)',
             }}
-            onMouseEnter={e => { if (mod.disponible) (e.currentTarget as HTMLElement).style.borderColor = mod.color }}
-            onMouseLeave={e => { if (mod.disponible) (e.currentTarget as HTMLElement).style.borderColor = mod.border }}
+            onMouseEnter={e => {
+              if (mod.disponible) {
+                const el = e.currentTarget as HTMLElement
+                el.style.borderColor = mod.color
+                el.style.boxShadow   = 'var(--shadow-lg)'
+                el.style.transform   = 'translateY(-2px)'
+              }
+            }}
+            onMouseLeave={e => {
+              if (mod.disponible) {
+                const el = e.currentTarget as HTMLElement
+                el.style.borderColor = mod.border
+                el.style.boxShadow   = 'var(--shadow-card)'
+                el.style.transform   = 'translateY(0)'
+              }
+            }}
           >
             <div style={{
               width: '42px', height: '42px', background: mod.bg,
@@ -626,7 +803,7 @@ export default function DashboardView() {
       {/* Resumen HSE */}
       {(esAdminGlobal || hasAnyRole(['VISUALIZADOR', 'ADMIN_HSE', 'GESTION_HSE'])) && (
         <div
-          style={{ marginTop: '28px', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}
+          style={{ marginTop: '28px', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xl)', overflow: 'hidden', boxShadow: 'var(--shadow-card)' }}
           className="animate-fade-up stagger-5"
         >
           <div style={{
@@ -688,10 +865,10 @@ export default function DashboardView() {
 
       {/* Info usuario */}
       <div
-        style={{ marginTop: '20px', padding: '16px 20px', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', gap: '12px' }}
+        style={{ marginTop: '20px', padding: '14px 18px', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xl)', boxShadow: 'var(--shadow-card)', display: 'flex', alignItems: 'center', gap: '12px' }}
         className="animate-fade-up stagger-6"
       >
-        <div style={{ width: '36px', height: '36px', background: 'var(--bg-elevated)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem', fontWeight: 600, color: 'var(--primary-400)', flexShrink: 0 }}>
+        <div style={{ width: '36px', height: '36px', background: 'var(--gradient-brand)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.875rem', fontWeight: 700, color: '#FFFFFF', flexShrink: 0, boxShadow: '0 2px 8px rgba(37,99,235,0.22)' }}>
           {usuario?.nombre_completo?.charAt(0) || 'U'}
         </div>
         <div>

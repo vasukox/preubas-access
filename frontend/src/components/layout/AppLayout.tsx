@@ -39,22 +39,34 @@ export default function AppLayout() {
   // Cargar sedes disponibles al montar el layout
   useEffect(() => {
     hseService.getSedes().then(data => {
-      setSedes(data)
+      const idsAsignados = usuario?.sedes_asignadas_ids?.length
+        ? usuario.sedes_asignadas_ids
+        : usuario?.sede_asignada_id
+          ? [usuario.sede_asignada_id]
+          : null
 
-      // Si es vigilante con sede asignada, forzar esa sede y no dejar cambiarla
-      const sedeAsignadaId = usuario?.sede_asignada_id
-      if (sedeAsignadaId) {
-        const sedeDelVigilante = data.find(s => s.id === sedeAsignadaId)
-        if (sedeDelVigilante) {
-          setSedeActiva(sedeDelVigilante)
-          return  // salir sin permitir otro setSedeActiva
+      const sedesDisponibles = idsAsignados?.length
+        ? data.filter(s => idsAsignados.includes(s.id))
+        : data
+
+      setSedes(sedesDisponibles)
+
+      // Vigilante con sedes asignadas: restringir al listado y fijar activa si solo hay una
+      if (idsAsignados?.length) {
+        const sedePersistida = sedeActiva && idsAsignados.includes(sedeActiva.id)
+          ? sedesDisponibles.find(s => s.id === sedeActiva.id)
+          : null
+        const sedeInicial = sedePersistida ?? sedesDisponibles[0]
+        if (sedeInicial) {
+          setSedeActiva(sedeInicial)
+          if (idsAsignados.length === 1) return
         }
       }
 
       // Para no-vigilantes: normalizar sede activa persistida
-      const sedePersistidaValida = !!sedeActiva && data.some(s => s.id === sedeActiva.id)
+      const sedePersistidaValida = !!sedeActiva && sedesDisponibles.some(s => s.id === sedeActiva.id)
       if (!sedePersistidaValida) {
-        if (data.length > 0) setSedeActiva(data[0])
+        if (sedesDisponibles.length > 0) setSedeActiva(sedesDisponibles[0])
       }
     }).catch((e) => { console.error('[AppLayout] Error al cargar sedes:', e) })
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -114,7 +126,10 @@ export default function AppLayout() {
           sedeActiva={sedeActiva}
           onSedeChange={setSedeActiva}
           onLogout={clearSession}
-          sedeIsLocked={!!usuario?.sede_asignada_id}
+          sedeIsLocked={
+            (usuario?.sedes_asignadas_ids?.length
+              ?? (usuario?.sede_asignada_id ? 1 : 0)) === 1
+          }
         />
 
         <main

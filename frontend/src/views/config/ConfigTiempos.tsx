@@ -90,10 +90,11 @@ function TiemposCard({ tiempos }: { tiempos: TiemposContratista }) {
   return (
     <div style={{
       border:       `1px solid ${editing ? meta.color + '55' : 'var(--border-subtle)'}`,
-      borderRadius: 'var(--radius-lg)',
+      borderRadius: 'var(--radius-xl)',
       background:   'var(--bg-raised)',
       overflow:     'hidden',
-      transition:   'border-color 0.2s ease',
+      transition:   'border-color var(--transition-fast), box-shadow var(--transition-fast)',
+      boxShadow:    'var(--shadow-card)',
     }}>
       {/* ── Cabecera ─────────────────────────────────────────────── */}
       <div style={{

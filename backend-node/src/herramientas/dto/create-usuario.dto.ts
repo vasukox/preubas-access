@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength, MaxLength, IsOptional, IsArray, IsObject, IsInt, IsBoolean } from 'class-validator';
+import { IsEmail, IsString, MinLength, MaxLength, IsOptional, IsArray, IsObject, IsInt, IsBoolean, ArrayMinSize } from 'class-validator';
 
 export class PermisosDto {
   @IsOptional()
@@ -71,4 +71,10 @@ export class CreateUsuarioDto {
   @IsOptional()
   @IsInt()
   sedeAsignadaId?: number;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMinSize(1)
+  @IsInt({ each: true })
+  sedesAsignadasIds?: number[];
 }

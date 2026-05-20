@@ -169,14 +169,15 @@ function CheckinForm({
         disabled={isSubmitting || !codigo.trim()}
         style={{
           padding: '12px 24px',
-          background: 'var(--primary-500)',
+          background: 'var(--gradient-primary)',
           color: 'white',
           border: 'none',
           borderRadius: 6,
           fontSize: 14,
           fontWeight: 500,
           cursor: isSubmitting ? 'not-allowed' : 'pointer',
-          opacity: isSubmitting ? 0.6 : 1
+          opacity: isSubmitting ? 0.6 : 1,
+          boxShadow: '0 2px 4px rgba(59,130,246,0.20), 0 6px 16px rgba(59,130,246,0.18)'
         }}
       >
         {isSubmitting ? 'Validando...' : 'Hacer Check-in'}
@@ -221,14 +222,15 @@ function CheckoutForm({
         disabled={isSubmitting || !codigo.trim()}
         style={{
           padding: '12px 24px',
-          background: 'var(--primary-500)',
+          background: 'var(--gradient-primary)',
           color: 'white',
           border: 'none',
           borderRadius: 6,
           fontSize: 14,
           fontWeight: 500,
           cursor: isSubmitting ? 'not-allowed' : 'pointer',
-          opacity: isSubmitting ? 0.6 : 1
+          opacity: isSubmitting ? 0.6 : 1,
+          boxShadow: '0 2px 4px rgba(59,130,246,0.20), 0 6px 16px rgba(59,130,246,0.18)'
         }}
       >
         {isSubmitting ? 'Validando...' : 'Hacer Check-out'}

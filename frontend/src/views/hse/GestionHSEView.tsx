@@ -18,7 +18,6 @@ import type {
   AutorizacionListResponse,
   ContratistaDetalleResponse,
   EstadoContratista,
-  ExcepcionResponse,
   ProveedorHSEOption,
 } from '@/types/hse'
 import { ESTADO_CONTRATISTA_LABEL } from '@/types/hse'
@@ -1304,7 +1303,6 @@ export default function GestionHSEView() {
   const [autorizaciones, setAutorizaciones] = useState<AutorizacionListResponse[]>([])
   const [proveedores, setProveedores] = useState<ProveedorHSEOption[]>([])
   const [proveedoresMap, setProveedoresMap] = useState<Record<number, string>>({})
-  const [excepcionesActivas, setExcepcionesActivas] = useState<ExcepcionResponse[]>([])
   const [loading,        setLoading]        = useState(true)
   const [busqueda,       setBusqueda]       = useState('')
   const [filtroEstado,   setFiltroEstado]   = useState<string>('todos')
@@ -1353,21 +1351,6 @@ export default function GestionHSEView() {
     void loadProveedores()
   }, [])
 
-  useEffect(() => {
-    const loadExcepciones = async () => {
-      if (!sedeActiva?.id) {
-        setExcepcionesActivas([])
-        return
-      }
-      try {
-        const data = await hseService.listarExcepciones(sedeActiva.id)
-        setExcepcionesActivas(data.filter(e => e.activa))
-      } catch {
-        setExcepcionesActivas([])
-      }
-    }
-    void loadExcepciones()
-  }, [sedeActiva?.id, refresh])
 
   useEffect(() => {
     const contratistaIdParam = searchParams.get('contratista_id')
@@ -1393,7 +1376,6 @@ export default function GestionHSEView() {
     return `${n} ${a}`.trim()
   }
 
-  const normalizarDoc = (tipo?: string, numero?: string) => `${(tipo || '').trim().toUpperCase()}-${(numero || '').trim()}`
 
   // Canal Excepciones = autorizaciones cuya descripción fue creada desde el submódulo de Excepciones
   const esExcepcion = (a: AutorizacionListResponse) =>
@@ -1401,9 +1383,17 @@ export default function GestionHSEView() {
 
   const resolverProveedorId = (a: AutorizacionListResponse): number | null => a.proveedor_id ?? null
 
-  // Dos grupos por tipo — las excepciones se muestran dentro de su módulo correspondiente
-  const autorizacionesNormales   = autorizaciones.filter(a => a.tipo_contratista === 'NORMAL')
-  const autorizacionesAltoRiesgo = autorizaciones.filter(a => a.tipo_contratista === 'ALTO_RIESGO')
+  // Dos grupos por tipo — las excepciones se excluyen (pertenecen a su propio submódulo)
+  const esExcepcionRobusta = (a: AutorizacionListResponse) =>
+    esExcepcion(a) || (a.descripcion_actividad || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim()
+      .startsWith('excepcion hse:')
+
+  const autorizacionesNormales   = autorizaciones.filter(a => a.tipo_contratista === 'NORMAL'   && !esExcepcionRobusta(a))
+  const autorizacionesAltoRiesgo = autorizaciones.filter(a => a.tipo_contratista === 'ALTO_RIESGO' && !esExcepcionRobusta(a))
 
   const buildGrupos = (
     lista: AutorizacionListResponse[],
@@ -1685,12 +1675,13 @@ export default function GestionHSEView() {
             color:          'var(--text-muted)',
             fontSize:       '0.83rem',
             background:     'var(--bg-surface)',
-            borderRadius:   'var(--radius-lg)',
+            borderRadius:   'var(--radius-xl)',
             border:         '1px solid var(--border-subtle)',
             display:        'flex',
             alignItems:     'center',
             justifyContent: 'center',
             gap:            '10px',
+            boxShadow:      'var(--shadow-card)',
           }}>
             <div style={{
               width:        '16px',
@@ -1783,8 +1774,9 @@ export default function GestionHSEView() {
                 style={{
                   background:   'var(--bg-surface)',
                   border:       '1px solid var(--border-subtle)',
-                  borderRadius: 'var(--radius-lg)',
+                  borderRadius: 'var(--radius-xl)',
                   overflow:     'hidden',
+                  boxShadow:    'var(--shadow-card)',
                 }}
               >
                 {/* Cabecera autorización */}

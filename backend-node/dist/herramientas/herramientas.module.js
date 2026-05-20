@@ -15,6 +15,8 @@ const usuario_rol_entity_1 = require("../auth/entities/usuario-rol.entity");
 const usuario_permiso_entity_1 = require("../auth/entities/usuario-permiso.entity");
 const perfil_entity_1 = require("../auth/entities/perfil.entity");
 const audit_log_entity_1 = require("../auth/entities/audit-log.entity");
+const usuario_sede_entity_1 = require("../auth/entities/usuario-sede.entity");
+const sede_entity_1 = require("../sede/entities/sede.entity");
 const herramientas_controller_1 = require("./herramientas.controller");
 const herramientas_service_1 = require("./herramientas.service");
 let HerramientasModule = class HerramientasModule {
@@ -30,6 +32,8 @@ exports.HerramientasModule = HerramientasModule = __decorate([
                 usuario_permiso_entity_1.UsuarioPermiso,
                 perfil_entity_1.Perfil,
                 audit_log_entity_1.AuditLog,
+                usuario_sede_entity_1.UsuarioSede,
+                sede_entity_1.Sede,
             ]),
         ],
         controllers: [herramientas_controller_1.HerramientasController],

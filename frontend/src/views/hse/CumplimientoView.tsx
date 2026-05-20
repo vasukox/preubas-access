@@ -1094,10 +1094,11 @@ export default function CumplimientoView() {
 
           <div style={{
             border: '1px solid var(--border-subtle)',
-            borderRadius: 'var(--radius-lg)',
+            borderRadius: 'var(--radius-xl)',
             background: 'var(--bg-surface)',
             overflow: 'hidden',
             minHeight: '460px',
+            boxShadow: 'var(--shadow-card)',
           }}>
             <div style={{ padding: '18px 20px', borderBottom: '1px solid var(--border-subtle)' }}>
               <div style={{
@@ -1309,12 +1310,13 @@ export default function CumplimientoView() {
             padding:      '20px 24px',
             background:   'var(--bg-surface)',
             border:       '1px solid var(--border-subtle)',
-            borderRadius: 'var(--radius-lg)',
+            borderRadius: 'var(--radius-xl)',
             marginBottom: '20px',
             display:      'flex',
             alignItems:   'center',
             justifyContent: 'space-between',
             gap:          '20px',
+            boxShadow:    'var(--shadow-card)',
           }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>

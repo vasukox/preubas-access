@@ -64,8 +64,6 @@ const ExcepcionesView        = lazy(() => import('@/views/hse/ExcepcionesView'))
 const CumplimientoView       = lazy(() => import('@/views/hse/CumplimientoView'))
 const AutogestionView        = lazy(() => import('@/views/hse/AutogestionView'))
 
-// Herramientas — admin global
-const HerramientasView = lazy(() => import('@/views/herramientas/HerramientasView'))
 // const HSEAutorizacionesView  = lazy(() => import('@/views/hse/HSEAutorizacionesView'))
 // const HSEAutorizacionDetalle = lazy(() => import('@/views/hse/HSEAutorizacionDetalle'))
 // const HSEVigilanteView       = lazy(() => import('@/views/hse/HSEVigilanteView'))
@@ -232,8 +230,6 @@ export function AppRouter() {
           <Route path="hse/excepciones"   element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE']}><ExcepcionesView /></RoleRoute>} />
           <Route path="hse/cumplimiento"  element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE']}><CumplimientoView /></RoleRoute>} />
 
-          {/* Herramientas — solo ADMIN_GLOBAL */}
-          <Route path="herramientas" element={<RoleRoute roles={['ADMIN_GLOBAL']}><HerramientasView /></RoleRoute>} />
           {/* <Route path="hse" element={<RoleRoute roles={['ADMIN_HSE','COORD_HSE','VIGILANTE','VISUALIZADOR']}><HSEDashboardView /></RoleRoute>} /> */}
           {/* <Route path="hse/autorizaciones"    element={<RoleRoute roles={['ADMIN_HSE','COORD_HSE']}><HSEAutorizacionesView /></RoleRoute>} /> */}
           {/* <Route path="hse/autorizaciones/:id" element={<RoleRoute roles={['ADMIN_HSE','COORD_HSE']}><HSEAutorizacionDetalle /></RoleRoute>} /> */}

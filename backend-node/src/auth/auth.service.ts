@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -50,6 +50,8 @@ export interface LoginResponse {
     roles: { id: number; nombre: string }[];
     sedeAsignadaId: number | null;
     sedeAsignada: { id: number; nombre: string; ciudad?: string } | null;
+    sedesAsignadasIds: number[];
+    sedesAsignadas: { id: number; nombre: string; ciudad?: string }[];
   };
 }
 
@@ -100,9 +102,8 @@ export class AuthService {
     userAgent?: string,
   ): Promise<LoginResponse> {
     // 1. Buscar usuario activo por email
-    const usuario = await this.usuarioRepo.findOne({
-      where: { email: dto.email.toLowerCase().trim() },
-      relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada'],
+    const usuario = await this.findUsuarioConRelaciones({
+      email: dto.email.toLowerCase().trim(),
     });
 
     if (!usuario || !usuario.activo) {
@@ -157,7 +158,20 @@ export class AuthService {
     // 7. Retornar estructura exacta que espera el frontend
     // Si es ADMIN, no enviamos la sede fija para que el frontend no lo bloquee en el selector
     const isAdmin = roleNames.includes(RolNombre.ADMIN_GLOBAL) || roleNames.includes(RolNombre.ADMIN_HSE) || roleNames.includes(RolNombre.ADMIN_GH);
-    
+
+    const sedesAsignadas = isAdmin
+      ? []
+      : (usuario.sedesAsignadas ?? [])
+          .filter((us) => us.sede)
+          .map((us) => ({ id: us.sede.id, nombre: us.sede.nombre, ciudad: us.sede.ciudad }));
+
+    const sedesFallback = !isAdmin && sedesAsignadas.length === 0 && usuario.sedeAsignada
+      ? [{ id: usuario.sedeAsignada.id, nombre: usuario.sedeAsignada.nombre, ciudad: usuario.sedeAsignada.ciudad }]
+      : [];
+
+    const sedesFinales = sedesAsignadas.length > 0 ? sedesAsignadas : sedesFallback;
+    const sedePrincipal = sedesFinales[0] ?? null;
+
     return {
       tokens: {
         accessToken: tokens.accessToken,
@@ -173,10 +187,12 @@ export class AuthService {
         debeCambiarPassword: usuario.debeCambiarPassword,
         ultimoLogin: usuario.ultimoLogin ?? null,
         roles: roleObjs,
-        sedeAsignadaId: isAdmin ? null : (usuario.sedeAsignadaId ?? null),
-        sedeAsignada: isAdmin ? null : (usuario.sedeAsignada
-          ? { id: usuario.sedeAsignada.id, nombre: usuario.sedeAsignada.nombre }
+        sedeAsignadaId: isAdmin ? null : (usuario.sedeAsignadaId ?? sedePrincipal?.id ?? null),
+        sedeAsignada: isAdmin ? null : (sedePrincipal
+          ? { id: sedePrincipal.id, nombre: sedePrincipal.nombre }
           : null),
+        sedesAsignadasIds: isAdmin ? [] : sedesFinales.map((s) => s.id),
+        sedesAsignadas: isAdmin ? [] : sedesFinales,
       },
     };
   }
@@ -266,10 +282,7 @@ export class AuthService {
    * Usado por GET /auth/me.
    */
   async findByIdWithRolesAndPermisos(id: number): Promise<Usuario | null> {
-    return this.usuarioRepo.findOne({
-      where: { id },
-      relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada'],
-    });
+    return this.findUsuarioConRelaciones({ id });
   }
 
   // ── CAMBIO DE CONTRASEÑA ───────────────────────────────────────────────────
@@ -385,6 +398,26 @@ export class AuthService {
       tokenType: 'bearer',
       expiresIn: accessExpireSeconds,
     };
+  }
+
+  private async findUsuarioConRelaciones(where: FindOptionsWhere<Usuario>): Promise<Usuario | null> {
+    const relacionesBase = ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada'];
+    const relacionesConSedes = [...relacionesBase, 'sedesAsignadas', 'sedesAsignadas.sede'];
+
+    try {
+      return await this.usuarioRepo.findOne({
+        where,
+        relations: relacionesConSedes,
+      });
+    } catch (error) {
+      this.logger.warn(
+        `No se pudo cargar usuario_sedes; usando sede_asignada_id como respaldo. ${(error as Error).message}`,
+      );
+      return this.usuarioRepo.findOne({
+        where,
+        relations: relacionesBase,
+      });
+    }
   }
 
   /**

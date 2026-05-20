@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DeepPartial } from 'typeorm';
 import { HseContratista } from '../entities/hse-contratista.entity';
 import { HseClasificacion } from '../entities/hse-clasificacion.entity';
 import { HseSegSocial } from '../entities/hse-seg-social.entity';
@@ -12,6 +12,7 @@ import { HseAutorizacion } from '../entities/hse-autorizacion.entity';
 import { HseHistorial } from '../entities/hse-historial.entity';
 import { EstadoAutorizacion, EstadoContratista } from '../../common/enums/hse.enum';
 import {
+  DatosPersonalesDto,
   ClasificacionDto,
   SegSocialItemDto,
   CertificacionesDto,
@@ -132,7 +133,7 @@ export class AutogestionService {
     };
   }
 
-  async guardarDatosPersonales(contratistaId: number, dto: any) {
+  async guardarDatosPersonales(contratistaId: number, dto: DatosPersonalesDto) {
     const contratista = await this.contratistaRepo.findOne({ where: { id: contratistaId } });
     if (!contratista) throw new NotFoundException('Contratista no encontrado');
 
@@ -151,7 +152,6 @@ export class AutogestionService {
 
   async guardarClasificacion(contratistaId: number, dto: ClasificacionDto) {
     await this.marcarContratistaEnProgreso(contratistaId);
-    const n = (v: any) => v ?? null;
     const data = {
       contratistaId,
       trabajoAlturas:           dto.trabajoAlturas ?? false,
@@ -163,43 +163,43 @@ export class AutogestionService {
       personalExtranjero:       dto.personalExtranjero ?? false,
       generaResiduos:           dto.generaResiduos ?? false,
 
-      alturasNivel:             n(dto.alturasNivel),
-      alturasCertFechaVenc:     n(dto.alturasCertFechaVenc),
-      alturasCertArchivo:       n(dto.alturasCertArchivo),
+      alturasNivel:             dto.alturasNivel ?? null,
+      alturasCertFechaVenc:     dto.alturasCertFechaVenc ? this.toDateOnly(dto.alturasCertFechaVenc) : null,
+      alturasCertArchivo:       dto.alturasCertArchivo ?? null,
 
-      confinadosRol:            n(dto.confinadosRol),
-      confinadosCertFecha:      n(dto.confinadosCertFecha),
-      confinadosCertArchivo:    n(dto.confinadosCertArchivo),
+      confinadosRol:            dto.confinadosRol ?? null,
+      confinadosCertFecha:      dto.confinadosCertFecha ? this.toDateOnly(dto.confinadosCertFecha) : null,
+      confinadosCertArchivo:    dto.confinadosCertArchivo ?? null,
 
-      electricoMatriculaContec: n(dto.electricoMatriculaContec),
-      electricoNumMatricula:    n(dto.electricoNumMatricula),
-      electricoMatriculaVenc:   n(dto.electricoMatriculaVenc),
-      electricoMatriculaArchivo:n(dto.electricoMatriculaArchivo),
+      electricoMatriculaContec: dto.electricoMatriculaContec ?? null,
+      electricoNumMatricula:    dto.electricoNumMatricula ?? null,
+      electricoMatriculaVenc:   dto.electricoMatriculaVenc ? this.toDateOnly(dto.electricoMatriculaVenc) : null,
+      electricoMatriculaArchivo:dto.electricoMatriculaArchivo ?? null,
 
-      calienteExtintorFecha:    n(dto.calienteExtintorFecha),
-      calienteExtintorArchivo:  n(dto.calienteExtintorArchivo),
-      calientePermisoFecha:     n(dto.calientePermisoFecha),
-      calientePermisoArchivo:   n(dto.calientePermisoArchivo),
+      calienteExtintorFecha:    dto.calienteExtintorFecha ? this.toDateOnly(dto.calienteExtintorFecha) : null,
+      calienteExtintorArchivo:  dto.calienteExtintorArchivo ?? null,
+      calientePermisoFecha:     dto.calientePermisoFecha ? this.toDateOnly(dto.calientePermisoFecha) : null,
+      calientePermisoArchivo:   dto.calientePermisoArchivo ?? null,
 
-      izajeTipoEquipo:          n(dto.izajeTipoEquipo),
-      izajeInspeccionArchivo:   n(dto.izajeInspeccionArchivo),
-      izajeDocLegalArchivo:     n(dto.izajeDocLegalArchivo),
-      izajeLicenciaArchivo:     n(dto.izajeLicenciaArchivo),
+      izajeTipoEquipo:          dto.izajeTipoEquipo ?? null,
+      izajeInspeccionArchivo:   dto.izajeInspeccionArchivo ?? null,
+      izajeDocLegalArchivo:     dto.izajeDocLegalArchivo ?? null,
+      izajeLicenciaArchivo:     dto.izajeLicenciaArchivo ?? null,
 
-      extranAseguradora:        n(dto.extranAseguradora),
-      extranNumPoliza:          n(dto.extranNumPoliza),
-      extranPolizaVenc:         n(dto.extranPolizaVenc),
-      extranPolizaArchivo:      n(dto.extranPolizaArchivo),
+      extranAseguradora:        dto.extranAseguradora ?? null,
+      extranNumPoliza:          dto.extranNumPoliza ?? null,
+      extranPolizaVenc:         dto.extranPolizaVenc ? this.toDateOnly(dto.extranPolizaVenc) : null,
+      extranPolizaArchivo:      dto.extranPolizaArchivo ?? null,
 
-      residuosTipo:             n(dto.residuosTipo),
-      residuosPlanArchivo:      n(dto.residuosPlanArchivo),
+      residuosTipo:             dto.residuosTipo ?? null,
+      residuosPlanArchivo:      dto.residuosPlanArchivo ?? null,
     };
 
     const existing = await this.clasificacionRepo.findOne({ where: { contratistaId } });
     if (existing) {
-      await this.clasificacionRepo.update(existing.id, data as any);
+      await this.clasificacionRepo.update(existing.id, data as unknown as DeepPartial<HseClasificacion>);
     } else {
-      await this.clasificacionRepo.insert(data as any);
+      await this.clasificacionRepo.insert(data as unknown as DeepPartial<HseClasificacion>);
     }
 
     return this.clasificacionRepo.findOne({ where: { contratistaId } });
@@ -220,18 +220,18 @@ export class AutogestionService {
           nombrePersona:        a.nombrePersona,
           cedulaPersona:        a.cedulaPersona,
           epsId:                a.epsId,
-          epsVigencia:          a.epsVigencia as any,
+          epsVigencia:          a.epsVigencia ? this.toDateOnly(a.epsVigencia) : null,
           arlId:                a.arlId,
-          arlVigencia:          a.arlVigencia as any,
+          arlVigencia:          a.arlVigencia ? this.toDateOnly(a.arlVigencia) : null,
           afpId:                a.afpId,
-          afpVigencia:          a.afpVigencia as any,
+          afpVigencia:          a.afpVigencia ? this.toDateOnly(a.afpVigencia) : null,
           pilaTipo:             a.pilaTipo,
           pilaEstado:           a.pilaEstado,
           pilaArchivo:          a.pilaArchivo,
           sstTieneVigente:      a.sstTieneVigente ?? false,
           sstResponsableNombre: a.sstResponsableNombre,
           sstResolucionRegistro:a.sstResolucionRegistro,
-        }),
+        } as DeepPartial<HseSegSocial>),
       );
       return this.segSocialRepo.save(afiliaciones);
     }
@@ -397,5 +397,10 @@ export class AutogestionService {
         motivo,
       }),
     );
+  }
+
+  private toDateOnly(value: string): Date {
+    const [year, month, day] = value.split('-').map(Number);
+    return new Date(Date.UTC(year, month - 1, day));
   }
 }

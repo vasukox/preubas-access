@@ -324,10 +324,10 @@ export function CitasTable({ citas, onCambiarEstado, onEliminarCita, loadingKey 
       <div
         style={{
           border: '1px solid var(--border-subtle)',
-          borderRadius: 'var(--radius-lg)',
+          borderRadius: 'var(--radius-xl)',
           background: 'var(--bg-surface)',
           overflow: 'hidden',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
+          boxShadow: 'var(--shadow-card)',
         }}
       >
         <div style={{ overflowX: 'auto' }}>

@@ -65,14 +65,15 @@ function MetricCard({ label, value, icon: Icon, color, bg, border, badge, onClic
         padding: '20px 24px',
         background: 'var(--bg-surface)',
         border: `1px solid ${border}`,
-        borderRadius: 'var(--radius-lg)',
+        borderRadius: 'var(--radius-xl)',
         cursor: onClick ? 'pointer' : 'default',
-        transition: 'all var(--transition-fast)',
+        transition: 'transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast)',
         position: 'relative',
         overflow: 'hidden',
+        boxShadow: 'var(--shadow-card)',
       }}
-      onMouseEnter={(e) => { if (onClick) (e.currentTarget as HTMLElement).style.borderColor = color }}
-      onMouseLeave={(e) => { if (onClick) (e.currentTarget as HTMLElement).style.borderColor = border }}
+      onMouseEnter={(e) => { if (onClick) { const el = e.currentTarget as HTMLElement; el.style.borderColor = color; el.style.transform = 'translateY(-2px)'; el.style.boxShadow = 'var(--shadow-lg)' } }}
+      onMouseLeave={(e) => { if (onClick) { const el = e.currentTarget as HTMLElement; el.style.borderColor = border; el.style.transform = 'translateY(0)'; el.style.boxShadow = 'var(--shadow-card)' } }}
     >
       <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '80px', height: '80px', background: bg, borderRadius: '50%', filter: 'blur(20px)' }} />
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', position: 'relative' }}>
@@ -97,6 +98,21 @@ function MetricCard({ label, value, icon: Icon, color, bg, border, badge, onClic
   )
 }
 
+function MetricCardSkeleton() {
+  return (
+    <div style={{ padding: '20px 24px', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xl)', boxShadow: 'var(--shadow-card)', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+        <div style={{ flex: 1 }}>
+          <div className="skeleton skeleton-text" style={{ width: '55%', height: '11px', marginBottom: '12px' }} />
+          <div className="skeleton skeleton-text" style={{ width: '38%', height: '32px', marginBottom: '10px' }} />
+          <div className="skeleton skeleton-text" style={{ width: '48%', height: '18px' }} />
+        </div>
+        <div className="skeleton" style={{ width: '40px', height: '40px', borderRadius: 'var(--radius-md)', flexShrink: 0 }} />
+      </div>
+    </div>
+  )
+}
+
 function SesionActivaCard({ sesion, onClick }: { sesion: GhSesionInduccion; onClick: () => void }) {
   const checkinPct = sesion.total_asistentes > 0 ? Math.round((sesion.total_checkin / sesion.total_asistentes) * 100) : 0
   const checkoutPct = sesion.total_asistentes > 0 ? Math.round((sesion.total_checkout / sesion.total_asistentes) * 100) : 0
@@ -113,7 +129,7 @@ function SesionActivaCard({ sesion, onClick }: { sesion: GhSesionInduccion; onCl
         textAlign: 'left',
         cursor: 'pointer',
         width: '100%',
-        transition: 'all 0.2s',
+        transition: 'border-color 0.2s, box-shadow 0.2s',
       }}
       onMouseEnter={(e) => {
         const el = e.currentTarget as HTMLElement
@@ -267,13 +283,45 @@ export default function GHDashboardView() {
     [metrics],
   )
 
-  if (!sedeId) return <div style={{ padding: '32px', color: 'var(--text-muted)' }}>Selecciona una sede para ver el dashboard GH.</div>
+  if (!sedeId) {
+    return (
+      <div style={{ padding: '32px', maxWidth: '600px' }}>
+        <div style={{ padding: '48px 40px', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xl)', boxShadow: 'var(--shadow-card)', textAlign: 'center' }}>
+          <div style={{ marginBottom: '16px', opacity: 0.5 }}>
+            <Building2 size={40} color="var(--text-muted)" />
+          </div>
+          <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>Sin sede seleccionada</h3>
+          <p style={{ fontSize: '0.83rem', color: 'var(--text-muted)', margin: 0 }}>
+            Selecciona una sede en la barra superior para ver las métricas de Gestión Humana.
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   if (isLoading || isLoadingCitas) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: '12px', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-        <div style={{ width: '20px', height: '20px', border: '2px solid var(--border-default)', borderTop: '2px solid var(--primary-500)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-        Cargando métricas GH...
+      <div style={{ padding: '32px', maxWidth: '1400px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+          {Array.from({ length: 4 }, (_, i) => <MetricCardSkeleton key={i} />)}
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
+          {Array.from({ length: 2 }, (_, i) => (
+            <div key={i} style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xl)', padding: '18px 20px', boxShadow: 'var(--shadow-card)' }}>
+              <div className="skeleton skeleton-text" style={{ width: '45%', height: '13px', marginBottom: '8px' }} />
+              <div className="skeleton skeleton-text" style={{ width: '65%', height: '10px', marginBottom: '16px' }} />
+              {Array.from({ length: 4 }, (_, j) => (
+                <div key={j} style={{ marginBottom: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <div className="skeleton skeleton-text" style={{ width: '40%', height: '11px' }} />
+                    <div className="skeleton skeleton-text" style={{ width: '18px', height: '11px' }} />
+                  </div>
+                  <div className="skeleton skeleton-text" style={{ height: '10px', borderRadius: '999px' }} />
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
@@ -302,12 +350,14 @@ export default function GHDashboardView() {
             onClick={() => { void refetch(); void refetchCitas() }}
             style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', color: 'var(--text-secondary)', fontSize: '0.8rem', cursor: 'pointer' }}
           >
-            <RefreshCw size={14} />
+            <div style={{ animation: isFetching || isFetchingCitas ? 'spin 1s linear infinite' : 'none', display: 'flex' }}>
+              <RefreshCw size={14} />
+            </div>
             {isFetching || isFetchingCitas ? 'Actualizando...' : 'Actualizar'}
           </button>
           <button
             onClick={() => navigate('/gh/citas')}
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', background: 'var(--primary-500)', border: 'none', borderRadius: 'var(--radius-md)', color: 'var(--text-inverted)', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', boxShadow: 'var(--shadow-glow-primary)' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', background: 'var(--gradient-primary)', border: 'none', borderRadius: 'var(--radius-md)', color: 'var(--text-inverted)', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', boxShadow: '0 2px 4px rgba(59,130,246,0.20), 0 6px 16px rgba(59,130,246,0.18)' }}
           >
             <Plus size={14} />
             Agendar citas
@@ -326,7 +376,7 @@ export default function GHDashboardView() {
       {/* ── Sesiones activas (EN_CURSO) ── */}
       {sesionesEnCurso.length > 0 && (
         <div
-          style={{ background: 'linear-gradient(135deg, rgba(86,104,184,0.04), rgba(14,165,233,0.04))', border: '1px solid rgba(86,104,184,0.18)', borderRadius: 'var(--radius-lg)', padding: '18px 20px', marginBottom: '24px' }}
+          style={{ background: 'linear-gradient(135deg, rgba(86,104,184,0.04), rgba(14,165,233,0.04))', border: '1px solid rgba(86,104,184,0.18)', borderRadius: 'var(--radius-xl)', padding: '18px 20px', marginBottom: '24px', boxShadow: 'var(--shadow-card)' }}
           className="animate-fade-up stagger-2"
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
@@ -353,7 +403,7 @@ export default function GHDashboardView() {
 
       {/* ── Charts row ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px', marginBottom: '20px' }}>
-        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', padding: '18px 20px' }} className="animate-fade-up stagger-2">
+        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xl)', padding: '18px 20px', boxShadow: 'var(--shadow-card)' }} className="animate-fade-up stagger-2">
           <div style={{ marginBottom: '14px' }}>
             <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)' }}>Distribución de estado del día</div>
             <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Confirmadas, en curso, pendientes y no asistencias</div>
@@ -373,7 +423,7 @@ export default function GHDashboardView() {
           </div>
         </div>
 
-        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', padding: '18px 20px' }} className="animate-fade-up stagger-3">
+        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xl)', padding: '18px 20px', boxShadow: 'var(--shadow-card)' }} className="animate-fade-up stagger-3">
           <div style={{ marginBottom: '14px' }}>
             <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)' }}>Citas por tipo (hoy)</div>
             <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Distribución operativa por tipología GH</div>
@@ -399,7 +449,7 @@ export default function GHDashboardView() {
       {/* ── Bottom row ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
         {/* Próximas citas */}
-        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }} className="animate-fade-up stagger-2">
+        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xl)', overflow: 'hidden', boxShadow: 'var(--shadow-card)' }} className="animate-fade-up stagger-2">
           <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <ClipboardList size={14} color="var(--primary-400)" />
@@ -447,7 +497,7 @@ export default function GHDashboardView() {
         </div>
 
         {/* KPIs proxy */}
-        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', padding: '18px 20px' }} className="animate-fade-up stagger-3">
+        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xl)', padding: '18px 20px', boxShadow: 'var(--shadow-card)' }} className="animate-fade-up stagger-3">
           <div style={{ marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <TrendingUp size={14} color="var(--success-400)" />
             <div>
@@ -476,7 +526,7 @@ export default function GHDashboardView() {
         </div>
 
         {/* Accesos rápidos */}
-        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }} className="animate-fade-up stagger-3">
+        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xl)', overflow: 'hidden', boxShadow: 'var(--shadow-card)' }} className="animate-fade-up stagger-3">
           <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-subtle)' }}>
             <span style={{ fontSize: '0.83rem', fontWeight: 600, color: 'var(--text-primary)' }}>Accesos rápidos GH</span>
           </div>
@@ -490,9 +540,9 @@ export default function GHDashboardView() {
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
-                style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', background: 'transparent', border: '1px solid transparent', borderRadius: 'var(--radius-md)', cursor: 'pointer', textAlign: 'left', marginBottom: '4px', transition: 'all var(--transition-fast)' }}
-                onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = item.bg; el.style.borderColor = 'var(--border-subtle)' }}
-                onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'transparent'; el.style.borderColor = 'transparent' }}
+                style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', background: 'transparent', border: '1px solid transparent', borderRadius: 'var(--radius-md)', cursor: 'pointer', textAlign: 'left', marginBottom: '4px', transition: 'background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast)' }}
+                onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = item.bg; el.style.borderColor = 'var(--border-subtle)'; el.style.transform = 'translateX(3px)' }}
+                onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.background = 'transparent'; el.style.borderColor = 'transparent'; el.style.transform = 'translateX(0)' }}
               >
                 <div style={{ width: '36px', height: '36px', background: item.bg, borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <item.icon size={16} color={item.color} />

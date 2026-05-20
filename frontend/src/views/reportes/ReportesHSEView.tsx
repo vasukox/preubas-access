@@ -72,10 +72,11 @@ function QuickDate({ label, days, current, onClick }: { label: string; days: num
       onClick={onClick}
       style={{
         padding: '5px 11px', fontSize: '0.73rem', fontWeight: 600,
-        background: active ? 'var(--primary-500)' : 'var(--bg-elevated)',
-        border: `1px solid ${active ? 'var(--primary-500)' : 'var(--border-default)'}`,
+        background: active ? 'var(--gradient-primary)' : 'var(--bg-elevated)',
+        border: `1px solid ${active ? 'transparent' : 'var(--border-default)'}`,
         borderRadius: 'var(--radius-md)',
         color: active ? '#fff' : 'var(--text-secondary)',
+        boxShadow: active ? '0 1px 3px rgba(59,130,246,0.18)' : 'none',
         cursor: 'pointer', fontFamily: 'var(--font-mono)',
         transition: 'all 0.15s',
       }}

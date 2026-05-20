@@ -286,7 +286,7 @@ export default function GHCitasView() {
         <MetricCard label="Inasistencias" value={metrics.noAsistio} icon={CalendarX2} color="#ef4444" bg="rgba(192,80,80,0.12)" />
       </div>
 
-      <div style={{ background: 'var(--bg-surface)', padding: '16px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-subtle)', margin: '4px 0 10px 0' }}>
+      <div style={{ background: 'var(--bg-surface)', padding: '16px', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border-subtle)', margin: '4px 0 10px 0', boxShadow: 'var(--shadow-card)' }}>
         <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '14px' }}>Gráfico de estado operativo actual</div>
         <div style={{ display: 'flex', gap: '12px', height: '18px', borderRadius: 'var(--radius-full)', overflow: 'hidden', background: 'var(--border-subtle)' }}>
           {estadoData.map((item) => {

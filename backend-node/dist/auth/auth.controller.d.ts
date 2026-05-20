@@ -26,6 +26,12 @@ export declare class AuthController {
             id: number;
             nombre: string;
         } | null;
+        sedesAsignadasIds: number[];
+        sedesAsignadas: {
+            id: number;
+            nombre: string;
+            ciudad: string;
+        }[];
         perfil: {
             fotoPerfil: string;
             biografia: string;

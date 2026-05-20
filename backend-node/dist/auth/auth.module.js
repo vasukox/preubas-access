@@ -22,6 +22,7 @@ const perfil_entity_1 = require("./entities/perfil.entity");
 const refresh_token_entity_1 = require("./entities/refresh-token.entity");
 const audit_log_entity_1 = require("./entities/audit-log.entity");
 const sede_entity_1 = require("../sede/entities/sede.entity");
+const usuario_sede_entity_1 = require("./entities/usuario-sede.entity");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
@@ -37,6 +38,7 @@ exports.AuthModule = AuthModule = __decorate([
                 refresh_token_entity_1.RefreshToken,
                 audit_log_entity_1.AuditLog,
                 sede_entity_1.Sede,
+                usuario_sede_entity_1.UsuarioSede,
             ]),
             jwt_1.JwtModule.registerAsync({
                 useFactory: (config) => ({

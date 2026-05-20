@@ -25,7 +25,22 @@
       "Bash(Get-Content -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\\\\src\\\\common\\\\enums\\\\rol.enum.ts\" -ErrorAction SilentlyContinue)",
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\" -Recurse -Directory -Filter \"*hse*\")",
       "Bash(Select-Object -Property Mode, Name)",
-      "Bash(Format-Table -AutoSize)"
+      "Bash(Format-Table -AutoSize)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\frontend\\\\src\" -Recurse -Directory)",
+      "Bash(Sort-Object)",
+      "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\frontend\\\\src\" -Recurse | Where-Object {$_.PSIsContainer} | Select-Object -ExpandProperty FullName | Sort-Object)",
+      "PowerShell($root = \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\frontend\"; Get-ChildItem -Path \"$root\" -File | Select-Object Name)",
+      "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\frontend\\\\src\" -Recurse -File | Where-Object {$_.Extension -eq \".ts\" -or $_.Extension -eq \".tsx\"} | ForEach-Object { $_.FullName -replace [regex]::Escape\\(\"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\frontend\"\\), \"\" } | Sort-Object)",
+      "Read(//c/Users/andresdb/.claude/projects/c--Users-andresdb-OneDrive---PERMODA-LTDA-Escritorio-Koaj-access/memory/**)",
+      "PowerShell(Remove-Item -Recurse -Force \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\frontend\\\\src\\\\views\\\\herramientas\" -Confirm:$false)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\" -Directory)",
+      "Bash(Select-Object Name)",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\\\\src\\\\database\\\\migrations\")",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\\\\src\\\\hse\\\\\" -Recurse -File | Select-Object FullName)",
+      "PowerShell(\\(Get-Content \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\frontend\\\\src\\\\views\\\\hse\\\\AutogestionView.tsx\" | Measure-Object -Line\\).Lines)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\andresdb\\.claude\\projects\\c--Users-andresdb-OneDrive---PERMODA-LTDA-Escritorio-Koaj-access\\memory"
     ]
   }
 }

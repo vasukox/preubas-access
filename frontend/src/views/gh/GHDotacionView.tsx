@@ -244,7 +244,7 @@ function AreaCard({ area, reglas, onAddRegla }: { area: string; reglas: GhMaestr
   const [expanded, setExpanded] = useState(true)
 
   return (
-    <div style={{ border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', background: 'var(--bg-surface)', overflow: 'hidden', transition: 'box-shadow 0.2s' }}>
+    <div style={{ border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xl)', background: 'var(--bg-surface)', overflow: 'hidden', transition: 'box-shadow var(--transition-fast)', boxShadow: 'var(--shadow-card)' }}>
       {/* Header */}
       <div
         onClick={() => setExpanded((p) => !p)}
@@ -332,7 +332,7 @@ function EntregaCard({
   const canClose = entrega.estado_entrega === 'PENDIENTE' || entrega.estado_entrega === 'PARCIAL'
 
   return (
-    <div style={{ border: `1px solid ${meta.border}`, borderRadius: 'var(--radius-lg)', background: 'var(--bg-surface)', overflow: 'hidden', transition: 'box-shadow 0.2s' }}>
+    <div style={{ border: `1px solid ${meta.border}`, borderRadius: 'var(--radius-xl)', background: 'var(--bg-surface)', overflow: 'hidden', transition: 'box-shadow var(--transition-fast)', boxShadow: 'var(--shadow-card)' }}>
       {/* Card header */}
       <div
         style={{ padding: '16px 18px', display: 'grid', gridTemplateColumns: '1fr auto', gap: '12px', alignItems: 'start', cursor: 'pointer' }}

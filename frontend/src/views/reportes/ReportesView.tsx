@@ -44,9 +44,10 @@ function ModuleReportCard({
       style={{
         background:   'var(--bg-surface)',
         border:       `1px solid ${border}`,
-        borderRadius: 'var(--radius-lg)',
+        borderRadius: 'var(--radius-xl)',
         overflow:     'hidden',
-        transition:   'border-color var(--transition-fast)',
+        transition:   'border-color var(--transition-fast), box-shadow var(--transition-fast)',
+        boxShadow:    'var(--shadow-card)',
       }}
       onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = color }}
       onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = border }}
@@ -216,9 +217,10 @@ export default function ReportesView() {
                 padding: '12px 18px',
                 background: 'var(--bg-surface)',
                 border: '1px solid rgba(40,149,108,0.3)',
-                borderRadius: 'var(--radius-lg)',
+                borderRadius: 'var(--radius-xl)',
                 cursor: 'pointer', fontFamily: 'var(--font-ui)',
-                transition: 'border-color 0.15s, background 0.15s',
+                transition: 'border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast)',
+                boxShadow: 'var(--shadow-card)',
               }}
               onMouseEnter={e => {
                 (e.currentTarget as HTMLElement).style.borderColor = 'var(--success-400)'
@@ -285,7 +287,7 @@ export default function ReportesView() {
 
             {puedeVerHSE && (
               <div
-                style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', padding: '18px 20px' }}
+                style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xl)', padding: '18px 20px', boxShadow: 'var(--shadow-card)' }}
                 className="animate-fade-up stagger-2"
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
@@ -330,7 +332,7 @@ export default function ReportesView() {
 
             {puedeVerGH && (
               <div
-                style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', padding: '18px 20px' }}
+                style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xl)', padding: '18px 20px', boxShadow: 'var(--shadow-card)' }}
                 className="animate-fade-up stagger-3"
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
@@ -375,7 +377,7 @@ export default function ReportesView() {
 
             {/* Panel de estado general */}
             <div
-              style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', padding: '18px 20px' }}
+              style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xl)', padding: '18px 20px', boxShadow: 'var(--shadow-card)' }}
               className="animate-fade-up stagger-4"
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>

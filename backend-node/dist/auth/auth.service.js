@@ -75,9 +75,8 @@ let AuthService = AuthService_1 = class AuthService {
         this.configService = configService;
     }
     async login(dto, ipAddress, userAgent) {
-        const usuario = await this.usuarioRepo.findOne({
-            where: { email: dto.email.toLowerCase().trim() },
-            relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada'],
+        const usuario = await this.findUsuarioConRelaciones({
+            email: dto.email.toLowerCase().trim(),
         });
         if (!usuario || !usuario.activo) {
             throw new common_1.UnauthorizedException({
@@ -111,6 +110,16 @@ let AuthService = AuthService_1 = class AuthService {
         await this.registrarAudit(usuario.id, usuario.nombreCompleto, 'LOGIN', 'usuario', usuario.id);
         this.logger.log(`Login exitoso: ${usuario.email} desde ${ipAddress ?? 'IP desconocida'}`);
         const isAdmin = roleNames.includes(rol_enum_1.RolNombre.ADMIN_GLOBAL) || roleNames.includes(rol_enum_1.RolNombre.ADMIN_HSE) || roleNames.includes(rol_enum_1.RolNombre.ADMIN_GH);
+        const sedesAsignadas = isAdmin
+            ? []
+            : (usuario.sedesAsignadas ?? [])
+                .filter((us) => us.sede)
+                .map((us) => ({ id: us.sede.id, nombre: us.sede.nombre, ciudad: us.sede.ciudad }));
+        const sedesFallback = !isAdmin && sedesAsignadas.length === 0 && usuario.sedeAsignada
+            ? [{ id: usuario.sedeAsignada.id, nombre: usuario.sedeAsignada.nombre, ciudad: usuario.sedeAsignada.ciudad }]
+            : [];
+        const sedesFinales = sedesAsignadas.length > 0 ? sedesAsignadas : sedesFallback;
+        const sedePrincipal = sedesFinales[0] ?? null;
         return {
             tokens: {
                 accessToken: tokens.accessToken,
@@ -126,10 +135,12 @@ let AuthService = AuthService_1 = class AuthService {
                 debeCambiarPassword: usuario.debeCambiarPassword,
                 ultimoLogin: usuario.ultimoLogin ?? null,
                 roles: roleObjs,
-                sedeAsignadaId: isAdmin ? null : (usuario.sedeAsignadaId ?? null),
-                sedeAsignada: isAdmin ? null : (usuario.sedeAsignada
-                    ? { id: usuario.sedeAsignada.id, nombre: usuario.sedeAsignada.nombre }
+                sedeAsignadaId: isAdmin ? null : (usuario.sedeAsignadaId ?? sedePrincipal?.id ?? null),
+                sedeAsignada: isAdmin ? null : (sedePrincipal
+                    ? { id: sedePrincipal.id, nombre: sedePrincipal.nombre }
                     : null),
+                sedesAsignadasIds: isAdmin ? [] : sedesFinales.map((s) => s.id),
+                sedesAsignadas: isAdmin ? [] : sedesFinales,
             },
         };
     }
@@ -183,10 +194,7 @@ let AuthService = AuthService_1 = class AuthService {
         this.logger.log(`Logout completo: usuario_id=${usuarioId}`);
     }
     async findByIdWithRolesAndPermisos(id) {
-        return this.usuarioRepo.findOne({
-            where: { id },
-            relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada'],
-        });
+        return this.findUsuarioConRelaciones({ id });
     }
     async changePassword(usuarioId, dto) {
         const usuario = await this.usuarioRepo.findOne({
@@ -248,6 +256,23 @@ let AuthService = AuthService_1 = class AuthService {
             tokenType: 'bearer',
             expiresIn: accessExpireSeconds,
         };
+    }
+    async findUsuarioConRelaciones(where) {
+        const relacionesBase = ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada'];
+        const relacionesConSedes = [...relacionesBase, 'sedesAsignadas', 'sedesAsignadas.sede'];
+        try {
+            return await this.usuarioRepo.findOne({
+                where,
+                relations: relacionesConSedes,
+            });
+        }
+        catch (error) {
+            this.logger.warn(`No se pudo cargar usuario_sedes; usando sede_asignada_id como respaldo. ${error.message}`);
+            return this.usuarioRepo.findOne({
+                where,
+                relations: relacionesBase,
+            });
+        }
     }
     async registrarIntentoFallido(usuario) {
         const nuevosIntentos = (usuario.intentosFallidos ?? 0) + 1;

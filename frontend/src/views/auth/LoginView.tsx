@@ -101,6 +101,7 @@ export default function LoginView() {
           padding:        '64px',
           position:       'relative',
           overflow:       'hidden',
+          background:     'linear-gradient(135deg, #EFF6FF 0%, #F0F5FF 45%, #F8FAFE 100%)',
         }}
         className="animate-fade-in"
       >
@@ -110,8 +111,9 @@ export default function LoginView() {
             position:   'absolute',
             inset:      0,
             background: `
-              radial-gradient(ellipse at 20% 50%, var(--primary-50) 0%, transparent 60%),
-              radial-gradient(ellipse at 80% 20%, var(--primary-50) 0%, transparent 50%)
+              radial-gradient(ellipse at 15% 55%, rgba(219, 234, 254, 0.80) 0%, transparent 55%),
+              radial-gradient(ellipse at 85% 15%, rgba(191, 219, 254, 0.60) 0%, transparent 50%),
+              radial-gradient(ellipse at 65% 88%, rgba(224, 242, 254, 0.50) 0%, transparent 40%)
             `,
             pointerEvents: 'none',
           }}
@@ -123,10 +125,42 @@ export default function LoginView() {
           style={{
             position:   'absolute',
             inset:      0,
-            opacity:    0.4,
+            opacity:    0.35,
             pointerEvents: 'none',
           }}
         />
+
+        {/* Formas decorativas geométricas */}
+        <div style={{
+          position:     'absolute',
+          width:        '440px',
+          height:       '440px',
+          borderRadius: '50%',
+          border:       '1px solid rgba(59, 130, 246, 0.10)',
+          top:          '-110px',
+          right:        '-140px',
+          pointerEvents: 'none',
+        }} />
+        <div style={{
+          position:     'absolute',
+          width:        '280px',
+          height:       '280px',
+          borderRadius: '50%',
+          border:       '1px solid rgba(59, 130, 246, 0.07)',
+          bottom:       '-80px',
+          left:         '-100px',
+          pointerEvents: 'none',
+        }} />
+        <div style={{
+          position:     'absolute',
+          width:        '200px',
+          height:       '200px',
+          borderRadius: '50%',
+          background:   'radial-gradient(circle, rgba(59, 130, 246, 0.07) 0%, transparent 70%)',
+          top:          '32%',
+          right:        '6%',
+          pointerEvents: 'none',
+        }} />
 
         {/* Línea decorativa vertical */}
         <div
@@ -155,16 +189,17 @@ export default function LoginView() {
           >
             <div
               style={{
-                width:          '44px',
-                height:         '44px',
-                background:     'var(--primary-100)',
+                width:          '46px',
+                height:         '46px',
+                background:     'var(--gradient-brand)',
                 borderRadius:   'var(--radius-md)',
                 display:        'flex',
                 alignItems:     'center',
                 justifyContent: 'center',
+                boxShadow:      '0 4px 16px rgba(37, 99, 235, 0.35)',
               }}
             >
-              <ShieldCheck size={24} color="var(--primary-600)" strokeWidth={2.5} />
+              <ShieldCheck size={24} color="#FFFFFF" strokeWidth={2.5} />
             </div>
             <div>
               <div
@@ -222,13 +257,47 @@ export default function LoginView() {
               fontSize:     '0.95rem',
               color:        'var(--text-secondary)',
               lineHeight:   1.7,
-              marginBottom: '48px',
+              marginBottom: '40px',
               maxWidth:     '380px',
             }}
           >
             Sistema unificado para gestión de parqueadero, autorizaciones HSE,
             activos NFC y citas de gestión humana.
           </p>
+
+          {/* Feature list */}
+          <div
+            className="animate-fade-up stagger-4"
+            style={{ display: 'flex', flexDirection: 'column', gap: '11px' }}
+          >
+            {[
+              'Control de parqueadero inteligente',
+              'Autorizaciones y vigilancia HSE',
+              'Gestión humana y agendamiento de citas',
+              'Trazabilidad de activos NFC',
+            ].map((feat) => (
+              <div key={feat} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width:          '18px',
+                  height:         '18px',
+                  borderRadius:   'var(--radius-full)',
+                  background:     'var(--primary-50)',
+                  border:         '1.5px solid var(--primary-200)',
+                  display:        'flex',
+                  alignItems:     'center',
+                  justifyContent: 'center',
+                  flexShrink:     0,
+                }}>
+                  <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
+                    <path d="M1 3.5L3.5 6L8 1" stroke="var(--primary-500)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                  {feat}
+                </span>
+              </div>
+            ))}
+          </div>
 
 
         </div>
@@ -244,6 +313,7 @@ export default function LoginView() {
           padding:        '64px 48px',
           background:     'var(--bg-surface)',
           borderLeft:     '1px solid var(--border-subtle)',
+          boxShadow:      '-16px 0 48px rgba(0, 0, 0, 0.04)',
           position:       'relative',
         }}
         className="animate-slide-right"
@@ -425,8 +495,8 @@ export default function LoginView() {
                 width:          '100%',
                 padding:        '13px 24px',
                 background:     isLoading
-                  ? 'var(--primary-700)'
-                  : 'var(--primary-500)',
+                  ? 'var(--gradient-brand)'
+                  : 'var(--gradient-primary)',
                 border:         'none',
                 borderRadius:   'var(--radius-md)',
                 color:          'var(--text-inverted)',
@@ -439,14 +509,22 @@ export default function LoginView() {
                 justifyContent: 'center',
                 gap:            '8px',
                 transition:     'all var(--transition-fast)',
-                boxShadow:      isLoading ? 'none' : 'var(--shadow-md)',
+                boxShadow:      isLoading ? 'none' : '0 2px 4px rgba(59,130,246,0.20), 0 8px 24px rgba(59,130,246,0.22)',
                 letterSpacing:  '0.02em',
               }}
               onMouseEnter={(e) => {
-                if (!isLoading) e.currentTarget.style.background = 'var(--primary-600)'
+                if (!isLoading) {
+                  e.currentTarget.style.background = 'var(--gradient-brand)'
+                  e.currentTarget.style.boxShadow  = '0 2px 4px rgba(59,130,246,0.20), 0 10px 28px rgba(59,130,246,0.30)'
+                  e.currentTarget.style.transform  = 'translateY(-1px)'
+                }
               }}
               onMouseLeave={(e) => {
-                if (!isLoading) e.currentTarget.style.background = 'var(--primary-500)'
+                if (!isLoading) {
+                  e.currentTarget.style.background = 'var(--gradient-primary)'
+                  e.currentTarget.style.boxShadow  = '0 2px 4px rgba(59,130,246,0.20), 0 8px 24px rgba(59,130,246,0.22)'
+                  e.currentTarget.style.transform  = 'translateY(0)'
+                }
               }}
             >
               {isLoading ? (

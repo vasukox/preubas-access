@@ -23,6 +23,7 @@ export declare class ConfigKoajService {
     getSede(id: number): Promise<Sede>;
     crearSede(dto: CreateSedeDto): Promise<Sede>;
     actualizarSede(id: number, dto: UpdateSedeDto): Promise<Sede>;
+    private generarCodigoSede;
     listarUbicaciones(sedeId: number): Promise<Ubicacion[]>;
     crearUbicacion(dto: CreateUbicacionDto): Promise<Ubicacion>;
     actualizarUbicacion(id: number, dto: UpdateUbicacionDto): Promise<Ubicacion>;

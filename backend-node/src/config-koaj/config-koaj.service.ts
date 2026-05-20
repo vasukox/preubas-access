@@ -118,13 +118,15 @@ export class ConfigKoajService {
    * Valida unicidad de nombre y código antes de insertar.
    */
   async crearSede(dto: CreateSedeDto): Promise<Sede> {
+    const nombre = dto.nombre.trim();
+    const codigo = dto.codigo?.trim() || (await this.generarCodigoSede(nombre));
     // Verificar unicidad de nombre y código
     const existente = await this.sedeRepo.findOne({
-      where: [{ nombre: dto.nombre }, { codigo: dto.codigo }],
+      where: [{ nombre }, { codigo }],
     });
 
     if (existente) {
-      const campo = existente.nombre === dto.nombre ? 'nombre' : 'código';
+      const campo = existente.nombre === nombre ? 'nombre' : 'codigo';
       throw new ConflictException({
         error: {
           code: 'SEDE_DUPLICADA',
@@ -135,6 +137,8 @@ export class ConfigKoajService {
 
     const sede = this.sedeRepo.create({
       ...dto,
+      nombre,
+      codigo,
       ciudad: dto.ciudad ?? 'Bogotá',
       activa: dto.activa ?? true,
       capacidadCarros: dto.capacidadCarros ?? 0,
@@ -154,10 +158,63 @@ export class ConfigKoajService {
    */
   async actualizarSede(id: number, dto: UpdateSedeDto): Promise<Sede> {
     const sede = await this.getSede(id);
-    Object.assign(sede, dto);
+    const nombre = dto.nombre?.trim() || sede.nombre;
+    let codigo = dto.codigo?.trim();
+    if (dto.codigo !== undefined && !codigo) {
+      codigo = await this.generarCodigoSede(nombre);
+    }
+
+    const duplicada = await this.sedeRepo.findOne({
+      where: [
+        ...(dto.nombre !== undefined ? [{ nombre }] : []),
+        ...(codigo !== undefined ? [{ codigo }] : []),
+      ],
+    });
+
+    if (duplicada && duplicada.id !== id) {
+      const campo = duplicada.nombre === nombre ? 'nombre' : 'codigo';
+      throw new ConflictException({
+        error: {
+          code: 'SEDE_DUPLICADA',
+          message: `Ya existe una sede con ese ${campo}.`,
+        },
+      });
+    }
+
+    Object.assign(sede, {
+      ...dto,
+      nombre,
+      ...(codigo !== undefined ? { codigo } : {}),
+    });
     await this.sedeRepo.save(sede);
     this.logger.log(`Sede actualizada: id=${id}`);
     return this.getSede(id);
+  }
+
+  private async generarCodigoSede(nombre: string): Promise<string> {
+    const inicial = nombre
+      .toUpperCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^A-Z]/g, '')
+      .substring(0, 3);
+
+    if (!inicial) {
+      const count = await this.sedeRepo.count();
+      return `SEDE-${String(count + 1).padStart(3, '0')}`;
+    }
+
+    let codigo = inicial;
+    let contador = 1;
+    let existe = await this.sedeRepo.findOne({ where: { codigo } });
+
+    while (existe) {
+      codigo = `${inicial}-${contador}`;
+      contador++;
+      existe = await this.sedeRepo.findOne({ where: { codigo } });
+    }
+
+    return codigo;
   }
 
   // ══════════════════════════════════════════════════════════════════════════

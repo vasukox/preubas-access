@@ -7,6 +7,8 @@ import { UsuarioRol } from '../auth/entities/usuario-rol.entity';
 import { UsuarioPermiso } from '../auth/entities/usuario-permiso.entity';
 import { Perfil } from '../auth/entities/perfil.entity';
 import { AuditLog } from '../auth/entities/audit-log.entity';
+import { UsuarioSede } from '../auth/entities/usuario-sede.entity';
+import { Sede } from '../sede/entities/sede.entity';
 
 import { HerramientasController } from './herramientas.controller';
 import { HerramientasService } from './herramientas.service';
@@ -20,6 +22,8 @@ import { HerramientasService } from './herramientas.service';
       UsuarioPermiso,
       Perfil,
       AuditLog,
+      UsuarioSede,
+      Sede,
     ]),
   ],
   controllers: [HerramientasController],

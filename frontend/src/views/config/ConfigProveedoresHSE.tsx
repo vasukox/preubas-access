@@ -137,7 +137,7 @@ function ModalCrear({ onClose, onDone }: { onClose: () => void; onDone: () => vo
             <button type="button" onClick={onClose} style={{ padding: '8px 16px', background: 'transparent', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-md)', color: 'var(--text-secondary)', fontSize: '0.82rem', cursor: 'pointer', fontFamily: 'var(--font-ui)' }}>
               Cancelar
             </button>
-            <button type="submit" disabled={loading} style={{ padding: '8px 18px', background: 'var(--primary-500)', border: 'none', borderRadius: 'var(--radius-md)', color: '#fff', fontSize: '0.82rem', fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-ui)', display: 'flex', alignItems: 'center', gap: '6px', opacity: loading ? 0.7 : 1 }}>
+            <button type="submit" disabled={loading} style={{ padding: '8px 18px', background: 'var(--gradient-primary)', border: 'none', borderRadius: 'var(--radius-md)', color: '#fff', fontSize: '0.82rem', fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-ui)', display: 'flex', alignItems: 'center', gap: '6px', opacity: loading ? 0.7 : 1, boxShadow: '0 1px 3px rgba(59,130,246,0.18)'}}>
               {loading && <Loader2 size={13} style={{ animation: 'spin 0.8s linear infinite' }} />}
               Crear proveedor
             </button>
@@ -232,7 +232,7 @@ function ModalEditar({ proveedor, onClose, onDone }: { proveedor: ProveedorHSEOp
             <button type="button" onClick={onClose} style={{ padding: '8px 16px', background: 'transparent', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-md)', color: 'var(--text-secondary)', fontSize: '0.82rem', cursor: 'pointer', fontFamily: 'var(--font-ui)' }}>
               Cancelar
             </button>
-            <button type="submit" disabled={loading} style={{ padding: '8px 18px', background: 'var(--primary-500)', border: 'none', borderRadius: 'var(--radius-md)', color: '#fff', fontSize: '0.82rem', fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-ui)', display: 'flex', alignItems: 'center', gap: '6px', opacity: loading ? 0.7 : 1 }}>
+            <button type="submit" disabled={loading} style={{ padding: '8px 18px', background: 'var(--gradient-primary)', border: 'none', borderRadius: 'var(--radius-md)', color: '#fff', fontSize: '0.82rem', fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-ui)', display: 'flex', alignItems: 'center', gap: '6px', opacity: loading ? 0.7 : 1, boxShadow: '0 1px 3px rgba(59,130,246,0.18)'}}>
               {loading && <Loader2 size={13} style={{ animation: 'spin 0.8s linear infinite' }} />}
               Guardar cambios
             </button>
@@ -358,10 +358,11 @@ export default function ConfigProveedoresHSE() {
             onClick={() => setModalCrear(true)}
             style={{
               display: 'flex', alignItems: 'center', gap: '6px',
-              padding: '8px 16px', background: 'var(--primary-500)',
+              padding: '8px 16px', background: 'var(--gradient-primary)',
               border: 'none', borderRadius: 'var(--radius-md)',
               color: '#fff', fontSize: '0.82rem', fontWeight: 600,
               cursor: 'pointer', fontFamily: 'var(--font-ui)',
+              boxShadow: '0 1px 3px rgba(59,130,246,0.18)',
             }}
           >
             <Plus size={14} />

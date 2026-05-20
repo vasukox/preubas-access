@@ -33,7 +33,7 @@ __decorate([
 ], CreateSedeDto.prototype, "nombre", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.MaxLength)(20),
     __metadata("design:type", String)
 ], CreateSedeDto.prototype, "codigo", void 0);
@@ -90,6 +90,7 @@ __decorate([
 ], CreateSedeDto.prototype, "notas", void 0);
 class UpdateSedeDto {
     nombre;
+    codigo;
     ciudad;
     direccion;
     telefono;
@@ -107,6 +108,12 @@ __decorate([
     (0, class_validator_1.MaxLength)(100),
     __metadata("design:type", String)
 ], UpdateSedeDto.prototype, "nombre", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.MaxLength)(20),
+    __metadata("design:type", String)
+], UpdateSedeDto.prototype, "codigo", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),

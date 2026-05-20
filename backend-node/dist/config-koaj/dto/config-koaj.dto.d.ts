@@ -1,6 +1,6 @@
 export declare class CreateSedeDto {
     nombre: string;
-    codigo: string;
+    codigo?: string;
     ciudad?: string;
     direccion?: string;
     telefono?: string;
@@ -13,6 +13,7 @@ export declare class CreateSedeDto {
 }
 export declare class UpdateSedeDto {
     nombre?: string;
+    codigo?: string;
     ciudad?: string;
     direccion?: string;
     telefono?: string;

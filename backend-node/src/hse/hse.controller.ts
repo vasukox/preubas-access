@@ -23,6 +23,7 @@ import {
 import { VerificarAccesoDto, RegistrarAccesoDto, RegistrarEntradaSalidaDto } from './dto/acceso.dto';
 import { CumplimientoIniciarDto, CumplimientoActualizarDto, CumplimientoCerrarDto, MarcarItemCumplimientoDto } from './dto/cumplimiento.dto';
 import { CreateExcepcionDto, CreateExcepcionLoteDto, UpdateExcepcionDto } from './dto/excepcion.dto';
+import { ReporteAccesosQueryDto, ReporteCumplimientoQueryDto } from './dto/reportes.dto';
 import { AutorizacionService } from './services/autorizacion.service';
 import { AutogestionService } from './services/autogestion.service';
 import { AccesoService } from './services/acceso.service';
@@ -140,7 +141,7 @@ export class HseController {
   }
 
   @Get('autorizaciones')
-  @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VISUALIZADOR)
+  @Roles(RolNombre.ADMIN_GLOBAL, RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VISUALIZADOR)
   async getAutorizaciones(
     @Query('sede_id', ParseIntPipe) sedeId: number,
     @Query('estado') estado?: string,
@@ -154,7 +155,7 @@ export class HseController {
   }
 
   @Get('autorizaciones/:id')
-  @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VISUALIZADOR)
+  @Roles(RolNombre.ADMIN_GLOBAL, RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VISUALIZADOR)
   async getAutorizacion(@Param('id', ParseIntPipe) id: number) {
     return this.autorizacionService.findOne(id);
   }
@@ -193,7 +194,7 @@ export class HseController {
   }
 
   @Get('autorizaciones/:id/contratistas')
-  @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VISUALIZADOR)
+  @Roles(RolNombre.ADMIN_GLOBAL, RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VISUALIZADOR)
   async getContratistas(@Param('id', ParseIntPipe) id: number) {
     return this.autorizacionService.getContratistas(id);
   }
@@ -209,14 +210,14 @@ export class HseController {
 
   @Post('contratistas/:id/generar-token')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE)
-  async generarTokenContratista(@Param('id', ParseIntPipe) id: number) {
-    return this.autorizacionService.generarTokenContratista(id);
+  async generarTokenContratista(@Param('id', ParseIntPipe) id: number, @Request() req: any) {
+    return this.autorizacionService.generarTokenContratista(id, req.user?.id);
   }
 
   @Post('contratistas/:id/token')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE)
-  async renovarTokenFrontend(@Param('id', ParseIntPipe) id: number) {
-    const result = await this.autorizacionService.generarTokenContratista(id);
+  async renovarTokenFrontend(@Param('id', ParseIntPipe) id: number, @Request() req: any) {
+    const result = await this.autorizacionService.generarTokenContratista(id, req.user?.id);
     return result.token;
   }
 
@@ -354,7 +355,13 @@ export class HseController {
   }
 
   @Get('dashboard/:sedeId')
-  @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VISUALIZADOR)
+  @Roles(
+    RolNombre.ADMIN_GLOBAL,
+    RolNombre.ADMIN_HSE,
+    RolNombre.GESTION_HSE,
+    RolNombre.VIGILANTE_HSE,
+    RolNombre.VISUALIZADOR,
+  )
   async getDashboard(@Param('sedeId', ParseIntPipe) sedeId: number) {
     return this.hseService.getDashboard(sedeId);
   }
@@ -500,20 +507,20 @@ export class HseController {
 
   @Put('excepciones/:id/anular')
   @Roles(RolNombre.ADMIN_HSE)
-  async anularExcepcion(@Param('id', ParseIntPipe) id: number) {
-    return this.excepcionService.anularExcepcion(id);
+  async anularExcepcion(@Param('id', ParseIntPipe) id: number, @Request() req: any) {
+    return this.excepcionService.anularExcepcion(id, req.user?.id);
   }
 
   @Post('excepciones/:id/desactivar')
   @Roles(RolNombre.ADMIN_HSE)
-  async desactivarExcepcion(@Param('id', ParseIntPipe) id: number) {
-    return this.excepcionService.anularExcepcion(id);
+  async desactivarExcepcion(@Param('id', ParseIntPipe) id: number, @Request() req: any) {
+    return this.excepcionService.anularExcepcion(id, req.user?.id);
   }
 
   @Post('excepciones/:id/activar')
   @Roles(RolNombre.ADMIN_HSE)
-  async activarExcepcion(@Param('id', ParseIntPipe) id: number) {
-    return this.excepcionService.activarExcepcion(id);
+  async activarExcepcion(@Param('id', ParseIntPipe) id: number, @Request() req: any) {
+    return this.excepcionService.activarExcepcion(id, req.user?.id);
   }
 
   @Put('excepciones/:id')
@@ -531,13 +538,13 @@ export class HseController {
   // --- Reportes ---
   @Get('reportes/accesos')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VISUALIZADOR)
-  async getReporteAccesos(@Query() query: any) {
+  async getReporteAccesos(@Query() query: ReporteAccesosQueryDto) {
     return this.reportesService.getReporteAccesos(query);
   }
 
   @Get('reportes/cumplimiento')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VISUALIZADOR)
-  async getReporteCumplimiento(@Query() query: any) {
+  async getReporteCumplimiento(@Query() query: ReporteCumplimientoQueryDto) {
     return this.reportesService.getReporteCumplimiento(query);
   }
 

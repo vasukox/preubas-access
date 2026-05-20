@@ -4,6 +4,7 @@ import { UsuarioRol } from './usuario-rol.entity';
 import { RefreshToken } from './refresh-token.entity';
 import { Perfil } from './perfil.entity';
 import { UsuarioPermiso } from './usuario-permiso.entity';
+import { UsuarioSede } from './usuario-sede.entity';
 export declare class Usuario extends BaseEntity {
     email: string;
     passwordHash: string;
@@ -19,4 +20,5 @@ export declare class Usuario extends BaseEntity {
     refreshTokens: RefreshToken[];
     perfil: Perfil;
     permisos: UsuarioPermiso;
+    sedesAsignadas: UsuarioSede[];
 }

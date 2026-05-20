@@ -42,33 +42,34 @@ export default function ConfigLayout() {
         background:   'var(--bg-surface)',
         border:       '1px solid var(--border-subtle)',
         borderRadius: 'var(--radius-xl)',
-        padding:      '16px 20px',
+        padding:      '18px 22px',
         display:      'flex',
         alignItems:   'center',
-        gap:          '14px',
-        boxShadow:    'var(--shadow-sm)',
+        gap:          '16px',
+        boxShadow:    'var(--shadow-card)',
       }}>
         {/* Barra de acento */}
         <div style={{
-          width: '4px', height: '40px', flexShrink: 0,
-          borderRadius: '3px',
-          background: meta.accent,
-          boxShadow: `0 0 12px ${meta.accent}55`,
+          width: '4px', height: '44px', flexShrink: 0,
+          borderRadius: '4px',
+          background: `linear-gradient(180deg, ${meta.accent} 0%, ${meta.accent}99 100%)`,
+          boxShadow: `2px 0 12px ${meta.accent}40`,
         }} />
         <div style={{ flex: 1 }}>
-          <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+          <h1 style={{ margin: 0, fontSize: '1.08rem', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
             {meta.title}
           </h1>
-          <p style={{ margin: '3px 0 0', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+          <p style={{ margin: '3px 0 0', fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
             {meta.subtitle}
           </p>
         </div>
         <span style={{
           fontSize: '0.67rem', fontFamily: 'var(--font-mono)', fontWeight: 700,
-          padding: '4px 10px', borderRadius: '999px',
-          background: `${meta.accent}18`,
-          border: `1px solid ${meta.accent}44`,
+          padding: '4px 11px', borderRadius: '999px',
+          background: `${meta.accent}14`,
+          border: `1px solid ${meta.accent}38`,
           color: meta.accent, letterSpacing: '0.06em',
+          whiteSpace: 'nowrap',
         }}>
           {meta.area}
         </span>
@@ -79,8 +80,8 @@ export default function ConfigLayout() {
         background:   'var(--bg-surface)',
         border:       '1px solid var(--border-subtle)',
         borderRadius: 'var(--radius-xl)',
-        padding:      '20px',
-        boxShadow:    'var(--shadow-sm)',
+        padding:      '24px',
+        boxShadow:    'var(--shadow-card)',
       }} className="animate-fade-up">
         {/* Aquí se montan ConfigSistema, ConfigEstructura, etc. */}
         <Outlet />

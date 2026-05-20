@@ -5,6 +5,7 @@ import { UsuarioRol } from './usuario-rol.entity';
 import { RefreshToken } from './refresh-token.entity';
 import { Perfil } from './perfil.entity';
 import { UsuarioPermiso } from './usuario-permiso.entity';
+import { UsuarioSede } from './usuario-sede.entity';
 
 /**
  * Cuenta de acceso al sistema KOAJ Access.
@@ -89,4 +90,9 @@ export class Usuario extends BaseEntity {
     cascade: true,
   })
   permisos: UsuarioPermiso;
+
+  @OneToMany(() => UsuarioSede, (usuarioSede) => usuarioSede.usuario, {
+    cascade: true,
+  })
+  sedesAsignadas: UsuarioSede[];
 }

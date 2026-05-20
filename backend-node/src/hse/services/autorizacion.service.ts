@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { ConfigTiemposContratista, TipoContratistaConfig } from '../../config-koaj/entities/config-tiempos-contratista.entity';
@@ -18,6 +18,8 @@ import * as crypto from 'crypto';
 
 @Injectable()
 export class AutorizacionService {
+  private readonly logger = new Logger(AutorizacionService.name);
+
   constructor(
     @InjectRepository(HseAutorizacion)
     private readonly autorizacionRepo: Repository<HseAutorizacion>,
@@ -36,18 +38,27 @@ export class AutorizacionService {
     await this.marcarAutorizacionesVencidas(sedeId);
 
     const skip = (page - 1) * perPage;
-    const whereClause: any = { sedeId };
+    const query = this.autorizacionRepo.createQueryBuilder('autorizacion')
+      .leftJoinAndSelect('autorizacion.proveedor', 'proveedor')
+      .leftJoinAndSelect('autorizacion.creador', 'creador')
+      .leftJoinAndSelect('autorizacion.responsableInterno', 'responsableInterno')
+      .leftJoinAndSelect('autorizacion.contratistas', 'contratistas')
+      .where('autorizacion.sede_id = :sedeId', { sedeId })
+      .andWhere('LOWER(autorizacion.descripcion_actividad) NOT LIKE :excepcionPrefix', {
+        excepcionPrefix: 'excepcion hse:%',
+      })
+      .andWhere('LOWER(autorizacion.descripcion_actividad) NOT LIKE :excepcionPrefixAccent', {
+        excepcionPrefixAccent: 'excepción hse:%',
+      })
+      .orderBy('autorizacion.created_at', 'DESC')
+      .skip(skip)
+      .take(perPage);
+
     if (estado) {
-      whereClause.estado = estado;
+      query.andWhere('autorizacion.estado = :estado', { estado });
     }
 
-    const [items, total] = await this.autorizacionRepo.findAndCount({
-      where: whereClause,
-      order: { created_at: 'DESC' },
-      skip,
-      take: perPage,
-      relations: ['proveedor', 'creador', 'responsableInterno', 'contratistas'],
-    });
+    const [items, total] = await query.getManyAndCount();
 
     const itemsMapped = items.map(a => {
       const aprobados = a.contratistas ? a.contratistas.filter(c => c.estado === EstadoContratista.APROBADO).length : 0;
@@ -57,6 +68,7 @@ export class AutorizacionService {
         totalContratistas: a.contratistas ? a.contratistas.length : 0,
         aprobados,
         pendientes,
+        proveedorNombre: a.proveedor?.nomProveedor ?? null,
       };
     });
 
@@ -141,8 +153,8 @@ export class AutorizacionService {
     const autorizacion = await this.findOne(id);
 
     if (updateDto.fechaInicio || updateDto.fechaFin) {
-      const fInicio = updateDto.fechaInicio ?? String(autorizacion.fechaInicio);
-      const fFin = updateDto.fechaFin ?? String(autorizacion.fechaFin);
+      const fInicio = updateDto.fechaInicio ?? autorizacion.fechaInicio;
+      const fFin = updateDto.fechaFin ?? autorizacion.fechaFin;
       this.validator.validarFechas(fInicio, fFin);
     }
 
@@ -196,7 +208,8 @@ export class AutorizacionService {
   }
 
   async addContratistas(autorizacionId: number, contratistasDto: CreateContratistaDto[]) {
-    await this.findOne(autorizacionId);
+    const autorizacion = await this.findOne(autorizacionId);
+    const duracionHoras = await this.getTokenDuracionHoras(autorizacion.tipoContratista);
 
     const contratistas = contratistasDto.map(c =>
       this.contratistaRepo.create({
@@ -212,13 +225,18 @@ export class AutorizacionService {
         sstResponsableTelefono: c.sstResponsableTelefono,
         autorizacionId,
         estado: EstadoContratista.PENDIENTE_AUTOGESTION,
+        tokenAutogestion: crypto.randomBytes(32).toString('hex'),
+        tokenExpiraEn: new Date(Date.now() + duracionHoras * 60 * 60 * 1000),
+        tokenDuracionHoras: duracionHoras,
       })
     );
 
-    return this.contratistaRepo.save(contratistas);
+    const saved = await this.contratistaRepo.save(contratistas);
+    await this.sincronizarEstadoAutorizacion(autorizacionId);
+    return saved;
   }
 
-  async generarTokenContratista(contratistaId: number) {
+  async generarTokenContratista(contratistaId: number, usuarioId?: number) {
     const contratista = await this.contratistaRepo.findOne({
       where: { id: contratistaId },
       relations: ['autorizacion'],
@@ -240,6 +258,18 @@ export class AutorizacionService {
 
     await this.contratistaRepo.save(contratista);
     await this.sincronizarEstadoAutorizacion(contratista.autorizacionId);
+
+    this.logger.log(
+      `[AUDIT] Token generado — contratistaId=${contratistaId} usuarioId=${usuarioId ?? 'sistema'} expiraEn=${expiraEn.toISOString()}`,
+    );
+    await this.registrarHistorial(
+      contratista.id,
+      contratista.estado,
+      contratista.estado,
+      usuarioId,
+      'Token de autogestión regenerado',
+      { tokenExpiraEn: expiraEn.toISOString(), duracionHoras },
+    );
 
     return { token, expiraEn, duracionHoras };
   }
@@ -284,6 +314,10 @@ export class AutorizacionService {
       'Aprobado por HSE',
     );
 
+    this.logger.log(
+      `[AUDIT] Contratista aprobado — contratistaId=${id} usuarioId=${usuarioId ?? 'desconocido'}`,
+    );
+
     await this.sincronizarEstadoAutorizacion(contratista.autorizacionId);
     return this.findOneContratista(id);
   }
@@ -306,6 +340,10 @@ export class AutorizacionService {
       EstadoContratista.DENEGADO,
       usuarioId,
       motivoLimpio,
+    );
+
+    this.logger.log(
+      `[AUDIT] Contratista denegado — contratistaId=${id} usuarioId=${usuarioId ?? 'desconocido'} motivo="${motivoLimpio}"`,
     );
 
     await this.sincronizarEstadoAutorizacion(contratista.autorizacionId);
@@ -499,6 +537,7 @@ export class AutorizacionService {
     estadoNuevo: string,
     usuarioId?: number,
     motivo?: string,
+    metadataExtra?: object,
   ) {
     await this.historialRepo.save(
       this.historialRepo.create({
@@ -507,6 +546,7 @@ export class AutorizacionService {
         estadoAnterior,
         estadoNuevo,
         motivo: motivo ?? null,
+        metadataExtra: metadataExtra ?? null,
       }),
     );
   }

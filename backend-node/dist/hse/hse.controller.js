@@ -61,6 +61,7 @@ const autogestion_dto_1 = require("./dto/autogestion.dto");
 const acceso_dto_1 = require("./dto/acceso.dto");
 const cumplimiento_dto_1 = require("./dto/cumplimiento.dto");
 const excepcion_dto_1 = require("./dto/excepcion.dto");
+const reportes_dto_1 = require("./dto/reportes.dto");
 const autorizacion_service_1 = require("./services/autorizacion.service");
 const autogestion_service_1 = require("./services/autogestion.service");
 const acceso_service_1 = require("./services/acceso.service");
@@ -192,11 +193,11 @@ let HseController = class HseController {
     async addContratistas(id, contratistasDto) {
         return this.autorizacionService.addContratistas(id, contratistasDto);
     }
-    async generarTokenContratista(id) {
-        return this.autorizacionService.generarTokenContratista(id);
+    async generarTokenContratista(id, req) {
+        return this.autorizacionService.generarTokenContratista(id, req.user?.id);
     }
-    async renovarTokenFrontend(id) {
-        const result = await this.autorizacionService.generarTokenContratista(id);
+    async renovarTokenFrontend(id, req) {
+        const result = await this.autorizacionService.generarTokenContratista(id, req.user?.id);
         return result.token;
     }
     async getContratista(id) {
@@ -319,14 +320,14 @@ let HseController = class HseController {
     async getExcepcionesPorSedeAlias(sedeId) {
         return this.excepcionService.listarExcepciones(sedeId);
     }
-    async anularExcepcion(id) {
-        return this.excepcionService.anularExcepcion(id);
+    async anularExcepcion(id, req) {
+        return this.excepcionService.anularExcepcion(id, req.user?.id);
     }
-    async desactivarExcepcion(id) {
-        return this.excepcionService.anularExcepcion(id);
+    async desactivarExcepcion(id, req) {
+        return this.excepcionService.anularExcepcion(id, req.user?.id);
     }
-    async activarExcepcion(id) {
-        return this.excepcionService.activarExcepcion(id);
+    async activarExcepcion(id, req) {
+        return this.excepcionService.activarExcepcion(id, req.user?.id);
     }
     async actualizarExcepcion(id, dto) {
         return this.excepcionService.actualizarExcepcion(id, dto);
@@ -431,7 +432,7 @@ __decorate([
 ], HseController.prototype, "eliminarProveedor", null);
 __decorate([
     (0, common_1.Get)('autorizaciones'),
-    (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_HSE, rol_enum_1.RolNombre.GESTION_HSE, rol_enum_1.RolNombre.VISUALIZADOR),
+    (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_GLOBAL, rol_enum_1.RolNombre.ADMIN_HSE, rol_enum_1.RolNombre.GESTION_HSE, rol_enum_1.RolNombre.VISUALIZADOR),
     __param(0, (0, common_1.Query)('sede_id', common_1.ParseIntPipe)),
     __param(1, (0, common_1.Query)('estado')),
     __param(2, (0, common_1.Query)('page')),
@@ -442,7 +443,7 @@ __decorate([
 ], HseController.prototype, "getAutorizaciones", null);
 __decorate([
     (0, common_1.Get)('autorizaciones/:id'),
-    (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_HSE, rol_enum_1.RolNombre.GESTION_HSE, rol_enum_1.RolNombre.VISUALIZADOR),
+    (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_GLOBAL, rol_enum_1.RolNombre.ADMIN_HSE, rol_enum_1.RolNombre.GESTION_HSE, rol_enum_1.RolNombre.VISUALIZADOR),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -485,7 +486,7 @@ __decorate([
 ], HseController.prototype, "cambiarEstadoAutorizacion", null);
 __decorate([
     (0, common_1.Get)('autorizaciones/:id/contratistas'),
-    (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_HSE, rol_enum_1.RolNombre.GESTION_HSE, rol_enum_1.RolNombre.VISUALIZADOR),
+    (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_GLOBAL, rol_enum_1.RolNombre.ADMIN_HSE, rol_enum_1.RolNombre.GESTION_HSE, rol_enum_1.RolNombre.VISUALIZADOR),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -504,16 +505,18 @@ __decorate([
     (0, common_1.Post)('contratistas/:id/generar-token'),
     (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_HSE, rol_enum_1.RolNombre.GESTION_HSE),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], HseController.prototype, "generarTokenContratista", null);
 __decorate([
     (0, common_1.Post)('contratistas/:id/token'),
     (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_HSE, rol_enum_1.RolNombre.GESTION_HSE),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], HseController.prototype, "renovarTokenFrontend", null);
 __decorate([
@@ -685,7 +688,7 @@ __decorate([
 ], HseController.prototype, "finalizarAutogestion", null);
 __decorate([
     (0, common_1.Get)('dashboard/:sedeId'),
-    (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_HSE, rol_enum_1.RolNombre.GESTION_HSE, rol_enum_1.RolNombre.VISUALIZADOR),
+    (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_GLOBAL, rol_enum_1.RolNombre.ADMIN_HSE, rol_enum_1.RolNombre.GESTION_HSE, rol_enum_1.RolNombre.VIGILANTE_HSE, rol_enum_1.RolNombre.VISUALIZADOR),
     __param(0, (0, common_1.Param)('sedeId', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -860,24 +863,27 @@ __decorate([
     (0, common_1.Put)('excepciones/:id/anular'),
     (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_HSE),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], HseController.prototype, "anularExcepcion", null);
 __decorate([
     (0, common_1.Post)('excepciones/:id/desactivar'),
     (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_HSE),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], HseController.prototype, "desactivarExcepcion", null);
 __decorate([
     (0, common_1.Post)('excepciones/:id/activar'),
     (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_HSE),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], HseController.prototype, "activarExcepcion", null);
 __decorate([
@@ -902,7 +908,7 @@ __decorate([
     (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_HSE, rol_enum_1.RolNombre.GESTION_HSE, rol_enum_1.RolNombre.VISUALIZADOR),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [reportes_dto_1.ReporteAccesosQueryDto]),
     __metadata("design:returntype", Promise)
 ], HseController.prototype, "getReporteAccesos", null);
 __decorate([
@@ -910,7 +916,7 @@ __decorate([
     (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_HSE, rol_enum_1.RolNombre.GESTION_HSE, rol_enum_1.RolNombre.VISUALIZADOR),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [reportes_dto_1.ReporteCumplimientoQueryDto]),
     __metadata("design:returntype", Promise)
 ], HseController.prototype, "getReporteCumplimiento", null);
 __decorate([

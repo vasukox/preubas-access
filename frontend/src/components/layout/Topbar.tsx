@@ -179,17 +179,18 @@ function UserMenuDropdown({
       >
         <div
           style={{
-            width:          '32px',
-            height:         '32px',
+            width:          '34px',
+            height:         '34px',
             borderRadius:   'var(--radius-full)',
-            background:     'var(--primary-100)',
+            background:     'var(--gradient-brand)',
             display:        'flex',
             alignItems:     'center',
             justifyContent: 'center',
-            fontSize:       '0.85rem',
-            fontWeight:     600,
-            color:          'var(--primary-700)',
+            fontSize:       '0.875rem',
+            fontWeight:     700,
+            color:          '#FFFFFF',
             flexShrink:     0,
+            boxShadow:      '0 2px 8px rgba(37, 99, 235, 0.25)',
           }}
         >
           {usuario.nombre_completo.charAt(0).toUpperCase()}
@@ -283,17 +284,20 @@ export function Topbar({ usuario, noLeidas, paginaActual, onMenuClick, themeMode
   return (
     <header
       style={{
-        height:       'var(--topbar-height)',
-        background:   'var(--bg-surface)',
-        borderBottom: '1px solid var(--border-subtle)',
-        display:      'flex',
-        alignItems:   'center',
-        padding:      '0 24px',
-        gap:          '16px',
-        position:     'sticky',
-        top:          0,
-        zIndex:       50,
-        flexShrink:   0,
+        height:               'var(--topbar-height)',
+        background:           'rgba(255, 255, 255, 0.92)',
+        backdropFilter:       'blur(20px) saturate(1.6)',
+        WebkitBackdropFilter: 'blur(20px) saturate(1.6)',
+        borderBottom:         '1px solid rgba(226, 232, 240, 0.8)',
+        boxShadow:            '0 1px 0 rgba(226,232,240,0.6), 0 4px 24px -4px rgba(0,0,0,0.04)',
+        display:              'flex',
+        alignItems:           'center',
+        padding:              '0 24px',
+        gap:                  '16px',
+        position:             'sticky',
+        top:                  0,
+        zIndex:               50,
+        flexShrink:           0,
       }}
     >
       {/* Botón menú mobile */}
@@ -368,10 +372,10 @@ export function Topbar({ usuario, noLeidas, paginaActual, onMenuClick, themeMode
         <button
           style={{
             position:       'relative',
-            background:     'transparent',
-            border:         '1px solid var(--border-default)',
+            background:     noLeidas > 0 ? 'rgba(239, 68, 68, 0.05)' : 'transparent',
+            border:         `1px solid ${noLeidas > 0 ? 'var(--danger-200)' : 'var(--border-default)'}`,
             borderRadius:   'var(--radius-md)',
-            color:          'var(--text-secondary)',
+            color:          noLeidas > 0 ? 'var(--danger-500)' : 'var(--text-secondary)',
             cursor:         'pointer',
             padding:        '7px',
             display:        'flex',

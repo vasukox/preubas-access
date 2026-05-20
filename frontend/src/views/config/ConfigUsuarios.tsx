@@ -3,14 +3,15 @@
  * Permite crear, editar, eliminar usuarios y asignar/quitar roles
  * desde una interfaz de tarjetas con toggle por rol.
  */
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { herramientasService, UsuarioSistema, RolSistema, UsuarioCreateRequest } from '@/services/herramientas.service'
+import { configService, type SedeConfig } from '@/services/config.service'
 import { getErrorMessage } from '@/services/api'
 import toast from 'react-hot-toast'
 import type { RolNombre } from '@/types'
 import {
-  UserPlus, Pencil, ShieldCheck, Trash2, X, Check, Loader2, Key, Search,
+  UserPlus, Pencil, ShieldCheck, Trash2, X, Check, Loader2, Key, Search, Lock,
 } from 'lucide-react'
 
 // ── Colores y etiquetas por rol ──────────────────────────────────────
@@ -36,6 +37,69 @@ const ROL_LABEL: Record<string, string> = {
   ADMIN_NFC:         'Admin NFC',
   ADMIN_GH:          'Admin GH',
   VISUALIZADOR:      'Visualizador',
+}
+
+const ROLES_VIGILANTE: RolNombre[] = ['VIGILANTE_HSE', 'VIGILANTE_PARKING']
+
+function esRolVigilante(rol: RolNombre) {
+  return ROLES_VIGILANTE.includes(rol)
+}
+
+function tieneRolVigilante(roles: Iterable<RolNombre>) {
+  return [...roles].some(esRolVigilante)
+}
+
+function SedesVigilantePicker({
+  sedes,
+  selectedIds,
+  onChange,
+}: {
+  sedes: SedeConfig[]
+  selectedIds: Set<number>
+  onChange: (ids: Set<number>) => void
+}) {
+  const toggle = (id: number) => {
+    const next = new Set(selectedIds)
+    if (next.has(id)) next.delete(id)
+    else next.add(id)
+    onChange(next)
+  }
+
+  const activas = sedes.filter(s => s.activa)
+
+  return (
+    <div style={{ display: 'grid', gap: '6px', maxHeight: '200px', overflowY: 'auto' }}>
+      {activas.length === 0 ? (
+        <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+          No hay sedes activas registradas.
+        </p>
+      ) : activas.map(s => {
+        const checked = selectedIds.has(s.id)
+        return (
+          <label
+            key={s.id}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '10px',
+              padding: '8px 10px', borderRadius: 'var(--radius-md)',
+              border: `1px solid ${checked ? 'var(--primary-400)' : 'var(--border-subtle)'}`,
+              background: checked ? 'rgba(69,116,196,0.08)' : 'var(--bg-raised)',
+              cursor: 'pointer', fontSize: '0.78rem',
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={checked}
+              onChange={() => toggle(s.id)}
+              style={{ accentColor: 'var(--primary-500)' }}
+            />
+            <span style={{ color: 'var(--text-primary)', fontWeight: checked ? 600 : 400 }}>
+              {s.nombre}{s.ciudad ? ` — ${s.ciudad}` : ''}
+            </span>
+          </label>
+        )
+      })}
+    </div>
+  )
 }
 
 // Orden deseado en la cuadrícula de roles
@@ -206,10 +270,30 @@ function RolesModal({
     new Set(usuario.roles.map(r => r.nombre) as RolNombre[])
   )
   const [loadingRoles, setLoadingRoles] = useState<Set<RolNombre>>(new Set())
+  const [sedesSeleccionadas, setSedesSeleccionadas] = useState<Set<number>>(() => {
+    const ids = usuario.sedes_asignadas_ids?.length
+      ? usuario.sedes_asignadas_ids
+      : usuario.sede_asignada_id
+        ? [usuario.sede_asignada_id]
+        : []
+    return new Set(ids)
+  })
+
+  const { data: sedes = [] } = useQuery({
+    queryKey: ['config_sedes'],
+    queryFn:  configService.listSedes,
+  })
+
+  const tieneSedesPrevias = (usuario.sedes_asignadas?.length ?? 0) > 0 || !!usuario.sede_asignada_id
 
   const handleToggle = async (rolNombre: RolNombre) => {
     if (loadingRoles.has(rolNombre)) return
     const isAssigned = assignedRoles.has(rolNombre)
+
+    if (!isAssigned && esRolVigilante(rolNombre) && !tieneSedesPrevias && sedesSeleccionadas.size === 0) {
+      toast.error('Selecciona al menos una sede antes de asignar un rol de vigilante.')
+      return
+    }
 
     // Optimistic update
     setAssignedRoles(prev => {
@@ -224,7 +308,10 @@ function RolesModal({
         await herramientasService.quitarRol(usuario.id, rolNombre)
         toast.success(`Rol ${ROL_LABEL[rolNombre] ?? rolNombre} removido`)
       } else {
-        await herramientasService.asignarRol(usuario.id, rolNombre)
+        const sedesParaAsignar = esRolVigilante(rolNombre) && !tieneSedesPrevias
+          ? [...sedesSeleccionadas]
+          : undefined
+        await herramientasService.asignarRol(usuario.id, rolNombre, sedesParaAsignar)
         toast.success(`Rol ${ROL_LABEL[rolNombre] ?? rolNombre} asignado`)
       }
       void queryClient.invalidateQueries({ queryKey: ['config_usuarios'] })
@@ -297,6 +384,44 @@ function RolesModal({
           </button>
         </div>
 
+        {tieneSedesPrevias ? (
+          <div style={{
+            margin: '0 16px 12px', padding: '8px 12px', borderRadius: 'var(--radius-md)',
+            background: 'var(--bg-raised)', border: '1px solid var(--border-subtle)',
+            fontSize: '0.73rem', color: 'var(--text-secondary)', flexShrink: 0,
+          }}>
+            Sedes asignadas:{' '}
+            <strong style={{ color: 'var(--text-primary)' }}>
+              {(usuario.sedes_asignadas ?? (usuario.sede_asignada ? [usuario.sede_asignada] : []))
+                .map(s => s.nombre)
+                .join(', ')}
+            </strong>
+          </div>
+        ) : (
+          <div style={{
+            margin: '0 16px 12px', padding: '12px 14px',
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid rgba(69,116,196,0.4)',
+            background: 'rgba(69,116,196,0.04)',
+            flexShrink: 0,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <Lock size={13} color="var(--primary-400)" />
+              <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--primary-400)' }}>
+                Sedes operativas — selecciona una o más
+              </span>
+            </div>
+            <p style={{ margin: '0 0 10px', fontSize: '0.72rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+              Requerido antes de asignar un rol de vigilante. El usuario solo podrá operar en las sedes elegidas.
+            </p>
+            <SedesVigilantePicker
+              sedes={sedes}
+              selectedIds={sedesSeleccionadas}
+              onChange={setSedesSeleccionadas}
+            />
+          </div>
+        )}
+
         {/* Cuadrícula de roles */}
         <div style={{
           overflowY: 'auto', padding: '16px',
@@ -323,7 +448,19 @@ function RolesModal({
 function CrearModal({ roles, onClose }: { roles: RolSistema[]; onClose: () => void }) {
   const queryClient = useQueryClient()
   const [selectedRoles, setSelectedRoles] = useState<Set<RolNombre>>(new Set())
+  const [sedesSeleccionadas, setSedesSeleccionadas] = useState<Set<number>>(new Set())
   const [showPass, setShowPass] = useState(false)
+
+  const { data: sedes = [] } = useQuery({
+    queryKey: ['config_sedes'],
+    queryFn:  configService.listSedes,
+  })
+
+  const esVigilante = useMemo(() => tieneRolVigilante(selectedRoles), [selectedRoles])
+
+  useEffect(() => {
+    if (!esVigilante) setSedesSeleccionadas(new Set())
+  }, [esVigilante])
 
   const crearMut = useMutation({
     mutationFn: (data: UsuarioCreateRequest) => herramientasService.crearUsuario(data),
@@ -352,6 +489,10 @@ function CrearModal({ roles, onClose }: { roles: RolSistema[]; onClose: () => vo
       toast.error('Las contraseñas no coinciden.')
       return
     }
+    if (esVigilante && sedesSeleccionadas.size === 0) {
+      toast.error('Los vigilantes deben tener al menos una sede asignada.')
+      return
+    }
     crearMut.mutate({
       email:                 fd.get('email') as string,
       nombres:               fd.get('nombres') as string,
@@ -362,6 +503,8 @@ function CrearModal({ roles, onClose }: { roles: RolSistema[]; onClose: () => vo
       password_confirmacion: passConf,
       firma_creador:         'admin',
       roles_nombres:         selectedRoles.size > 0 ? [...selectedRoles] : undefined,
+      sedes_asignadas_ids:   esVigilante ? [...sedesSeleccionadas] : undefined,
+      sede_asignada_id:      esVigilante ? [...sedesSeleccionadas][0] ?? null : null,
     })
   }
 
@@ -490,6 +633,32 @@ function CrearModal({ roles, onClose }: { roles: RolSistema[]; onClose: () => vo
                 )
               })}
             </div>
+
+            {esVigilante && (
+              <div style={{
+                padding: '12px 14px', borderRadius: 'var(--radius-lg)',
+                border: '1px solid rgba(69,116,196,0.4)',
+                background: 'rgba(69,116,196,0.04)',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <Lock size={13} color="var(--primary-400)" />
+                  <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--primary-400)' }}>
+                    Sedes operativas — selecciona una o más
+                  </span>
+                </div>
+                <p style={{ margin: '0 0 10px', fontSize: '0.72rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                  El vigilante solo podrá operar en las sedes que marques aquí.
+                  {sedesSeleccionadas.size === 1
+                    ? ' Con una sola sede, quedará fija en el sistema.'
+                    : ' Con varias sedes, podrá cambiar entre ellas en el selector superior.'}
+                </p>
+                <SedesVigilantePicker
+                  sedes={sedes}
+                  selectedIds={sedesSeleccionadas}
+                  onChange={setSedesSeleccionadas}
+                />
+              </div>
+            )}
           </div>
 
           {/* Footer */}
@@ -512,11 +681,12 @@ function CrearModal({ roles, onClose }: { roles: RolSistema[]; onClose: () => vo
               style={{
                 display: 'flex', alignItems: 'center', gap: '6px',
                 padding: '8px 18px', borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--primary-400)',
-                background: 'var(--primary-500)', color: '#fff',
+                border: 'none',
+                background: 'var(--gradient-primary)', color: '#fff',
                 fontSize: '0.82rem', fontWeight: 600,
                 fontFamily: 'var(--font-ui)', cursor: crearMut.isPending ? 'wait' : 'pointer',
                 opacity: crearMut.isPending ? 0.7 : 1,
+                boxShadow: '0 1px 3px rgba(59,130,246,0.18)',
               }}
             >
               {crearMut.isPending
@@ -615,10 +785,11 @@ function EditarModal({ usuario, onClose }: { usuario: UsuarioSistema; onClose: (
             <button type="submit" disabled={editarMut.isPending} style={{
               display: 'flex', alignItems: 'center', gap: '6px',
               padding: '7px 16px', borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--primary-400)', background: 'var(--primary-500)',
+              border: 'none', background: 'var(--gradient-primary)',
               color: '#fff', fontSize: '0.82rem', fontWeight: 600,
               fontFamily: 'var(--font-ui)', cursor: editarMut.isPending ? 'wait' : 'pointer',
               opacity: editarMut.isPending ? 0.7 : 1,
+              boxShadow: '0 1px 3px rgba(59,130,246,0.18)',
             }}>
               {editarMut.isPending ? <Loader2 size={13} style={{ animation: 'spin 0.8s linear infinite' }} /> : <Check size={13} />}
               Guardar
@@ -701,9 +872,10 @@ export default function ConfigUsuarios() {
           style={{
             display: 'flex', alignItems: 'center', gap: '6px',
             padding: '8px 16px', borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--primary-400)', background: 'var(--primary-500)',
+            border: 'none', background: 'var(--gradient-primary)',
             color: '#fff', fontSize: '0.82rem', fontWeight: 600,
             fontFamily: 'var(--font-ui)', cursor: 'pointer', whiteSpace: 'nowrap',
+            boxShadow: '0 2px 4px rgba(59,130,246,0.20), 0 6px 16px rgba(59,130,246,0.16)',
           }}
         >
           <UserPlus size={14} />
@@ -743,9 +915,11 @@ export default function ConfigUsuarios() {
                   </td>
                   <td style={tdStyle}>
                     <div style={{ fontWeight: 500 }}>{u.nombre_completo}</div>
-                    {u.sede_asignada && (
+                    {(u.sedes_asignadas?.length || u.sede_asignada) && (
                       <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '1px' }}>
-                        {u.sede_asignada.nombre}
+                        {(u.sedes_asignadas ?? (u.sede_asignada ? [u.sede_asignada] : []))
+                          .map(s => s.nombre)
+                          .join(' · ')}
                       </div>
                     )}
                   </td>

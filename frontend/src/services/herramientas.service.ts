@@ -24,8 +24,10 @@ export interface UsuarioSistema {
   ultimo_login:     string | null
   roles:            { id: number; nombre: RolNombre }[]
   permisos:         PermisosUsuario
-  sede_asignada_id: number | null
-  sede_asignada:    { id: number; nombre: string; ciudad: string } | null
+  sede_asignada_id:     number | null
+  sede_asignada:        { id: number; nombre: string; ciudad: string } | null
+  sedes_asignadas_ids?: number[]
+  sedes_asignadas?:     { id: number; nombre: string; ciudad: string }[]
 }
 
 export interface RolSistema {
@@ -53,7 +55,8 @@ export interface UsuarioCreateRequest {
   password:              string
   password_confirmacion: string
   firma_creador:         string
-  sede_asignada_id?:     number | null
+  sede_asignada_id?:      number | null
+  sedes_asignadas_ids?:   number[]
   permisos?: {
     ver:      boolean
     crear:    boolean
@@ -116,8 +119,11 @@ export const herramientasService = {
     put<UsuarioSistema>(`/herramientas/usuarios/${id}/permisos`, data),
 
   // ── Roles de usuario ───────────────────────────────────────────
-  asignarRol: (usuarioId: number, rolNombre: RolNombre) =>
-    post<UsuarioSistema>(`/herramientas/usuarios/${usuarioId}/roles`, { rol_nombre: rolNombre }),
+  asignarRol: (usuarioId: number, rolNombre: RolNombre, sedesAsignadasIds?: number[]) =>
+    post<UsuarioSistema>(`/herramientas/usuarios/${usuarioId}/roles`, {
+      rol_nombre: rolNombre,
+      ...(sedesAsignadasIds?.length ? { sedes_asignadas_ids: sedesAsignadasIds } : {}),
+    }),
 
   quitarRol: (usuarioId: number, rolNombre: RolNombre) =>
     del<UsuarioSistema>(`/herramientas/usuarios/${usuarioId}/roles/${rolNombre}`),

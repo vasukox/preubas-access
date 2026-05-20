@@ -1193,7 +1193,8 @@ export default function ExcepcionesView() {
             padding:      '16px 20px',
             background:   'var(--bg-surface)',
             border:       '1px solid var(--border-subtle)',
-            borderRadius: 'var(--radius-lg)',
+            borderRadius: 'var(--radius-xl)',
+            boxShadow:    'var(--shadow-card)',
           }}
         >
             <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', letterSpacing: '0.08em', marginBottom: '6px' }}>
@@ -1233,16 +1234,10 @@ export default function ExcepcionesView() {
             gap:            '10px',
             background:   'var(--bg-surface)',
             border:       '1px solid var(--border-subtle)',
-            borderRadius: 'var(--radius-lg)',
+            borderRadius: 'var(--radius-xl)',
+            boxShadow:    'var(--shadow-card)',
           }}>
-            <div style={{
-              width:        '16px',
-              height:       '16px',
-              border:       '2px solid var(--border-default)',
-              borderTop:    '2px solid var(--primary-500)',
-              borderRadius: '50%',
-              animation:    'spin 1s linear infinite',
-            }} />
+            <span className="spinner-dark" />
             Cargando...
           </div>
         ) : filteredExcepciones.length === 0 ? (
@@ -1253,7 +1248,8 @@ export default function ExcepcionesView() {
             fontSize:  '0.83rem',
             background:   'var(--bg-surface)',
             border:       '1px solid var(--border-subtle)',
-            borderRadius: 'var(--radius-lg)',
+            borderRadius: 'var(--radius-xl)',
+            boxShadow:    'var(--shadow-card)',
           }}>
             No hay resultados para tu búsqueda.
           </div>
@@ -1279,8 +1275,9 @@ export default function ExcepcionesView() {
                     background:   'var(--bg-surface)',
                     border:       '1px solid var(--border-subtle)',
                     borderLeft:   group.isEmpresa ? '4px solid rgba(86,104,184,0.5)' : '4px solid rgba(148,163,184,0.55)',
-                    borderRadius: 'var(--radius-lg)',
+                    borderRadius: 'var(--radius-xl)',
                     overflow:     'hidden',
+                    boxShadow:    'var(--shadow-card)',
                   }}
                 >
                 <div
@@ -1483,7 +1480,7 @@ export default function ExcepcionesView() {
                               style={{
                                 padding: '6px 10px',
                                 minWidth: '96px',
-                                background: 'var(--primary-500)',
+                                background: 'var(--gradient-primary)',
                                 color: 'var(--text-inverted)',
                                 border: 'none',
                                 borderRadius: 'var(--radius-md)',
@@ -1494,6 +1491,7 @@ export default function ExcepcionesView() {
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '4px',
+                                boxShadow: '0 1px 3px rgba(59,130,246,0.18)',
                               }}
                             >
                               {accionando === e.id ? '...' : 'Activar'}

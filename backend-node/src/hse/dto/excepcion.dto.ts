@@ -1,4 +1,4 @@
-import { IsInt, IsString, IsDateString, IsArray, ArrayMinSize, IsOptional, ValidateNested } from 'class-validator';
+import { IsInt, IsString, IsDateString, IsArray, ArrayMinSize, IsOptional, IsNotEmpty, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateExcepcionDto {
@@ -22,20 +22,20 @@ export class CreateExcepcionDto {
   @IsInt()
   proveedorId?: number;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsInt()
-  sedeId?: number;
+  sedeId: number;
 
   @IsString()
   motivo: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsDateString()
-  fechaInicio?: string;
+  fechaInicio: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsDateString()
-  fechaFin?: string;
+  fechaFin: string;
 
   @IsOptional()
   @IsInt()
@@ -105,9 +105,9 @@ export class CreateExcepcionLoteDto {
   @Type(() => ExcepcionLoteContratistaDto)
   contratistas?: ExcepcionLoteContratistaDto[];
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsInt()
-  sedeId?: number;
+  sedeId: number;
 
   @IsOptional()
   @IsInt()
@@ -116,11 +116,11 @@ export class CreateExcepcionLoteDto {
   @IsString()
   motivo: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsDateString()
-  fechaInicio?: string;
+  fechaInicio: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsDateString()
-  fechaFin?: string;
+  fechaFin: string;
 }

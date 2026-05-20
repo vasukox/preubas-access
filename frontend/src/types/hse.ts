@@ -143,6 +143,7 @@ export interface AutorizacionListResponse {
   fecha_fin:          string
   sede_id:            number
   proveedor_id?:      number | null
+  proveedor_nombre?:  string | null
   descripcion_actividad?: string
   total_contratistas: number
   aprobados:          number

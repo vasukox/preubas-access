@@ -1,14 +1,16 @@
 import { Injectable, BadRequestException, ConflictException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In, Not } from 'typeorm';
+import { Repository, In, Not, EntityManager, QueryFailedError } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
 import { Rol } from '../auth/entities/rol.entity';
 import { Usuario } from '../auth/entities/usuario.entity';
 import { UsuarioRol } from '../auth/entities/usuario-rol.entity';
+import { UsuarioSede } from '../auth/entities/usuario-sede.entity';
 import { Perfil } from '../auth/entities/perfil.entity';
 import { UsuarioPermiso } from '../auth/entities/usuario-permiso.entity';
 import { AuditLog } from '../auth/entities/audit-log.entity';
+import { Sede } from '../sede/entities/sede.entity';
 import { ROL_META } from './herramientas.constants';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
@@ -30,6 +32,10 @@ export class HerramientasService {
     private readonly usuarioPermisoRepo: Repository<UsuarioPermiso>,
     @InjectRepository(UsuarioRol)
     private readonly usuarioRolRepo: Repository<UsuarioRol>,
+    @InjectRepository(UsuarioSede)
+    private readonly usuarioSedeRepo: Repository<UsuarioSede>,
+    @InjectRepository(Sede)
+    private readonly sedeRepo: Repository<Sede>,
   ) {}
 
   // ── Helpers ──────────────────────────────────────────────────────────────
@@ -41,6 +47,117 @@ export class HerramientasService {
     if (!/\d/.test(password)) return 'La contraseña debe incluir al menos un número.';
     if (!/[^A-Za-z0-9]/.test(password)) return 'La contraseña debe incluir al menos un carácter especial.';
     return null;
+  }
+
+  private resolverIdsSedes(input: { sedeAsignadaId?: number; sedesAsignadasIds?: number[] }): number[] {
+    const fromArray = input.sedesAsignadasIds?.length
+      ? [...new Set(input.sedesAsignadasIds.filter((id) => Number.isInteger(id) && id > 0))]
+      : [];
+    if (fromArray.length > 0) return fromArray;
+    if (input.sedeAsignadaId) return [input.sedeAsignadaId];
+    return [];
+  }
+
+  private mapSedesAsignadas(usuario: Usuario) {
+    const fromPivot = (usuario.sedesAsignadas ?? [])
+      .filter((us) => us.sede)
+      .map((us) => ({
+        id: us.sede.id,
+        nombre: us.sede.nombre,
+        ciudad: us.sede.ciudad,
+      }));
+
+    if (fromPivot.length > 0) return fromPivot;
+
+    if (usuario.sedeAsignada) {
+      return [{
+        id: usuario.sedeAsignada.id,
+        nombre: usuario.sedeAsignada.nombre,
+        ciudad: usuario.sedeAsignada.ciudad,
+      }];
+    }
+
+    return [];
+  }
+
+  private mapUsuarioResponse(u: Usuario) {
+    const permisos = u.permisos
+      ? {
+          puedeVer: u.permisos.puedeVer,
+          puedeCrear: u.permisos.puedeCrear,
+          puedeEditar: u.permisos.puedeEditar,
+          puedeEliminar: u.permisos.puedeEliminar,
+        }
+      : { puedeVer: true, puedeCrear: false, puedeEditar: false, puedeEliminar: false };
+
+    const sedesAsignadas = this.mapSedesAsignadas(u);
+    const sedePrincipal = sedesAsignadas[0] ?? null;
+
+    return {
+      id: u.id,
+      email: u.email,
+      nombreCompleto: u.nombreCompleto,
+      numero: u.perfil?.telefono ?? null,
+      direccion: u.perfil?.ubicacion ?? null,
+      activo: u.activo,
+      ultimoLogin: u.ultimoLogin ?? null,
+      roles: u.roles.map((ur) => ({ id: ur.rol.id, nombre: ur.rol.nombre })),
+      permisos,
+      sedeAsignadaId: u.sedeAsignadaId ?? sedePrincipal?.id ?? null,
+      sedeAsignada: u.sedeAsignada
+        ? { id: u.sedeAsignada.id, nombre: u.sedeAsignada.nombre, ciudad: u.sedeAsignada.ciudad }
+        : sedePrincipal,
+      sedesAsignadasIds: sedesAsignadas.map((s) => s.id),
+      sedesAsignadas,
+    };
+  }
+
+  private async validarSedesExisten(sedeIds: number[], manager?: EntityManager) {
+    if (sedeIds.length === 0) return;
+    const repo = manager ? manager.getRepository(Sede) : this.sedeRepo;
+    const sedes = await repo.find({ where: { id: In(sedeIds), activa: true } });
+    if (sedes.length !== sedeIds.length) {
+      throw new BadRequestException({
+        code: 'SEDE_INVALIDA',
+        message: 'Una o más sedes seleccionadas no existen o están inactivas.',
+      });
+    }
+  }
+
+  private async sincronizarSedesUsuario(
+    manager: EntityManager,
+    usuarioId: number,
+    sedeIds: number[],
+  ) {
+    await manager.delete(UsuarioSede, { usuarioId });
+    if (sedeIds.length === 0) return;
+
+    const registros = sedeIds.map((sedeId) =>
+      manager.create(UsuarioSede, { usuarioId, sedeId }),
+    );
+    await manager.save(registros);
+  }
+
+  private async assertEmailDisponible(email: string): Promise<string> {
+    const normalizado = email.toLowerCase().trim();
+    const existe = await this.usuarioRepo.findOne({
+      where: { email: normalizado },
+      withDeleted: true,
+    });
+
+    if (!existe) return normalizado;
+
+    if (existe.deleted_at) {
+      throw new ConflictException({
+        code: 'EMAIL_DUPLICADO',
+        message: `El email ${normalizado} pertenece a un usuario eliminado. Restáuralo o usa otro correo.`,
+      });
+    }
+
+    throw new ConflictException({
+      code: 'EMAIL_DUPLICADO',
+      message: `Ya existe un usuario con el email ${normalizado}`,
+    });
   }
 
   private normalizarFirma(value: string): string {
@@ -91,40 +208,11 @@ export class HerramientasService {
 
   async listarUsuarios() {
     const usuarios = await this.usuarioRepo.find({
-      relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada'],
+      relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada', 'sedesAsignadas', 'sedesAsignadas.sede'],
       order: { nombreCompleto: 'ASC' },
     });
 
-    return usuarios.map((u) => {
-      const permisos = u.permisos
-        ? {
-            puedeVer: u.permisos.puedeVer,
-            puedeCrear: u.permisos.puedeCrear,
-            puedeEditar: u.permisos.puedeEditar,
-            puedeEliminar: u.permisos.puedeEliminar,
-          }
-        : { puedeVer: true, puedeCrear: false, puedeEditar: false, puedeEliminar: false };
-
-      return {
-        id: u.id,
-        email: u.email,
-        nombreCompleto: u.nombreCompleto,
-        numero: u.perfil?.telefono ?? null,
-        direccion: u.perfil?.ubicacion ?? null,
-        activo: u.activo,
-        ultimoLogin: u.ultimoLogin ?? null,
-        roles: u.roles.map((ur) => ({ id: ur.rol.id, nombre: ur.rol.nombre })),
-        permisos,
-        sedeAsignadaId: u.sedeAsignadaId,
-        sedeAsignada: u.sedeAsignada
-          ? {
-              id: u.sedeAsignada.id,
-              nombre: u.sedeAsignada.nombre,
-              ciudad: u.sedeAsignada.ciudad,
-            }
-          : null,
-      };
-    });
+    return usuarios.map((u) => this.mapUsuarioResponse(u));
   }
 
   async listarAuditoria(limite = 100) {
@@ -155,10 +243,7 @@ export class HerramientasService {
       throw new BadRequestException({ code: 'FIRMA_INVALIDA', message: 'La firma digital ingresada no es válida.' });
     }
 
-    const existe = await this.usuarioRepo.findOne({ where: { email: dto.email } });
-    if (existe) {
-      throw new ConflictException({ code: 'EMAIL_DUPLICADO', message: `Ya existe un usuario con el email ${dto.email}` });
-    }
+    const emailNormalizado = await this.assertEmailDisponible(dto.email);
 
     // Unir roles solicitados
     const rolesSolicitados = Array.from(new Set([
@@ -179,24 +264,34 @@ export class HerramientasService {
     }
 
     const esVigilante = rolesSolicitados.includes(RolNombre.VIGILANTE_HSE) || rolesSolicitados.includes(RolNombre.VIGILANTE_PARKING);
-    if (esVigilante && !dto.sedeAsignadaId) {
-      throw new BadRequestException({ code: 'SEDE_REQUERIDA', message: 'Los vigilantes deben tener una sede asignada obligatoriamente.' });
+    const sedesIds = this.resolverIdsSedes(dto);
+    if (esVigilante && sedesIds.length === 0) {
+      throw new BadRequestException({
+        code: 'SEDE_REQUERIDA',
+        message: 'Los vigilantes deben tener al menos una sede asignada.',
+      });
     }
+    await this.validarSedesExisten(sedesIds);
 
     // Transaction
-    return this.usuarioRepo.manager.transaction(async (manager) => {
+    try {
+    return await this.usuarioRepo.manager.transaction(async (manager) => {
       const passwordHash = await bcrypt.hash(dto.password, 12);
 
       const nuevo = manager.create(Usuario, {
-        email: dto.email,
+        email: emailNormalizado,
         nombreCompleto: `${dto.nombres.trim()} ${dto.apellidos.trim()}`.trim(),
         passwordHash,
         activo: true,
         debeCambiarPassword: true,
-        sedeAsignadaId: esVigilante ? dto.sedeAsignadaId : null,
+        sedeAsignadaId: sedesIds[0] ?? null,
       });
 
       const usuarioGuardado = await manager.save(nuevo);
+
+      if (sedesIds.length > 0) {
+        await this.sincronizarSedesUsuario(manager, usuarioGuardado.id, sedesIds);
+      }
 
       // Perfil (Heredar sede default)
       const perfilCreador = await manager.findOne(Perfil, { where: { usuarioId: currentUserId } });
@@ -254,11 +349,21 @@ export class HerramientasService {
       await manager.save(auditLog);
 
       // Fetch returned structured user
-      return manager.findOne(Usuario, {
+      const usuarioCompleto = await manager.findOne(Usuario, {
         where: { id: usuarioGuardado.id },
-        relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada'],
+        relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada', 'sedesAsignadas', 'sedesAsignadas.sede'],
       });
+      return this.mapUsuarioResponse(usuarioCompleto!);
     });
+    } catch (err) {
+      if (err instanceof QueryFailedError && (err as QueryFailedError & { code?: string }).code === 'ER_DUP_ENTRY') {
+        throw new ConflictException({
+          code: 'EMAIL_DUPLICADO',
+          message: `Ya existe un usuario con el email ${emailNormalizado}`,
+        });
+      }
+      throw err;
+    }
   }
 
   async actualizarUsuario(id: number, dto: UpdateUsuarioDto, currentUserId: number, currentUserName: string) {
@@ -411,8 +516,18 @@ export class HerramientasService {
     });
   }
 
-  async asignarRol(id: number, rolNombre: string, currentUserId: number, currentUserName: string) {
-    const usuario = await this.usuarioRepo.findOne({ where: { id }, relations: ['roles', 'roles.rol'] });
+  async asignarRol(
+    id: number,
+    rolNombre: string,
+    currentUserId: number,
+    currentUserName: string,
+    sedeAsignadaId?: number,
+    sedesAsignadasIds?: number[],
+  ) {
+    const usuario = await this.usuarioRepo.findOne({
+      where: { id },
+      relations: ['roles', 'roles.rol', 'sedesAsignadas'],
+    });
     if (!usuario) {
       throw new NotFoundException({ code: 'USUARIO_NO_ENCONTRADO', message: 'El usuario no existe' });
     }
@@ -426,11 +541,25 @@ export class HerramientasService {
       throw new ConflictException({ code: 'ROL_DUPLICADO', message: `El usuario ya tiene el rol '${rolNombre}'` });
     }
 
-    if ((rolNombre === RolNombre.VIGILANTE_HSE || rolNombre === RolNombre.VIGILANTE_PARKING) && !usuario.sedeAsignadaId) {
-      throw new BadRequestException({ code: 'SEDE_REQUERIDA', message: 'Los vigilantes deben tener una sede asignada obligatoriamente.' });
+    const esRolVigilante = rolNombre === RolNombre.VIGILANTE_HSE || rolNombre === RolNombre.VIGILANTE_PARKING;
+    const sedesNuevas = this.resolverIdsSedes({ sedeAsignadaId, sedesAsignadasIds });
+    const tieneSedesPrevias = !!usuario.sedeAsignadaId || (usuario.sedesAsignadas?.length ?? 0) > 0;
+
+    if (esRolVigilante && !tieneSedesPrevias && sedesNuevas.length === 0) {
+      throw new BadRequestException({
+        code: 'SEDE_REQUERIDA',
+        message: 'Los vigilantes deben tener al menos una sede asignada.',
+      });
     }
+    await this.validarSedesExisten(sedesNuevas);
 
     return this.usuarioRepo.manager.transaction(async (manager) => {
+      if (esRolVigilante && sedesNuevas.length > 0) {
+        await this.sincronizarSedesUsuario(manager, id, sedesNuevas);
+        usuario.sedeAsignadaId = sedesNuevas[0];
+        await manager.save(usuario);
+      }
+
       const nuevoRol = manager.create(UsuarioRol, {
         usuarioId: id,
         rolId: rol.id,
@@ -447,10 +576,11 @@ export class HerramientasService {
         descripcion: `Asignó rol '${rolNombre}' a '${usuario.nombreCompleto}' (${usuario.email}).`,
       }));
 
-      return manager.findOne(Usuario, {
+      const usuarioActualizado = await manager.findOne(Usuario, {
         where: { id },
-        relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada'],
+        relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada', 'sedesAsignadas', 'sedesAsignadas.sede'],
       });
+      return this.mapUsuarioResponse(usuarioActualizado!);
     });
   }
 

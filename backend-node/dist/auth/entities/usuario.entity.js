@@ -17,6 +17,7 @@ const usuario_rol_entity_1 = require("./usuario-rol.entity");
 const refresh_token_entity_1 = require("./refresh-token.entity");
 const perfil_entity_1 = require("./perfil.entity");
 const usuario_permiso_entity_1 = require("./usuario-permiso.entity");
+const usuario_sede_entity_1 = require("./usuario-sede.entity");
 let Usuario = class Usuario extends base_entity_1.BaseEntity {
     email;
     passwordHash;
@@ -32,6 +33,7 @@ let Usuario = class Usuario extends base_entity_1.BaseEntity {
     refreshTokens;
     perfil;
     permisos;
+    sedesAsignadas;
 };
 exports.Usuario = Usuario;
 __decorate([
@@ -114,6 +116,12 @@ __decorate([
     }),
     __metadata("design:type", usuario_permiso_entity_1.UsuarioPermiso)
 ], Usuario.prototype, "permisos", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => usuario_sede_entity_1.UsuarioSede, (usuarioSede) => usuarioSede.usuario, {
+        cascade: true,
+    }),
+    __metadata("design:type", Array)
+], Usuario.prototype, "sedesAsignadas", void 0);
 exports.Usuario = Usuario = __decorate([
     (0, typeorm_1.Entity)('usuarios')
 ], Usuario);

@@ -10,7 +10,7 @@ import {
   ShieldCheck, Plus, Search, Eye, Trash2, Copy,
   RefreshCw, Calendar, Users,
   AlertTriangle, CheckCircle2, Clock, XCircle,
-  Building2, Pencil,
+  Building2, Pencil, ChevronDown,
 } from 'lucide-react'
 import { hseService } from '@/services/hse.service'
 import { useSedeStore } from '@/store/sedeStore'
@@ -20,6 +20,7 @@ import type {
   AutorizacionListResponse,
   EstadoAutorizacion,
   TipoContratista,
+  TipoDocumentoHSE,
   ProveedorHSEOption,
 } from '@/types/hse'
 import {
@@ -429,7 +430,7 @@ function ModalCrear({
         fecha_fin:             form.fecha_fin,
         proveedor_id:          form.proveedor_id ? Number(form.proveedor_id) : undefined,
         contratistas:          contratistas.map(c => ({
-          tipo_documento:   c.tipo_documento,
+          tipo_documento:   c.tipo_documento as TipoDocumentoHSE,
           numero_documento: c.numero_documento.trim(),
           nombres:          c.nombres.trim(),
           apellidos:        c.apellidos.trim(),
@@ -1214,6 +1215,7 @@ export default function PanelGeneralView() {
   const [showGestionProv,   setShowGestionProv]   = useState(false)
   const [showCrearProvModal, setShowCrearProvModal] = useState(false)
   const [autorizacionAEliminar, setAutorizacionAEliminar] = useState<number | null>(null)
+  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set())
   const [isCompactTable, setIsCompactTable] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false
     return window.innerWidth < 1100
@@ -1488,16 +1490,43 @@ export default function PanelGeneralView() {
                   gap: '8px',
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: '0.82rem', color: 'var(--text-primary)', fontWeight: 700 }}>
-                      {a.contratistas?.[0]
-                        ? `${a.contratistas[0].nombres} ${a.contratistas[0].apellidos}`.trim()
-                        : 'Sin contratista'}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <div style={{ fontSize: '0.82rem', color: 'var(--text-primary)', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {a.proveedor_id && a.proveedor_nombre
+                          ? a.proveedor_nombre
+                          : a.contratistas?.[0]
+                            ? `${a.contratistas[0].nombres} ${a.contratistas[0].apellidos}`.trim()
+                            : 'Sin contratista'}
+                      </div>
+                      {a.proveedor_id && (a.contratistas?.length ?? 0) > 0 && (
+                        <button
+                          onClick={() => setExpandedRows(prev => {
+                            const next = new Set(prev)
+                            next.has(a.id) ? next.delete(a.id) : next.add(a.id)
+                            return next
+                          })}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 2, display: 'flex', flexShrink: 0 }}
+                        >
+                          <ChevronDown size={13} style={{ transform: expandedRows.has(a.id) ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
+                        </button>
+                      )}
                     </div>
                     <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
                       {a.codigo}
                     </div>
+                    {a.proveedor_id && expandedRows.has(a.id) && (
+                      <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        {a.contratistas?.map(c => (
+                          <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
+                            <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--primary-400)', flexShrink: 0 }} />
+                            {`${c.nombres} ${c.apellidos}`.trim()}
+                            <span style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>{c.numero_documento}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <EstadoBadge estado={a.estado} />
                 </div>
@@ -1586,39 +1615,57 @@ export default function PanelGeneralView() {
                   columnGap:           '14px',
                   padding:             '14px 20px',
                   borderBottom:        i < autorizacionesPagination.paginatedData.length - 1 ? '1px solid var(--border-subtle)' : 'none',
-                  alignItems:          'center',
+                  alignItems:          expandedRows.has(a.id) ? 'flex-start' : 'center',
                   transition:          'background var(--transition-fast)',
                 }}
               onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--bg-elevated)'}
               onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
             >
-              {/* Nombre (contratista principal) */}
+              {/* Nombre (empresa o contratista principal) */}
               <div style={{ minWidth: 0 }}>
-                <div style={{
-                  fontSize:      '0.82rem',
-                  color:         'var(--text-primary)',
-                  fontWeight:    600,
-                  overflow:      'hidden',
-                  textOverflow:  'ellipsis',
-                  whiteSpace:    'nowrap',
-                }}>
-                  {a.contratistas?.[0]
-                    ? `${a.contratistas[0].nombres} ${a.contratistas[0].apellidos}`.trim()
-                    : 'Sin contratista'}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <div style={{
+                    fontSize:     '0.82rem',
+                    color:        'var(--text-primary)',
+                    fontWeight:   600,
+                    overflow:     'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace:   'nowrap',
+                  }}>
+                    {a.proveedor_id && a.proveedor_nombre
+                      ? a.proveedor_nombre
+                      : a.contratistas?.[0]
+                        ? `${a.contratistas[0].nombres} ${a.contratistas[0].apellidos}`.trim()
+                        : 'Sin contratista'}
+                  </div>
+                  {a.proveedor_id && (a.contratistas?.length ?? 0) > 0 && (
+                    <button
+                      onClick={() => setExpandedRows(prev => {
+                        const next = new Set(prev)
+                        next.has(a.id) ? next.delete(a.id) : next.add(a.id)
+                        return next
+                      })}
+                      title={expandedRows.has(a.id) ? 'Ocultar contratistas' : 'Ver contratistas'}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary-400)', padding: 2, display: 'flex', flexShrink: 0 }}
+                    >
+                      <ChevronDown size={13} style={{ transform: expandedRows.has(a.id) ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
+                    </button>
+                  )}
                 </div>
                 <div style={{
-                  marginTop:     '2px',
-                  fontSize:      '0.68rem',
-                  color:         'var(--text-muted)',
-                  fontFamily:    'var(--font-mono)',
-                  overflow:      'hidden',
-                  textOverflow:  'ellipsis',
-                  whiteSpace:    'nowrap',
+                  marginTop:    '2px',
+                  fontSize:     '0.68rem',
+                  color:        'var(--text-muted)',
+                  fontFamily:   'var(--font-mono)',
+                  overflow:     'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace:   'nowrap',
                 }}>
-                  <span style={{ color: 'var(--primary-400)', fontWeight: 600 }}>{a.codigo}</span> · {a.contratistas?.[0]
-                    ? `${a.contratistas[0].tipo_documento} ${a.contratistas[0].numero_documento}`
-                    : '—'}
-                  {(a.total_contratistas ?? 0) > 1 ? `  +${(a.total_contratistas ?? 1) - 1}` : ''}
+                  <span style={{ color: 'var(--primary-400)', fontWeight: 600 }}>{a.codigo}</span>
+                  {!a.proveedor_id && a.contratistas?.[0]
+                    ? ` · ${a.contratistas[0].tipo_documento} ${a.contratistas[0].numero_documento}`
+                    : ''}
+                  {!a.proveedor_id && (a.total_contratistas ?? 0) > 1 ? `  +${(a.total_contratistas ?? 1) - 1}` : ''}
                 </div>
               </div>
 
@@ -1709,6 +1756,43 @@ export default function PanelGeneralView() {
                   <Trash2 size={13} />
                 </button>
               </div>
+
+              {/* Fila expandida — lista de contratistas de la empresa */}
+              {a.proveedor_id && expandedRows.has(a.id) && (
+                <div style={{
+                  gridColumn:    '1 / -1',
+                  borderTop:     '1px dashed var(--border-subtle)',
+                  paddingTop:    10,
+                  paddingBottom: 4,
+                  display:       'flex',
+                  flexWrap:      'wrap',
+                  gap:           '6px 20px',
+                }}>
+                  {a.contratistas?.map(c => (
+                    <div
+                      key={c.id}
+                      style={{
+                        display:    'flex',
+                        alignItems: 'center',
+                        gap:        6,
+                        fontSize:   '0.75rem',
+                        color:      'var(--text-secondary)',
+                      }}
+                    >
+                      <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--primary-400)', flexShrink: 0 }} />
+                      <span style={{ fontWeight: 500 }}>{`${c.nombres} ${c.apellidos}`.trim()}</span>
+                      <span style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: '0.68rem' }}>{c.numero_documento}</span>
+                      <button
+                        onClick={() => navigate(`/hse/gestion?contratista_id=${c.id}&autorizacion_id=${a.id}`)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary-400)', padding: '0 2px', display: 'flex' }}
+                        title="Ver en Gestión"
+                      >
+                        <Eye size={11} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             ))}
             </div>

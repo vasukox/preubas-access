@@ -36,6 +36,12 @@ export interface LoginResponse {
             nombre: string;
             ciudad?: string;
         } | null;
+        sedesAsignadasIds: number[];
+        sedesAsignadas: {
+            id: number;
+            nombre: string;
+            ciudad?: string;
+        }[];
     };
 }
 export declare class AuthService {
@@ -52,6 +58,7 @@ export declare class AuthService {
     findByIdWithRolesAndPermisos(id: number): Promise<Usuario | null>;
     changePassword(usuarioId: number, dto: ChangePasswordDto): Promise<void>;
     private generarTokens;
+    private findUsuarioConRelaciones;
     private registrarIntentoFallido;
     private registrarAudit;
 }

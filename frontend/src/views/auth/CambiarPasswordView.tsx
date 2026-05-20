@@ -66,7 +66,6 @@ export default function CambiarPasswordView() {
 
   const passwordNueva = watch('password_nueva', '')
   const requisitos    = getRequisitos(passwordNueva)
-  const todosOk       = requisitos.every((r) => r.ok)
 
   const onSubmit = async (data: FormData) => {
     setIsLoading(true)
@@ -105,6 +104,7 @@ export default function CambiarPasswordView() {
           flex: '1', display: 'flex', flexDirection: 'column',
           justifyContent: 'center', alignItems: 'flex-start',
           padding: '64px', position: 'relative', overflow: 'hidden',
+          background: 'linear-gradient(135deg, #EFF6FF 0%, #F0F5FF 45%, #F8FAFE 100%)',
         }}
         className="animate-fade-in"
       >
@@ -112,11 +112,18 @@ export default function CambiarPasswordView() {
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
           background: `
-            radial-gradient(ellipse at 20% 50%, var(--primary-50) 0%, transparent 60%),
-            radial-gradient(ellipse at 80% 20%, var(--primary-50) 0%, transparent 50%)
+            radial-gradient(ellipse at 15% 55%, rgba(219, 234, 254, 0.80) 0%, transparent 55%),
+            radial-gradient(ellipse at 85% 15%, rgba(191, 219, 254, 0.60) 0%, transparent 50%),
+            radial-gradient(ellipse at 65% 88%, rgba(224, 242, 254, 0.50) 0%, transparent 40%)
           `,
         }} />
-        <div className="bg-grid" style={{ position: 'absolute', inset: 0, opacity: 0.4, pointerEvents: 'none' }} />
+        <div className="bg-grid" style={{ position: 'absolute', inset: 0, opacity: 0.35, pointerEvents: 'none' }} />
+
+        {/* Formas geométricas decorativas */}
+        <div style={{ position: 'absolute', width: '440px', height: '440px', borderRadius: '50%', border: '1px solid rgba(59,130,246,0.10)', top: '-110px', right: '-140px', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', width: '280px', height: '280px', borderRadius: '50%', border: '1px solid rgba(59,130,246,0.07)', bottom: '-80px', left: '-100px', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', width: '200px', height: '200px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.07) 0%, transparent 70%)', top: '32%', right: '6%', pointerEvents: 'none' }} />
+
         <div style={{
           position: 'absolute', right: 0, top: 0, bottom: 0, width: '1px',
           background: 'linear-gradient(to bottom, transparent, var(--border-default), transparent)',
@@ -127,11 +134,11 @@ export default function CambiarPasswordView() {
           {/* Logo */}
           <div className="animate-fade-up stagger-1" style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '64px' }}>
             <div style={{
-              width: '44px', height: '44px', background: 'var(--primary-100)',
+              width: '44px', height: '44px', background: 'var(--gradient-brand)',
               borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center',
-              justifyContent: 'center',
+              justifyContent: 'center', boxShadow: '0 4px 16px rgba(37,99,235,0.35)',
             }}>
-              <ShieldCheck size={24} color="var(--primary-600)" strokeWidth={2.5} />
+              <ShieldCheck size={24} color="#FFFFFF" strokeWidth={2.5} />
             </div>
             <div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '0.15em' }}>
@@ -190,7 +197,7 @@ export default function CambiarPasswordView() {
           width: '480px', display: 'flex', flexDirection: 'column',
           justifyContent: 'center', padding: '64px 48px',
           background: 'var(--bg-surface)', borderLeft: '1px solid var(--border-subtle)',
-          position: 'relative',
+          position: 'relative', boxShadow: '-16px 0 48px rgba(0,0,0,0.04)',
         }}
         className="animate-slide-right"
       >
@@ -255,21 +262,22 @@ export default function CambiarPasswordView() {
               disabled={isLoading}
               style={{
                 width: '100%', padding: '13px 24px', marginTop: '4px',
-                background: isLoading ? 'var(--primary-700)' : todosOk ? 'var(--primary-500)' : 'var(--primary-700)',
+                background: 'var(--gradient-primary)',
                 border: 'none', borderRadius: 'var(--radius-md)',
                 color: 'var(--text-inverted)', fontSize: '0.875rem', fontWeight: 600,
                 fontFamily: 'var(--font-ui)', cursor: isLoading ? 'not-allowed' : 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                transition: 'all var(--transition-fast)',
-                boxShadow: todosOk && !isLoading ? 'var(--shadow-md)' : 'none',
+                transition: 'transform var(--transition-fast), box-shadow var(--transition-fast)',
+                boxShadow: '0 2px 4px rgba(59,130,246,0.20), 0 8px 24px rgba(59,130,246,0.22)',
                 letterSpacing: '0.02em',
+                opacity: isLoading ? 0.8 : 1,
               }}
-              onMouseEnter={(e) => { if (!isLoading && todosOk) e.currentTarget.style.background = 'var(--primary-600)' }}
-              onMouseLeave={(e) => { if (!isLoading) e.currentTarget.style.background = todosOk ? 'var(--primary-500)' : 'var(--primary-700)' }}
+              onMouseEnter={(e) => { if (!isLoading) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 4px 8px rgba(59,130,246,0.28), 0 12px 32px rgba(59,130,246,0.30)' } }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 4px rgba(59,130,246,0.20), 0 8px 24px rgba(59,130,246,0.22)' }}
             >
               {isLoading ? (
                 <>
-                  <div style={{ width: '16px', height: '16px', border: '2px solid rgba(0,0,0,0.3)', borderTop: '2px solid var(--text-inverted)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                  <span className="spinner" />
                   Guardando...
                 </>
               ) : (
