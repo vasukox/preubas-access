@@ -20,9 +20,9 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v1');
 
   // ── 2. CORS ────────────────────────────────────────────────────────────────
+  const isProd = process.env.NODE_ENV === 'production';
   const allowedOrigins = [
-    'http://localhost:5173',
-    'http://localhost:3000',
+    ...(isProd ? [] : ['http://localhost:5173', 'http://localhost:3000']),
     ...(process.env.CORS_ORIGINS
       ? process.env.CORS_ORIGINS.split(',').map((o) => o.trim())
       : []),

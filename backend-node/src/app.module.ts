@@ -9,7 +9,6 @@ import { AuthModule } from './auth/auth.module';
 import { SedeModule } from './sede/sede.module';
 import { PersonaModule } from './persona/persona.module';
 import { HseModule } from './hse/hse.module';
-import { GhModule } from './gh/gh.module';
 import { ConfigKoajModule } from './config-koaj/config-koaj.module';
 import { HerramientasModule } from './herramientas/herramientas.module';
 import { ParkingModule } from './parking/parking.module';
@@ -17,7 +16,6 @@ import { NfcModule } from './nfc/nfc.module';
 import { WebsocketsModule } from './websockets/websockets.module';
 import { HerramientasController } from './herramientas/herramientas.controller';
 import { ConfigKoajController } from './config-koaj/config-koaj.controller';
-import { GhController } from './gh/gh.controller';
 import { ProveedorController } from './persona/proveedor.controller';
 
 /**
@@ -47,7 +45,6 @@ import { ProveedorController } from './persona/proveedor.controller';
 
     // ── Módulos funcionales ───────────────────────────────────────
     HseModule,            // Fase 4 — Health, Safety & Environment
-    GhModule,             // Fase 5 — Gestión Humana
     ConfigKoajModule,     // Fase 2 — Configuración (sedes, catálogos)
     HerramientasModule,   // Fase 3 — Usuarios, roles, auditoría
 
@@ -70,7 +67,6 @@ export class AppModule implements NestModule {
       .forRoutes(
         HerramientasController,
         ConfigKoajController,
-        GhController,
         ProveedorController,
       );
   }

@@ -9,15 +9,14 @@
 
 import { useNavigate } from 'react-router-dom'
 import {
-  BarChart3, ShieldCheck, Users, ArrowRight,
+  BarChart3, ShieldCheck, ArrowRight,
   TrendingUp, Activity, UserCheck, AlertTriangle,
-  CalendarDays, CalendarCheck2, Clock3, RefreshCw,
+  Clock3, RefreshCw,
   FileBarChart2, ClipboardCheck,
 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { useSedeStore, useAuthStore } from '@/store'
 import { hseService } from '@/services/hse.service'
-import { ghService } from '@/services/gh.service'
 
 // ── Tarjeta de resumen de módulo ─────────────────────────────────
 function ModuleReportCard({
@@ -124,40 +123,22 @@ export default function ReportesView() {
   const sedeId      = sedeActiva?.id ?? null
 
   const puedeVerHSE = isAdmin() || hasAnyRole(['ADMIN_HSE', 'GESTION_HSE', 'VIGILANTE_HSE'])
-  const puedeVerGH  = isAdmin() || hasAnyRole(['ADMIN_GH'])
 
-  const { data: hse, isLoading: hseLoading, refetch: refetchHSE, isFetching: hseF } = useQuery({
+  const { data: hse, isLoading, refetch: refetchHSE, isFetching } = useQuery({
     queryKey: ['reportes', 'hse', sedeId],
     queryFn:  () => hseService.getDashboard(sedeId as number),
     enabled:  Boolean(sedeId) && puedeVerHSE,
     staleTime: 60_000,
   })
 
-  const { data: gh, isLoading: ghLoading, refetch: refetchGH, isFetching: ghF } = useQuery({
-    queryKey: ['reportes', 'gh', sedeId],
-    queryFn:  () => ghService.getDashboard(sedeId as number),
-    enabled:  Boolean(sedeId) && puedeVerGH,
-    staleTime: 60_000,
-  })
-
-  const isLoading  = hseLoading || ghLoading
-  const isFetching = hseF || ghF
-
   function handleRefresh() {
     if (puedeVerHSE) void refetchHSE()
-    if (puedeVerGH)  void refetchGH()
   }
 
   // KPIs derivados HSE
   const totalHSE       = (hse?.autorizaciones_activas ?? 0) + (hse?.autorizaciones_pendientes ?? 0)
   const hseTasaActiva  = totalHSE > 0 ? Math.round(((hse?.autorizaciones_activas ?? 0) / totalHSE) * 100) : 0
   const hseAlertas     = hse?.alertas_activas ?? 0
-
-  // KPIs derivados GH
-  const ghCitasHoy     = gh?.citas_hoy_total ?? 0
-  const ghConfirmadas  = gh?.citas_hoy_confirmadas ?? 0
-  const ghConversion   = ghCitasHoy > 0 ? Math.round((ghConfirmadas / ghCitasHoy) * 100) : 0
-  const ghNoAsistio    = gh?.citas_hoy_no_asistio ?? 0
 
   if (!sedeId) {
     return (
@@ -263,23 +244,6 @@ export default function ReportesView() {
               />
             )}
 
-            {puedeVerGH && (
-              <ModuleReportCard
-                title="Gestión Humana"
-                icon={Users}
-                color="#EC4899"
-                bg="rgba(236,72,153,0.08)"
-                border="rgba(236,72,153,0.15)"
-                path="/gh"
-                onNavigate={navigate}
-                stats={[
-                  { label: 'Citas hoy',    value: gh?.citas_hoy_total         ?? '—' },
-                  { label: 'Confirmadas',  value: gh?.citas_hoy_confirmadas    ?? '—' },
-                  { label: 'En curso',     value: gh?.citas_en_curso           ?? '—' },
-                  { label: 'No asistió',   value: gh?.citas_hoy_no_asistio     ?? 0, alert: true },
-                ]}
-              />
-            )}
           </div>
 
           {/* ── KPIs consolidados ── */}
@@ -330,50 +294,6 @@ export default function ReportesView() {
               </div>
             )}
 
-            {puedeVerGH && (
-              <div
-                style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xl)', padding: '18px 20px', boxShadow: 'var(--shadow-card)' }}
-                className="animate-fade-up stagger-3"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                  <Users size={14} color="#EC4899" />
-                  <div style={{ fontSize: '0.83rem', fontWeight: 600, color: 'var(--text-primary)' }}>KPIs — Gestión Humana</div>
-                </div>
-                <div style={{ display: 'grid', gap: '8px' }}>
-                  <KpiRow
-                    label="Conversión de confirmación"
-                    value={`${ghConversion}%`}
-                    color="var(--success-400)"
-                  />
-                  <KpiRow
-                    label="Citas en curso ahora"
-                    value={String(gh?.citas_en_curso ?? 0)}
-                    color="#5668B8"
-                  />
-                  <KpiRow
-                    label="Tasa de inasistencia"
-                    value={ghCitasHoy > 0 ? `${Math.round((ghNoAsistio / ghCitasHoy) * 100)}%` : '0%'}
-                    color={ghNoAsistio > 0 ? 'var(--danger-400)' : 'var(--text-muted)'}
-                  />
-                  <KpiRow
-                    label="Pendientes por confirmar"
-                    value={String(Math.max(0, ghCitasHoy - ghConfirmadas - ghNoAsistio - (gh?.citas_en_curso ?? 0)))}
-                    color="var(--primary-400)"
-                  />
-                </div>
-                <button
-                  onClick={() => navigate('/gh')}
-                  style={{
-                    marginTop: '14px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px',
-                    padding: '8px', background: 'rgba(236,72,153,0.06)', border: '1px solid rgba(236,72,153,0.15)',
-                    borderRadius: 'var(--radius-md)', color: '#EC4899', fontSize: '0.75rem', fontWeight: 500,
-                    cursor: 'pointer', fontFamily: 'var(--font-ui)',
-                  }}
-                >
-                  <CalendarCheck2 size={12} /> Ir al dashboard GH
-                </button>
-              </div>
-            )}
 
             {/* Panel de estado general */}
             <div
@@ -404,24 +324,6 @@ export default function ReportesView() {
                     <div style={{
                       width: '8px', height: '8px', borderRadius: '50%',
                       background: hseAlertas > 0 ? 'var(--danger-400)' : 'var(--success-400)',
-                      flexShrink: 0,
-                    }} />
-                  </div>
-                )}
-
-                {/* GH summary */}
-                {puedeVerGH && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-md)' }}>
-                    <CalendarDays size={14} color="#EC4899" />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-primary)' }}>Gestión Humana</div>
-                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
-                        {ghCitasHoy} citas hoy · {gh?.citas_en_curso ?? 0} en curso
-                      </div>
-                    </div>
-                    <div style={{
-                      width: '8px', height: '8px', borderRadius: '50%',
-                      background: ghCitasHoy > 0 ? '#EC4899' : 'var(--text-muted)',
                       flexShrink: 0,
                     }} />
                   </div>

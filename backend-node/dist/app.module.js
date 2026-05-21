@@ -18,7 +18,6 @@ const auth_module_1 = require("./auth/auth.module");
 const sede_module_1 = require("./sede/sede.module");
 const persona_module_1 = require("./persona/persona.module");
 const hse_module_1 = require("./hse/hse.module");
-const gh_module_1 = require("./gh/gh.module");
 const config_koaj_module_1 = require("./config-koaj/config-koaj.module");
 const herramientas_module_1 = require("./herramientas/herramientas.module");
 const parking_module_1 = require("./parking/parking.module");
@@ -26,13 +25,12 @@ const nfc_module_1 = require("./nfc/nfc.module");
 const websockets_module_1 = require("./websockets/websockets.module");
 const herramientas_controller_1 = require("./herramientas/herramientas.controller");
 const config_koaj_controller_1 = require("./config-koaj/config-koaj.controller");
-const gh_controller_1 = require("./gh/gh.controller");
 const proveedor_controller_1 = require("./persona/proveedor.controller");
 let AppModule = class AppModule {
     configure(consumer) {
         consumer
             .apply(snake_to_camel_middleware_1.SnakeToCamelMiddleware)
-            .forRoutes(herramientas_controller_1.HerramientasController, config_koaj_controller_1.ConfigKoajController, gh_controller_1.GhController, proveedor_controller_1.ProveedorController);
+            .forRoutes(herramientas_controller_1.HerramientasController, config_koaj_controller_1.ConfigKoajController, proveedor_controller_1.ProveedorController);
     }
 };
 exports.AppModule = AppModule;
@@ -49,7 +47,6 @@ exports.AppModule = AppModule = __decorate([
             sede_module_1.SedeModule,
             persona_module_1.PersonaModule,
             hse_module_1.HseModule,
-            gh_module_1.GhModule,
             config_koaj_module_1.ConfigKoajModule,
             herramientas_module_1.HerramientasModule,
             parking_module_1.ParkingModule,

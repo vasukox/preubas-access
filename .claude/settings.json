@@ -37,7 +37,8 @@
       "Bash(Select-Object Name)",
       "PowerShell(New-Item -ItemType Directory -Force -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\\\\src\\\\database\\\\migrations\")",
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\\\\src\\\\hse\\\\\" -Recurse -File | Select-Object FullName)",
-      "PowerShell(\\(Get-Content \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\frontend\\\\src\\\\views\\\\hse\\\\AutogestionView.tsx\" | Measure-Object -Line\\).Lines)"
+      "PowerShell(\\(Get-Content \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\frontend\\\\src\\\\views\\\\hse\\\\AutogestionView.tsx\" | Measure-Object -Line\\).Lines)",
+      "PowerShell(New-Item -ItemType Directory -Force \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\\\\src\\\\database\\\\migrations\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\andresdb\\.claude\\projects\\c--Users-andresdb-OneDrive---PERMODA-LTDA-Escritorio-Koaj-access\\memory"

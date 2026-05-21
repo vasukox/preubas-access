@@ -75,16 +75,6 @@ const AutogestionView        = lazy(() => import('@/views/hse/AutogestionView'))
 // const NFCActivosView   = lazy(() => import('@/views/nfc/NFCActivosView'))
 // const NFCEventosView   = lazy(() => import('@/views/nfc/NFCEventosView'))
 
-// ⏳ Sprint 8 — Gestión Humana
-const GHDashboardView    = lazy(() => import('@/views/gh/GHDashboardView'))
-const GHCitasView        = lazy(() => import('@/views/gh/GHCitasView'))
-const GHInduccionesView  = lazy(() => import('@/views/gh/GHInduccionesView'))
-const GHDotacionView     = lazy(() => import('@/views/gh/GHDotacionView'))
-const GHCitaDetalleView  = lazy(() => import('@/views/gh/GHCitaDetalleView'))
-const GHImportacionView  = lazy(() => import('@/views/gh/GHImportacionView'))
-const GHPortalView       = lazy(() => import('@/views/gh/GHPortalView'))
-const GHPortalInduccionView = lazy(() => import('@/views/gh/GHPortalInduccionView'))
-
 // ⏳ Sprint 9 — Reportes + Config
 const ReportesView    = lazy(() => import('@/views/reportes/ReportesView'))
 const ReportesHSEView = lazy(() => import('@/views/reportes/ReportesHSEView'))
@@ -188,8 +178,6 @@ export function AppRouter() {
         {/* ── Portales públicos — Sprint 3, 5 y 8 ─────────────── */}
         {/* <Route path="/portal/parking" element={<PortalRoute><ParkingPortalView /></PortalRoute>} /> */}
         <Route path="/portal/hse/:token" element={<AutogestionView />} />
-        <Route path="/portal/gh/:token" element={<GHPortalView />} />
-        <Route path="/portal/gh/induccion/:token" element={<GHPortalInduccionView />} />
 
         {/* ── Rutas privadas separadas (sin layout) ──────────── */}
         <Route
@@ -240,14 +228,6 @@ export function AppRouter() {
           {/* <Route path="nfc"         element={<RoleRoute roles={['ADMIN_NFC','VISUALIZADOR']}><NFCDashboardView /></RoleRoute>} /> */}
           {/* <Route path="nfc/activos" element={<RoleRoute roles={['ADMIN_NFC']}><NFCActivosView /></RoleRoute>} /> */}
           {/* <Route path="nfc/eventos" element={<RoleRoute roles={['ADMIN_NFC']}><NFCEventosView /></RoleRoute>} /> */}
-
-          {/* ⏳ Sprint 8 — Gestión Humana */}
-          <Route path="gh"              element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_GH','VISUALIZADOR']}><GHDashboardView /></RoleRoute>} />
-          <Route path="gh/citas"        element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_GH']}><GHCitasView /></RoleRoute>} />
-          <Route path="gh/inducciones"  element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_GH']}><GHInduccionesView /></RoleRoute>} />
-          <Route path="gh/dotacion"     element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_GH']}><GHDotacionView /></RoleRoute>} />
-          <Route path="gh/citas/:id"    element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_GH','VISUALIZADOR']}><GHCitaDetalleView /></RoleRoute>} />
-          <Route path="gh/importacion"  element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_GH']}><GHImportacionView /></RoleRoute>} />
 
           {/* ⏳ Sprint 9 — Reportes + Config */}
           <Route path="reportes"     element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','VISUALIZADOR']}><ReportesView /></RoleRoute>} />

@@ -101,11 +101,11 @@ let ConfigService = ConfigService_1 = class ConfigService {
         if (this.databasePassword === 'root') {
             throw new Error('DATABASE_PASSWORD no puede usar credenciales de desarrollo en producción.');
         }
-        if (!this.lprApiKey) {
-            throw new Error('LPR_API_KEY es requerido en producción.');
+        if (this.lprApiKey) {
+            this.logger.log('LPR_API_KEY configurado.');
         }
-        if (!this.nfcReaderApiKey) {
-            throw new Error('NFC_READER_API_KEY es requerido en producción.');
+        if (this.nfcReaderApiKey) {
+            this.logger.log('NFC_READER_API_KEY configurado.');
         }
     }
 };

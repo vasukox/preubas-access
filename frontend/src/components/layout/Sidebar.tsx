@@ -18,7 +18,7 @@ import {
   Building2, Wifi, WifiOff, Loader2,
   ChevronDown,
   LayoutGrid, ClipboardList, Eye, AlertTriangle, ClipboardCheck,
-  Globe, BookOpen, ListChecks, Hammer, Clock, FileBarChart2,
+  Globe, BookOpen, ListChecks, Clock, FileBarChart2,
 } from 'lucide-react'
 import { useWSStore } from '@/store'
 import type { RolNombre, UsuarioMe, SedeBasica } from '@/types'
@@ -58,7 +58,7 @@ export const NAV_ITEMS: NavItem[] = [
     label: 'Dashboard',
     path:  '/dashboard',
     icon:  <LayoutDashboard size={18} />,
-    roles: ['ADMIN_GLOBAL','ADMIN_PARKING','ADMIN_HSE','GESTION_HSE','ADMIN_NFC','ADMIN_GH','VIGILANTE_HSE','VIGILANTE_PARKING','VISUALIZADOR'],
+    roles: ['ADMIN_GLOBAL','ADMIN_PARKING','ADMIN_HSE','GESTION_HSE','ADMIN_NFC','VIGILANTE_HSE','VIGILANTE_PARKING','VISUALIZADOR'],
   },
   {
     id:    'parking',
@@ -124,50 +124,6 @@ export const NAV_ITEMS: NavItem[] = [
     path:  '/nfc',
     icon:  <Cpu size={18} />,
     roles: ['ADMIN_GLOBAL','ADMIN_NFC','VISUALIZADOR'],
-  },
-  {
-    id:    'gh',
-    label: 'Gestión Humana',
-    path:  '/gh',
-    icon:  <Users size={18} />,
-    roles: ['ADMIN_GLOBAL','ADMIN_GH','VISUALIZADOR'],
-    children: [
-      {
-        id:    'gh-dashboard',
-        label: 'Dashboard',
-        path:  '/gh',
-        icon:  <LayoutGrid size={14} />,
-        roles: ['ADMIN_GLOBAL','ADMIN_GH','VISUALIZADOR'],
-      },
-      {
-        id:    'gh-citas',
-        label: 'Agendar Citas',
-        path:  '/gh/citas',
-        icon:  <ClipboardList size={14} />,
-        roles: ['ADMIN_GLOBAL','ADMIN_GH'],
-      },
-      {
-        id:    'gh-inducciones',
-        label: 'Inducciones',
-        path:  '/gh/inducciones',
-        icon:  <BookOpen size={14} />,
-        roles: ['ADMIN_GLOBAL','ADMIN_GH'],
-      },
-      {
-        id:    'gh-dotacion',
-        label: 'Dotación',
-        path:  '/gh/dotacion',
-        icon:  <Hammer size={14} />,
-        roles: ['ADMIN_GLOBAL','ADMIN_GH'],
-      },
-      {
-        id:    'gh-importacion',
-        label: 'Importación',
-        path:  '/gh/importacion',
-        icon:  <ListChecks size={14} />,
-        roles: ['ADMIN_GLOBAL','ADMIN_GH'],
-      },
-    ],
   },
   {
     id:    'reportes',
