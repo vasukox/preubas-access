@@ -38,7 +38,13 @@
       "PowerShell(New-Item -ItemType Directory -Force -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\\\\src\\\\database\\\\migrations\")",
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\\\\src\\\\hse\\\\\" -Recurse -File | Select-Object FullName)",
       "PowerShell(\\(Get-Content \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\frontend\\\\src\\\\views\\\\hse\\\\AutogestionView.tsx\" | Measure-Object -Line\\).Lines)",
-      "PowerShell(New-Item -ItemType Directory -Force \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\\\\src\\\\database\\\\migrations\")"
+      "PowerShell(New-Item -ItemType Directory -Force \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\\\\src\\\\database\\\\migrations\")",
+      "Read(//c/Program Files/MySQL/**)",
+      "Read(//c/Program Files/**)",
+      "Read(//c/ProgramData/MySQL/**)",
+      "PowerShell(node --version)",
+      "PowerShell(npm --version)",
+      "PowerShell(Get-ChildItem \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\" -ErrorAction SilentlyContinue | Select-Object Name, @{Name=\"Type\"; Expression={if\\($_.PSIsContainer\\){\"Directory\"}else{\"File\"}}} | Sort-Object Name)"
     ],
     "additionalDirectories": [
       "c:\\Users\\andresdb\\.claude\\projects\\c--Users-andresdb-OneDrive---PERMODA-LTDA-Escritorio-Koaj-access\\memory"

@@ -104,7 +104,7 @@ if (!container) throw new Error('No se encontró el elemento #root en index.html
 createRoot(container).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <BrowserRouter basename="/koajaccess">
         {/*
           SessionProvider verifica si hay un token válido en localStorage
           al arrancar la app y restaura la sesión si existe.

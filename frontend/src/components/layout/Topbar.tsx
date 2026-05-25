@@ -280,7 +280,7 @@ function UserMenuDropdown({
   )
 }
 
-export function Topbar({ usuario, noLeidas, paginaActual, onMenuClick, themeMode, onToggleTheme, sedes, sedeActiva, onSedeChange, onLogout, sedeIsLocked }: TopbarProps) {
+export function Topbar({ usuario, noLeidas, paginaActual, onMenuClick, themeMode: _themeMode, onToggleTheme: _onToggleTheme, sedes, sedeActiva, onSedeChange, onLogout, sedeIsLocked }: TopbarProps) {
   return (
     <header
       style={{

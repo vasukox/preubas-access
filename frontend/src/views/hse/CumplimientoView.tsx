@@ -441,8 +441,8 @@ function ModalIniciar({
     setError(null)
     try {
       const result = await hseService.iniciarCumplimiento({
-        contratista_id: contratistaId,
-        sede_id: sedeId,
+        contratistaId,
+        sedeId,
       })
       toast.success('Verificación iniciada correctamente.')
       onIniciado(result)
@@ -782,11 +782,11 @@ export default function CumplimientoView() {
     try {
       const updated = await hseService.actualizarCumplimiento(cumplimiento.id, {
         items: itemsLocal.map(item => ({
-          item_id:     item.id,
+          itemId:     item.id,
           cumple:      item.cumple ?? undefined,
           observacion: item.observacion ?? undefined,
         })),
-        observacion_general: obsGeneral || undefined,
+        observacionGeneral: obsGeneral || undefined,
       })
       setCumplimiento(updated)
       setItemsLocal(updated.items)
@@ -813,16 +813,16 @@ export default function CumplimientoView() {
       // inconsistencias entre el estado local y lo persistido en backend.
       await hseService.actualizarCumplimiento(cumplimiento.id, {
         items: itemsLocal.map(item => ({
-          item_id:     item.id,
+          itemId:     item.id,
           cumple:      item.cumple ?? undefined,
           observacion: item.observacion ?? undefined,
         })),
-        observacion_general: obsGeneral || undefined,
+        observacionGeneral: obsGeneral || undefined,
       })
 
       const updated = await hseService.cerrarCumplimiento(cumplimiento.id, {
-        firma_digital:        firma,
-        observacion_general:  obsGeneral || undefined,
+        firmaDigital:        firma,
+        observacionGeneral:  obsGeneral || undefined,
       })
       if (updated.estado === 'COMPLETADO') {
         toast.success('Verificación completa y exitosa.')
@@ -968,8 +968,8 @@ export default function CumplimientoView() {
     setReverificandoDesdeDesglose(true)
     try {
       const nuevo = await hseService.iniciarCumplimiento({
-        contratista_id: desgloseCumplimiento.contratista_id,
-        sede_id: sedeObjetivo,
+        contratistaId: desgloseCumplimiento.contratista_id,
+        sedeId: sedeObjetivo,
       })
       toast.success('Nueva verificación iniciada correctamente.')
       setShowDesgloseHistorial(false)

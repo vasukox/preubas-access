@@ -5,7 +5,6 @@
 
 import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import * as XLSX from 'xlsx'
 import {
   ShieldCheck, Download, Search,
   ChevronLeft, ChevronRight, RefreshCw,
@@ -167,7 +166,7 @@ function Fila({ row }: { row: ReporteCumplimientoRow }) {
       {/* Archivado */}
       <td style={{ padding: '13px 16px', verticalAlign: 'middle', textAlign: 'center' }}>
         {row.archivado
-          ? <Archive size={13} color="var(--text-muted)" title="Archivado automáticamente" />
+          ? <Archive size={13} color="var(--text-muted)" aria-label="Archivado automáticamente" />
           : <span style={{ fontSize: '0.68rem', color: 'var(--success-400)', fontWeight: 500 }}>Reciente</span>
         }
       </td>
@@ -232,40 +231,45 @@ export default function ReportesHSEView() {
   }
 
   // Export Excel
-  function handleExport() {
+  async function handleExport() {
     if (!rows.length) return
-    const wsData = [
-      ['ID', 'Contratista', 'Tipo Doc.', 'Nº Documento', 'Autorización',
-       'Encargado', 'Fecha inicio', 'Fecha cierre', 'Resultado',
-       'Total ítems', 'Cumplen', 'No cumplen', '% Cumplimiento', 'Archivado', 'Observación'],
-      ...rows.map(r => [
-        r.id,
-        r.contratista_nombre,
-        r.tipo_documento,
-        r.numero_documento,
-        r.autorizacion_codigo ?? '',
-        r.encargado_nombre ?? '',
-        fmtDate(r.fecha_inicio),
-        fmtDate(r.fecha_cierre),
-        r.estado === 'COMPLETADO' ? 'Aprobada' : 'No aprobada',
-        r.total_items,
-        r.items_cumplen,
-        r.items_nos_cumplen,
-        r.total_items > 0 ? `${Math.round((r.items_cumplen / r.total_items) * 100)}%` : '0%',
-        r.archivado ? 'Sí' : 'No',
-        r.observacion_general ?? '',
-      ]),
+    const ExcelJS = (await import('exceljs')).default
+    const wb = new ExcelJS.Workbook()
+    const ws = wb.addWorksheet('Cumplimiento HSE')
+    ws.columns = [
+      { width: 6 }, { width: 30 }, { width: 9 }, { width: 15 }, { width: 16 },
+      { width: 22 }, { width: 16 }, { width: 16 }, { width: 12 },
+      { width: 10 }, { width: 9 }, { width: 10 }, { width: 14 },
+      { width: 9 }, { width: 35 },
     ]
-    const ws = XLSX.utils.aoa_to_sheet(wsData)
-    ws['!cols'] = [
-      { wch: 6 }, { wch: 30 }, { wch: 9 }, { wch: 15 }, { wch: 16 },
-      { wch: 22 }, { wch: 16 }, { wch: 16 }, { wch: 12 },
-      { wch: 10 }, { wch: 9 }, { wch: 10 }, { wch: 14 },
-      { wch: 9 }, { wch: 35 },
-    ]
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, 'Cumplimiento HSE')
-    XLSX.writeFile(wb, `cumplimiento_${fechaInicio}_${fechaFin}.xlsx`)
+    ws.addRow(['ID', 'Contratista', 'Tipo Doc.', 'Nº Documento', 'Autorización',
+      'Encargado', 'Fecha inicio', 'Fecha cierre', 'Resultado',
+      'Total ítems', 'Cumplen', 'No cumplen', '% Cumplimiento', 'Archivado', 'Observación'])
+    rows.forEach(r => ws.addRow([
+      r.id,
+      r.contratista_nombre,
+      r.tipo_documento,
+      r.numero_documento,
+      r.autorizacion_codigo ?? '',
+      r.encargado_nombre ?? '',
+      fmtDate(r.fecha_inicio),
+      fmtDate(r.fecha_cierre),
+      r.estado === 'COMPLETADO' ? 'Aprobada' : 'No aprobada',
+      r.total_items,
+      r.items_cumplen,
+      r.items_nos_cumplen,
+      r.total_items > 0 ? `${Math.round((r.items_cumplen / r.total_items) * 100)}%` : '0%',
+      r.archivado ? 'Sí' : 'No',
+      r.observacion_general ?? '',
+    ]))
+    const buffer = await wb.xlsx.writeBuffer()
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `cumplimiento_${fechaInicio}_${fechaFin}.xlsx`
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   const totalPages = data?.pages ?? 1

@@ -482,15 +482,15 @@ export interface CumplimientoItemResponse {
 
 export interface CumplimientoResponse {
   id:                   number
-  contratistaId:        number
-  sedeId:               number
-  encargadoId:          number
+  contratista_id:       number
+  sede_id:              number
+  encargado_id:         number
   estado:               EstadoCumplimiento
-  observacionGeneral:   string | null
-  fechaInicio:          string
-  fechaCierre:          string | null
-  firma_digital:       string | null
-  items:               CumplimientoItemResponse[]
+  observacion_general:  string | null
+  fecha_inicio:         string
+  fecha_cierre:         string | null
+  firma_digital:        string | null
+  items:                CumplimientoItemResponse[]
 }
 
 export interface CumplimientoListadoResponse {
