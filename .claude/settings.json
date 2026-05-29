@@ -44,7 +44,10 @@
       "Read(//c/ProgramData/MySQL/**)",
       "PowerShell(node --version)",
       "PowerShell(npm --version)",
-      "PowerShell(Get-ChildItem \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\" -ErrorAction SilentlyContinue | Select-Object Name, @{Name=\"Type\"; Expression={if\\($_.PSIsContainer\\){\"Directory\"}else{\"File\"}}} | Sort-Object Name)"
+      "PowerShell(Get-ChildItem \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\" -ErrorAction SilentlyContinue | Select-Object Name, @{Name=\"Type\"; Expression={if\\($_.PSIsContainer\\){\"Directory\"}else{\"File\"}}} | Sort-Object Name)",
+      "PowerShell(Copy-Item \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\logo.png\" \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\frontend\\\\public\\\\favicon.png\")",
+      "Bash(grep -E \"\\\\.\\(conf|config\\)$\")",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\frontend\\\\src\\\\views\" -Recurse -Include \"*reporte*\" -ErrorAction SilentlyContinue)"
     ],
     "additionalDirectories": [
       "c:\\Users\\andresdb\\.claude\\projects\\c--Users-andresdb-OneDrive---PERMODA-LTDA-Escritorio-Koaj-access\\memory"

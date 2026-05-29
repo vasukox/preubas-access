@@ -510,6 +510,7 @@ function ModalCrear({
     color:        'var(--text-primary)',
     fontFamily:   'var(--font-ui)',
     outline:      'none',
+    colorScheme:  'dark',
   }
 
   const selectStyle: React.CSSProperties = {
@@ -652,12 +653,12 @@ function ModalCrear({
                            <input
                              type="text"
                              readOnly
-                             value={`${window.location.origin}/portal/hse/${tokenAutogestion}`}
+                             value={`${window.location.origin}${import.meta.env.BASE_URL}portal/hse/${tokenAutogestion}`}
                              style={{ flex: 1, padding: '8px 12px', background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-md)', fontSize: '0.75rem', color: 'var(--text-secondary)', outline: 'none' }}
                            />
                            <button
                              onClick={() => {
-                               navigator.clipboard.writeText(`${window.location.origin}/portal/hse/${tokenAutogestion}`);
+                               navigator.clipboard.writeText(`${window.location.origin}${import.meta.env.BASE_URL}portal/hse/${tokenAutogestion}`);
                                toast.success(`Link de autogestión copiado para ${c.nombres} ${c.apellidos}.`)
                                const btn = document.activeElement as HTMLButtonElement;
                                if (btn) {

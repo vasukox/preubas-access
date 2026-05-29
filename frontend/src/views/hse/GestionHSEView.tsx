@@ -1668,7 +1668,19 @@ export default function GestionHSEView() {
 
       {/* Lista de autorizaciones con contratistas */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }} className="animate-fade-up stagger-2">
-        {loading ? (
+        {!sedeActiva ? (
+          <div style={{
+            padding:      '48px',
+            textAlign:    'center',
+            color:        'var(--text-muted)',
+            fontSize:     '0.83rem',
+            background:   'var(--bg-surface)',
+            borderRadius: 'var(--radius-lg)',
+            border:       '1px solid var(--border-subtle)',
+          }}>
+            Selecciona una sede en la barra superior para ver los contratistas.
+          </div>
+        ) : loading ? (
           <div style={{
             padding:        '48px',
             textAlign:      'center',
@@ -1886,7 +1898,7 @@ export default function GestionHSEView() {
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      navigator.clipboard.writeText(`${window.location.origin}/portal/hse/${c.token_autogestion}`);
+                                      navigator.clipboard.writeText(`${window.location.origin}${import.meta.env.BASE_URL}portal/hse/${c.token_autogestion}`);
                                       toast.success(`Link de autogestión copiado para ${formatNombreCompleto(c.nombres, c.apellidos)}.`)
                                       const btn = e.currentTarget;
                                       const originalHtml = btn.innerHTML;
@@ -1925,7 +1937,7 @@ export default function GestionHSEView() {
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation()
-                                        navigator.clipboard.writeText(`${window.location.origin}/portal/hse/${tokenRecienGenerado[c.id].token}`)
+                                        navigator.clipboard.writeText(`${window.location.origin}${import.meta.env.BASE_URL}portal/hse/${tokenRecienGenerado[c.id].token}`)
                                         toast.success(`Nuevo link copiado para ${formatNombreCompleto(c.nombres, c.apellidos)}.`)
                                       }}
                                       className="btn-ghost"

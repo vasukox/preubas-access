@@ -24,6 +24,9 @@ export declare class HerramientasController {
         direccion: string;
         activo: boolean;
         ultimoLogin: Date | null;
+        bloqueadoHasta: Date | null;
+        intentosFallidos: number;
+        estaBloqueado: boolean;
         roles: {
             id: number;
             nombre: RolNombre;
@@ -61,6 +64,9 @@ export declare class HerramientasController {
         direccion: string;
         activo: boolean;
         ultimoLogin: Date | null;
+        bloqueadoHasta: Date | null;
+        intentosFallidos: number;
+        estaBloqueado: boolean;
         roles: {
             id: number;
             nombre: RolNombre;
@@ -90,7 +96,80 @@ export declare class HerramientasController {
             email: string;
             nombreCompleto?: string;
         };
-    }): Promise<import("../auth/entities/usuario.entity").Usuario | null>;
+    }): Promise<{
+        id: number;
+        email: string;
+        nombreCompleto: string;
+        numero: string;
+        direccion: string;
+        activo: boolean;
+        ultimoLogin: Date | null;
+        bloqueadoHasta: Date | null;
+        intentosFallidos: number;
+        estaBloqueado: boolean;
+        roles: {
+            id: number;
+            nombre: RolNombre;
+        }[];
+        permisos: {
+            puedeVer: boolean;
+            puedeCrear: boolean;
+            puedeEditar: boolean;
+            puedeEliminar: boolean;
+        };
+        sedeAsignadaId: number;
+        sedeAsignada: {
+            id: number;
+            nombre: string;
+            ciudad: string;
+        };
+        sedesAsignadasIds: number[];
+        sedesAsignadas: {
+            id: number;
+            nombre: string;
+            ciudad: string;
+        }[];
+    }>;
+    desbloquearUsuario(id: number, req: Request & {
+        user: {
+            id: number;
+            email: string;
+            nombreCompleto?: string;
+        };
+    }): Promise<{
+        id: number;
+        email: string;
+        nombreCompleto: string;
+        numero: string;
+        direccion: string;
+        activo: boolean;
+        ultimoLogin: Date | null;
+        bloqueadoHasta: Date | null;
+        intentosFallidos: number;
+        estaBloqueado: boolean;
+        roles: {
+            id: number;
+            nombre: RolNombre;
+        }[];
+        permisos: {
+            puedeVer: boolean;
+            puedeCrear: boolean;
+            puedeEditar: boolean;
+            puedeEliminar: boolean;
+        };
+        sedeAsignadaId: number;
+        sedeAsignada: {
+            id: number;
+            nombre: string;
+            ciudad: string;
+        };
+        sedesAsignadasIds: number[];
+        sedesAsignadas: {
+            id: number;
+            nombre: string;
+            ciudad: string;
+        }[];
+    }>;
     eliminarUsuario(id: number, req: Request & {
         user: {
             id: number;
@@ -122,6 +201,9 @@ export declare class HerramientasController {
         direccion: string;
         activo: boolean;
         ultimoLogin: Date | null;
+        bloqueadoHasta: Date | null;
+        intentosFallidos: number;
+        estaBloqueado: boolean;
         roles: {
             id: number;
             nombre: RolNombre;
@@ -152,7 +234,37 @@ export declare class HerramientasController {
             nombreCompleto?: string;
         };
     }): Promise<{
-        success: boolean;
-        message: string;
+        id: number;
+        email: string;
+        nombreCompleto: string;
+        numero: string;
+        direccion: string;
+        activo: boolean;
+        ultimoLogin: Date | null;
+        bloqueadoHasta: Date | null;
+        intentosFallidos: number;
+        estaBloqueado: boolean;
+        roles: {
+            id: number;
+            nombre: RolNombre;
+        }[];
+        permisos: {
+            puedeVer: boolean;
+            puedeCrear: boolean;
+            puedeEditar: boolean;
+            puedeEliminar: boolean;
+        };
+        sedeAsignadaId: number;
+        sedeAsignada: {
+            id: number;
+            nombre: string;
+            ciudad: string;
+        };
+        sedesAsignadasIds: number[];
+        sedesAsignadas: {
+            id: number;
+            nombre: string;
+            ciudad: string;
+        }[];
     }>;
 }

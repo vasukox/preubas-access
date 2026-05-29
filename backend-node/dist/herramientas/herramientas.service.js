@@ -132,6 +132,8 @@ let HerramientasService = class HerramientasService {
             : { puedeVer: true, puedeCrear: false, puedeEditar: false, puedeEliminar: false };
         const sedesAsignadas = this.mapSedesAsignadas(u);
         const sedePrincipal = sedesAsignadas[0] ?? null;
+        const ahora = new Date();
+        const bloqueado = !!(u.bloqueadoHasta && u.bloqueadoHasta > ahora);
         return {
             id: u.id,
             email: u.email,
@@ -140,6 +142,9 @@ let HerramientasService = class HerramientasService {
             direccion: u.perfil?.ubicacion ?? null,
             activo: u.activo,
             ultimoLogin: u.ultimoLogin ?? null,
+            bloqueadoHasta: u.bloqueadoHasta ?? null,
+            intentosFallidos: u.intentosFallidos ?? 0,
+            estaBloqueado: bloqueado,
             roles: u.roles.map((ur) => ({ id: ur.rol.id, nombre: ur.rol.nombre })),
             permisos,
             sedeAsignadaId: u.sedeAsignadaId ?? sedePrincipal?.id ?? null,
@@ -399,10 +404,11 @@ let HerramientasService = class HerramientasService {
                 entidadId: id,
                 descripcion: `Actualizó usuario '${usuario.nombreCompleto}' (${usuario.email}). Cambios: ${cambios.join(', ') || 'ninguno'}.`,
             }));
-            return manager.findOne(usuario_entity_1.Usuario, {
+            const usuarioActualizado = await manager.findOne(usuario_entity_1.Usuario, {
                 where: { id },
-                relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada'],
+                relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada', 'sedesAsignadas', 'sedesAsignadas.sede'],
             });
+            return this.mapUsuarioResponse(usuarioActualizado);
         });
     }
     async eliminarUsuario(id, currentUserId, currentUserName) {
@@ -426,9 +432,12 @@ let HerramientasService = class HerramientasService {
             }
         }
         return this.usuarioRepo.manager.transaction(async (manager) => {
-            usuario.deleted_at = new Date();
-            usuario.activo = false;
-            await manager.save(usuario);
+            await manager
+                .createQueryBuilder()
+                .update(usuario_entity_1.Usuario)
+                .set({ activo: false, deleted_at: new Date() })
+                .where('id = :id', { id })
+                .execute();
             await manager.save(manager.create(audit_log_entity_1.AuditLog, {
                 actorId: currentUserId,
                 actorNombre: currentUserName,
@@ -486,6 +495,29 @@ let HerramientasService = class HerramientasService {
             });
         });
     }
+    async desbloquearUsuario(id, currentUserId, currentUserName) {
+        const usuario = await this.usuarioRepo.findOne({ where: { id } });
+        if (!usuario) {
+            throw new common_1.NotFoundException({ code: 'USUARIO_NO_ENCONTRADO', message: 'El usuario no existe' });
+        }
+        await this.usuarioRepo.update(id, {
+            intentosFallidos: 0,
+            bloqueadoHasta: null,
+        });
+        await this.auditLogRepo.save(this.auditLogRepo.create({
+            actorId: currentUserId,
+            actorNombre: currentUserName,
+            accion: 'DESBLOQUEAR_USUARIO',
+            entidad: 'Usuario',
+            entidadId: id,
+            descripcion: `Desbloqueó manualmente la cuenta de '${usuario.nombreCompleto}' (${usuario.email}).`,
+        }));
+        const actualizado = await this.usuarioRepo.findOne({
+            where: { id },
+            relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada', 'sedesAsignadas', 'sedesAsignadas.sede'],
+        });
+        return this.mapUsuarioResponse(actualizado);
+    }
     async asignarRol(id, rolNombre, currentUserId, currentUserName, sedeAsignadaId, sedesAsignadasIds) {
         const usuario = await this.usuarioRepo.findOne({
             where: { id },
@@ -514,15 +546,28 @@ let HerramientasService = class HerramientasService {
         return this.usuarioRepo.manager.transaction(async (manager) => {
             if (esRolVigilante && sedesNuevas.length > 0) {
                 await this.sincronizarSedesUsuario(manager, id, sedesNuevas);
-                usuario.sedeAsignadaId = sedesNuevas[0];
-                await manager.save(usuario);
+                await manager.update(usuario_entity_1.Usuario, { id }, { sedeAsignadaId: sedesNuevas[0] });
             }
-            const nuevoRol = manager.create(usuario_rol_entity_1.UsuarioRol, {
-                usuarioId: id,
-                rolId: rol.id,
-                asignadoPor: currentUserId,
+            const existente = await manager.getRepository(usuario_rol_entity_1.UsuarioRol).findOne({
+                where: { usuarioId: id, rolId: rol.id },
+                withDeleted: true,
             });
-            await manager.save(nuevoRol);
+            if (existente?.deleted_at) {
+                await manager
+                    .createQueryBuilder()
+                    .update(usuario_rol_entity_1.UsuarioRol)
+                    .set({ deleted_at: () => 'NULL', asignadoPor: currentUserId })
+                    .where('id = :existenteId', { existenteId: existente.id })
+                    .execute();
+            }
+            else if (!existente) {
+                const nuevoRol = manager.create(usuario_rol_entity_1.UsuarioRol, {
+                    usuarioId: id,
+                    rolId: rol.id,
+                    asignadoPor: currentUserId,
+                });
+                await manager.save(nuevoRol);
+            }
             await manager.save(manager.create(audit_log_entity_1.AuditLog, {
                 actorId: currentUserId,
                 actorNombre: currentUserName,
@@ -560,7 +605,7 @@ let HerramientasService = class HerramientasService {
             throw new common_1.NotFoundException({ code: 'ROL_NO_ASIGNADO', message: `El usuario no tiene el rol '${rolNombre}'` });
         }
         return this.usuarioRepo.manager.transaction(async (manager) => {
-            await manager.remove(ur);
+            await manager.delete(usuario_rol_entity_1.UsuarioRol, { id: ur.id });
             await manager.save(manager.create(audit_log_entity_1.AuditLog, {
                 actorId: currentUserId,
                 actorNombre: currentUserName,
@@ -569,7 +614,11 @@ let HerramientasService = class HerramientasService {
                 entidadId: id,
                 descripcion: `Quitó rol '${rolNombre}' a '${usuario.nombreCompleto}' (${usuario.email}).`,
             }));
-            return { success: true, message: `Rol '${rolNombre}' quitado correctamente` };
+            const usuarioActualizado = await manager.findOne(usuario_entity_1.Usuario, {
+                where: { id },
+                relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada', 'sedesAsignadas', 'sedesAsignadas.sede'],
+            });
+            return this.mapUsuarioResponse(usuarioActualizado);
         });
     }
 };

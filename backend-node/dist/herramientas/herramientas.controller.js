@@ -43,6 +43,10 @@ let HerramientasController = class HerramientasController {
         const currentUserName = req.user.nombreCompleto || req.user.email;
         return this.herramientasService.actualizarUsuario(id, dto, req.user.id, currentUserName);
     }
+    async desbloquearUsuario(id, req) {
+        const currentUserName = req.user.nombreCompleto || req.user.email;
+        return this.herramientasService.desbloquearUsuario(id, req.user.id, currentUserName);
+    }
     async eliminarUsuario(id, req) {
         const currentUserName = req.user.nombreCompleto || req.user.email;
         await this.herramientasService.eliminarUsuario(id, req.user.id, currentUserName);
@@ -94,6 +98,14 @@ __decorate([
     __metadata("design:paramtypes", [Number, update_usuario_dto_1.UpdateUsuarioDto, Object]),
     __metadata("design:returntype", Promise)
 ], HerramientasController.prototype, "actualizarUsuario", null);
+__decorate([
+    (0, common_1.Post)('usuarios/:id/desbloquear'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", Promise)
+], HerramientasController.prototype, "desbloquearUsuario", null);
 __decorate([
     (0, common_1.Delete)('usuarios/:id'),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),

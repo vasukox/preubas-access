@@ -22,6 +22,9 @@ export interface UsuarioSistema {
   direccion?:       string | null
   activo:           boolean
   ultimo_login:     string | null
+  bloqueado_hasta:  string | null
+  intentos_fallidos: number
+  esta_bloqueado:   boolean
   roles:            { id: number; nombre: RolNombre }[]
   permisos:         PermisosUsuario
   sede_asignada_id:     number | null
@@ -113,6 +116,9 @@ export const herramientasService = {
 
   eliminarUsuario: (id: number) =>
     del<void>(`/herramientas/usuarios/${id}`),
+
+  desbloquearUsuario: (id: number) =>
+    post<UsuarioSistema>(`/herramientas/usuarios/${id}/desbloquear`, {}),
 
   // ── Permisos granulares ────────────────────────────────────────
   actualizarPermisos: (id: number, data: ActualizarPermisosRequest) =>

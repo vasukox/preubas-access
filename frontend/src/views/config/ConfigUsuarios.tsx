@@ -4,14 +4,15 @@
  * desde una interfaz de tarjetas con toggle por rol.
  */
 import { useState, useMemo, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { herramientasService, UsuarioSistema, RolSistema, UsuarioCreateRequest } from '@/services/herramientas.service'
+import { herramientasService, UsuarioSistema, RolSistema, UsuarioCreateRequest, UsuarioUpdateRequest } from '@/services/herramientas.service'
 import { configService, type SedeConfig } from '@/services/config.service'
 import { getErrorMessage } from '@/services/api'
 import toast from 'react-hot-toast'
 import type { RolNombre } from '@/types'
 import {
-  UserPlus, Pencil, ShieldCheck, Trash2, X, Check, Loader2, Key, Search, Lock,
+  UserPlus, Pencil, ShieldCheck, Trash2, X, Check, Loader2, Key, Search, Lock, LockOpen,
 } from 'lucide-react'
 
 // ── Colores y etiquetas por rol ──────────────────────────────────────
@@ -134,18 +135,30 @@ const tdStyle: React.CSSProperties = {
 
 // ── Overlay / Modal base ─────────────────────────────────────────────
 function ModalOverlay({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
-  return (
+  return createPortal(
     <div
-      onClick={e => { if (e.target === e.currentTarget) onClose() }}
+      onClick={onClose}
       style={{
         position: 'fixed', inset: 0, zIndex: 1000,
         background: 'rgba(0,0,0,0.45)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        overflowY: 'auto',
         padding: '20px',
       }}
     >
-      {children}
-    </div>
+      <div style={{
+        display: 'flex', minHeight: '100%',
+        alignItems: 'center', justifyContent: 'center',
+        pointerEvents: 'none',
+      }}>
+        <div
+          onClick={e => e.stopPropagation()}
+          style={{ pointerEvents: 'auto', width: '100%', display: 'flex', justifyContent: 'center' }}
+        >
+          {children}
+        </div>
+      </div>
+    </div>,
+    document.body
   )
 }
 
@@ -285,12 +298,14 @@ function RolesModal({
   })
 
   const tieneSedesPrevias = (usuario.sedes_asignadas?.length ?? 0) > 0 || !!usuario.sede_asignada_id
+  const hayRolesVigilante = roles.some(r => esRolVigilante(r.nombre as RolNombre))
+  const mostrarPickerSedes = !tieneSedesPrevias && hayRolesVigilante
 
   const handleToggle = async (rolNombre: RolNombre) => {
     if (loadingRoles.has(rolNombre)) return
     const isAssigned = assignedRoles.has(rolNombre)
 
-    if (!isAssigned && esRolVigilante(rolNombre) && !tieneSedesPrevias && sedesSeleccionadas.size === 0) {
+    if (!isAssigned && esRolVigilante(rolNombre) && mostrarPickerSedes && sedesSeleccionadas.size === 0) {
       toast.error('Selecciona al menos una sede antes de asignar un rol de vigilante.')
       return
     }
@@ -308,7 +323,7 @@ function RolesModal({
         await herramientasService.quitarRol(usuario.id, rolNombre)
         toast.success(`Rol ${ROL_LABEL[rolNombre] ?? rolNombre} removido`)
       } else {
-        const sedesParaAsignar = esRolVigilante(rolNombre) && !tieneSedesPrevias
+        const sedesParaAsignar = esRolVigilante(rolNombre) && mostrarPickerSedes
           ? [...sedesSeleccionadas]
           : undefined
         await herramientasService.asignarRol(usuario.id, rolNombre, sedesParaAsignar)
@@ -346,15 +361,14 @@ function RolesModal({
         border: '1px solid var(--border-subtle)',
         borderRadius: 'var(--radius-xl)',
         width: '100%', maxWidth: '700px',
-        maxHeight: '90vh', display: 'flex', flexDirection: 'column',
         boxShadow: 'var(--shadow-lg)',
-        overflow: 'hidden',
       }}>
-        {/* Cabecera */}
+        {/* ── Cabecera fija ─────────────────────────────────────────── */}
         <div style={{
           padding: '16px 20px', display: 'flex', alignItems: 'center',
           gap: '12px', borderBottom: '1px solid var(--border-subtle)',
-          background: 'var(--bg-raised)', flexShrink: 0,
+          background: 'var(--bg-raised)',
+          borderRadius: 'var(--radius-xl) var(--radius-xl) 0 0',
         }}>
           <div style={{
             width: '36px', height: '36px', borderRadius: 'var(--radius-md)',
@@ -384,60 +398,72 @@ function RolesModal({
           </button>
         </div>
 
-        {tieneSedesPrevias ? (
-          <div style={{
-            margin: '0 16px 12px', padding: '8px 12px', borderRadius: 'var(--radius-md)',
-            background: 'var(--bg-raised)', border: '1px solid var(--border-subtle)',
-            fontSize: '0.73rem', color: 'var(--text-secondary)', flexShrink: 0,
-          }}>
-            Sedes asignadas:{' '}
-            <strong style={{ color: 'var(--text-primary)' }}>
-              {(usuario.sedes_asignadas ?? (usuario.sede_asignada ? [usuario.sede_asignada] : []))
-                .map(s => s.nombre)
-                .join(', ')}
-            </strong>
-          </div>
-        ) : (
-          <div style={{
-            margin: '0 16px 12px', padding: '12px 14px',
-            borderRadius: 'var(--radius-lg)',
-            border: '1px solid rgba(69,116,196,0.4)',
-            background: 'rgba(69,116,196,0.04)',
-            flexShrink: 0,
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <Lock size={13} color="var(--primary-400)" />
-              <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--primary-400)' }}>
-                Sedes operativas — selecciona una o más
-              </span>
-            </div>
-            <p style={{ margin: '0 0 10px', fontSize: '0.72rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
-              Requerido antes de asignar un rol de vigilante. El usuario solo podrá operar en las sedes elegidas.
-            </p>
-            <SedesVigilantePicker
-              sedes={sedes}
-              selectedIds={sedesSeleccionadas}
-              onChange={setSedesSeleccionadas}
-            />
-          </div>
-        )}
-
-        {/* Cuadrícula de roles */}
+        {/* ── Cuerpo scrollable ─────────────────────────────────────── */}
         <div style={{
-          overflowY: 'auto', padding: '16px',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-          gap: '10px',
+          maxHeight: 'calc(80vh - 80px)',
+          overflowY: 'auto',
+          padding: '16px',
+          display: 'flex', flexDirection: 'column', gap: '12px',
+          borderRadius: '0 0 var(--radius-xl) var(--radius-xl)',
         }}>
-          {sortedRoles.map(rol => (
-            <RolCard
-              key={rol.id}
-              rol={rol}
-              assigned={assignedRoles.has(rol.nombre as RolNombre)}
-              loading={loadingRoles.has(rol.nombre as RolNombre)}
-              onToggle={() => handleToggle(rol.nombre as RolNombre)}
-            />
-          ))}
+
+          {/* Info sedes existentes */}
+          {tieneSedesPrevias && (
+            <div style={{
+              padding: '8px 12px', borderRadius: 'var(--radius-md)',
+              background: 'var(--bg-raised)', border: '1px solid var(--border-subtle)',
+              fontSize: '0.73rem', color: 'var(--text-secondary)',
+            }}>
+              Sedes asignadas:{' '}
+              <strong style={{ color: 'var(--text-primary)' }}>
+                {(usuario.sedes_asignadas ?? (usuario.sede_asignada ? [usuario.sede_asignada] : []))
+                  .map(s => s.nombre)
+                  .join(', ')}
+              </strong>
+            </div>
+          )}
+
+          {/* Picker de sedes — solo si hay roles de vigilante disponibles y sin sedes */}
+          {mostrarPickerSedes && (
+            <div style={{
+              padding: '12px 14px',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid rgba(69,116,196,0.4)',
+              background: 'rgba(69,116,196,0.04)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                <Lock size={13} color="var(--primary-400)" />
+                <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--primary-400)' }}>
+                  Sedes operativas — selecciona una o más
+                </span>
+              </div>
+              <p style={{ margin: '0 0 10px', fontSize: '0.72rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+                Requerido antes de asignar un rol de vigilante. El usuario solo podrá operar en las sedes elegidas.
+              </p>
+              <SedesVigilantePicker
+                sedes={sedes}
+                selectedIds={sedesSeleccionadas}
+                onChange={setSedesSeleccionadas}
+              />
+            </div>
+          )}
+
+          {/* Cuadrícula de roles */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+            gap: '10px',
+          }}>
+            {sortedRoles.map(rol => (
+              <RolCard
+                key={rol.id}
+                rol={rol}
+                assigned={assignedRoles.has(rol.nombre as RolNombre)}
+                loading={loadingRoles.has(rol.nombre as RolNombre)}
+                onToggle={() => handleToggle(rol.nombre as RolNombre)}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </ModalOverlay>
@@ -706,7 +732,7 @@ function EditarModal({ usuario, onClose }: { usuario: UsuarioSistema; onClose: (
   const queryClient = useQueryClient()
 
   const editarMut = useMutation({
-    mutationFn: (data: { nombre_completo: string; numero: string; direccion: string; activo: boolean }) =>
+    mutationFn: (data: UsuarioUpdateRequest) =>
       herramientasService.actualizarUsuario(usuario.id, data),
     onSuccess: () => {
       toast.success('Usuario actualizado.')
@@ -721,9 +747,9 @@ function EditarModal({ usuario, onClose }: { usuario: UsuarioSistema; onClose: (
     const fd = new FormData(e.currentTarget)
     editarMut.mutate({
       nombre_completo: fd.get('nombre_completo') as string,
-      numero:          (fd.get('numero') as string) || '',
-      direccion:       (fd.get('direccion') as string) || '',
-      activo:          fd.get('activo') === 'true',
+      numero:    (fd.get('numero') as string)    || undefined,
+      direccion: (fd.get('direccion') as string) || undefined,
+      activo:    fd.get('activo') === 'true',
     })
   }
 
@@ -811,8 +837,9 @@ export default function ConfigUsuarios() {
   const [confirmElim,  setConfirmElim]  = useState<UsuarioSistema | null>(null)
 
   const { data: usuarios = [], isLoading, isError } = useQuery({
-    queryKey: ['config_usuarios'],
-    queryFn:  herramientasService.listarUsuarios,
+    queryKey:        ['config_usuarios'],
+    queryFn:         herramientasService.listarUsuarios,
+    refetchInterval: 30_000,
   })
 
   const { data: roles = [] } = useQuery({
@@ -825,6 +852,15 @@ export default function ConfigUsuarios() {
     onSuccess: () => {
       toast.success('Usuario eliminado.')
       setConfirmElim(null)
+      void queryClient.invalidateQueries({ queryKey: ['config_usuarios'] })
+    },
+    onError: (err) => toast.error(getErrorMessage(err)),
+  })
+
+  const desbloquearMut = useMutation({
+    mutationFn: (id: number) => herramientasService.desbloquearUsuario(id),
+    onSuccess: () => {
+      toast.success('Cuenta desbloqueada.')
       void queryClient.invalidateQueries({ queryKey: ['config_usuarios'] })
     },
     onError: (err) => toast.error(getErrorMessage(err)),
@@ -924,15 +960,29 @@ export default function ConfigUsuarios() {
                     )}
                   </td>
                   <td style={tdStyle}>
-                    <span style={{
-                      display: 'inline-flex', alignItems: 'center', gap: '4px',
-                      padding: '2px 8px', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 700,
-                      background: u.activo ? '#10B98118' : '#EF444418',
-                      border: `1px solid ${u.activo ? '#10B98144' : '#EF444444'}`,
-                      color: u.activo ? '#10B981' : '#EF4444',
-                    }}>
-                      {u.activo ? 'Activo' : 'Inactivo'}
-                    </span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '4px',
+                        padding: '2px 8px', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 700,
+                        background: u.activo ? '#10B98118' : '#EF444418',
+                        border: `1px solid ${u.activo ? '#10B98144' : '#EF444444'}`,
+                        color: u.activo ? '#10B981' : '#EF4444',
+                        width: 'fit-content',
+                      }}>
+                        {u.activo ? 'Activo' : 'Inactivo'}
+                      </span>
+                      {u.esta_bloqueado && (
+                        <span style={{
+                          display: 'inline-flex', alignItems: 'center', gap: '4px',
+                          padding: '2px 8px', borderRadius: '999px', fontSize: '0.68rem', fontWeight: 700,
+                          background: '#F59E0B18', border: '1px solid #F59E0B44', color: '#F59E0B',
+                          width: 'fit-content',
+                        }}>
+                          <Lock size={9} />
+                          Bloqueado
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td style={tdStyle}>
                     <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
@@ -970,6 +1020,26 @@ export default function ConfigUsuarios() {
                       >
                         <ShieldCheck size={13} />
                       </button>
+                      {/* Desbloquear — solo visible si está bloqueado */}
+                      {u.esta_bloqueado && (
+                        <button
+                          title="Desbloquear cuenta"
+                          onClick={() => desbloquearMut.mutate(u.id)}
+                          disabled={desbloquearMut.isPending}
+                          style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            width: '30px', height: '30px', borderRadius: 'var(--radius-md)',
+                            border: '1px solid #F59E0B44', background: '#F59E0B10',
+                            color: '#F59E0B', cursor: desbloquearMut.isPending ? 'wait' : 'pointer',
+                            opacity: desbloquearMut.isPending ? 0.7 : 1,
+                          }}
+                        >
+                          {desbloquearMut.isPending
+                            ? <Loader2 size={12} style={{ animation: 'spin 0.8s linear infinite' }} />
+                            : <LockOpen size={13} />
+                          }
+                        </button>
+                      )}
                       {/* Eliminar */}
                       <button
                         title="Eliminar usuario"

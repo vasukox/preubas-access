@@ -46,7 +46,7 @@ const inp: React.CSSProperties = {
   width:'100%', padding:'10px 14px', fontSize:'.875rem',
   background:'rgba(255,255,255,.05)', border:'1px solid rgba(255,255,255,.12)',
   borderRadius:'8px', color:'var(--text-primary)', fontFamily:'var(--font-ui)',
-  outline:'none', boxSizing:'border-box',
+  outline:'none', boxSizing:'border-box', colorScheme:'dark',
 }
 const lbl: React.CSSProperties = {
   display:'block', fontSize:'.68rem', fontWeight:600,

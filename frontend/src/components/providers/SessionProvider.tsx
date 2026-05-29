@@ -18,17 +18,21 @@ export function SessionProvider({ children }: SessionProviderProps) {
 
   useEffect(() => {
     async function restoreSession(): Promise<void> {
-      const accessToken  = tokenStorage.getAccessToken()
-      const refreshToken = tokenStorage.getRefreshToken()
-
-      if (!accessToken || !refreshToken) {
+      if (!tokenStorage.getAccessToken() || !tokenStorage.getRefreshToken()) {
         setLoading(false)
         return
       }
 
       try {
         const usuario = await get<UsuarioMe>('/auth/me')
-        setUsuario(usuario, accessToken, refreshToken)
+        // Re-read tokens: the interceptor may have refreshed them during /auth/me
+        const currentAccess  = tokenStorage.getAccessToken()
+        const currentRefresh = tokenStorage.getRefreshToken()
+        if (currentAccess && currentRefresh) {
+          setUsuario(usuario, currentAccess, currentRefresh)
+        } else {
+          clearSession()
+        }
       } catch {
         clearSession()
       }

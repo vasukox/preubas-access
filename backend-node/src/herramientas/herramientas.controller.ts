@@ -48,6 +48,15 @@ export class HerramientasController {
     return this.herramientasService.actualizarUsuario(id, dto, req.user.id, currentUserName);
   }
 
+  @Post('usuarios/:id/desbloquear')
+  async desbloquearUsuario(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: Request & { user: { id: number; email: string; nombreCompleto?: string } },
+  ) {
+    const currentUserName = req.user.nombreCompleto || req.user.email;
+    return this.herramientasService.desbloquearUsuario(id, req.user.id, currentUserName);
+  }
+
   @Delete('usuarios/:id')
   async eliminarUsuario(
     @Param('id', ParseIntPipe) id: number,

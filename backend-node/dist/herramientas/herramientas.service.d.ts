@@ -46,6 +46,9 @@ export declare class HerramientasService {
         direccion: string;
         activo: boolean;
         ultimoLogin: Date | null;
+        bloqueadoHasta: Date | null;
+        intentosFallidos: number;
+        estaBloqueado: boolean;
         roles: {
             id: number;
             nombre: RolNombre;
@@ -78,6 +81,9 @@ export declare class HerramientasService {
         direccion: string;
         activo: boolean;
         ultimoLogin: Date | null;
+        bloqueadoHasta: Date | null;
+        intentosFallidos: number;
+        estaBloqueado: boolean;
         roles: {
             id: number;
             nombre: RolNombre;
@@ -101,11 +107,78 @@ export declare class HerramientasService {
             ciudad: string;
         }[];
     }>;
-    actualizarUsuario(id: number, dto: UpdateUsuarioDto, currentUserId: number, currentUserName: string): Promise<Usuario | null>;
+    actualizarUsuario(id: number, dto: UpdateUsuarioDto, currentUserId: number, currentUserName: string): Promise<{
+        id: number;
+        email: string;
+        nombreCompleto: string;
+        numero: string;
+        direccion: string;
+        activo: boolean;
+        ultimoLogin: Date | null;
+        bloqueadoHasta: Date | null;
+        intentosFallidos: number;
+        estaBloqueado: boolean;
+        roles: {
+            id: number;
+            nombre: RolNombre;
+        }[];
+        permisos: {
+            puedeVer: boolean;
+            puedeCrear: boolean;
+            puedeEditar: boolean;
+            puedeEliminar: boolean;
+        };
+        sedeAsignadaId: number;
+        sedeAsignada: {
+            id: number;
+            nombre: string;
+            ciudad: string;
+        };
+        sedesAsignadasIds: number[];
+        sedesAsignadas: {
+            id: number;
+            nombre: string;
+            ciudad: string;
+        }[];
+    }>;
     eliminarUsuario(id: number, currentUserId: number, currentUserName: string): Promise<{
         success: boolean;
     }>;
     actualizarPermisos(id: number, dto: UpdatePermisosDto, currentUserId: number, currentUserName: string): Promise<Usuario | null>;
+    desbloquearUsuario(id: number, currentUserId: number, currentUserName: string): Promise<{
+        id: number;
+        email: string;
+        nombreCompleto: string;
+        numero: string;
+        direccion: string;
+        activo: boolean;
+        ultimoLogin: Date | null;
+        bloqueadoHasta: Date | null;
+        intentosFallidos: number;
+        estaBloqueado: boolean;
+        roles: {
+            id: number;
+            nombre: RolNombre;
+        }[];
+        permisos: {
+            puedeVer: boolean;
+            puedeCrear: boolean;
+            puedeEditar: boolean;
+            puedeEliminar: boolean;
+        };
+        sedeAsignadaId: number;
+        sedeAsignada: {
+            id: number;
+            nombre: string;
+            ciudad: string;
+        };
+        sedesAsignadasIds: number[];
+        sedesAsignadas: {
+            id: number;
+            nombre: string;
+            ciudad: string;
+        }[];
+    }>;
     asignarRol(id: number, rolNombre: string, currentUserId: number, currentUserName: string, sedeAsignadaId?: number, sedesAsignadasIds?: number[]): Promise<{
         id: number;
         email: string;
@@ -114,6 +187,9 @@ export declare class HerramientasService {
         direccion: string;
         activo: boolean;
         ultimoLogin: Date | null;
+        bloqueadoHasta: Date | null;
+        intentosFallidos: number;
+        estaBloqueado: boolean;
         roles: {
             id: number;
             nombre: RolNombre;
@@ -138,7 +214,37 @@ export declare class HerramientasService {
         }[];
     }>;
     quitarRol(id: number, rolNombre: string, currentUserId: number, currentUserName: string): Promise<{
-        success: boolean;
-        message: string;
+        id: number;
+        email: string;
+        nombreCompleto: string;
+        numero: string;
+        direccion: string;
+        activo: boolean;
+        ultimoLogin: Date | null;
+        bloqueadoHasta: Date | null;
+        intentosFallidos: number;
+        estaBloqueado: boolean;
+        roles: {
+            id: number;
+            nombre: RolNombre;
+        }[];
+        permisos: {
+            puedeVer: boolean;
+            puedeCrear: boolean;
+            puedeEditar: boolean;
+            puedeEliminar: boolean;
+        };
+        sedeAsignadaId: number;
+        sedeAsignada: {
+            id: number;
+            nombre: string;
+            ciudad: string;
+        };
+        sedesAsignadasIds: number[];
+        sedesAsignadas: {
+            id: number;
+            nombre: string;
+            ciudad: string;
+        }[];
     }>;
 }

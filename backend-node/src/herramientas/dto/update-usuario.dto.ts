@@ -1,4 +1,5 @@
 import { IsString, MinLength, MaxLength, IsOptional, IsBoolean } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class UpdateUsuarioDto {
   @IsOptional()
@@ -8,12 +9,14 @@ export class UpdateUsuarioDto {
   nombreCompleto?: string;
 
   @IsOptional()
+  @Transform(({ value }) => (value === '' ? undefined : value))
   @IsString()
   @MinLength(7)
   @MaxLength(20)
   numero?: string;
 
   @IsOptional()
+  @Transform(({ value }) => (value === '' ? undefined : value))
   @IsString()
   @MinLength(5)
   @MaxLength(150)

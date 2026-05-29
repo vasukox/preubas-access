@@ -106,6 +106,10 @@ api.interceptors.request.use(
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`
     }
+    // Prevent browser disk cache from serving stale API responses
+    if (config.method === 'get' || config.method === 'GET') {
+      config.params = { ...config.params, _t: Date.now() }
+    }
     return config
   },
   (error) => Promise.reject(error),
@@ -123,7 +127,7 @@ api.interceptors.response.use(
       _retry?: boolean
     }
     const isPortalAutogestion =
-      window.location.pathname.startsWith('/portal/hse/') ||
+      window.location.pathname.includes('/portal/hse/') ||
       isPublicAutogestionRequest(originalRequest.url)
 
     // Solo manejar 401 de requests que NO sean el propio login o refresh
@@ -161,7 +165,7 @@ api.interceptors.response.use(
         processQueue(error, null)
         isRefreshing = false
         if (!isPortalAutogestion) {
-          window.location.href = '/login'
+          window.location.href = `${import.meta.env.BASE_URL}login`
         }
         return Promise.reject(error)
       }
@@ -198,7 +202,7 @@ api.interceptors.response.use(
         processQueue(refreshError, null)
         tokenStorage.clearTokens()
         if (!isPortalAutogestion) {
-          window.location.href = '/login'
+          window.location.href = `${import.meta.env.BASE_URL}login`
         }
         return Promise.reject(refreshError)
 
