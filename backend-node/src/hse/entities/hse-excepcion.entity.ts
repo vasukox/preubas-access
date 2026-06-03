@@ -10,19 +10,39 @@ export class HseExcepcion extends BaseEntity {
   @Column({ name: 'persona_id', type: 'int', nullable: true })
   personaId: number | null;
 
-  @Column({ name: 'tipo_documento', type: 'varchar', length: 20, nullable: true })
+  @Column({
+    name: 'tipo_documento',
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+  })
   tipoDocumento: string | null;
 
-  @Column({ name: 'numero_documento', type: 'varchar', length: 30, nullable: true })
+  @Column({
+    name: 'numero_documento',
+    type: 'varchar',
+    length: 30,
+    nullable: true,
+  })
   numeroDocumento: string | null;
 
-  @Column({ name: 'nombre_completo', type: 'varchar', length: 200, nullable: true })
+  @Column({
+    name: 'nombre_completo',
+    type: 'varchar',
+    length: 200,
+    nullable: true,
+  })
   nombreCompleto: string | null;
 
   @Column({ name: 'proveedor_id', type: 'int', nullable: true })
   proveedorId: number | null;
 
-  @Column({ name: 'origen_excepcion', type: 'varchar', length: 20, default: 'INDIVIDUAL' })
+  @Column({
+    name: 'origen_excepcion',
+    type: 'varchar',
+    length: 20,
+    default: 'INDIVIDUAL',
+  })
   origenExcepcion: string;
 
   @Column({ name: 'ubicacion_id', type: 'int', nullable: true })

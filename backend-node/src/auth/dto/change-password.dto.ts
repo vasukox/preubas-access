@@ -12,7 +12,9 @@ export class ChangePasswordDto {
   passwordActual: string;
 
   @IsString()
-  @MinLength(8, { message: 'La nueva contraseña debe tener al menos 8 caracteres.' })
+  @MinLength(8, {
+    message: 'La nueva contraseña debe tener al menos 8 caracteres.',
+  })
   @MaxLength(128)
   @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, {
     message:

@@ -17,10 +17,22 @@ export class HseAcceso extends BaseEntity {
   @Column({ name: 'registrado_por', type: 'int', nullable: false })
   registradoPor: number;
 
-  @Column({ name: 'tipo', type: 'varchar', length: 20, nullable: false, comment: 'ENTRADA / SALIDA' })
+  @Column({
+    name: 'tipo',
+    type: 'varchar',
+    length: 20,
+    nullable: false,
+    comment: 'ENTRADA / SALIDA',
+  })
   tipoAcceso: string;
 
-  @Column({ name: 'metodo', type: 'enum', enum: MetodoAcceso, nullable: false, default: MetodoAcceso.CEDULA_MANUAL })
+  @Column({
+    name: 'metodo',
+    type: 'enum',
+    enum: MetodoAcceso,
+    nullable: false,
+    default: MetodoAcceso.CEDULA_MANUAL,
+  })
   metodo: MetodoAcceso;
 
   @Column({ name: 'ubicacion_id', type: 'int', nullable: true })
@@ -32,7 +44,9 @@ export class HseAcceso extends BaseEntity {
   @Column({ name: 'fecha_hora', type: 'datetime', nullable: false })
   fechaHora: Date;
 
-  @ManyToOne(() => HseContratista, (contratista) => contratista.accesos, { onDelete: 'CASCADE' })
+  @ManyToOne(() => HseContratista, (contratista) => contratista.accesos, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'contratista_id' })
   contratista: HseContratista;
 

@@ -1,8 +1,23 @@
-import { IsString, IsBoolean, IsEnum, IsOptional, IsInt, IsDateString, IsArray, IsEmail } from 'class-validator';
 import {
-  AlturasNivel, ConfinadosRol, ElectricoMatricula,
-  PilaTipo, PilaEstado, PermisoTipo, ConceptoMedico,
-  RelacionEmergencia, RhSanguineo,
+  IsString,
+  IsBoolean,
+  IsEnum,
+  IsOptional,
+  IsInt,
+  IsDateString,
+  IsArray,
+  IsEmail,
+} from 'class-validator';
+import {
+  AlturasNivel,
+  ConfinadosRol,
+  ElectricoMatricula,
+  PilaTipo,
+  PilaEstado,
+  PermisoTipo,
+  ConceptoMedico,
+  RelacionEmergencia,
+  RhSanguineo,
 } from '../../common/enums/hse.enum';
 
 export class DatosPersonalesDto {
@@ -33,7 +48,9 @@ export class ClasificacionDto {
   @IsOptional() @IsDateString() confinadosCertFecha?: string;
   @IsOptional() @IsString() confinadosCertArchivo?: string;
 
-  @IsOptional() @IsEnum(ElectricoMatricula) electricoMatriculaContec?: ElectricoMatricula;
+  @IsOptional()
+  @IsEnum(ElectricoMatricula)
+  electricoMatriculaContec?: ElectricoMatricula;
   @IsOptional() @IsString() electricoNumMatricula?: string;
   @IsOptional() @IsDateString() electricoMatriculaVenc?: string;
   @IsOptional() @IsString() electricoMatriculaArchivo?: string;

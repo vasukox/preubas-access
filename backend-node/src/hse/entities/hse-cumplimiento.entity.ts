@@ -17,7 +17,12 @@ export class HseCumplimiento extends BaseEntity {
   @Column({ name: 'encargado_id', type: 'int', nullable: false })
   encargadoId: number;
 
-  @Column({ type: 'enum', enum: CumplimientoEstado, default: CumplimientoEstado.EN_PROGRESO, nullable: false })
+  @Column({
+    type: 'enum',
+    enum: CumplimientoEstado,
+    default: CumplimientoEstado.EN_PROGRESO,
+    nullable: false,
+  })
   estado: CumplimientoEstado;
 
   @Column({ name: 'observacion_general', type: 'text', nullable: true })
@@ -29,10 +34,17 @@ export class HseCumplimiento extends BaseEntity {
   @Column({ name: 'fecha_cierre', type: 'datetime', nullable: true })
   fechaCierre: Date;
 
-  @Column({ name: 'firma_digital', type: 'varchar', length: 200, nullable: true })
+  @Column({
+    name: 'firma_digital',
+    type: 'varchar',
+    length: 200,
+    nullable: true,
+  })
   firmaDigital: string;
 
-  @ManyToOne(() => HseContratista, (contratista) => contratista.cumplimientos, { onDelete: 'CASCADE' })
+  @ManyToOne(() => HseContratista, (contratista) => contratista.cumplimientos, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'contratista_id' })
   contratista: HseContratista;
 
@@ -47,6 +59,8 @@ export class HseCumplimiento extends BaseEntity {
   @Column({ name: 'archivado', type: 'boolean', default: false })
   archivado: boolean;
 
-  @OneToMany(() => HseCumplimientoItem, (item) => item.cumplimiento, { cascade: true })
+  @OneToMany(() => HseCumplimientoItem, (item) => item.cumplimiento, {
+    cascade: true,
+  })
   items: HseCumplimientoItem[];
 }

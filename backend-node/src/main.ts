@@ -52,7 +52,7 @@ async function bootstrap() {
   // ── 4. Pipes globales ─────────────────────────────────────────────────────
   // 4a. Transformar snake_case → camelCase en entrada
   app.useGlobalPipes(new SnakeToCamelPipe());
-  
+
   // 4b. Validar y transformar tipos
   app.useGlobalPipes(
     new ValidationPipe({

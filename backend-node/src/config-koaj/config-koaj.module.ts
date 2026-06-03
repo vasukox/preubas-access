@@ -42,6 +42,6 @@ import { ConfigKoajService } from './config-koaj.service';
   ],
   controllers: [ConfigKoajController],
   providers: [ConfigKoajService],
-  exports: [ConfigKoajService],  // ← disponible para HseModule y GhModule
+  exports: [ConfigKoajService], // ← disponible para HseModule y GhModule
 })
 export class ConfigKoajModule {}

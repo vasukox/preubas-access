@@ -26,6 +26,13 @@ export enum EstadoContratista {
   EN_REVISION = 'EN_REVISION',
   APROBADO = 'APROBADO',
   DENEGADO = 'DENEGADO',
+  ARCHIVADO = 'ARCHIVADO',
+}
+
+export enum SolicitudArchivadoEstado {
+  PENDIENTE = 'PENDIENTE',
+  APROBADO = 'APROBADO',
+  RECHAZADO = 'RECHAZADO',
 }
 
 export enum TipoDocumento {
@@ -128,4 +135,4 @@ export enum ModalidadTrabajo {
   PRESENCIAL = 'PRESENCIAL',
   REMOTO = 'REMOTO',
   HIBRIDO = 'HIBRIDO',
-}
+}

@@ -1,11 +1,11 @@
 import { HseService } from './hse.service';
 import { CreateAutorizacionDto, UpdateAutorizacionDto, ChangeEstadoAutorizacionDto } from './dto/autorizacion.dto';
 import { CreateContratistaDto, EliminarContratistaDto, EliminarAdjuntoContratistaDto } from './dto/contratista.dto';
-import { ClasificacionDto, CertificacionesDto, ExamenMedicoDto, ContactoEmergenciaDto, AceptacionNormasDto } from './dto/autogestion.dto';
+import { ClasificacionDto, SegSocialItemDto, CertificacionesDto, ExamenMedicoDto, ContactoEmergenciaDto, AceptacionNormasDto } from './dto/autogestion.dto';
 import { VerificarAccesoDto, RegistrarAccesoDto, RegistrarEntradaSalidaDto } from './dto/acceso.dto';
 import { CumplimientoIniciarDto, CumplimientoActualizarDto, CumplimientoCerrarDto, MarcarItemCumplimientoDto } from './dto/cumplimiento.dto';
 import { CreateExcepcionDto, CreateExcepcionLoteDto, UpdateExcepcionDto } from './dto/excepcion.dto';
-import { ReporteAccesosQueryDto, ReporteCumplimientoQueryDto } from './dto/reportes.dto';
+import { ReporteAccesosQueryDto, ReporteCumplimientoQueryDto, ReporteAutorizacionesQueryDto, ReporteContratistasQueryDto } from './dto/reportes.dto';
 import { AutorizacionService } from './services/autorizacion.service';
 import { AutogestionService } from './services/autogestion.service';
 import { AccesoService } from './services/acceso.service';
@@ -13,6 +13,8 @@ import { CumplimientoService } from './services/cumplimiento.service';
 import { ExcepcionService } from './services/excepcion.service';
 import { ReportesService } from './services/reportes.service';
 import { UploadSecurityService } from './services/upload-security.service';
+import { ArchivadoService } from './services/archivado.service';
+import { AprobarArchivadoDto, RechazarArchivadoDto } from './dto/archivado.dto';
 import { ProveedorService } from '../persona/proveedor.service';
 import type { Response } from 'express';
 export declare class CrearProveedorFrontendDto {
@@ -34,7 +36,8 @@ export declare class HseController {
     private readonly reportesService;
     private readonly proveedorService;
     private readonly uploadSecurityService;
-    constructor(hseService: HseService, autorizacionService: AutorizacionService, autogestionService: AutogestionService, accesoService: AccesoService, cumplimientoService: CumplimientoService, excepcionService: ExcepcionService, reportesService: ReportesService, proveedorService: ProveedorService, uploadSecurityService: UploadSecurityService);
+    private readonly archivadoService;
+    constructor(hseService: HseService, autorizacionService: AutorizacionService, autogestionService: AutogestionService, accesoService: AccesoService, cumplimientoService: CumplimientoService, excepcionService: ExcepcionService, reportesService: ReportesService, proveedorService: ProveedorService, uploadSecurityService: UploadSecurityService, archivadoService: ArchivadoService);
     getSedes(req: any): Promise<import("../sede/entities/sede.entity").Sede[]>;
     getEps(): Promise<import("./entities/cat-eps.entity").CatEps[]>;
     getArl(): Promise<import("./entities/cat-arl.entity").CatArl[]>;
@@ -60,7 +63,8 @@ export declare class HseController {
         success: boolean;
         message: string;
     }>;
-    getAutorizaciones(sedeId: number, estado?: string, page?: string, perPage?: string): Promise<{
+    getAutorizaciones(sedeId: number, estado?: string, page?: string, perPage?: string, incluirExcepciones?: string): Promise<{
+        contratistas: import("./entities/hse-contratista.entity").HseContratista[];
         totalContratistas: number;
         aprobados: number;
         pendientes: number;
@@ -80,7 +84,6 @@ export declare class HseController {
         sede: import("../sede/entities/sede.entity").Sede;
         creador: import("../auth/entities/usuario.entity").Usuario;
         responsableInterno: import("../auth/entities/usuario.entity").Usuario;
-        contratistas: import("./entities/hse-contratista.entity").HseContratista[];
         id: number;
         created_at: Date;
         updated_at: Date;
@@ -129,10 +132,10 @@ export declare class HseController {
         fecha_inicio: Date;
         fecha_fin: Date;
         clasificacion: Partial<ClasificacionDto> | null;
-        seguridad_social: import("./entities/hse-seg-social.entity").HseSegSocial[];
-        certificaciones: import("./entities/hse-certificaciones.entity").HseCertificaciones;
-        examen_medico: import("./entities/hse-examen-medico.entity").HseExamenMedico;
-        contacto_emergencia: import("./entities/hse-contacto-emergencia.entity").HseContactoEmergencia;
+        seguridad_social: Partial<SegSocialItemDto>[];
+        certificaciones: Partial<CertificacionesDto> | null;
+        examen_medico: Partial<ExamenMedicoDto> | null;
+        contacto_emergencia: Partial<ContactoEmergenciaDto> | null;
         aceptacion_normas: import("./entities/hse-aceptacion-normas.entity").HseAceptacionNormas;
     }>;
     uploadArchivo(req: any, token: string, modulo: string, campo: string, archivo: any): Promise<{
@@ -307,13 +310,24 @@ export declare class HseController {
     }[]>;
     anularExcepcion(id: number, req: any): Promise<import("./entities/hse-excepcion.entity").HseExcepcion>;
     desactivarExcepcion(id: number, req: any): Promise<import("./entities/hse-excepcion.entity").HseExcepcion>;
-    activarExcepcion(id: number, req: any): Promise<import("./entities/hse-excepcion.entity").HseExcepcion>;
-    actualizarExcepcion(id: number, dto: UpdateExcepcionDto): Promise<import("./entities/hse-excepcion.entity").HseExcepcion>;
+    activarExcepcion(id: number, req: any): Promise<import("./entities/hse-excepcion.entity").HseExcepcion | null>;
+    actualizarExcepcion(id: number, dto: UpdateExcepcionDto): Promise<import("./entities/hse-excepcion.entity").HseExcepcion | null>;
     eliminarExcepcion(id: number): Promise<{
         success: boolean;
         message: string;
     }>;
-    getReporteAccesos(query: ReporteAccesosQueryDto): Promise<import("./entities/hse-acceso.entity").HseAcceso[]>;
+    getReporteAccesos(query: ReporteAccesosQueryDto): Promise<{
+        id: number;
+        contratistaId: number;
+        contratistaNombre: string | null;
+        contratistaDoc: string;
+        sedeId: number;
+        tipoAcceso: string;
+        metodo: import("../common/enums/hse.enum").MetodoAcceso;
+        fechaHora: Date;
+        registradoPor: string;
+        observacion: string;
+    }[]>;
     getReporteCumplimiento(query: ReporteCumplimientoQueryDto): Promise<{
         total: number;
         page: number;
@@ -339,6 +353,92 @@ export declare class HseController {
             itemsNosCumplen: number;
         }[];
     }>;
-    getReporteVencimientos(): Promise<import("./entities/hse-contratista.entity").HseContratista[]>;
+    getReporteVencimientos(sedeIdStr?: string): Promise<{
+        id: number;
+        codigo: string;
+        estado: import("../common/enums/hse.enum").EstadoAutorizacion;
+        tipoContratista: import("../common/enums/hse.enum").TipoContratista;
+        fechaInicio: Date;
+        fechaFin: Date;
+        diasRestantes: number;
+        proveedor: string;
+        responsable: string;
+        totalContratistas: number;
+        semaforo: string;
+    }[]>;
+    getChartData(sedeId: number): Promise<{
+        autorizaciones_por_estado: {
+            name: string;
+            value: number;
+            fill: string;
+        }[];
+        tendencia_mensual: {
+            mes: string;
+            autorizaciones: number;
+            aprobadas: number;
+        }[];
+        top_proveedores: {
+            nombre: any;
+            total: number;
+        }[];
+        accesos_diarios: {
+            dia: string;
+            entradas: number;
+            salidas: number;
+        }[];
+        contratistas_por_estado: {
+            name: string;
+            value: number;
+            fill: string;
+        }[];
+        tipo_contratista: {
+            name: string;
+            value: number;
+            fill: string;
+        }[];
+    }>;
+    getReporteAutorizaciones(query: ReporteAutorizacionesQueryDto): Promise<{
+        total: number;
+        page: number;
+        limit: number;
+        pages: number;
+        data: {
+            id: number;
+            codigo: string;
+            estado: import("../common/enums/hse.enum").EstadoAutorizacion;
+            tipoContratista: import("../common/enums/hse.enum").TipoContratista;
+            descripcionActividad: string;
+            fechaInicio: Date;
+            fechaFin: Date;
+            proveedor: string;
+            responsable: string;
+            totalContratistas: number;
+            aprobados: number;
+            createdAt: any;
+        }[];
+    }>;
+    getReporteContratistas(query: ReporteContratistasQueryDto): Promise<{
+        total: number;
+        page: number;
+        limit: number;
+        pages: number;
+        data: {
+            id: number;
+            nombres: string;
+            apellidos: string;
+            tipoDocumento: import("../common/enums/hse.enum").TipoDocumento;
+            numeroDocumento: string;
+            email: string;
+            estado: import("../common/enums/hse.enum").EstadoContratista;
+            tipoContratista: import("../common/enums/hse.enum").TipoContratista;
+            autorizacionCodigo: string;
+            proveedor: any;
+            autogestionCompletadaEn: Date;
+            createdAt: any;
+        }[];
+    }>;
+    getColaArchivado(): Promise<import("./entities/hse-solicitud-archivado.entity").HseSolicitudArchivado[]>;
+    aprobarArchivado(contratistaId: number, dto: AprobarArchivadoDto, req: any): Promise<import("./entities/hse-solicitud-archivado.entity").HseSolicitudArchivado>;
+    rechazarArchivado(contratistaId: number, dto: RechazarArchivadoDto, req: any): Promise<import("./entities/hse-solicitud-archivado.entity").HseSolicitudArchivado>;
     servirArchivoHse(req: any, res: Response): Promise<void>;
 }

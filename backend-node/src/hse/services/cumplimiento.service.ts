@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException, BadRequestException, OnModuleInit, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  OnModuleInit,
+  Logger,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In, LessThan, Not, IsNull } from 'typeorm';
 import { HseCumplimiento } from '../entities/hse-cumplimiento.entity';
@@ -28,7 +34,10 @@ export class CumplimientoService implements OnModuleInit {
   onModuleInit() {
     // Limpieza inicial al arrancar + cada 24 h
     void this.limpiarCumplimientosVencidos();
-    setInterval(() => void this.limpiarCumplimientosVencidos(), 24 * 60 * 60 * 1000);
+    setInterval(
+      () => void this.limpiarCumplimientosVencidos(),
+      24 * 60 * 60 * 1000,
+    );
   }
 
   /** Archiva cumplimientos cerrados con más de DIAS_RETENCION días (no elimina, preserva trazabilidad) */
@@ -40,7 +49,12 @@ export class CumplimientoService implements OnModuleInit {
       .createQueryBuilder()
       .update()
       .set({ archivado: true })
-      .where('estado IN (:...estados)', { estados: [CumplimientoEstado.COMPLETADO, CumplimientoEstado.INCUMPLIMIENTO] })
+      .where('estado IN (:...estados)', {
+        estados: [
+          CumplimientoEstado.COMPLETADO,
+          CumplimientoEstado.INCUMPLIMIENTO,
+        ],
+      })
       .andWhere('fecha_cierre < :fechaLimite', { fechaLimite })
       .andWhere('archivado = false')
       .execute();
@@ -65,15 +79,22 @@ export class CumplimientoService implements OnModuleInit {
   async getById(id: number) {
     const cumplimiento = await this.cumplimientoRepo.findOne({
       where: { id },
-      relations: ['items', 'encargado', 'contratista', 'contratista.autorizacion'],
+      relations: [
+        'items',
+        'encargado',
+        'contratista',
+        'contratista.autorizacion',
+      ],
     });
-    if (!cumplimiento) throw new NotFoundException('Cumplimiento no encontrado');
+    if (!cumplimiento)
+      throw new NotFoundException('Cumplimiento no encontrado');
     return cumplimiento;
   }
 
   async listarCumplimientos(sedeId: number, estado?: string) {
-    const qb = this.cumplimientoRepo.createQueryBuilder('c')
-      .innerJoinAndSelect('c.contratista', 'contratista')   // INNER: excluye contratistas eliminados
+    const qb = this.cumplimientoRepo
+      .createQueryBuilder('c')
+      .innerJoinAndSelect('c.contratista', 'contratista') // INNER: excluye contratistas eliminados
       .leftJoinAndSelect('c.encargado', 'encargado')
       .leftJoinAndSelect('contratista.autorizacion', 'autorizacion')
       .leftJoinAndSelect('c.items', 'items')
@@ -86,18 +107,23 @@ export class CumplimientoService implements OnModuleInit {
 
     const cumplimientos = await qb.orderBy('c.created_at', 'DESC').getMany();
 
-    return cumplimientos.map(c => {
-      const totalItems  = c.items ? c.items.length : 0;
-      const respondidos = c.items ? c.items.filter(i => i.cumple !== null).length : 0;
+    return cumplimientos.map((c) => {
+      const totalItems = c.items ? c.items.length : 0;
+      const respondidos = c.items
+        ? c.items.filter((i) => i.cumple !== null).length
+        : 0;
 
       // Calcular días restantes antes de la eliminación automática
       let diasRestantes: number | null = null;
       if (
         c.fechaCierre &&
-        (c.estado === CumplimientoEstado.COMPLETADO || c.estado === CumplimientoEstado.INCUMPLIMIENTO)
+        (c.estado === CumplimientoEstado.COMPLETADO ||
+          c.estado === CumplimientoEstado.INCUMPLIMIENTO)
       ) {
         const msSinceCierre = Date.now() - new Date(c.fechaCierre).getTime();
-        const diasTranscurridos = Math.floor(msSinceCierre / (1000 * 60 * 60 * 24));
+        const diasTranscurridos = Math.floor(
+          msSinceCierre / (1000 * 60 * 60 * 24),
+        );
         diasRestantes = Math.max(0, DIAS_RETENCION - diasTranscurridos);
       }
 
@@ -117,7 +143,7 @@ export class CumplimientoService implements OnModuleInit {
         numeroDocumento: c.contratista.numeroDocumento,
         autorizacionCodigo: c.contratista?.autorizacion?.codigo ?? null,
         encargadoNombre: c.encargado ? c.encargado.nombreCompleto : null,
-        diasRestantes,  // null = EN_PROGRESO, 0..3 = días antes de eliminación
+        diasRestantes, // null = EN_PROGRESO, 0..3 = días antes de eliminación
       };
     });
   }
@@ -126,7 +152,7 @@ export class CumplimientoService implements OnModuleInit {
     contratistaId: number,
     encargadoId: number,
     sedeId: number,
-    itemsPreguntas?: string[]
+    itemsPreguntas?: string[],
   ) {
     let cumplimiento = await this.cumplimientoRepo.findOne({
       where: { contratistaId, estado: CumplimientoEstado.EN_PROGRESO },
@@ -145,11 +171,12 @@ export class CumplimientoService implements OnModuleInit {
       cumplimiento = await this.cumplimientoRepo.save(cumplimiento);
 
       // Si no vienen preguntas del frontend, construir desde normas de la sede (o defaults si no hay)
-      const preguntas = itemsPreguntas && itemsPreguntas.length > 0
-        ? itemsPreguntas
-        : await this.generarPreguntasDesdeNormas(sedeId);
+      const preguntas =
+        itemsPreguntas && itemsPreguntas.length > 0
+          ? itemsPreguntas
+          : await this.generarPreguntasDesdeNormas(sedeId);
 
-      const cumplimientoId = cumplimiento!.id;
+      const cumplimientoId = cumplimiento.id;
       const items = preguntas.map((pregunta, index) =>
         this.cumplimientoItemRepo.create({
           cumplimientoId,
@@ -182,7 +209,7 @@ export class CumplimientoService implements OnModuleInit {
       this.logger.log(
         `Checklist generado desde ${normas.length} norma(s) activas para sede ${sedeId}`,
       );
-      return normas.map(n => `Norma #${n.numero} — ${n.titulo}`);
+      return normas.map((n) => `Norma #${n.numero} — ${n.titulo}`);
     }
 
     this.logger.warn(
@@ -195,7 +222,10 @@ export class CumplimientoService implements OnModuleInit {
    * Verifica que el último acceso del contratista en la sede sea SALIDA.
    * El cumplimiento solo puede iniciarse una vez que el contratista ha entrado y salido.
    */
-  private async validarSalidaRegistrada(contratistaId: number, sedeId: number): Promise<void> {
+  private async validarSalidaRegistrada(
+    contratistaId: number,
+    sedeId: number,
+  ): Promise<void> {
     const ultimoAcceso = await this.accesoRepo.findOne({
       where: { contratistaId, sedeId },
       order: { fechaHora: 'DESC' },
@@ -227,13 +257,21 @@ export class CumplimientoService implements OnModuleInit {
   }
 
   async actualizarCumplimiento(id: number, dto: any) {
-    const cumplimiento = await this.cumplimientoRepo.findOne({ where: { id }, relations: ['items'] });
-    if (!cumplimiento) throw new NotFoundException('Cumplimiento no encontrado');
+    const cumplimiento = await this.cumplimientoRepo.findOne({
+      where: { id },
+      relations: ['items'],
+    });
+    if (!cumplimiento)
+      throw new NotFoundException('Cumplimiento no encontrado');
 
     if (dto.estado) cumplimiento.estado = dto.estado;
-    if (dto.observacionGeneral !== undefined) cumplimiento.observacionGeneral = dto.observacionGeneral;
-    
-    if (dto.estado === CumplimientoEstado.COMPLETADO || dto.estado === CumplimientoEstado.INCUMPLIMIENTO) {
+    if (dto.observacionGeneral !== undefined)
+      cumplimiento.observacionGeneral = dto.observacionGeneral;
+
+    if (
+      dto.estado === CumplimientoEstado.COMPLETADO ||
+      dto.estado === CumplimientoEstado.INCUMPLIMIENTO
+    ) {
       cumplimiento.fechaCierre = new Date();
     }
 
@@ -241,10 +279,11 @@ export class CumplimientoService implements OnModuleInit {
       for (const itemDto of dto.items) {
         // Use camelCase itemId from transformed DTO
         const itemId = itemDto.itemId;
-        const item = cumplimiento.items.find(i => i.id === itemId);
+        const item = cumplimiento.items.find((i) => i.id === itemId);
         if (item) {
           if (itemDto.cumple !== undefined) item.cumple = itemDto.cumple;
-          if (itemDto.observacion !== undefined) item.observacion = itemDto.observacion;
+          if (itemDto.observacion !== undefined)
+            item.observacion = itemDto.observacion;
         }
       }
     }
@@ -252,31 +291,51 @@ export class CumplimientoService implements OnModuleInit {
     return this.cumplimientoRepo.save(cumplimiento);
   }
 
-  async marcarItem(id: number, itemId: number, cumple: boolean, observacion?: string) {
-    const item = await this.cumplimientoItemRepo.findOne({ where: { id: itemId, cumplimientoId: id } });
-    if (!item) throw new NotFoundException('Item de cumplimiento no encontrado');
+  async marcarItem(
+    id: number,
+    itemId: number,
+    cumple: boolean,
+    observacion?: string,
+  ) {
+    const item = await this.cumplimientoItemRepo.findOne({
+      where: { id: itemId, cumplimientoId: id },
+    });
+    if (!item)
+      throw new NotFoundException('Item de cumplimiento no encontrado');
 
     item.cumple = cumple;
     if (observacion !== undefined) item.observacion = observacion;
     return this.cumplimientoItemRepo.save(item);
   }
 
-  async cerrarCumplimiento(id: number, firmaDigital: string, observacionGeneral?: string) {
-    const cumplimiento = await this.cumplimientoRepo.findOne({ where: { id }, relations: ['items', 'encargado'] });
-    if (!cumplimiento) throw new NotFoundException('Cumplimiento no encontrado');
+  async cerrarCumplimiento(
+    id: number,
+    firmaDigital: string,
+    observacionGeneral?: string,
+  ) {
+    const cumplimiento = await this.cumplimientoRepo.findOne({
+      where: { id },
+      relations: ['items', 'encargado'],
+    });
+    if (!cumplimiento)
+      throw new NotFoundException('Cumplimiento no encontrado');
 
-    const itemsAplicables = cumplimiento.items.filter(i => i.aplica);
+    const itemsAplicables = cumplimiento.items.filter((i) => i.aplica);
 
-    const sinResponder = itemsAplicables.filter(i => i.cumple === null);
+    const sinResponder = itemsAplicables.filter((i) => i.cumple === null);
     if (sinResponder.length > 0) {
       throw new BadRequestException(
         `Hay ${sinResponder.length} ítem(s) sin responder. Responda todos antes de cerrar.`,
       );
     }
 
-    const todosCumplen = itemsAplicables.length > 0 && itemsAplicables.every(i => i.cumple === true);
-    
-    cumplimiento.estado = todosCumplen ? CumplimientoEstado.COMPLETADO : CumplimientoEstado.INCUMPLIMIENTO;
+    const todosCumplen =
+      itemsAplicables.length > 0 &&
+      itemsAplicables.every((i) => i.cumple === true);
+
+    cumplimiento.estado = todosCumplen
+      ? CumplimientoEstado.COMPLETADO
+      : CumplimientoEstado.INCUMPLIMIENTO;
     cumplimiento.fechaCierre = new Date();
     cumplimiento.firmaDigital = firmaDigital;
     if (observacionGeneral !== undefined) {

@@ -27,6 +27,7 @@ export type EstadoContratista =
   | 'EN_REVISION'
   | 'APROBADO'
   | 'DENEGADO'
+  | 'ARCHIVADO'
 
 export type EstadoAccesoVigilante = 'AUTORIZADO' | 'NO_AUTORIZADO' | 'NO_REGISTRADO' | 'EXCEPCION'
 export type TipoAccesoHSE         = 'ENTRADA' | 'SALIDA'
@@ -544,6 +545,85 @@ export interface ReporteCumplimientoResponse {
   data:   ReporteCumplimientoRow[]
 }
 
+export interface ReporteAccesoRow {
+  id:                  number
+  contratista_id:      number
+  contratistaNombre:   string
+  contratistaDoc:      string
+  tipoAcceso:          'ENTRADA' | 'SALIDA'
+  metodo:              string
+  fecha:               string
+  registradoPor:       string | null
+}
+
+export interface ReporteVencimientoRow {
+  id:                  number
+  codigo:              string
+  estado:              EstadoAutorizacion
+  tipo_contratista:    TipoContratista
+  fecha_inicio:        string
+  fecha_fin:           string
+  proveedor_nombre:    string | null
+  responsable_nombre:  string | null
+  total_contratistas:  number
+  aprobados:           number
+  diasRestantes:       number
+  semaforo:            'vencido' | 'critico' | 'advertencia' | 'ok'
+}
+
+export interface ReporteContratistaRow {
+  id:                        number
+  nombres:                   string
+  apellidos:                 string
+  tipo_documento:            TipoDocumentoHSE
+  numero_documento:          string
+  estado:                    EstadoContratista
+  tipo_contratista:          TipoContratista
+  autorizacion_codigo:       string | null
+  proveedor_nombre:          string | null
+  autogestion_completada_en: string | null
+  created_at:                string
+}
+
+export interface ReporteContratistasResponse {
+  total: number
+  page:  number
+  limit: number
+  pages: number
+  data:  ReporteContratistaRow[]
+}
+
+export interface ReporteAutorizacionRow {
+  id:                 number
+  codigo:             string
+  proveedor_nombre:   string | null
+  tipo_contratista:   TipoContratista
+  estado:             EstadoAutorizacion
+  fecha_inicio:       string
+  fecha_fin:          string
+  total_contratistas: number
+  aprobados:          number
+  responsable_nombre: string | null
+}
+
+export interface ReporteAutorizacionesResponse {
+  total: number
+  page:  number
+  limit: number
+  pages: number
+  data:  ReporteAutorizacionRow[]
+}
+
+export interface ChartDataPoint { name: string; value: number; fill: string }
+export interface ChartDataResponse {
+  autorizaciones_por_estado: ChartDataPoint[]
+  tendencia_mensual:         { mes: string; autorizaciones: number; aprobadas: number }[]
+  top_proveedores:           { nombre: string; total: number }[]
+  accesos_diarios:           { dia: string; entradas: number; salidas: number }[]
+  contratistas_por_estado:   ChartDataPoint[]
+  tipo_contratista:          ChartDataPoint[]
+}
+
 // ═══════════════════════════════════════════════════════════════════
 // EXCEPCIONES
 // ═══════════════════════════════════════════════════════════════════
@@ -650,9 +730,54 @@ export const ESTADO_CONTRATISTA_LABEL: Record<EstadoContratista, string> = {
   EN_REVISION:             'En revisión',
   APROBADO:                'Aprobado',
   DENEGADO:                'Denegado',
+  ARCHIVADO:               'Archivado',
 }
 
 export const TIPO_CONTRATISTA_LABEL: Record<TipoContratista, string> = {
   ALTO_RIESGO: 'Alto Riesgo',
   NORMAL:      'Normal',
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// ARCHIVADO
+// ═══════════════════════════════════════════════════════════════════
+
+export type SolicitudArchivadoEstado = 'PENDIENTE' | 'APROBADO' | 'RECHAZADO'
+
+export interface SolicitudArchivadoResponse {
+  id:                   number
+  contratista_id:       number
+  estado:               SolicitudArchivadoEstado
+  motivo:               string | null
+  firma_digital:        string | null
+  resuelto_por:         number | null
+  fecha_resolucion:     string | null
+  notificacion_enviada: boolean
+  created_at:           string
+  contratista: {
+    id:               number
+    nombres:          string
+    apellidos:        string
+    numero_documento: string
+    tipo_documento:   string
+    estado:           EstadoContratista
+    autorizacion: {
+      id:               number
+      codigo:           string
+      fecha_inicio:     string
+      fecha_fin:        string
+      tipo_contratista: TipoContratista
+      proveedor:        { nom_proveedor: string } | null
+    } | null
+  } | null
+}
+
+export interface AprobarArchivadoRequest {
+  motivo: string
+  firmaDigital: string
+}
+
+export interface RechazarArchivadoRequest {
+  motivo: string
 }

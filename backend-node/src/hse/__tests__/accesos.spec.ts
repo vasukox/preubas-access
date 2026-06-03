@@ -15,7 +15,9 @@ describe('AccesoService', () => {
       findOne: jest.fn(),
       find: jest.fn(),
       create: jest.fn().mockImplementation((dto) => dto),
-      save: jest.fn().mockImplementation((dto) => Promise.resolve({ id: 1, ...dto })),
+      save: jest
+        .fn()
+        .mockImplementation((dto) => Promise.resolve({ id: 1, ...dto })),
     };
 
     mockValidacionService = {
@@ -41,49 +43,66 @@ describe('AccesoService', () => {
     it('should register entrance if allowed and not already inside', async () => {
       mockValidacionService.validarAccesoPermitido.mockResolvedValue(true);
       // Simula que el último acceso fue SALIDA (o no hay accesos previos)
-      mockAccesoRepo.findOne.mockResolvedValue(null); 
+      mockAccesoRepo.findOne.mockResolvedValue(null);
 
       const result = await service.registrarEntrada(1, 1, 99, 'Puerta A');
 
-      expect(mockValidacionService.validarAccesoPermitido).toHaveBeenCalledWith(1);
-      expect(mockAccesoRepo.create).toHaveBeenCalledWith(expect.objectContaining({
-        contratistaId: 1,
-        tipoAcceso: 'ENTRADA',
-        metodo: 'CEDULA_MANUAL',
-      }));
+      expect(mockValidacionService.validarAccesoPermitido).toHaveBeenCalledWith(
+        1,
+      );
+      expect(mockAccesoRepo.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          contratistaId: 1,
+          tipoAcceso: 'ENTRADA',
+          metodo: 'CEDULA_MANUAL',
+        }),
+      );
       expect(result.tipoAcceso).toBe('ENTRADA');
     });
 
     it('should throw if already inside', async () => {
       mockValidacionService.validarAccesoPermitido.mockResolvedValue(true);
       // Simula que el último acceso fue ENTRADA
-      mockAccesoRepo.findOne.mockResolvedValue({ tipoAcceso: 'ENTRADA' }); 
+      mockAccesoRepo.findOne.mockResolvedValue({ tipoAcceso: 'ENTRADA' });
 
-      await expect(service.registrarEntrada(1, 1, 99)).rejects.toThrow(BadRequestException);
+      await expect(service.registrarEntrada(1, 1, 99)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should propagate validation error', async () => {
-      mockValidacionService.validarAccesoPermitido.mockRejectedValue(new BadRequestException('No activo'));
+      mockValidacionService.validarAccesoPermitido.mockRejectedValue(
+        new BadRequestException('No activo'),
+      );
 
-      await expect(service.registrarEntrada(1, 1, 99)).rejects.toThrow('No activo');
+      await expect(service.registrarEntrada(1, 1, 99)).rejects.toThrow(
+        'No activo',
+      );
     });
   });
 
   describe('registrarSalida', () => {
     it('should register exit if currently inside', async () => {
-      mockAccesoRepo.findOne.mockResolvedValue({ tipoAcceso: 'ENTRADA', sedeId: 1 });
+      mockAccesoRepo.findOne.mockResolvedValue({
+        tipoAcceso: 'ENTRADA',
+        sedeId: 1,
+      });
 
       const result = await service.registrarSalida(1, 1, 99, 'Puerta B');
 
-      expect(mockAccesoRepo.create).toHaveBeenCalledWith(expect.objectContaining({
-        tipoAcceso: 'SALIDA',
-      }));
+      expect(mockAccesoRepo.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tipoAcceso: 'SALIDA',
+        }),
+      );
       expect(result.tipoAcceso).toBe('SALIDA');
     });
 
     it('should throw if no pending entrance', async () => {
       mockAccesoRepo.findOne.mockResolvedValue({ tipoAcceso: 'SALIDA' }); // Último fue salida
-      await expect(service.registrarSalida(1, 1, 99)).rejects.toThrow(BadRequestException);
+      await expect(service.registrarSalida(1, 1, 99)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 });

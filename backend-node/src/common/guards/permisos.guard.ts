@@ -65,7 +65,8 @@ export class PermisosGuard implements CanActivate {
         success: false,
         error: {
           code: 'SIN_PERMISOS_CONFIGURADOS',
-          message: 'Tu cuenta no tiene permisos configurados. Contacta al administrador.',
+          message:
+            'Tu cuenta no tiene permisos configurados. Contacta al administrador.',
         },
       });
     }

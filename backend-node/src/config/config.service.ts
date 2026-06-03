@@ -85,7 +85,10 @@ export class ConfigService {
   // ── CORS ────────────────────────────────────────────────────────
 
   get corsOrigins(): string[] {
-    const raw = this.config.get<string>('CORS_ORIGINS', 'http://localhost:5173');
+    const raw = this.config.get<string>(
+      'CORS_ORIGINS',
+      'http://localhost:5173',
+    );
     return raw.split(',').map((origin) => origin.trim());
   }
 
@@ -126,12 +129,14 @@ export class ConfigService {
     if (this.jwtSecret.includes('dev-secret-key')) {
       throw new Error(
         'JWT_SECRET debe ser cambiado antes de ir a producción. ' +
-          'Genera uno con: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"',
+          "Genera uno con: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"",
       );
     }
 
     if (this.jwtSecret.length < 32) {
-      throw new Error('JWT_SECRET debe tener al menos 32 caracteres en produccion.');
+      throw new Error(
+        'JWT_SECRET debe tener al menos 32 caracteres en produccion.',
+      );
     }
 
     if (this.databasePassword === 'root') {

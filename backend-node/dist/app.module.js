@@ -23,6 +23,7 @@ const herramientas_module_1 = require("./herramientas/herramientas.module");
 const parking_module_1 = require("./parking/parking.module");
 const nfc_module_1 = require("./nfc/nfc.module");
 const websockets_module_1 = require("./websockets/websockets.module");
+const notificaciones_module_1 = require("./notificaciones/notificaciones.module");
 const herramientas_controller_1 = require("./herramientas/herramientas.controller");
 const config_koaj_controller_1 = require("./config-koaj/config-koaj.controller");
 const proveedor_controller_1 = require("./persona/proveedor.controller");
@@ -47,6 +48,7 @@ exports.AppModule = AppModule = __decorate([
             sede_module_1.SedeModule,
             persona_module_1.PersonaModule,
             hse_module_1.HseModule,
+            notificaciones_module_1.NotificacionesModule,
             config_koaj_module_1.ConfigKoajModule,
             herramientas_module_1.HerramientasModule,
             parking_module_1.ParkingModule,

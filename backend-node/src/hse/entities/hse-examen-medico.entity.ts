@@ -20,7 +20,9 @@ export class HseExamenMedico extends BaseEntity {
   @Column({ type: 'varchar', length: 500, nullable: true })
   archivo: string;
 
-  @OneToOne(() => HseContratista, (contratista) => contratista.examenMedico, { onDelete: 'CASCADE' })
+  @OneToOne(() => HseContratista, (contratista) => contratista.examenMedico, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'contratista_id' })
   contratista: HseContratista;
 }

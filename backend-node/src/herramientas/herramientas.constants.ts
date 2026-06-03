@@ -2,7 +2,8 @@ import { RolNombre } from '../common/enums/rol.enum';
 
 export const ROL_META: Record<string, any> = {
   [RolNombre.ADMIN_GLOBAL]: {
-    descripcion: 'Acceso total al sistema. Puede gestionar todos los módulos y usuarios.',
+    descripcion:
+      'Acceso total al sistema. Puede gestionar todos los módulos y usuarios.',
     color: '#F59E0B',
     modulos: ['Todo el sistema'],
     grupos: [
@@ -10,50 +11,106 @@ export const ROL_META: Record<string, any> = {
         grupo: 'Administracion global',
         modulo: 'Herramientas',
         submodulos: ['Usuarios', 'Roles', 'Permisos', 'Auditoria'],
-        puede_eliminar: ['Usuarios desactivados', 'Asignaciones de rol', 'Registros de configuracion'],
+        puede_eliminar: [
+          'Usuarios desactivados',
+          'Asignaciones de rol',
+          'Registros de configuracion',
+        ],
       },
       {
         grupo: 'Operacion HSE',
         modulo: 'HSE',
-        submodulos: ['Dashboard', 'Panel General', 'Gestion', 'Vigilante', 'Excepciones', 'Cumplimiento'],
-        puede_eliminar: ['Autorizaciones rechazadas', 'Anotaciones operativas', 'Asignaciones temporales'],
+        submodulos: [
+          'Dashboard',
+          'Panel General',
+          'Gestion',
+          'Vigilante',
+          'Excepciones',
+          'Cumplimiento',
+        ],
+        puede_eliminar: [
+          'Autorizaciones rechazadas',
+          'Anotaciones operativas',
+          'Asignaciones temporales',
+        ],
       },
       {
         grupo: 'Operacion transversal',
         modulo: 'Parking / NFC / GH',
-        submodulos: ['Parking', 'Parking Vigilante', 'Activos NFC', 'Gestion Humana'],
-        puede_eliminar: ['Registros operativos segun politica', 'Asignaciones internas'],
+        submodulos: [
+          'Parking',
+          'Parking Vigilante',
+          'Activos NFC',
+          'Gestion Humana',
+        ],
+        puede_eliminar: [
+          'Registros operativos segun politica',
+          'Asignaciones internas',
+        ],
       },
     ],
   },
   [RolNombre.ADMIN_HSE]: {
-    descripcion: 'Gestión completa del módulo HSE. Ve todos los submodulos de HSE y Reportes.',
+    descripcion:
+      'Gestión completa del módulo HSE. Ve todos los submodulos de HSE y Reportes.',
     color: '#10B981',
-    modulos: ['Dashboard HSE', 'Panel General', 'Gestión', 'Vigilante', 'Excepciones', 'Cumplimiento', 'Reportes'],
+    modulos: [
+      'Dashboard HSE',
+      'Panel General',
+      'Gestión',
+      'Vigilante',
+      'Excepciones',
+      'Cumplimiento',
+      'Reportes',
+    ],
     grupos: [
       {
         grupo: 'Control HSE',
         modulo: 'HSE',
-        submodulos: ['Dashboard', 'Panel General', 'Gestion', 'Vigilante', 'Excepciones', 'Cumplimiento'],
-        puede_eliminar: ['Observaciones de checklist', 'Asignaciones duplicadas de flujo'],
+        submodulos: [
+          'Dashboard',
+          'Panel General',
+          'Gestion',
+          'Vigilante',
+          'Excepciones',
+          'Cumplimiento',
+        ],
+        puede_eliminar: [
+          'Observaciones de checklist',
+          'Asignaciones duplicadas de flujo',
+        ],
       },
     ],
   },
   [RolNombre.GESTION_HSE]: {
-    descripcion: 'Gestión de autorizaciones HSE normales y excepciones. No accede a Vigilante.',
+    descripcion:
+      'Gestión de autorizaciones HSE normales y excepciones. No accede a Vigilante.',
     color: '#6366F1',
-    modulos: ['Dashboard HSE', 'Panel General', 'Gestión', 'Excepciones', 'Cumplimiento'],
+    modulos: [
+      'Dashboard HSE',
+      'Panel General',
+      'Gestión',
+      'Excepciones',
+      'Cumplimiento',
+    ],
     grupos: [
       {
         grupo: 'Gestion documental HSE',
         modulo: 'HSE',
-        submodulos: ['Dashboard', 'Panel General', 'Gestion', 'Excepciones', 'Cumplimiento'],
+        submodulos: [
+          'Dashboard',
+          'Panel General',
+          'Gestion',
+          'Excepciones',
+          'Cumplimiento',
+        ],
         puede_eliminar: ['Archivos invalidos', 'Comentarios operativos'],
       },
     ],
   },
   [RolNombre.VIGILANTE_HSE]: {
-    descripcion: 'Operación del portal de portería HSE. Verifica y registra accesos.',
+    descripcion:
+      'Operación del portal de portería HSE. Verifica y registra accesos.',
     color: '#EC4899',
     modulos: ['Dashboard HSE', 'Vigilante'],
     grupos: [

@@ -1,7 +1,15 @@
-import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  Logger,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
-import { ConfigTiemposContratista, TipoContratistaConfig } from '../../config-koaj/entities/config-tiempos-contratista.entity';
+import { Repository, DataSource, Not } from 'typeorm';
+import {
+  ConfigTiemposContratista,
+  TipoContratistaConfig,
+} from '../../config-koaj/entities/config-tiempos-contratista.entity';
 import { HseAutorizacion } from '../entities/hse-autorizacion.entity';
 import { HseContratista } from '../entities/hse-contratista.entity';
 import { HseHistorial } from '../entities/hse-historial.entity';
@@ -9,11 +17,18 @@ import { HseClasificacion } from '../entities/hse-clasificacion.entity';
 import { HseSegSocial } from '../entities/hse-seg-social.entity';
 import { HseCertificaciones } from '../entities/hse-certificaciones.entity';
 import { HseExamenMedico } from '../entities/hse-examen-medico.entity';
-import { CreateAutorizacionDto, UpdateAutorizacionDto, ChangeEstadoAutorizacionDto } from '../dto/autorizacion.dto';
+import {
+  CreateAutorizacionDto,
+  UpdateAutorizacionDto,
+  ChangeEstadoAutorizacionDto,
+} from '../dto/autorizacion.dto';
 import { CreateContratistaDto } from '../dto/contratista.dto';
 import { CodigoGeneratorService } from './codigo-generator.service';
 import { AutorizacionValidator } from '../validators/autorizacion.validator';
-import { EstadoAutorizacion, EstadoContratista } from '../../common/enums/hse.enum';
+import {
+  EstadoAutorizacion,
+  EstadoContratista,
+} from '../../common/enums/hse.enum';
 import * as crypto from 'crypto';
 
 @Injectable()
@@ -34,22 +49,66 @@ export class AutorizacionService {
     private dataSource: DataSource,
   ) {}
 
-  async findAll(sedeId: number, estado?: string, page = 1, perPage = 20) {
+  async findAll(
+    sedeId: number,
+    estado?: string,
+    page = 1,
+    perPage = 20,
+    incluirExcepciones = false,
+  ) {
     await this.marcarAutorizacionesVencidas(sedeId);
 
     const skip = (page - 1) * perPage;
-    const query = this.autorizacionRepo.createQueryBuilder('autorizacion')
+    const query = this.autorizacionRepo
+      .createQueryBuilder('autorizacion')
       .leftJoinAndSelect('autorizacion.proveedor', 'proveedor')
       .leftJoinAndSelect('autorizacion.creador', 'creador')
-      .leftJoinAndSelect('autorizacion.responsableInterno', 'responsableInterno')
-      .leftJoinAndSelect('autorizacion.contratistas', 'contratistas')
-      .where('autorizacion.sede_id = :sedeId', { sedeId })
-      .andWhere('LOWER(autorizacion.descripcion_actividad) NOT LIKE :excepcionPrefix', {
-        excepcionPrefix: 'excepcion hse:%',
-      })
-      .andWhere('LOWER(autorizacion.descripcion_actividad) NOT LIKE :excepcionPrefixAccent', {
-        excepcionPrefixAccent: 'excepción hse:%',
-      })
+      .leftJoinAndSelect(
+        'autorizacion.responsableInterno',
+        'responsableInterno',
+      )
+      // Solo carga contratistas NO archivados en la relación
+      .leftJoinAndSelect(
+        'autorizacion.contratistas',
+        'contratistas',
+        "contratistas.estado != 'ARCHIVADO'",
+      )
+      .where('autorizacion.sede_id = :sedeId', { sedeId });
+
+    // Las autorizaciones de excepción solo se muestran cuando se pide explícitamente
+    if (!incluirExcepciones) {
+      query
+        .andWhere(
+          'LOWER(autorizacion.descripcion_actividad) NOT LIKE :excepcionPrefix',
+          {
+            excepcionPrefix: 'excepcion hse:%',
+          },
+        )
+        .andWhere(
+          'LOWER(autorizacion.descripcion_actividad) NOT LIKE :excepcionPrefixAccent',
+          {
+            excepcionPrefixAccent: 'excepción hse:%',
+          },
+        );
+    }
+
+    // Excluye autorizaciones donde TODOS sus contratistas fueron archivados
+    query
+      .andWhere(
+        `(
+          NOT EXISTS (
+            SELECT 1 FROM hse_contratistas c_all
+            WHERE c_all.autorizacion_id = autorizacion.id
+              AND c_all.deleted_at IS NULL
+          )
+          OR EXISTS (
+            SELECT 1 FROM hse_contratistas c_act
+            WHERE c_act.autorizacion_id = autorizacion.id
+              AND c_act.deleted_at IS NULL
+              AND c_act.estado != 'ARCHIVADO'
+          )
+        )`,
+      )
       .orderBy('autorizacion.created_at', 'DESC')
       .skip(skip)
       .take(perPage);
@@ -60,12 +119,21 @@ export class AutorizacionService {
 
     const [items, total] = await query.getManyAndCount();
 
-    const itemsMapped = items.map(a => {
-      const aprobados = a.contratistas ? a.contratistas.filter(c => c.estado === EstadoContratista.APROBADO).length : 0;
-      const pendientes = a.contratistas ? a.contratistas.filter(c => c.estado !== EstadoContratista.APROBADO && c.estado !== EstadoContratista.DENEGADO).length : 0;
+    const itemsMapped = items.map((a) => {
+      // a.contratistas ya viene sin ARCHIVADO por el JOIN condicional
+      const contratistas = a.contratistas ?? [];
+      const aprobados = contratistas.filter(
+        (c) => c.estado === EstadoContratista.APROBADO,
+      ).length;
+      const pendientes = contratistas.filter(
+        (c) =>
+          c.estado !== EstadoContratista.APROBADO &&
+          c.estado !== EstadoContratista.DENEGADO,
+      ).length;
       return {
         ...a,
-        totalContratistas: a.contratistas ? a.contratistas.length : 0,
+        contratistas,
+        totalContratistas: contratistas.length,
         aprobados,
         pendientes,
         proveedorNombre: a.proveedor?.nomProveedor ?? null,
@@ -115,8 +183,10 @@ export class AutorizacionService {
       const savedAutorizacion = await queryRunner.manager.save(autorizacion);
 
       if (createDto.contratistas && createDto.contratistas.length > 0) {
-        const duracionHoras = await this.getTokenDuracionHoras(createDto.tipoContratista);
-        const contratistas = createDto.contratistas.map(c =>
+        const duracionHoras = await this.getTokenDuracionHoras(
+          createDto.tipoContratista,
+        );
+        const contratistas = createDto.contratistas.map((c) =>
           this.contratistaRepo.create({
             personaId: c.personaId,
             tipoDocumento: c.tipoDocumento,
@@ -131,9 +201,11 @@ export class AutorizacionService {
             autorizacionId: savedAutorizacion.id,
             estado: EstadoContratista.PENDIENTE_AUTOGESTION,
             tokenAutogestion: crypto.randomBytes(32).toString('hex'),
-            tokenExpiraEn: new Date(Date.now() + duracionHoras * 60 * 60 * 1000),
+            tokenExpiraEn: new Date(
+              Date.now() + duracionHoras * 60 * 60 * 1000,
+            ),
             tokenDuracionHoras: duracionHoras,
-          })
+          }),
         );
         await queryRunner.manager.save(contratistas);
       }
@@ -159,13 +231,25 @@ export class AutorizacionService {
     }
 
     await this.autorizacionRepo.update(id, {
-      ...(updateDto.proveedorId !== undefined && { proveedorId: updateDto.proveedorId }),
+      ...(updateDto.proveedorId !== undefined && {
+        proveedorId: updateDto.proveedorId,
+      }),
       ...(updateDto.sedeId !== undefined && { sedeId: updateDto.sedeId }),
-      ...(updateDto.responsableInternoId !== undefined && { responsableInternoId: updateDto.responsableInternoId }),
-      ...(updateDto.tipoContratista !== undefined && { tipoContratista: updateDto.tipoContratista }),
-      ...(updateDto.descripcionActividad !== undefined && { descripcionActividad: updateDto.descripcionActividad }),
-      ...(updateDto.fechaInicio !== undefined && { fechaInicio: this.toDateOnly(updateDto.fechaInicio) }),
-      ...(updateDto.fechaFin !== undefined && { fechaFin: this.toDateOnly(updateDto.fechaFin) }),
+      ...(updateDto.responsableInternoId !== undefined && {
+        responsableInternoId: updateDto.responsableInternoId,
+      }),
+      ...(updateDto.tipoContratista !== undefined && {
+        tipoContratista: updateDto.tipoContratista,
+      }),
+      ...(updateDto.descripcionActividad !== undefined && {
+        descripcionActividad: updateDto.descripcionActividad,
+      }),
+      ...(updateDto.fechaInicio !== undefined && {
+        fechaInicio: this.toDateOnly(updateDto.fechaInicio),
+      }),
+      ...(updateDto.fechaFin !== undefined && {
+        fechaFin: this.toDateOnly(updateDto.fechaFin),
+      }),
     });
 
     return this.findOne(id);
@@ -177,7 +261,10 @@ export class AutorizacionService {
     return { success: true, message: 'Autorización eliminada correctamente' };
   }
 
-  async cambiarEstado(id: number, changeEstadoDto: ChangeEstadoAutorizacionDto) {
+  async cambiarEstado(
+    id: number,
+    changeEstadoDto: ChangeEstadoAutorizacionDto,
+  ) {
     const autorizacion = await this.autorizacionRepo.findOne({
       where: { id },
       relations: ['contratistas'],
@@ -186,12 +273,16 @@ export class AutorizacionService {
       throw new NotFoundException(`Autorizacion con ID ${id} no encontrada`);
     }
 
-    this.validarCambioEstadoAutorizacion(autorizacion, changeEstadoDto.estado, changeEstadoDto.motivoDenegacion);
+    this.validarCambioEstadoAutorizacion(
+      autorizacion,
+      changeEstadoDto.estado,
+      changeEstadoDto.motivoDenegacion,
+    );
 
     autorizacion.estado = changeEstadoDto.estado;
     autorizacion.motivoDenegacion =
       changeEstadoDto.estado === EstadoAutorizacion.DENEGADO
-        ? changeEstadoDto.motivoDenegacion ?? null
+        ? (changeEstadoDto.motivoDenegacion ?? null)
         : null;
 
     await this.autorizacionRepo.save(autorizacion);
@@ -202,16 +293,21 @@ export class AutorizacionService {
     await this.findOne(autorizacionId);
 
     return this.contratistaRepo.find({
-      where: { autorizacionId },
+      where: { autorizacionId, estado: Not(EstadoContratista.ARCHIVADO) },
       relations: ['persona'],
     });
   }
 
-  async addContratistas(autorizacionId: number, contratistasDto: CreateContratistaDto[]) {
+  async addContratistas(
+    autorizacionId: number,
+    contratistasDto: CreateContratistaDto[],
+  ) {
     const autorizacion = await this.findOne(autorizacionId);
-    const duracionHoras = await this.getTokenDuracionHoras(autorizacion.tipoContratista);
+    const duracionHoras = await this.getTokenDuracionHoras(
+      autorizacion.tipoContratista,
+    );
 
-    const contratistas = contratistasDto.map(c =>
+    const contratistas = contratistasDto.map((c) =>
       this.contratistaRepo.create({
         personaId: c.personaId,
         tipoDocumento: c.tipoDocumento,
@@ -228,7 +324,7 @@ export class AutorizacionService {
         tokenAutogestion: crypto.randomBytes(32).toString('hex'),
         tokenExpiraEn: new Date(Date.now() + duracionHoras * 60 * 60 * 1000),
         tokenDuracionHoras: duracionHoras,
-      })
+      }),
     );
 
     const saved = await this.contratistaRepo.save(contratistas);
@@ -242,7 +338,9 @@ export class AutorizacionService {
       relations: ['autorizacion'],
     });
     if (!contratista) {
-      throw new NotFoundException(`Contratista con ID ${contratistaId} no encontrado`);
+      throw new NotFoundException(
+        `Contratista con ID ${contratistaId} no encontrado`,
+      );
     }
 
     const token = crypto.randomBytes(32).toString('hex');
@@ -300,7 +398,12 @@ export class AutorizacionService {
   async aprobarContratista(id: number, usuarioId?: number) {
     const contratista = await this.findOneContratista(id);
 
-    if (![EstadoContratista.AUTOGESTION_COMPLETADA, EstadoContratista.EN_REVISION].includes(contratista.estado)) {
+    if (
+      ![
+        EstadoContratista.AUTOGESTION_COMPLETADA,
+        EstadoContratista.EN_REVISION,
+      ].includes(contratista.estado)
+    ) {
       throw new BadRequestException(
         `Solo se puede aprobar un contratista con autogestion completada. Estado actual: ${contratista.estado}`,
       );
@@ -331,7 +434,9 @@ export class AutorizacionService {
     }
 
     if (contratista.estado === EstadoContratista.APROBADO) {
-      throw new BadRequestException('No se puede denegar un contratista ya aprobado');
+      throw new BadRequestException(
+        'No se puede denegar un contratista ya aprobado',
+      );
     }
 
     contratista.motivoDenegacion = motivoLimpio;
@@ -381,7 +486,9 @@ export class AutorizacionService {
   async actualizarProveedorContratista(id: number, proveedorId: number | null) {
     const contratista = await this.findOneContratista(id);
     if (!contratista.autorizacion) {
-      throw new BadRequestException('El contratista no tiene una autorizacion asignada');
+      throw new BadRequestException(
+        'El contratista no tiene una autorizacion asignada',
+      );
     }
 
     contratista.autorizacion.proveedorId = proveedorId;
@@ -403,17 +510,24 @@ export class AutorizacionService {
     const config = this.getAdjuntoConfig(modulo, campo);
     if (modulo === 'seg_social') {
       if (!data.seg_social_id) {
-        throw new BadRequestException('seg_social_id es obligatorio para seguridad social');
+        throw new BadRequestException(
+          'seg_social_id es obligatorio para seguridad social',
+        );
       }
       const repo = this.dataSource.getRepository(HseSegSocial);
-      const item = await repo.findOne({ where: { id: data.seg_social_id, contratistaId: id } });
-      if (!item) throw new NotFoundException('Adjunto de seguridad social no encontrado');
+      const item = await repo.findOne({
+        where: { id: data.seg_social_id, contratistaId: id },
+      });
+      if (!item)
+        throw new NotFoundException(
+          'Adjunto de seguridad social no encontrado',
+        );
       (item as any)[config.property] = null;
       await repo.save(item);
       return this.findOneContratista(id);
     }
 
-    const repo = this.dataSource.getRepository(config.entity as any);
+    const repo = this.dataSource.getRepository(config.entity);
     const record = await repo.findOne({ where: { contratistaId: id } });
     if (!record) throw new NotFoundException('Adjunto no encontrado');
     (record as any)[config.property] = null;
@@ -430,39 +544,84 @@ export class AutorizacionService {
 
     if (nuevoEstado === EstadoAutorizacion.APROBADO) {
       if (contratistas.length === 0) {
-        throw new BadRequestException('No se puede aprobar una autorizacion sin contratistas');
+        throw new BadRequestException(
+          'No se puede aprobar una autorizacion sin contratistas',
+        );
       }
-      const noAprobados = contratistas.filter((c) => c.estado !== EstadoContratista.APROBADO);
+      const noAprobados = contratistas.filter(
+        (c) => c.estado !== EstadoContratista.APROBADO,
+      );
       if (noAprobados.length > 0) {
-        throw new BadRequestException('Todos los contratistas deben estar aprobados antes de aprobar la autorizacion');
+        throw new BadRequestException(
+          'Todos los contratistas deben estar aprobados antes de aprobar la autorizacion',
+        );
       }
     }
 
-    if (nuevoEstado === EstadoAutorizacion.DENEGADO && !motivoDenegacion?.trim()) {
+    if (
+      nuevoEstado === EstadoAutorizacion.DENEGADO &&
+      !motivoDenegacion?.trim()
+    ) {
       throw new BadRequestException('El motivo de denegacion es obligatorio');
     }
   }
 
   private getAdjuntoConfig(modulo: string, campo: string) {
-    const configs: Record<string, Record<string, { entity: any; property: string }>> = {
+    const configs: Record<
+      string,
+      Record<string, { entity: any; property: string }>
+    > = {
       clasificacion: {
-        alturas_cert_archivo: { entity: HseClasificacion, property: 'alturasCertArchivo' },
-        confinados_cert_archivo: { entity: HseClasificacion, property: 'confinadosCertArchivo' },
-        electrico_matricula_archivo: { entity: HseClasificacion, property: 'electricoMatriculaArchivo' },
-        caliente_extintor_archivo: { entity: HseClasificacion, property: 'calienteExtintorArchivo' },
-        caliente_permiso_archivo: { entity: HseClasificacion, property: 'calientePermisoArchivo' },
-        izaje_inspeccion_archivo: { entity: HseClasificacion, property: 'izajeInspeccionArchivo' },
-        izaje_doc_legal_archivo: { entity: HseClasificacion, property: 'izajeDocLegalArchivo' },
-        izaje_licencia_archivo: { entity: HseClasificacion, property: 'izajeLicenciaArchivo' },
-        extran_poliza_archivo: { entity: HseClasificacion, property: 'extranPolizaArchivo' },
-        residuos_plan_archivo: { entity: HseClasificacion, property: 'residuosPlanArchivo' },
+        alturas_cert_archivo: {
+          entity: HseClasificacion,
+          property: 'alturasCertArchivo',
+        },
+        confinados_cert_archivo: {
+          entity: HseClasificacion,
+          property: 'confinadosCertArchivo',
+        },
+        electrico_matricula_archivo: {
+          entity: HseClasificacion,
+          property: 'electricoMatriculaArchivo',
+        },
+        caliente_extintor_archivo: {
+          entity: HseClasificacion,
+          property: 'calienteExtintorArchivo',
+        },
+        caliente_permiso_archivo: {
+          entity: HseClasificacion,
+          property: 'calientePermisoArchivo',
+        },
+        izaje_inspeccion_archivo: {
+          entity: HseClasificacion,
+          property: 'izajeInspeccionArchivo',
+        },
+        izaje_doc_legal_archivo: {
+          entity: HseClasificacion,
+          property: 'izajeDocLegalArchivo',
+        },
+        izaje_licencia_archivo: {
+          entity: HseClasificacion,
+          property: 'izajeLicenciaArchivo',
+        },
+        extran_poliza_archivo: {
+          entity: HseClasificacion,
+          property: 'extranPolizaArchivo',
+        },
+        residuos_plan_archivo: {
+          entity: HseClasificacion,
+          property: 'residuosPlanArchivo',
+        },
       },
       seg_social: {
         pila_archivo: { entity: HseSegSocial, property: 'pilaArchivo' },
       },
       certificaciones: {
         art_archivo: { entity: HseCertificaciones, property: 'artArchivo' },
-        permiso_archivo: { entity: HseCertificaciones, property: 'permisoArchivo' },
+        permiso_archivo: {
+          entity: HseCertificaciones,
+          property: 'permisoArchivo',
+        },
       },
       examen: {
         archivo: { entity: HseExamenMedico, property: 'archivo' },
@@ -479,19 +638,30 @@ export class AutorizacionService {
   private validarContratistaListoParaAprobar(contratista: HseContratista) {
     const autorizacion = contratista.autorizacion;
     if (!autorizacion) {
-      throw new BadRequestException('El contratista no tiene una autorizacion asignada');
+      throw new BadRequestException(
+        'El contratista no tiene una autorizacion asignada',
+      );
     }
 
     if (this.estaFechaVencida(autorizacion.fechaFin)) {
-      throw new BadRequestException('No se puede aprobar porque la autorizacion ya esta vencida');
+      throw new BadRequestException(
+        'No se puede aprobar porque la autorizacion ya esta vencida',
+      );
     }
 
     if (!contratista.autogestionCompletadaEn) {
-      throw new BadRequestException('El contratista no ha finalizado la autogestion');
+      throw new BadRequestException(
+        'El contratista no ha finalizado la autogestion',
+      );
     }
 
-    if (!contratista.aceptacionNormas?.aceptoNormas || !contratista.aceptacionNormas?.aceptoDatos) {
-      throw new BadRequestException('El contratista debe aceptar normas y tratamiento de datos');
+    if (
+      !contratista.aceptacionNormas?.aceptoNormas ||
+      !contratista.aceptacionNormas?.aceptoDatos
+    ) {
+      throw new BadRequestException(
+        'El contratista debe aceptar normas y tratamiento de datos',
+      );
     }
 
     if (!contratista.contactoEmergencia) {
@@ -504,13 +674,22 @@ export class AutorizacionService {
 
     if (autorizacion.tipoContratista === 'ALTO_RIESGO') {
       if (!contratista.certificaciones) {
-        throw new BadRequestException('Los contratistas de alto riesgo deben adjuntar certificaciones/ART');
+        throw new BadRequestException(
+          'Los contratistas de alto riesgo deben adjuntar certificaciones/ART',
+        );
       }
-      if (!contratista.seguridadSocial || contratista.seguridadSocial.length === 0) {
-        throw new BadRequestException('Los contratistas de alto riesgo deben adjuntar seguridad social');
+      if (
+        !contratista.seguridadSocial ||
+        contratista.seguridadSocial.length === 0
+      ) {
+        throw new BadRequestException(
+          'Los contratistas de alto riesgo deben adjuntar seguridad social',
+        );
       }
       if (!contratista.examenMedico) {
-        throw new BadRequestException('Los contratistas de alto riesgo requieren examen medico');
+        throw new BadRequestException(
+          'Los contratistas de alto riesgo requieren examen medico',
+        );
       }
     }
   }
@@ -528,7 +707,13 @@ export class AutorizacionService {
 
     contratista.estado = nuevoEstado;
     await this.contratistaRepo.save(contratista);
-    await this.registrarHistorial(contratista.id, estadoAnterior, nuevoEstado, usuarioId, motivo);
+    await this.registrarHistorial(
+      contratista.id,
+      estadoAnterior,
+      nuevoEstado,
+      usuarioId,
+      motivo,
+    );
   }
 
   private async registrarHistorial(
@@ -577,7 +762,9 @@ export class AutorizacionService {
     }
   }
 
-  private calcularEstadoAutorizacion(contratistas: HseContratista[]): EstadoAutorizacion {
+  private calcularEstadoAutorizacion(
+    contratistas: HseContratista[],
+  ): EstadoAutorizacion {
     if (contratistas.length === 0) {
       return EstadoAutorizacion.BORRADOR;
     }
@@ -607,8 +794,11 @@ export class AutorizacionService {
   }
 
   private async marcarAutorizacionesVencidas(sedeId?: number) {
-    const qb = this.autorizacionRepo.createQueryBuilder('autorizacion')
-      .where('autorizacion.estado != :vencido', { vencido: EstadoAutorizacion.VENCIDO })
+    const qb = this.autorizacionRepo
+      .createQueryBuilder('autorizacion')
+      .where('autorizacion.estado != :vencido', {
+        vencido: EstadoAutorizacion.VENCIDO,
+      })
       .andWhere('autorizacion.fecha_fin < :hoy', { hoy: this.fechaHoyLocal() });
 
     if (sedeId) {
@@ -625,7 +815,10 @@ export class AutorizacionService {
   }
 
   private async marcarVencidaSiAplica(autorizacion: HseAutorizacion) {
-    if (autorizacion.estado !== EstadoAutorizacion.VENCIDO && this.estaFechaVencida(autorizacion.fechaFin)) {
+    if (
+      autorizacion.estado !== EstadoAutorizacion.VENCIDO &&
+      this.estaFechaVencida(autorizacion.fechaFin)
+    ) {
       autorizacion.estado = EstadoAutorizacion.VENCIDO;
       await this.autorizacionRepo.save(autorizacion);
       return true;
@@ -650,17 +843,26 @@ export class AutorizacionService {
   }
 
   private fechaHoyLocal(): string {
-    return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota' }).format(new Date());
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Bogota',
+    }).format(new Date());
   }
 
   private toDateOnly(value: string): Date {
-    const [year, month, day] = value.split('-').map(Number);
-    return new Date(year, month - 1, day);
+    const dateOnly = value.slice(0, 10);
+    const [year, month, day] = dateOnly.split('-').map(Number);
+    return new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
   }
 
-  private async getTokenDuracionHoras(tipoContratista?: string): Promise<number> {
-    const tipo = (tipoContratista as TipoContratistaConfig) ?? TipoContratistaConfig.NORMAL;
-    const config = await this.tiemposRepo.findOne({ where: { tipoContratista: tipo } });
+  private async getTokenDuracionHoras(
+    tipoContratista?: string,
+  ): Promise<number> {
+    const tipo =
+      (tipoContratista as TipoContratistaConfig) ??
+      TipoContratistaConfig.NORMAL;
+    const config = await this.tiemposRepo.findOne({
+      where: { tipoContratista: tipo },
+    });
     return config?.tokenDuracionHoras ?? 72;
   }
 }

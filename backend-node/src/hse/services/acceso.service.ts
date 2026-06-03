@@ -29,7 +29,9 @@ export class AccesoService {
     });
 
     if (ultimoAcceso && ultimoAcceso.tipoAcceso === 'ENTRADA') {
-      throw new BadRequestException('El contratista ya se encuentra dentro de las instalaciones');
+      throw new BadRequestException(
+        'El contratista ya se encuentra dentro de las instalaciones',
+      );
     }
 
     const acceso = this.accesoRepo.create({
@@ -60,11 +62,15 @@ export class AccesoService {
     });
 
     if (!ultimoAcceso || ultimoAcceso.tipoAcceso === 'SALIDA') {
-      throw new BadRequestException('El contratista no tiene registro de entrada pendiente de salida');
+      throw new BadRequestException(
+        'El contratista no tiene registro de entrada pendiente de salida',
+      );
     }
 
     if (ultimoAcceso.sedeId !== sedeId) {
-      throw new BadRequestException('La entrada pendiente pertenece a otra sede');
+      throw new BadRequestException(
+        'La entrada pendiente pertenece a otra sede',
+      );
     }
 
     const acceso = this.accesoRepo.create({
@@ -82,16 +88,34 @@ export class AccesoService {
   }
 
   async registrarAcceso(dto: any, registradoPor: number) {
-    const { contratistaId, sedeId, tipo, metodo, observacion, ubicacionId } = dto;
+    const { contratistaId, sedeId, tipo, metodo, observacion, ubicacionId } =
+      dto;
     if (tipo === 'ENTRADA') {
-      return this.registrarEntrada(contratistaId, sedeId, registradoPor, metodo, observacion, ubicacionId);
+      return this.registrarEntrada(
+        contratistaId,
+        sedeId,
+        registradoPor,
+        metodo,
+        observacion,
+        ubicacionId,
+      );
     } else {
-      return this.registrarSalida(contratistaId, sedeId, registradoPor, metodo, observacion, ubicacionId);
+      return this.registrarSalida(
+        contratistaId,
+        sedeId,
+        registradoPor,
+        metodo,
+        observacion,
+        ubicacionId,
+      );
     }
   }
 
   async verificarAcceso(documento: string, sedeId: number) {
-    return this.validacionService.obtenerEstadoAccesoPorDocumento(documento, sedeId);
+    return this.validacionService.obtenerEstadoAccesoPorDocumento(
+      documento,
+      sedeId,
+    );
   }
 
   async getHistorialSede(sedeId: number, limit = 50) {
@@ -124,6 +148,7 @@ export class AccesoService {
       .setParameters(latestAccessSubQuery.getParameters())
       .where('acceso.sede_id = :sedeId', { sedeId })
       .andWhere('acceso.tipo = :tipo', { tipo: 'ENTRADA' })
+      .andWhere('contratista.estado != :archivado', { archivado: 'ARCHIVADO' })
       .select([
         'contratista.id AS contratistaId',
         "CONCAT(contratista.nombres, ' ', contratista.apellidos) AS nombre",

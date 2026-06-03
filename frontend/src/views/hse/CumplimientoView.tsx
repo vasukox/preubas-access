@@ -336,6 +336,7 @@ function ModalIniciar({
               sede_id: sedeId,
               page,
               per_page: perPage,
+              incluir_excepciones: true,
             })
             all.push(...chunk)
             if (chunk.length < perPage) break
@@ -370,6 +371,7 @@ function ModalIniciar({
     EN_REVISION:             { color: '#5668B8',            bg: 'rgba(86,104,184,0.08)' },
     APROBADO:                { color: 'var(--success-400)', bg: 'rgba(40,149,108,0.08)' },
     DENEGADO:                { color: 'var(--danger-400)',  bg: 'rgba(192,80,80,0.08)' },
+    ARCHIVADO:               { color: 'var(--text-muted)',  bg: 'var(--bg-raised)' },
   }
 
   const registros = useMemo(() => {
@@ -596,7 +598,7 @@ function ModalIniciar({
                     {g.titulo} ({g.items.length})
                   </div>
                   {g.items.map(item => {
-                    const tone = estadoStyle[item.estado]
+                    const tone = estadoStyle[item.estado] ?? { color: 'var(--text-muted)', bg: 'var(--bg-raised)' }
                     const isLoading = iniciandoId === item.id
                     return (
                       <div

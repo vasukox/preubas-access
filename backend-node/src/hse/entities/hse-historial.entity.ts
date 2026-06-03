@@ -11,10 +11,20 @@ export class HseHistorial extends BaseEntity {
   @Column({ name: 'usuario_id', type: 'int', nullable: true })
   usuarioId: number | null;
 
-  @Column({ name: 'estado_anterior', type: 'varchar', length: 50, nullable: true })
+  @Column({
+    name: 'estado_anterior',
+    type: 'varchar',
+    length: 50,
+    nullable: true,
+  })
   estadoAnterior: string | null;
 
-  @Column({ name: 'estado_nuevo', type: 'varchar', length: 50, nullable: false })
+  @Column({
+    name: 'estado_nuevo',
+    type: 'varchar',
+    length: 50,
+    nullable: false,
+  })
   estadoNuevo: string;
 
   @Column({ type: 'text', nullable: true })
@@ -23,7 +33,9 @@ export class HseHistorial extends BaseEntity {
   @Column({ name: 'metadata_extra', type: 'json', nullable: true })
   metadataExtra: object | null;
 
-  @ManyToOne(() => HseContratista, (contratista) => contratista.historial, { onDelete: 'CASCADE' })
+  @ManyToOne(() => HseContratista, (contratista) => contratista.historial, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'contratista_id' })
   contratista: HseContratista;
 

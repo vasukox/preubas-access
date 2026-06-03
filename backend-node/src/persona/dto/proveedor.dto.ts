@@ -1,4 +1,11 @@
-import { IsString, IsOptional, IsBoolean, IsEmail, IsEnum, IsNotEmpty } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+} from 'class-validator';
 
 const TIPOS_ID = ['NIT', 'CC', 'CE', 'PASAPORTE'] as const;
 

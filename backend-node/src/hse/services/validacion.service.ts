@@ -5,7 +5,11 @@ import { HseContratista } from '../entities/hse-contratista.entity';
 import { HseExcepcion } from '../entities/hse-excepcion.entity';
 import { HseAcceso } from '../entities/hse-acceso.entity';
 import { HseAutorizacion } from '../entities/hse-autorizacion.entity';
-import { EstadoAutorizacion, EstadoContratista, TipoContratista } from '../../common/enums/hse.enum';
+import {
+  EstadoAutorizacion,
+  EstadoContratista,
+  TipoContratista,
+} from '../../common/enums/hse.enum';
 import { Persona } from '../../persona/entities/persona.entity';
 import { CodigoGeneratorService } from './codigo-generator.service';
 import * as crypto from 'crypto';
@@ -31,7 +35,7 @@ export class ValidacionService {
   async validarAccesoPermitido(contratistaId: number): Promise<boolean> {
     const contratista = await this.contratistaRepo.findOne({
       where: { id: contratistaId },
-      relations: ['autorizacion']
+      relations: ['autorizacion'],
     });
 
     if (!contratista) {
@@ -40,7 +44,9 @@ export class ValidacionService {
 
     const autorizacion = contratista.autorizacion;
     if (!autorizacion) {
-      throw new BadRequestException('El contratista no tiene una autorización asignada');
+      throw new BadRequestException(
+        'El contratista no tiene una autorización asignada',
+      );
     }
 
     const tieneExcepcionActiva = await this.tieneExcepcionActivaPorDocumento(
@@ -61,11 +67,15 @@ export class ValidacionService {
     }
 
     if (contratista.estado !== EstadoContratista.APROBADO) {
-      throw new BadRequestException(`El contratista no está aprobado. Estado actual: ${contratista.estado}`);
+      throw new BadRequestException(
+        `El contratista no está aprobado. Estado actual: ${contratista.estado}`,
+      );
     }
 
     if (autorizacion.estado !== EstadoAutorizacion.APROBADO) {
-      throw new BadRequestException(`La autorización no está aprobada. Estado actual: ${autorizacion.estado}`);
+      throw new BadRequestException(
+        `La autorización no está aprobada. Estado actual: ${autorizacion.estado}`,
+      );
     }
 
     if (this.estaFechaVencida(autorizacion.fechaFin)) {
@@ -76,22 +86,32 @@ export class ValidacionService {
 
     const hoy = this.fechaHoyLocal();
     const inicioStr = this.formatearFecha(autorizacion.fechaInicio);
-    const finStr    = this.formatearFecha(autorizacion.fechaFin);
+    const finStr = this.formatearFecha(autorizacion.fechaFin);
 
     if (hoy < inicioStr || hoy > finStr) {
-      throw new BadRequestException(`La autorización no está vigente. Válida desde ${inicioStr} hasta ${finStr}`);
+      throw new BadRequestException(
+        `La autorización no está vigente. Válida desde ${inicioStr} hasta ${finStr}`,
+      );
     }
 
     return true;
   }
 
   async obtenerEstadoAccesoPorDocumento(documento: string, sedeId: number) {
-    const contratista = await this.buscarContratistaPorDocumentoYSede(documento, sedeId, false);
+    const contratista = await this.buscarContratistaPorDocumentoYSede(
+      documento,
+      sedeId,
+      false,
+    );
 
     if (!contratista) {
       const excepcion = await this.buscarExcepcionActiva(documento, sedeId);
       if (excepcion) {
-        const contratistaExcepcion = await this.asegurarContratistaExcepcion(excepcion, documento, sedeId);
+        const contratistaExcepcion = await this.asegurarContratistaExcepcion(
+          excepcion,
+          documento,
+          sedeId,
+        );
 
         const ultimoAcceso = await this.accesoRepo.findOne({
           where: { contratistaId: contratistaExcepcion.id, sedeId },
@@ -108,11 +128,14 @@ export class ValidacionService {
             excepcion.nombreCompleto,
           ),
           empresa: null,
-          tipo_contratista: contratistaExcepcion.autorizacion?.tipoContratista ?? null,
+          tipo_contratista:
+            contratistaExcepcion.autorizacion?.tipoContratista ?? null,
           mensaje: 'Acceso permitido por excepcion activa',
           problemas: [],
           dentro_actualmente: dentroActualmente,
-          ultima_entrada: dentroActualmente ? ultimoAcceso?.fechaHora ?? null : null,
+          ultima_entrada: dentroActualmente
+            ? (ultimoAcceso?.fechaHora ?? null)
+            : null,
           contratista_id: contratistaExcepcion.id,
           autorizacion_id: contratistaExcepcion.autorizacionId,
         };
@@ -124,7 +147,8 @@ export class ValidacionService {
         nombre: null,
         empresa: null,
         tipo_contratista: null,
-        mensaje: 'Documento no encontrado. El contratista debe tramitar su autorización.',
+        mensaje:
+          'Documento no encontrado. El contratista debe tramitar su autorización.',
         problemas: [],
         dentro_actualmente: false,
         ultima_entrada: null,
@@ -152,7 +176,9 @@ export class ValidacionService {
         mensaje: 'Acceso permitido por excepcion activa',
         problemas: [],
         dentro_actualmente: dentroActualmente,
-        ultima_entrada: dentroActualmente ? ultimoAcceso?.fechaHora ?? null : null,
+        ultima_entrada: dentroActualmente
+          ? (ultimoAcceso?.fechaHora ?? null)
+          : null,
         contratista_id: contratista.id,
         autorizacion_id: contratista.autorizacionId,
       };
@@ -178,33 +204,51 @@ export class ValidacionService {
       mensaje,
       problemas: permitido ? [] : [mensaje],
       dentro_actualmente: dentroActualmente,
-      ultima_entrada: dentroActualmente ? ultimoAcceso?.fechaHora ?? null : null,
+      ultima_entrada: dentroActualmente
+        ? (ultimoAcceso?.fechaHora ?? null)
+        : null,
       contratista_id: contratista.id,
       autorizacion_id: contratista.autorizacionId,
     };
   }
 
-  private async buscarContratistaPorDocumentoYSede(documento: string, sedeId: number, soloAprobados: boolean) {
-    const qb = this.contratistaRepo.createQueryBuilder('contratista')
+  private async buscarContratistaPorDocumentoYSede(
+    documento: string,
+    sedeId: number,
+    soloAprobados: boolean,
+  ) {
+    const qb = this.contratistaRepo
+      .createQueryBuilder('contratista')
       .leftJoinAndSelect('contratista.persona', 'persona')
       .innerJoinAndSelect('contratista.autorizacion', 'autorizacion')
       .leftJoinAndSelect('autorizacion.proveedor', 'proveedor')
-      .where('(persona.numero_documento = :documento OR contratista.numero_documento = :documento)', { documento })
+      .where(
+        '(persona.numero_documento = :documento OR contratista.numero_documento = :documento)',
+        { documento },
+      )
       .andWhere('autorizacion.sede_id = :sedeId', { sedeId })
-      .andWhere('autorizacion.estado != :estado', { estado: EstadoAutorizacion.BORRADOR })
+      .andWhere('autorizacion.estado != :estado', {
+        estado: EstadoAutorizacion.BORRADOR,
+      })
       .andWhere('contratista.deleted_at IS NULL')
       .andWhere('autorizacion.deleted_at IS NULL')
       .orderBy('autorizacion.fecha_fin', 'DESC');
 
     if (soloAprobados) {
-      qb.andWhere('contratista.estado = :estadoContratista', { estadoContratista: EstadoContratista.APROBADO })
-        .andWhere('autorizacion.estado = :estadoAutorizacion', { estadoAutorizacion: EstadoAutorizacion.APROBADO });
+      qb.andWhere('contratista.estado = :estadoContratista', {
+        estadoContratista: EstadoContratista.APROBADO,
+      }).andWhere('autorizacion.estado = :estadoAutorizacion', {
+        estadoAutorizacion: EstadoAutorizacion.APROBADO,
+      });
     }
 
     return qb.getOne();
   }
 
-  private async buscarExcepcionActiva(documento: string, sedeId: number): Promise<HseExcepcion | null> {
+  private async buscarExcepcionActiva(
+    documento: string,
+    sedeId: number,
+  ): Promise<HseExcepcion | null> {
     const hoy = this.fechaHoyLocal();
     const docNormalizado = this.normalizarDocumento(documento);
 
@@ -214,7 +258,10 @@ export class ValidacionService {
       .where('excepcion.sede_id = :sedeId', { sedeId })
       .andWhere('excepcion.activa = 1')
       .andWhere('DATE(excepcion.fecha_fin) >= :hoy', { hoy })
-      .andWhere('REPLACE(REPLACE(REPLACE(UPPER(excepcion.numero_documento), "-", ""), " ", ""), ".", "") = :docNormalizado', { docNormalizado })
+      .andWhere(
+        'REPLACE(REPLACE(REPLACE(UPPER(excepcion.numero_documento), "-", ""), " ", ""), ".", "") = :docNormalizado',
+        { docNormalizado },
+      )
       .orderBy('excepcion.fecha_fin', 'DESC')
       .getOne();
 
@@ -227,22 +274,36 @@ export class ValidacionService {
       .where('excepcion.sede_id = :sedeId', { sedeId })
       .andWhere('excepcion.activa = 1')
       .andWhere('DATE(excepcion.fecha_fin) >= :hoy', { hoy })
-      .andWhere('REPLACE(REPLACE(REPLACE(UPPER(persona.numero_documento), "-", ""), " ", ""), ".", "") = :docNormalizado', { docNormalizado })
+      .andWhere(
+        'REPLACE(REPLACE(REPLACE(UPPER(persona.numero_documento), "-", ""), " ", ""), ".", "") = :docNormalizado',
+        { docNormalizado },
+      )
       .orderBy('excepcion.fecha_fin', 'DESC')
       .getOne();
   }
 
-  private async tieneExcepcionActivaPorDocumento(documento: string, sedeId: number) {
+  private async tieneExcepcionActivaPorDocumento(
+    documento: string,
+    sedeId: number,
+  ) {
     const excepcion = await this.buscarExcepcionActiva(documento, sedeId);
     return Boolean(excepcion);
   }
 
-  private async asegurarContratistaExcepcion(excepcion: HseExcepcion, documento: string, sedeId: number): Promise<HseContratista> {
+  private async asegurarContratistaExcepcion(
+    excepcion: HseExcepcion,
+    documento: string,
+    sedeId: number,
+  ): Promise<HseContratista> {
     const duracionHoras = 48;
     const tokenAutogestion = crypto.randomBytes(32).toString('hex');
     const tokenExpiraEn = new Date(Date.now() + duracionHoras * 60 * 60 * 1000);
 
-    const existente = await this.buscarContratistaPorDocumentoYSede(documento, sedeId, false);
+    const existente = await this.buscarContratistaPorDocumentoYSede(
+      documento,
+      sedeId,
+      false,
+    );
     if (existente) {
       let huboCambios = false;
 
@@ -251,7 +312,12 @@ export class ValidacionService {
         huboCambios = true;
       }
 
-      if (existente.autorizacion && this.esAutorizacionExcepcion(existente.autorizacion.descripcionActividad)) {
+      if (
+        existente.autorizacion &&
+        this.esAutorizacionExcepcion(
+          existente.autorizacion.descripcionActividad,
+        )
+      ) {
         if (existente.autorizacion.estado !== EstadoAutorizacion.APROBADO) {
           existente.autorizacion.estado = EstadoAutorizacion.APROBADO;
           await this.autorizacionRepo.save(existente.autorizacion);
@@ -272,7 +338,6 @@ export class ValidacionService {
         await this.contratistaRepo.save(existente);
       }
 
-      
       return existente;
     }
 
@@ -285,13 +350,21 @@ export class ValidacionService {
       persona?.apellidos,
       excepcion.nombreCompleto,
     );
-    const numeroDocumento = persona?.numeroDocumento ?? excepcion.numeroDocumento ?? documento;
-    const tipoDocumento = this.tipoDocumentoValido(persona?.tipoDocumento ?? excepcion.tipoDocumento ?? 'CC');
-    const email = (persona?.email ?? '').trim() || `excepcion.${numeroDocumento}@koaj.local`;
+    const numeroDocumento =
+      persona?.numeroDocumento ?? excepcion.numeroDocumento ?? documento;
+    const tipoDocumento = this.tipoDocumentoValido(
+      persona?.tipoDocumento ?? excepcion.tipoDocumento ?? 'CC',
+    );
+    const email =
+      (persona?.email ?? '').trim() ||
+      `excepcion.${numeroDocumento}@koaj.local`;
 
     const codigo = await this.codigoGenerator.generarCodigo();
     const descripcionBase = (excepcion.motivo ?? '').trim().replace(/\n/g, ' ');
-    const descripcionActividad = `Excepción HSE: ${descripcionBase}`.slice(0, 500);
+    const descripcionActividad = `Excepción HSE: ${descripcionBase}`.slice(
+      0,
+      500,
+    );
 
     const autorizacion = this.autorizacionRepo.create({
       codigo,
@@ -300,8 +373,8 @@ export class ValidacionService {
       creadoPor: excepcion.aprobadoPor,
       tipoContratista: TipoContratista.NORMAL,
       descripcionActividad,
-      fechaInicio: excepcion.fechaInicio as any,
-      fechaFin: excepcion.fechaFin as any,
+      fechaInicio: excepcion.fechaInicio,
+      fechaFin: excepcion.fechaFin,
       estado: EstadoAutorizacion.APROBADO,
     });
     const autorizacionCreada = await this.autorizacionRepo.save(autorizacion);
@@ -338,14 +411,21 @@ export class ValidacionService {
     return ['CC', 'CE', 'PASAPORTE', 'TI'].includes(tipo) ? tipo : 'CC';
   }
 
-  private partirNombreCompleto(nombres?: string | null, apellidos?: string | null, fallback?: string | null) {
+  private partirNombreCompleto(
+    nombres?: string | null,
+    apellidos?: string | null,
+    fallback?: string | null,
+  ) {
     const n = (nombres ?? '').trim();
     const a = (apellidos ?? '').trim();
     if (n || a) {
       return [n || 'Sin nombre', a || 'N/A'];
     }
 
-    const partes = (fallback ?? 'Excepcion HSE').trim().split(/\s+/).filter(Boolean);
+    const partes = (fallback ?? 'Excepcion HSE')
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
     if (partes.length === 0) {
       return ['Excepcion', 'HSE'];
     }
@@ -355,7 +435,11 @@ export class ValidacionService {
     return [partes.slice(0, -1).join(' '), partes[partes.length - 1]];
   }
 
-  private nombreCompleto(nombres?: string | null, apellidos?: string | null, fallback?: string | null) {
+  private nombreCompleto(
+    nombres?: string | null,
+    apellidos?: string | null,
+    fallback?: string | null,
+  ) {
     const full = `${nombres ?? ''} ${apellidos ?? ''}`.trim();
     return full || (fallback ?? null);
   }
@@ -377,11 +461,15 @@ export class ValidacionService {
   }
 
   private fechaHoyLocal(): string {
-    return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota' }).format(new Date());
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Bogota',
+    }).format(new Date());
   }
 
   private normalizarDocumento(documento: string): string {
     if (!documento) return '';
-    return String(documento).toUpperCase().replace(/[\-\.\s]/g, '');
+    return String(documento)
+      .toUpperCase()
+      .replace(/[\-\.\s]/g, '');
   }
 }

@@ -69,6 +69,8 @@ const cumplimiento_service_1 = require("./services/cumplimiento.service");
 const excepcion_service_1 = require("./services/excepcion.service");
 const reportes_service_1 = require("./services/reportes.service");
 const upload_security_service_1 = require("./services/upload-security.service");
+const archivado_service_1 = require("./services/archivado.service");
+const archivado_dto_1 = require("./dto/archivado.dto");
 const proveedor_service_1 = require("../persona/proveedor.service");
 const platform_express_1 = require("@nestjs/platform-express");
 const common_2 = require("@nestjs/common");
@@ -117,7 +119,8 @@ let HseController = class HseController {
     reportesService;
     proveedorService;
     uploadSecurityService;
-    constructor(hseService, autorizacionService, autogestionService, accesoService, cumplimientoService, excepcionService, reportesService, proveedorService, uploadSecurityService) {
+    archivadoService;
+    constructor(hseService, autorizacionService, autogestionService, accesoService, cumplimientoService, excepcionService, reportesService, proveedorService, uploadSecurityService, archivadoService) {
         this.hseService = hseService;
         this.autorizacionService = autorizacionService;
         this.autogestionService = autogestionService;
@@ -127,6 +130,7 @@ let HseController = class HseController {
         this.reportesService = reportesService;
         this.proveedorService = proveedorService;
         this.uploadSecurityService = uploadSecurityService;
+        this.archivadoService = archivadoService;
     }
     async getSedes(req) {
         return this.hseService.getCatalogosSedes(req.user || {});
@@ -166,10 +170,11 @@ let HseController = class HseController {
     async eliminarProveedor(id) {
         return this.proveedorService.remove(id);
     }
-    async getAutorizaciones(sedeId, estado, page, perPage) {
+    async getAutorizaciones(sedeId, estado, page, perPage, incluirExcepciones) {
         const p = page ? parseInt(page, 10) : 1;
         const pp = perPage ? parseInt(perPage, 10) : 20;
-        const result = await this.autorizacionService.findAll(sedeId, estado, p, pp);
+        const conExcepciones = incluirExcepciones === 'true';
+        const result = await this.autorizacionService.findAll(sedeId, estado, p, pp, conExcepciones);
         return result.items;
     }
     async getAutorizacion(id) {
@@ -341,8 +346,27 @@ let HseController = class HseController {
     async getReporteCumplimiento(query) {
         return this.reportesService.getReporteCumplimiento(query);
     }
-    async getReporteVencimientos() {
-        return this.reportesService.getReporteVencimientos();
+    async getReporteVencimientos(sedeIdStr) {
+        const sedeId = sedeIdStr ? parseInt(sedeIdStr, 10) : undefined;
+        return this.reportesService.getReporteVencimientos(sedeId);
+    }
+    async getChartData(sedeId) {
+        return this.reportesService.getChartData(sedeId);
+    }
+    async getReporteAutorizaciones(query) {
+        return this.reportesService.getReporteAutorizaciones(query);
+    }
+    async getReporteContratistas(query) {
+        return this.reportesService.getReporteContratistas(query);
+    }
+    async getColaArchivado() {
+        return this.archivadoService.obtenerCola();
+    }
+    async aprobarArchivado(contratistaId, dto, req) {
+        return this.archivadoService.aprobarArchivado(contratistaId, req.user?.id, dto.motivo, dto.firmaDigital);
+    }
+    async rechazarArchivado(contratistaId, dto, req) {
+        return this.archivadoService.rechazarArchivado(contratistaId, req.user?.id, dto.motivo);
     }
     async servirArchivoHse(req, res) {
         const originalUrl = decodeURIComponent(req.originalUrl ?? '');
@@ -437,8 +461,9 @@ __decorate([
     __param(1, (0, common_1.Query)('estado')),
     __param(2, (0, common_1.Query)('page')),
     __param(3, (0, common_1.Query)('per_page')),
+    __param(4, (0, common_1.Query)('incluir_excepciones')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, String, String, String]),
+    __metadata("design:paramtypes", [Number, String, String, String, String]),
     __metadata("design:returntype", Promise)
 ], HseController.prototype, "getAutorizaciones", null);
 __decorate([
@@ -922,10 +947,62 @@ __decorate([
 __decorate([
     (0, common_1.Get)('reportes/vencimientos'),
     (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_HSE, rol_enum_1.RolNombre.GESTION_HSE, rol_enum_1.RolNombre.VISUALIZADOR),
+    __param(0, (0, common_1.Query)('sede_id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], HseController.prototype, "getReporteVencimientos", null);
+__decorate([
+    (0, common_1.Get)('reportes/charts'),
+    (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_HSE, rol_enum_1.RolNombre.GESTION_HSE, rol_enum_1.RolNombre.VISUALIZADOR),
+    __param(0, (0, common_1.Query)('sede_id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], HseController.prototype, "getChartData", null);
+__decorate([
+    (0, common_1.Get)('reportes/autorizaciones'),
+    (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_HSE, rol_enum_1.RolNombre.GESTION_HSE, rol_enum_1.RolNombre.VISUALIZADOR),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [reportes_dto_1.ReporteAutorizacionesQueryDto]),
+    __metadata("design:returntype", Promise)
+], HseController.prototype, "getReporteAutorizaciones", null);
+__decorate([
+    (0, common_1.Get)('reportes/contratistas'),
+    (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_HSE, rol_enum_1.RolNombre.GESTION_HSE, rol_enum_1.RolNombre.VISUALIZADOR),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [reportes_dto_1.ReporteContratistasQueryDto]),
+    __metadata("design:returntype", Promise)
+], HseController.prototype, "getReporteContratistas", null);
+__decorate([
+    (0, common_1.Get)('archivado/cola'),
+    (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_HSE, rol_enum_1.RolNombre.GESTION_HSE, rol_enum_1.RolNombre.ADMIN_GLOBAL),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
-], HseController.prototype, "getReporteVencimientos", null);
+], HseController.prototype, "getColaArchivado", null);
+__decorate([
+    (0, common_1.Post)('archivado/:contratistaId/aprobar'),
+    (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_HSE, rol_enum_1.RolNombre.ADMIN_GLOBAL),
+    __param(0, (0, common_1.Param)('contratistaId', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, archivado_dto_1.AprobarArchivadoDto, Object]),
+    __metadata("design:returntype", Promise)
+], HseController.prototype, "aprobarArchivado", null);
+__decorate([
+    (0, common_1.Post)('archivado/:contratistaId/rechazar'),
+    (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_HSE, rol_enum_1.RolNombre.ADMIN_GLOBAL),
+    __param(0, (0, common_1.Param)('contratistaId', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, archivado_dto_1.RechazarArchivadoDto, Object]),
+    __metadata("design:returntype", Promise)
+], HseController.prototype, "rechazarArchivado", null);
 __decorate([
     (0, common_1.Get)('archivos/*path'),
     (0, roles_decorator_1.Roles)(rol_enum_1.RolNombre.ADMIN_HSE, rol_enum_1.RolNombre.GESTION_HSE, rol_enum_1.RolNombre.VISUALIZADOR, rol_enum_1.RolNombre.ADMIN_GLOBAL),
@@ -946,6 +1023,7 @@ exports.HseController = HseController = __decorate([
         excepcion_service_1.ExcepcionService,
         reportes_service_1.ReportesService,
         proveedor_service_1.ProveedorService,
-        upload_security_service_1.UploadSecurityService])
+        upload_security_service_1.UploadSecurityService,
+        archivado_service_1.ArchivadoService])
 ], HseController);
 //# sourceMappingURL=hse.controller.js.map

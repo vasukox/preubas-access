@@ -1,4 +1,10 @@
-import { Injectable, BadRequestException, ConflictException, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In, Not, EntityManager, QueryFailedError } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -41,17 +47,31 @@ export class HerramientasService {
   // ── Helpers ──────────────────────────────────────────────────────────────
 
   private validarPasswordFuerte(password: string): string | null {
-    if (password.length < 8) return 'La contraseña debe tener al menos 8 caracteres.';
-    if (!/[A-Z]/.test(password)) return 'La contraseña debe incluir al menos una letra mayúscula.';
-    if (!/[a-z]/.test(password)) return 'La contraseña debe incluir al menos una letra minúscula.';
-    if (!/\d/.test(password)) return 'La contraseña debe incluir al menos un número.';
-    if (!/[^A-Za-z0-9]/.test(password)) return 'La contraseña debe incluir al menos un carácter especial.';
+    if (password.length < 8)
+      return 'La contraseña debe tener al menos 8 caracteres.';
+    if (!/[A-Z]/.test(password))
+      return 'La contraseña debe incluir al menos una letra mayúscula.';
+    if (!/[a-z]/.test(password))
+      return 'La contraseña debe incluir al menos una letra minúscula.';
+    if (!/\d/.test(password))
+      return 'La contraseña debe incluir al menos un número.';
+    if (!/[^A-Za-z0-9]/.test(password))
+      return 'La contraseña debe incluir al menos un carácter especial.';
     return null;
   }
 
-  private resolverIdsSedes(input: { sedeAsignadaId?: number; sedesAsignadasIds?: number[] }): number[] {
+  private resolverIdsSedes(input: {
+    sedeAsignadaId?: number;
+    sedesAsignadasIds?: number[];
+  }): number[] {
     const fromArray = input.sedesAsignadasIds?.length
-      ? [...new Set(input.sedesAsignadasIds.filter((id) => Number.isInteger(id) && id > 0))]
+      ? [
+          ...new Set(
+            input.sedesAsignadasIds.filter(
+              (id) => Number.isInteger(id) && id > 0,
+            ),
+          ),
+        ]
       : [];
     if (fromArray.length > 0) return fromArray;
     if (input.sedeAsignadaId) return [input.sedeAsignadaId];
@@ -70,11 +90,13 @@ export class HerramientasService {
     if (fromPivot.length > 0) return fromPivot;
 
     if (usuario.sedeAsignada) {
-      return [{
-        id: usuario.sedeAsignada.id,
-        nombre: usuario.sedeAsignada.nombre,
-        ciudad: usuario.sedeAsignada.ciudad,
-      }];
+      return [
+        {
+          id: usuario.sedeAsignada.id,
+          nombre: usuario.sedeAsignada.nombre,
+          ciudad: usuario.sedeAsignada.ciudad,
+        },
+      ];
     }
 
     return [];
@@ -88,7 +110,12 @@ export class HerramientasService {
           puedeEditar: u.permisos.puedeEditar,
           puedeEliminar: u.permisos.puedeEliminar,
         }
-      : { puedeVer: true, puedeCrear: false, puedeEditar: false, puedeEliminar: false };
+      : {
+          puedeVer: true,
+          puedeCrear: false,
+          puedeEditar: false,
+          puedeEliminar: false,
+        };
 
     const sedesAsignadas = this.mapSedesAsignadas(u);
     const sedePrincipal = sedesAsignadas[0] ?? null;
@@ -111,14 +138,21 @@ export class HerramientasService {
       permisos,
       sedeAsignadaId: u.sedeAsignadaId ?? sedePrincipal?.id ?? null,
       sedeAsignada: u.sedeAsignada
-        ? { id: u.sedeAsignada.id, nombre: u.sedeAsignada.nombre, ciudad: u.sedeAsignada.ciudad }
+        ? {
+            id: u.sedeAsignada.id,
+            nombre: u.sedeAsignada.nombre,
+            ciudad: u.sedeAsignada.ciudad,
+          }
         : sedePrincipal,
       sedesAsignadasIds: sedesAsignadas.map((s) => s.id),
       sedesAsignadas,
     };
   }
 
-  private async validarSedesExisten(sedeIds: number[], manager?: EntityManager) {
+  private async validarSedesExisten(
+    sedeIds: number[],
+    manager?: EntityManager,
+  ) {
     if (sedeIds.length === 0) return;
     const repo = manager ? manager.getRepository(Sede) : this.sedeRepo;
     const sedes = await repo.find({ where: { id: In(sedeIds), activa: true } });
@@ -214,7 +248,15 @@ export class HerramientasService {
 
   async listarUsuarios() {
     const usuarios = await this.usuarioRepo.find({
-      relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada', 'sedesAsignadas', 'sedesAsignadas.sede'],
+      relations: [
+        'roles',
+        'roles.rol',
+        'perfil',
+        'permisos',
+        'sedeAsignada',
+        'sedesAsignadas',
+        'sedesAsignadas.sede',
+      ],
       order: { nombreCompleto: 'ASC' },
     });
 
@@ -231,45 +273,75 @@ export class HerramientasService {
 
   // ── ESCRITURAS ───────────────────────────────────────────────────────────
 
-  async crearUsuario(dto: CreateUsuarioDto, currentUserId: number, currentUserName: string) {
+  async crearUsuario(
+    dto: CreateUsuarioDto,
+    currentUserId: number,
+    currentUserName: string,
+  ) {
     const passwordError = this.validarPasswordFuerte(dto.password);
     if (passwordError) {
-      throw new BadRequestException({ code: 'PASSWORD_DEBIL', message: passwordError });
+      throw new BadRequestException({
+        code: 'PASSWORD_DEBIL',
+        message: passwordError,
+      });
     }
 
     if (dto.password !== dto.passwordConfirmacion) {
-      throw new BadRequestException({ code: 'PASSWORD_NO_COINCIDE', message: 'La confirmación de contraseña no coincide.' });
+      throw new BadRequestException({
+        code: 'PASSWORD_NO_COINCIDE',
+        message: 'La confirmación de contraseña no coincide.',
+      });
     }
 
     const firma = (dto.firmaCreador || currentUserName).trim();
     if (firma.length < 3) {
-      throw new BadRequestException({ code: 'FIRMA_INVALIDA', message: 'La firma digital debe tener al menos 3 caracteres.' });
+      throw new BadRequestException({
+        code: 'FIRMA_INVALIDA',
+        message: 'La firma digital debe tener al menos 3 caracteres.',
+      });
     }
     if (this.normalizarFirma(firma) === '') {
-      throw new BadRequestException({ code: 'FIRMA_INVALIDA', message: 'La firma digital ingresada no es válida.' });
+      throw new BadRequestException({
+        code: 'FIRMA_INVALIDA',
+        message: 'La firma digital ingresada no es válida.',
+      });
     }
 
     const emailNormalizado = await this.assertEmailDisponible(dto.email);
 
     // Unir roles solicitados
-    const rolesSolicitados = Array.from(new Set([
-      ...(dto.rolesNombres || []),
-      ...(dto.rolNombre ? [dto.rolNombre] : []),
-    ]));
+    const rolesSolicitados = Array.from(
+      new Set([
+        ...(dto.rolesNombres || []),
+        ...(dto.rolNombre ? [dto.rolNombre] : []),
+      ]),
+    );
 
     if (rolesSolicitados.length === 0) {
-      throw new BadRequestException({ code: 'ROL_REQUERIDO', message: 'Debes asignar al menos un rol al usuario.' });
+      throw new BadRequestException({
+        code: 'ROL_REQUERIDO',
+        message: 'Debes asignar al menos un rol al usuario.',
+      });
     }
 
-    const rolesValidos = await this.rolRepo.find({ where: { nombre: In(rolesSolicitados as RolNombre[]), activo: true } });
-    const rolesValidosMap = new Map(rolesValidos.map(r => [r.nombre, r]));
+    const rolesValidos = await this.rolRepo.find({
+      where: { nombre: In(rolesSolicitados as RolNombre[]), activo: true },
+    });
+    const rolesValidosMap = new Map(rolesValidos.map((r) => [r.nombre, r]));
 
-    const rolesNoEncontrados = rolesSolicitados.filter(r => !rolesValidosMap.has(r as RolNombre));
+    const rolesNoEncontrados = rolesSolicitados.filter(
+      (r) => !rolesValidosMap.has(r as RolNombre),
+    );
     if (rolesNoEncontrados.length > 0) {
-      throw new NotFoundException({ code: 'ROL_NO_ENCONTRADO', message: `Los roles ${rolesNoEncontrados.join(', ')} no existen o están inactivos` });
+      throw new NotFoundException({
+        code: 'ROL_NO_ENCONTRADO',
+        message: `Los roles ${rolesNoEncontrados.join(', ')} no existen o están inactivos`,
+      });
     }
 
-    const esVigilante = rolesSolicitados.includes(RolNombre.VIGILANTE_HSE) || rolesSolicitados.includes(RolNombre.VIGILANTE_PARKING);
+    const esVigilante =
+      rolesSolicitados.includes(RolNombre.VIGILANTE_HSE) ||
+      rolesSolicitados.includes(RolNombre.VIGILANTE_PARKING);
     const sedesIds = this.resolverIdsSedes(dto);
     if (esVigilante && sedesIds.length === 0) {
       throw new BadRequestException({
@@ -281,88 +353,106 @@ export class HerramientasService {
 
     // Transaction
     try {
-    return await this.usuarioRepo.manager.transaction(async (manager) => {
-      const passwordHash = await bcrypt.hash(dto.password, 12);
+      return await this.usuarioRepo.manager.transaction(async (manager) => {
+        const passwordHash = await bcrypt.hash(dto.password, 12);
 
-      const nuevo = manager.create(Usuario, {
-        email: emailNormalizado,
-        nombreCompleto: `${dto.nombres.trim()} ${dto.apellidos.trim()}`.trim(),
-        passwordHash,
-        activo: true,
-        debeCambiarPassword: true,
-        sedeAsignadaId: sedesIds[0] ?? null,
-      });
+        const nuevo = manager.create(Usuario, {
+          email: emailNormalizado,
+          nombreCompleto:
+            `${dto.nombres.trim()} ${dto.apellidos.trim()}`.trim(),
+          passwordHash,
+          activo: true,
+          debeCambiarPassword: true,
+          sedeAsignadaId: sedesIds[0] ?? null,
+        });
 
-      const usuarioGuardado = await manager.save(nuevo);
+        const usuarioGuardado = await manager.save(nuevo);
 
-      if (sedesIds.length > 0) {
-        await this.sincronizarSedesUsuario(manager, usuarioGuardado.id, sedesIds);
-      }
+        if (sedesIds.length > 0) {
+          await this.sincronizarSedesUsuario(
+            manager,
+            usuarioGuardado.id,
+            sedesIds,
+          );
+        }
 
-      // Perfil (Heredar sede default)
-      const perfilCreador = await manager.findOne(Perfil, { where: { usuarioId: currentUserId } });
-      const sedeDefaultHeredada = perfilCreador?.sedeDefaultId ?? null;
+        // Perfil (Heredar sede default)
+        const perfilCreador = await manager.findOne(Perfil, {
+          where: { usuarioId: currentUserId },
+        });
+        const sedeDefaultHeredada = perfilCreador?.sedeDefaultId ?? null;
 
-      const trazaCreacion = {
-        creado_por_id: currentUserId,
-        creado_por_nombre: currentUserName,
-        firma_creador: firma,
-        roles_iniciales: rolesSolicitados,
-        sede_default_heredada: sedeDefaultHeredada,
-        fecha_creacion_utc: new Date().toISOString(),
-      };
+        const trazaCreacion = {
+          creado_por_id: currentUserId,
+          creado_por_nombre: currentUserName,
+          firma_creador: firma,
+          roles_iniciales: rolesSolicitados,
+          sede_default_heredada: sedeDefaultHeredada,
+          fecha_creacion_utc: new Date().toISOString(),
+        };
 
-      const perfil = manager.create(Perfil, {
-        usuarioId: usuarioGuardado.id,
-        telefono: dto.numero,
-        ubicacion: dto.direccion,
-        sedeDefaultId: sedeDefaultHeredada || undefined,
-        biografia: JSON.stringify(trazaCreacion),
-      });
-      await manager.save(perfil);
-
-      // Permisos
-      const permisos = dto.permisos || {};
-      const permiso = manager.create(UsuarioPermiso, {
-        usuarioId: usuarioGuardado.id,
-        puedeVer: permisos.ver ?? true,
-        puedeCrear: permisos.crear ?? false,
-        puedeEditar: permisos.editar ?? false,
-        puedeEliminar: permisos.eliminar ?? false,
-        asignadoPor: currentUserId,
-      });
-      await manager.save(permiso);
-
-      // Roles
-      const usuarioRoles = rolesSolicitados.map(rolNombre => {
-        return manager.create(UsuarioRol, {
+        const perfil = manager.create(Perfil, {
           usuarioId: usuarioGuardado.id,
-          rolId: rolesValidosMap.get(rolNombre as RolNombre)!.id,
+          telefono: dto.numero,
+          ubicacion: dto.direccion,
+          sedeDefaultId: sedeDefaultHeredada || undefined,
+          biografia: JSON.stringify(trazaCreacion),
+        });
+        await manager.save(perfil);
+
+        // Permisos
+        const permisos = dto.permisos || {};
+        const permiso = manager.create(UsuarioPermiso, {
+          usuarioId: usuarioGuardado.id,
+          puedeVer: permisos.ver ?? true,
+          puedeCrear: permisos.crear ?? false,
+          puedeEditar: permisos.editar ?? false,
+          puedeEliminar: permisos.eliminar ?? false,
           asignadoPor: currentUserId,
         });
-      });
-      await manager.save(usuarioRoles);
+        await manager.save(permiso);
 
-      // Audit Log
-      const auditLog = manager.create(AuditLog, {
-        actorId: currentUserId,
-        actorNombre: currentUserName,
-        accion: 'CREAR_USUARIO',
-        entidad: 'Usuario',
-        entidadId: usuarioGuardado.id,
-        descripcion: `Creó usuario '${usuarioGuardado.nombreCompleto}' (${usuarioGuardado.email}) con roles ${rolesSolicitados.join(', ')}.`,
-      });
-      await manager.save(auditLog);
+        // Roles
+        const usuarioRoles = rolesSolicitados.map((rolNombre) => {
+          return manager.create(UsuarioRol, {
+            usuarioId: usuarioGuardado.id,
+            rolId: rolesValidosMap.get(rolNombre as RolNombre)!.id,
+            asignadoPor: currentUserId,
+          });
+        });
+        await manager.save(usuarioRoles);
 
-      // Fetch returned structured user
-      const usuarioCompleto = await manager.findOne(Usuario, {
-        where: { id: usuarioGuardado.id },
-        relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada', 'sedesAsignadas', 'sedesAsignadas.sede'],
+        // Audit Log
+        const auditLog = manager.create(AuditLog, {
+          actorId: currentUserId,
+          actorNombre: currentUserName,
+          accion: 'CREAR_USUARIO',
+          entidad: 'Usuario',
+          entidadId: usuarioGuardado.id,
+          descripcion: `Creó usuario '${usuarioGuardado.nombreCompleto}' (${usuarioGuardado.email}) con roles ${rolesSolicitados.join(', ')}.`,
+        });
+        await manager.save(auditLog);
+
+        // Fetch returned structured user
+        const usuarioCompleto = await manager.findOne(Usuario, {
+          where: { id: usuarioGuardado.id },
+          relations: [
+            'roles',
+            'roles.rol',
+            'perfil',
+            'permisos',
+            'sedeAsignada',
+            'sedesAsignadas',
+            'sedesAsignadas.sede',
+          ],
+        });
+        return this.mapUsuarioResponse(usuarioCompleto!);
       });
-      return this.mapUsuarioResponse(usuarioCompleto!);
-    });
     } catch (err) {
-      if (err instanceof QueryFailedError && (err as QueryFailedError & { code?: string }).code === 'ER_DUP_ENTRY') {
+      if (
+        err instanceof QueryFailedError &&
+        (err as QueryFailedError & { code?: string }).code === 'ER_DUP_ENTRY'
+      ) {
         throw new ConflictException({
           code: 'EMAIL_DUPLICADO',
           message: `Ya existe un usuario con el email ${emailNormalizado}`,
@@ -372,26 +462,46 @@ export class HerramientasService {
     }
   }
 
-  async actualizarUsuario(id: number, dto: UpdateUsuarioDto, currentUserId: number, currentUserName: string) {
-    const usuario = await this.usuarioRepo.findOne({ where: { id }, relations: ['roles', 'roles.rol', 'perfil'] });
+  async actualizarUsuario(
+    id: number,
+    dto: UpdateUsuarioDto,
+    currentUserId: number,
+    currentUserName: string,
+  ) {
+    const usuario = await this.usuarioRepo.findOne({
+      where: { id },
+      relations: ['roles', 'roles.rol', 'perfil'],
+    });
     if (!usuario) {
-      throw new NotFoundException({ code: 'USUARIO_NO_ENCONTRADO', message: 'El usuario no existe' });
+      throw new NotFoundException({
+        code: 'USUARIO_NO_ENCONTRADO',
+        message: 'El usuario no existe',
+      });
     }
 
     if (dto.activo === false && usuario.id === currentUserId) {
-      throw new ForbiddenException({ code: 'ACCION_NO_PERMITIDA', message: 'No puedes desactivar tu propia cuenta' });
+      throw new ForbiddenException({
+        code: 'ACCION_NO_PERMITIDA',
+        message: 'No puedes desactivar tu propia cuenta',
+      });
     }
 
-    if (dto.activo === false && usuario.roles.some(ur => ur.rol.nombre === RolNombre.ADMIN_GLOBAL)) {
+    if (
+      dto.activo === false &&
+      usuario.roles.some((ur) => ur.rol.nombre === RolNombre.ADMIN_GLOBAL)
+    ) {
       const otrosAdminsCount = await this.usuarioRolRepo.count({
         where: {
           rol: { nombre: RolNombre.ADMIN_GLOBAL },
-          usuario: { id: Not(id), activo: true }
+          usuario: { id: Not(id), activo: true },
         },
-        relations: ['rol', 'usuario']
+        relations: ['rol', 'usuario'],
       });
       if (otrosAdminsCount === 0) {
-        throw new ForbiddenException({ code: 'ACCION_NO_PERMITIDA', message: 'Debe existir al menos un ADMIN_GLOBAL activo' });
+        throw new ForbiddenException({
+          code: 'ACCION_NO_PERMITIDA',
+          message: 'Debe existir al menos un ADMIN_GLOBAL activo',
+        });
       }
     }
 
@@ -419,43 +529,70 @@ export class HerramientasService {
         await manager.save(usuario.perfil);
       }
 
-      await manager.save(manager.create(AuditLog, {
-        actorId: currentUserId,
-        actorNombre: currentUserName,
-        accion: dto.activo === false ? 'DESACTIVAR_USUARIO' : 'ACTUALIZAR_USUARIO',
-        entidad: 'Usuario',
-        entidadId: id,
-        descripcion: `Actualizó usuario '${usuario.nombreCompleto}' (${usuario.email}). Cambios: ${cambios.join(', ') || 'ninguno'}.`,
-      }));
+      await manager.save(
+        manager.create(AuditLog, {
+          actorId: currentUserId,
+          actorNombre: currentUserName,
+          accion:
+            dto.activo === false ? 'DESACTIVAR_USUARIO' : 'ACTUALIZAR_USUARIO',
+          entidad: 'Usuario',
+          entidadId: id,
+          descripcion: `Actualizó usuario '${usuario.nombreCompleto}' (${usuario.email}). Cambios: ${cambios.join(', ') || 'ninguno'}.`,
+        }),
+      );
 
       const usuarioActualizado = await manager.findOne(Usuario, {
         where: { id },
-        relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada', 'sedesAsignadas', 'sedesAsignadas.sede'],
+        relations: [
+          'roles',
+          'roles.rol',
+          'perfil',
+          'permisos',
+          'sedeAsignada',
+          'sedesAsignadas',
+          'sedesAsignadas.sede',
+        ],
       });
       return this.mapUsuarioResponse(usuarioActualizado!);
     });
   }
 
-  async eliminarUsuario(id: number, currentUserId: number, currentUserName: string) {
-    const usuario = await this.usuarioRepo.findOne({ where: { id }, relations: ['roles', 'roles.rol'] });
+  async eliminarUsuario(
+    id: number,
+    currentUserId: number,
+    currentUserName: string,
+  ) {
+    const usuario = await this.usuarioRepo.findOne({
+      where: { id },
+      relations: ['roles', 'roles.rol'],
+    });
     if (!usuario) {
-      throw new NotFoundException({ code: 'USUARIO_NO_ENCONTRADO', message: 'El usuario no existe' });
+      throw new NotFoundException({
+        code: 'USUARIO_NO_ENCONTRADO',
+        message: 'El usuario no existe',
+      });
     }
 
     if (usuario.id === currentUserId) {
-      throw new ForbiddenException({ code: 'ACCION_NO_PERMITIDA', message: 'No puedes eliminar tu propia cuenta' });
+      throw new ForbiddenException({
+        code: 'ACCION_NO_PERMITIDA',
+        message: 'No puedes eliminar tu propia cuenta',
+      });
     }
 
-    if (usuario.roles.some(ur => ur.rol.nombre === RolNombre.ADMIN_GLOBAL)) {
+    if (usuario.roles.some((ur) => ur.rol.nombre === RolNombre.ADMIN_GLOBAL)) {
       const otrosAdminsCount = await this.usuarioRolRepo.count({
         where: {
           rol: { nombre: RolNombre.ADMIN_GLOBAL },
-          usuario: { id: Not(id), activo: true }
+          usuario: { id: Not(id), activo: true },
         },
-        relations: ['rol', 'usuario']
+        relations: ['rol', 'usuario'],
       });
       if (otrosAdminsCount === 0) {
-        throw new ForbiddenException({ code: 'ACCION_NO_PERMITIDA', message: 'Debe existir al menos un ADMIN_GLOBAL activo' });
+        throw new ForbiddenException({
+          code: 'ACCION_NO_PERMITIDA',
+          message: 'Debe existir al menos un ADMIN_GLOBAL activo',
+        });
       }
     }
 
@@ -467,27 +604,43 @@ export class HerramientasService {
         .where('id = :id', { id })
         .execute();
 
-      await manager.save(manager.create(AuditLog, {
-        actorId: currentUserId,
-        actorNombre: currentUserName,
-        accion: 'ELIMINAR_USUARIO',
-        entidad: 'Usuario',
-        entidadId: id,
-        descripcion: `Eliminó el usuario '${usuario.nombreCompleto}' (${usuario.email}).`,
-      }));
+      await manager.save(
+        manager.create(AuditLog, {
+          actorId: currentUserId,
+          actorNombre: currentUserName,
+          accion: 'ELIMINAR_USUARIO',
+          entidad: 'Usuario',
+          entidadId: id,
+          descripcion: `Eliminó el usuario '${usuario.nombreCompleto}' (${usuario.email}).`,
+        }),
+      );
 
       return { success: true };
     });
   }
 
-  async actualizarPermisos(id: number, dto: UpdatePermisosDto, currentUserId: number, currentUserName: string) {
-    const usuario = await this.usuarioRepo.findOne({ where: { id }, relations: ['roles', 'roles.rol', 'permisos'] });
+  async actualizarPermisos(
+    id: number,
+    dto: UpdatePermisosDto,
+    currentUserId: number,
+    currentUserName: string,
+  ) {
+    const usuario = await this.usuarioRepo.findOne({
+      where: { id },
+      relations: ['roles', 'roles.rol', 'permisos'],
+    });
     if (!usuario) {
-      throw new NotFoundException({ code: 'USUARIO_NO_ENCONTRADO', message: 'El usuario no existe' });
+      throw new NotFoundException({
+        code: 'USUARIO_NO_ENCONTRADO',
+        message: 'El usuario no existe',
+      });
     }
 
-    if (usuario.roles.some(ur => ur.rol.nombre === RolNombre.ADMIN_GLOBAL)) {
-      throw new ForbiddenException({ code: 'ACCION_NO_PERMITIDA', message: 'Los permisos del ADMIN_GLOBAL no se pueden modificar' });
+    if (usuario.roles.some((ur) => ur.rol.nombre === RolNombre.ADMIN_GLOBAL)) {
+      throw new ForbiddenException({
+        code: 'ACCION_NO_PERMITIDA',
+        message: 'Los permisos del ADMIN_GLOBAL no se pueden modificar',
+      });
     }
 
     return this.usuarioRepo.manager.transaction(async (manager) => {
@@ -495,8 +648,10 @@ export class HerramientasService {
       if (permiso) {
         if (dto.puedeVer !== undefined) permiso.puedeVer = dto.puedeVer;
         if (dto.puedeCrear !== undefined) permiso.puedeCrear = dto.puedeCrear;
-        if (dto.puedeEditar !== undefined) permiso.puedeEditar = dto.puedeEditar;
-        if (dto.puedeEliminar !== undefined) permiso.puedeEliminar = dto.puedeEliminar;
+        if (dto.puedeEditar !== undefined)
+          permiso.puedeEditar = dto.puedeEditar;
+        if (dto.puedeEliminar !== undefined)
+          permiso.puedeEliminar = dto.puedeEliminar;
         permiso.asignadoPor = currentUserId;
       } else {
         permiso = manager.create(UsuarioPermiso, {
@@ -510,14 +665,16 @@ export class HerramientasService {
       }
       await manager.save(permiso);
 
-      await manager.save(manager.create(AuditLog, {
-        actorId: currentUserId,
-        actorNombre: currentUserName,
-        accion: 'ACTUALIZAR_PERMISOS',
-        entidad: 'UsuarioPermiso',
-        entidadId: id,
-        descripcion: `Actualizó permisos de '${usuario.nombreCompleto}' (${usuario.email}): ver=${permiso.puedeVer} crear=${permiso.puedeCrear} editar=${permiso.puedeEditar} eliminar=${permiso.puedeEliminar}.`,
-      }));
+      await manager.save(
+        manager.create(AuditLog, {
+          actorId: currentUserId,
+          actorNombre: currentUserName,
+          accion: 'ACTUALIZAR_PERMISOS',
+          entidad: 'UsuarioPermiso',
+          entidadId: id,
+          descripcion: `Actualizó permisos de '${usuario.nombreCompleto}' (${usuario.email}): ver=${permiso.puedeVer} crear=${permiso.puedeCrear} editar=${permiso.puedeEditar} eliminar=${permiso.puedeEliminar}.`,
+        }),
+      );
 
       return manager.findOne(Usuario, {
         where: { id },
@@ -526,10 +683,17 @@ export class HerramientasService {
     });
   }
 
-  async desbloquearUsuario(id: number, currentUserId: number, currentUserName: string) {
+  async desbloquearUsuario(
+    id: number,
+    currentUserId: number,
+    currentUserName: string,
+  ) {
     const usuario = await this.usuarioRepo.findOne({ where: { id } });
     if (!usuario) {
-      throw new NotFoundException({ code: 'USUARIO_NO_ENCONTRADO', message: 'El usuario no existe' });
+      throw new NotFoundException({
+        code: 'USUARIO_NO_ENCONTRADO',
+        message: 'El usuario no existe',
+      });
     }
 
     await this.usuarioRepo.update(id, {
@@ -537,18 +701,28 @@ export class HerramientasService {
       bloqueadoHasta: null,
     });
 
-    await this.auditLogRepo.save(this.auditLogRepo.create({
-      actorId: currentUserId,
-      actorNombre: currentUserName,
-      accion: 'DESBLOQUEAR_USUARIO',
-      entidad: 'Usuario',
-      entidadId: id,
-      descripcion: `Desbloqueó manualmente la cuenta de '${usuario.nombreCompleto}' (${usuario.email}).`,
-    }));
+    await this.auditLogRepo.save(
+      this.auditLogRepo.create({
+        actorId: currentUserId,
+        actorNombre: currentUserName,
+        accion: 'DESBLOQUEAR_USUARIO',
+        entidad: 'Usuario',
+        entidadId: id,
+        descripcion: `Desbloqueó manualmente la cuenta de '${usuario.nombreCompleto}' (${usuario.email}).`,
+      }),
+    );
 
     const actualizado = await this.usuarioRepo.findOne({
       where: { id },
-      relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada', 'sedesAsignadas', 'sedesAsignadas.sede'],
+      relations: [
+        'roles',
+        'roles.rol',
+        'perfil',
+        'permisos',
+        'sedeAsignada',
+        'sedesAsignadas',
+        'sedesAsignadas.sede',
+      ],
     });
     return this.mapUsuarioResponse(actualizado!);
   }
@@ -566,21 +740,38 @@ export class HerramientasService {
       relations: ['roles', 'roles.rol', 'sedesAsignadas'],
     });
     if (!usuario) {
-      throw new NotFoundException({ code: 'USUARIO_NO_ENCONTRADO', message: 'El usuario no existe' });
+      throw new NotFoundException({
+        code: 'USUARIO_NO_ENCONTRADO',
+        message: 'El usuario no existe',
+      });
     }
 
-    const rol = await this.rolRepo.findOne({ where: { nombre: rolNombre as RolNombre, activo: true } });
+    const rol = await this.rolRepo.findOne({
+      where: { nombre: rolNombre as RolNombre, activo: true },
+    });
     if (!rol) {
-      throw new NotFoundException({ code: 'ROL_NO_ENCONTRADO', message: `El rol '${rolNombre}' no existe o está inactivo` });
+      throw new NotFoundException({
+        code: 'ROL_NO_ENCONTRADO',
+        message: `El rol '${rolNombre}' no existe o está inactivo`,
+      });
     }
 
-    if (usuario.roles.some(ur => ur.rol.nombre === rolNombre)) {
-      throw new ConflictException({ code: 'ROL_DUPLICADO', message: `El usuario ya tiene el rol '${rolNombre}'` });
+    if (usuario.roles.some((ur) => ur.rol.nombre === rolNombre)) {
+      throw new ConflictException({
+        code: 'ROL_DUPLICADO',
+        message: `El usuario ya tiene el rol '${rolNombre}'`,
+      });
     }
 
-    const esRolVigilante = rolNombre === RolNombre.VIGILANTE_HSE || rolNombre === RolNombre.VIGILANTE_PARKING;
-    const sedesNuevas = this.resolverIdsSedes({ sedeAsignadaId, sedesAsignadasIds });
-    const tieneSedesPrevias = !!usuario.sedeAsignadaId || (usuario.sedesAsignadas?.length ?? 0) > 0;
+    const esRolVigilante =
+      rolNombre === RolNombre.VIGILANTE_HSE ||
+      rolNombre === RolNombre.VIGILANTE_PARKING;
+    const sedesNuevas = this.resolverIdsSedes({
+      sedeAsignadaId,
+      sedesAsignadasIds,
+    });
+    const tieneSedesPrevias =
+      !!usuario.sedeAsignadaId || (usuario.sedesAsignadas?.length ?? 0) > 0;
 
     if (esRolVigilante && !tieneSedesPrevias && sedesNuevas.length === 0) {
       throw new BadRequestException({
@@ -593,7 +784,11 @@ export class HerramientasService {
     return this.usuarioRepo.manager.transaction(async (manager) => {
       if (esRolVigilante && sedesNuevas.length > 0) {
         await this.sincronizarSedesUsuario(manager, id, sedesNuevas);
-        await manager.update(Usuario, { id }, { sedeAsignadaId: sedesNuevas[0] });
+        await manager.update(
+          Usuario,
+          { id },
+          { sedeAsignadaId: sedesNuevas[0] },
+        );
       }
 
       // Check for a soft-deleted record first (unique constraint would fail on re-insert)
@@ -618,62 +813,99 @@ export class HerramientasService {
         await manager.save(nuevoRol);
       }
 
-      await manager.save(manager.create(AuditLog, {
-        actorId: currentUserId,
-        actorNombre: currentUserName,
-        accion: 'ASIGNAR_ROL',
-        entidad: 'UsuarioRol',
-        entidadId: id,
-        descripcion: `Asignó rol '${rolNombre}' a '${usuario.nombreCompleto}' (${usuario.email}).`,
-      }));
+      await manager.save(
+        manager.create(AuditLog, {
+          actorId: currentUserId,
+          actorNombre: currentUserName,
+          accion: 'ASIGNAR_ROL',
+          entidad: 'UsuarioRol',
+          entidadId: id,
+          descripcion: `Asignó rol '${rolNombre}' a '${usuario.nombreCompleto}' (${usuario.email}).`,
+        }),
+      );
 
       const usuarioActualizado = await manager.findOne(Usuario, {
         where: { id },
-        relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada', 'sedesAsignadas', 'sedesAsignadas.sede'],
+        relations: [
+          'roles',
+          'roles.rol',
+          'perfil',
+          'permisos',
+          'sedeAsignada',
+          'sedesAsignadas',
+          'sedesAsignadas.sede',
+        ],
       });
       return this.mapUsuarioResponse(usuarioActualizado!);
     });
   }
 
-  async quitarRol(id: number, rolNombre: string, currentUserId: number, currentUserName: string) {
-    const usuario = await this.usuarioRepo.findOne({ where: { id }, relations: ['roles', 'roles.rol'] });
+  async quitarRol(
+    id: number,
+    rolNombre: string,
+    currentUserId: number,
+    currentUserName: string,
+  ) {
+    const usuario = await this.usuarioRepo.findOne({
+      where: { id },
+      relations: ['roles', 'roles.rol'],
+    });
     if (!usuario) {
-      throw new NotFoundException({ code: 'USUARIO_NO_ENCONTRADO', message: 'El usuario no existe' });
+      throw new NotFoundException({
+        code: 'USUARIO_NO_ENCONTRADO',
+        message: 'El usuario no existe',
+      });
     }
 
     if (rolNombre === RolNombre.ADMIN_GLOBAL) {
       const otrosAdminsCount = await this.usuarioRolRepo.count({
         where: {
           rol: { nombre: RolNombre.ADMIN_GLOBAL },
-          usuario: { activo: true }
+          usuario: { activo: true },
         },
-        relations: ['rol', 'usuario']
+        relations: ['rol', 'usuario'],
       });
       if (otrosAdminsCount <= 1) {
-        throw new ForbiddenException({ code: 'ACCION_NO_PERMITIDA', message: 'Debe existir al menos un ADMIN_GLOBAL activo en el sistema' });
+        throw new ForbiddenException({
+          code: 'ACCION_NO_PERMITIDA',
+          message: 'Debe existir al menos un ADMIN_GLOBAL activo en el sistema',
+        });
       }
     }
 
-    const ur = usuario.roles.find(ur => ur.rol.nombre === rolNombre);
+    const ur = usuario.roles.find((ur) => ur.rol.nombre === rolNombre);
     if (!ur) {
-      throw new NotFoundException({ code: 'ROL_NO_ASIGNADO', message: `El usuario no tiene el rol '${rolNombre}'` });
+      throw new NotFoundException({
+        code: 'ROL_NO_ASIGNADO',
+        message: `El usuario no tiene el rol '${rolNombre}'`,
+      });
     }
 
     return this.usuarioRepo.manager.transaction(async (manager) => {
       await manager.delete(UsuarioRol, { id: ur.id });
 
-      await manager.save(manager.create(AuditLog, {
-        actorId: currentUserId,
-        actorNombre: currentUserName,
-        accion: 'QUITAR_ROL',
-        entidad: 'UsuarioRol',
-        entidadId: id,
-        descripcion: `Quitó rol '${rolNombre}' a '${usuario.nombreCompleto}' (${usuario.email}).`,
-      }));
+      await manager.save(
+        manager.create(AuditLog, {
+          actorId: currentUserId,
+          actorNombre: currentUserName,
+          accion: 'QUITAR_ROL',
+          entidad: 'UsuarioRol',
+          entidadId: id,
+          descripcion: `Quitó rol '${rolNombre}' a '${usuario.nombreCompleto}' (${usuario.email}).`,
+        }),
+      );
 
       const usuarioActualizado = await manager.findOne(Usuario, {
         where: { id },
-        relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada', 'sedesAsignadas', 'sedesAsignadas.sede'],
+        relations: [
+          'roles',
+          'roles.rol',
+          'perfil',
+          'permisos',
+          'sedeAsignada',
+          'sedesAsignadas',
+          'sedesAsignadas.sede',
+        ],
       });
       return this.mapUsuarioResponse(usuarioActualizado!);
     });

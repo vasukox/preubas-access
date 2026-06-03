@@ -82,7 +82,7 @@ export class ConfigKoajController {
       max_upload_size_mb: 10,
       allowed_origins: ['*'],
       debug: process.env.NODE_ENV !== 'production',
-      environment: process.env.NODE_ENV || 'development'
+      environment: process.env.NODE_ENV || 'development',
     };
   }
 

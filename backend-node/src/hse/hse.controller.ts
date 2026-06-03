@@ -1,4 +1,20 @@
-import { Controller, Get, Post, Put, Delete, Patch, Body, Query, Param, ParseIntPipe, UseGuards, Request, Res, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Patch,
+  Body,
+  Query,
+  Param,
+  ParseIntPipe,
+  UseGuards,
+  Request,
+  Res,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { IsString, IsOptional, IsBoolean } from 'class-validator';
 import { HseService } from './hse.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -9,8 +25,16 @@ import { RolNombre } from '../common/enums/rol.enum';
 
 import { AutogestionTokenGuard } from '../common/guards/autogestion-token.guard';
 
-import { CreateAutorizacionDto, UpdateAutorizacionDto, ChangeEstadoAutorizacionDto } from './dto/autorizacion.dto';
-import { CreateContratistaDto, EliminarContratistaDto, EliminarAdjuntoContratistaDto } from './dto/contratista.dto';
+import {
+  CreateAutorizacionDto,
+  UpdateAutorizacionDto,
+  ChangeEstadoAutorizacionDto,
+} from './dto/autorizacion.dto';
+import {
+  CreateContratistaDto,
+  EliminarContratistaDto,
+  EliminarAdjuntoContratistaDto,
+} from './dto/contratista.dto';
 import {
   ClasificacionDto,
   SegSocialItemDto,
@@ -18,12 +42,30 @@ import {
   CertificacionesDto,
   ExamenMedicoDto,
   ContactoEmergenciaDto,
-  AceptacionNormasDto
+  AceptacionNormasDto,
 } from './dto/autogestion.dto';
-import { VerificarAccesoDto, RegistrarAccesoDto, RegistrarEntradaSalidaDto } from './dto/acceso.dto';
-import { CumplimientoIniciarDto, CumplimientoActualizarDto, CumplimientoCerrarDto, MarcarItemCumplimientoDto } from './dto/cumplimiento.dto';
-import { CreateExcepcionDto, CreateExcepcionLoteDto, UpdateExcepcionDto } from './dto/excepcion.dto';
-import { ReporteAccesosQueryDto, ReporteCumplimientoQueryDto } from './dto/reportes.dto';
+import {
+  VerificarAccesoDto,
+  RegistrarAccesoDto,
+  RegistrarEntradaSalidaDto,
+} from './dto/acceso.dto';
+import {
+  CumplimientoIniciarDto,
+  CumplimientoActualizarDto,
+  CumplimientoCerrarDto,
+  MarcarItemCumplimientoDto,
+} from './dto/cumplimiento.dto';
+import {
+  CreateExcepcionDto,
+  CreateExcepcionLoteDto,
+  UpdateExcepcionDto,
+} from './dto/excepcion.dto';
+import {
+  ReporteAccesosQueryDto,
+  ReporteCumplimientoQueryDto,
+  ReporteAutorizacionesQueryDto,
+  ReporteContratistasQueryDto,
+} from './dto/reportes.dto';
 import { AutorizacionService } from './services/autorizacion.service';
 import { AutogestionService } from './services/autogestion.service';
 import { AccesoService } from './services/acceso.service';
@@ -31,8 +73,13 @@ import { CumplimientoService } from './services/cumplimiento.service';
 import { ExcepcionService } from './services/excepcion.service';
 import { ReportesService } from './services/reportes.service';
 import { UploadSecurityService } from './services/upload-security.service';
+import { ArchivadoService } from './services/archivado.service';
+import { AprobarArchivadoDto, RechazarArchivadoDto } from './dto/archivado.dto';
 import { ProveedorService } from '../persona/proveedor.service';
-import { CreateProveedorDto, UpdateProveedorDto } from '../persona/dto/proveedor.dto';
+import {
+  CreateProveedorDto,
+  UpdateProveedorDto,
+} from '../persona/dto/proveedor.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UseInterceptors, UploadedFile } from '@nestjs/common';
 import type { Response } from 'express';
@@ -73,6 +120,7 @@ export class HseController {
     private readonly reportesService: ReportesService,
     private readonly proveedorService: ProveedorService,
     private readonly uploadSecurityService: UploadSecurityService,
+    private readonly archivadoService: ArchivadoService,
   ) {}
 
   @Public()
@@ -106,10 +154,20 @@ export class HseController {
   }
 
   @Get('catalogos/proveedores')
-  @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VISUALIZADOR, RolNombre.ADMIN_GLOBAL)
+  @Roles(
+    RolNombre.ADMIN_HSE,
+    RolNombre.GESTION_HSE,
+    RolNombre.VISUALIZADOR,
+    RolNombre.ADMIN_GLOBAL,
+  )
   async getProveedores() {
     const proveedores = await this.proveedorService.findActivos();
-    return proveedores.map(p => ({ id: p.id, nombre: p.nomProveedor, nit: p.nitProveedor ?? '', activo: p.estadoProv }));
+    return proveedores.map((p) => ({
+      id: p.id,
+      nombre: p.nomProveedor,
+      nit: p.nitProveedor ?? '',
+      activo: p.estadoProv,
+    }));
   }
 
   @Post('catalogos/proveedores')
@@ -119,18 +177,21 @@ export class HseController {
       nomProveedor: body.nombre,
       nitProveedor: body.nit,
       estadoProv: true,
-    } as any);
+    });
     return { id: p.id, nombre: p.nomProveedor, activo: p.estadoProv };
   }
 
   @Put('catalogos/proveedores/:id')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.ADMIN_GLOBAL)
-  async actualizarProveedor(@Param('id', ParseIntPipe) id: number, @Body() body: ActualizarProveedorFrontendDto) {
+  async actualizarProveedor(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: ActualizarProveedorFrontendDto,
+  ) {
     const p = await this.proveedorService.update(id, {
       nomProveedor: body.nombre,
       nitProveedor: body.nit,
       estadoProv: body.activo !== undefined ? body.activo : undefined,
-    } as any);
+    });
     return { id: p.id, nombre: p.nomProveedor, activo: p.estadoProv };
   }
 
@@ -141,21 +202,39 @@ export class HseController {
   }
 
   @Get('autorizaciones')
-  @Roles(RolNombre.ADMIN_GLOBAL, RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VISUALIZADOR)
+  @Roles(
+    RolNombre.ADMIN_GLOBAL,
+    RolNombre.ADMIN_HSE,
+    RolNombre.GESTION_HSE,
+    RolNombre.VISUALIZADOR,
+  )
   async getAutorizaciones(
     @Query('sede_id', ParseIntPipe) sedeId: number,
     @Query('estado') estado?: string,
     @Query('page') page?: string,
     @Query('per_page') perPage?: string,
+    @Query('incluir_excepciones') incluirExcepciones?: string,
   ) {
     const p = page ? parseInt(page, 10) : 1;
     const pp = perPage ? parseInt(perPage, 10) : 20;
-    const result = await this.autorizacionService.findAll(sedeId, estado, p, pp);
+    const conExcepciones = incluirExcepciones === 'true';
+    const result = await this.autorizacionService.findAll(
+      sedeId,
+      estado,
+      p,
+      pp,
+      conExcepciones,
+    );
     return result.items;
   }
 
   @Get('autorizaciones/:id')
-  @Roles(RolNombre.ADMIN_GLOBAL, RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VISUALIZADOR)
+  @Roles(
+    RolNombre.ADMIN_GLOBAL,
+    RolNombre.ADMIN_HSE,
+    RolNombre.GESTION_HSE,
+    RolNombre.VISUALIZADOR,
+  )
   async getAutorizacion(@Param('id', ParseIntPipe) id: number) {
     return this.autorizacionService.findOne(id);
   }
@@ -164,7 +243,7 @@ export class HseController {
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE)
   async createAutorizacion(
     @Request() req: any,
-    @Body() createDto: CreateAutorizacionDto
+    @Body() createDto: CreateAutorizacionDto,
   ) {
     return this.autorizacionService.create(createDto, req.user?.id);
   }
@@ -173,7 +252,7 @@ export class HseController {
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE)
   async updateAutorizacion(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateDto: UpdateAutorizacionDto
+    @Body() updateDto: UpdateAutorizacionDto,
   ) {
     return this.autorizacionService.update(id, updateDto);
   }
@@ -188,13 +267,18 @@ export class HseController {
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE)
   async cambiarEstadoAutorizacion(
     @Param('id', ParseIntPipe) id: number,
-    @Body() changeEstadoDto: ChangeEstadoAutorizacionDto
+    @Body() changeEstadoDto: ChangeEstadoAutorizacionDto,
   ) {
     return this.autorizacionService.cambiarEstado(id, changeEstadoDto);
   }
 
   @Get('autorizaciones/:id/contratistas')
-  @Roles(RolNombre.ADMIN_GLOBAL, RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VISUALIZADOR)
+  @Roles(
+    RolNombre.ADMIN_GLOBAL,
+    RolNombre.ADMIN_HSE,
+    RolNombre.GESTION_HSE,
+    RolNombre.VISUALIZADOR,
+  )
   async getContratistas(@Param('id', ParseIntPipe) id: number) {
     return this.autorizacionService.getContratistas(id);
   }
@@ -203,57 +287,99 @@ export class HseController {
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE)
   async addContratistas(
     @Param('id', ParseIntPipe) id: number,
-    @Body() contratistasDto: CreateContratistaDto[]
+    @Body() contratistasDto: CreateContratistaDto[],
   ) {
     return this.autorizacionService.addContratistas(id, contratistasDto);
   }
 
   @Post('contratistas/:id/generar-token')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE)
-  async generarTokenContratista(@Param('id', ParseIntPipe) id: number, @Request() req: any) {
+  async generarTokenContratista(
+    @Param('id', ParseIntPipe) id: number,
+    @Request() req: any,
+  ) {
     return this.autorizacionService.generarTokenContratista(id, req.user?.id);
   }
 
   @Post('contratistas/:id/token')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE)
-  async renovarTokenFrontend(@Param('id', ParseIntPipe) id: number, @Request() req: any) {
-    const result = await this.autorizacionService.generarTokenContratista(id, req.user?.id);
+  async renovarTokenFrontend(
+    @Param('id', ParseIntPipe) id: number,
+    @Request() req: any,
+  ) {
+    const result = await this.autorizacionService.generarTokenContratista(
+      id,
+      req.user?.id,
+    );
     return result.token;
   }
 
   @Get('contratistas/:id')
-  @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VISUALIZADOR, RolNombre.VIGILANTE_HSE)
+  @Roles(
+    RolNombre.ADMIN_HSE,
+    RolNombre.GESTION_HSE,
+    RolNombre.VISUALIZADOR,
+    RolNombre.VIGILANTE_HSE,
+  )
   async getContratista(@Param('id', ParseIntPipe) id: number) {
     return this.autorizacionService.findOneContratista(id);
   }
 
   @Post('contratistas/:id/aprobar')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE)
-  async aprobarContratista(@Param('id', ParseIntPipe) id: number, @Request() req: any) {
+  async aprobarContratista(
+    @Param('id', ParseIntPipe) id: number,
+    @Request() req: any,
+  ) {
     return this.autorizacionService.aprobarContratista(id, req.user?.id);
   }
 
   @Post('contratistas/:id/denegar')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE)
-  async denegarContratista(@Param('id', ParseIntPipe) id: number, @Body('motivo') motivo: string, @Request() req: any) {
-    return this.autorizacionService.denegarContratista(id, motivo, req.user?.id);
+  async denegarContratista(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('motivo') motivo: string,
+    @Request() req: any,
+  ) {
+    return this.autorizacionService.denegarContratista(
+      id,
+      motivo,
+      req.user?.id,
+    );
   }
 
   @Put('contratistas/:id/proveedor')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE)
-  async actualizarProveedorContratista(@Param('id', ParseIntPipe) id: number, @Body('proveedor_id') proveedorId: number) {
-    return this.autorizacionService.actualizarProveedorContratista(id, proveedorId ?? null);
+  async actualizarProveedorContratista(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('proveedor_id') proveedorId: number,
+  ) {
+    return this.autorizacionService.actualizarProveedorContratista(
+      id,
+      proveedorId ?? null,
+    );
   }
 
   @Post('contratistas/:id/eliminar')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE)
-  async eliminarContratista(@Param('id', ParseIntPipe) id: number, @Body() dto: EliminarContratistaDto, @Request() req: any) {
-    return this.autorizacionService.eliminarContratista(id, dto.motivo, req.user?.id);
+  async eliminarContratista(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: EliminarContratistaDto,
+    @Request() req: any,
+  ) {
+    return this.autorizacionService.eliminarContratista(
+      id,
+      dto.motivo,
+      req.user?.id,
+    );
   }
 
   @Post('contratistas/:id/adjuntos/eliminar')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE)
-  async eliminarAdjuntoContratista(@Param('id', ParseIntPipe) id: number, @Body() dto: EliminarAdjuntoContratistaDto) {
+  async eliminarAdjuntoContratista(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: EliminarAdjuntoContratistaDto,
+  ) {
     return this.autorizacionService.eliminarAdjuntoContratista(id, dto);
   }
 
@@ -268,14 +394,15 @@ export class HseController {
   @Public()
   @UseGuards(AutogestionTokenGuard)
   @Post('autogestion/:token/upload')
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  @UseInterceptors(FileInterceptor('archivo', { storage: require('multer').memoryStorage() }))
+  @UseInterceptors(
+    FileInterceptor('archivo', { storage: require('multer').memoryStorage() }),
+  )
   async uploadArchivo(
     @Request() req: any,
     @Param('token') token: string,
     @Body('modulo') modulo: string,
     @Body('campo') campo: string,
-    @UploadedFile() archivo: any
+    @UploadedFile() archivo: any,
   ) {
     if (!archivo) {
       throw new BadRequestException('Archivo requerido');
@@ -293,14 +420,23 @@ export class HseController {
   @UseGuards(AutogestionTokenGuard)
   @Post('autogestion/:token/datos-personales')
   async guardarDatosPersonales(@Request() req: any, @Body() dto: any) {
-    return this.autogestionService.guardarDatosPersonales(req.contratista.id, dto);
+    return this.autogestionService.guardarDatosPersonales(
+      req.contratista.id,
+      dto,
+    );
   }
 
   @Public()
   @UseGuards(AutogestionTokenGuard)
   @Post('autogestion/:token/clasificacion')
-  async guardarClasificacion(@Request() req: any, @Body() dto: ClasificacionDto) {
-    return this.autogestionService.guardarClasificacion(req.contratista.id, dto);
+  async guardarClasificacion(
+    @Request() req: any,
+    @Body() dto: ClasificacionDto,
+  ) {
+    return this.autogestionService.guardarClasificacion(
+      req.contratista.id,
+      dto,
+    );
   }
 
   @Public()
@@ -308,15 +444,24 @@ export class HseController {
   @Post('autogestion/:token/seguridad-social')
   async guardarSeguridadSocial(@Request() req: any, @Body() payload: any) {
     // Parsear payload: frontend envía { personas: [...] } pero service espera array directo
-    const dto = Array.isArray(payload) ? payload : (payload?.personas || []);
-    return this.autogestionService.guardarSeguridadSocial(req.contratista.id, dto);
+    const dto = Array.isArray(payload) ? payload : payload?.personas || [];
+    return this.autogestionService.guardarSeguridadSocial(
+      req.contratista.id,
+      dto,
+    );
   }
 
   @Public()
   @UseGuards(AutogestionTokenGuard)
   @Post('autogestion/:token/certificaciones')
-  async guardarCertificaciones(@Request() req: any, @Body() dto: CertificacionesDto) {
-    return this.autogestionService.guardarCertificaciones(req.contratista.id, dto);
+  async guardarCertificaciones(
+    @Request() req: any,
+    @Body() dto: CertificacionesDto,
+  ) {
+    return this.autogestionService.guardarCertificaciones(
+      req.contratista.id,
+      dto,
+    );
   }
 
   @Public()
@@ -329,22 +474,40 @@ export class HseController {
   @Public()
   @UseGuards(AutogestionTokenGuard)
   @Post('autogestion/:token/contacto-emergencia')
-  async guardarContactoEmergencia(@Request() req: any, @Body() dto: ContactoEmergenciaDto) {
-    return this.autogestionService.guardarContactoEmergencia(req.contratista.id, dto);
+  async guardarContactoEmergencia(
+    @Request() req: any,
+    @Body() dto: ContactoEmergenciaDto,
+  ) {
+    return this.autogestionService.guardarContactoEmergencia(
+      req.contratista.id,
+      dto,
+    );
   }
 
   @Public()
   @UseGuards(AutogestionTokenGuard)
   @Post('autogestion/:token/aceptacion')
-  async guardarAceptacionNormas(@Request() req: any, @Body() dto: AceptacionNormasDto) {
-    return this.autogestionService.guardarAceptacionNormas(req.contratista.id, dto);
+  async guardarAceptacionNormas(
+    @Request() req: any,
+    @Body() dto: AceptacionNormasDto,
+  ) {
+    return this.autogestionService.guardarAceptacionNormas(
+      req.contratista.id,
+      dto,
+    );
   }
 
   @Public()
   @UseGuards(AutogestionTokenGuard)
   @Post('autogestion/:token/normas')
-  async guardarAceptacionNormasFrontend(@Request() req: any, @Body() dto: AceptacionNormasDto) {
-    return this.autogestionService.guardarAceptacionNormas(req.contratista.id, dto);
+  async guardarAceptacionNormasFrontend(
+    @Request() req: any,
+    @Body() dto: AceptacionNormasDto,
+  ) {
+    return this.autogestionService.guardarAceptacionNormas(
+      req.contratista.id,
+      dto,
+    );
   }
 
   @Public()
@@ -369,22 +532,43 @@ export class HseController {
   // --- Accesos (Portería) ---
   @Post('accesos/entrada')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VIGILANTE_HSE)
-  async registrarEntrada(@Request() req: any, @Body() dto: RegistrarEntradaSalidaDto) {
+  async registrarEntrada(
+    @Request() req: any,
+    @Body() dto: RegistrarEntradaSalidaDto,
+  ) {
     return this.accesoService.registrarEntrada(
-      dto.contratistaId, dto.sedeId, req.user?.id, dto.metodo, dto.observacion, dto.ubicacionId,
+      dto.contratistaId,
+      dto.sedeId,
+      req.user?.id,
+      dto.metodo,
+      dto.observacion,
+      dto.ubicacionId,
     );
   }
 
   @Post('accesos/salida')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VIGILANTE_HSE)
-  async registrarSalida(@Request() req: any, @Body() dto: RegistrarEntradaSalidaDto) {
+  async registrarSalida(
+    @Request() req: any,
+    @Body() dto: RegistrarEntradaSalidaDto,
+  ) {
     return this.accesoService.registrarSalida(
-      dto.contratistaId, dto.sedeId, req.user?.id, dto.metodo, dto.observacion, dto.ubicacionId,
+      dto.contratistaId,
+      dto.sedeId,
+      req.user?.id,
+      dto.metodo,
+      dto.observacion,
+      dto.ubicacionId,
     );
   }
 
   @Get('accesos/sede/:sede_id')
-  @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VIGILANTE_HSE, RolNombre.VISUALIZADOR)
+  @Roles(
+    RolNombre.ADMIN_HSE,
+    RolNombre.GESTION_HSE,
+    RolNombre.VIGILANTE_HSE,
+    RolNombre.VISUALIZADOR,
+  )
   async getAccesosSede(
     @Param('sede_id', ParseIntPipe) sedeId: number,
     @Query('limit') limit?: string,
@@ -397,7 +581,12 @@ export class HseController {
   }
 
   @Get('vigilante/dentro/:sede_id')
-  @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VIGILANTE_HSE, RolNombre.VISUALIZADOR)
+  @Roles(
+    RolNombre.ADMIN_HSE,
+    RolNombre.GESTION_HSE,
+    RolNombre.VIGILANTE_HSE,
+    RolNombre.VISUALIZADOR,
+  )
   async getPersonasDentro(@Param('sede_id', ParseIntPipe) sedeId: number) {
     return this.accesoService.getPersonasDentro(sedeId);
   }
@@ -410,7 +599,10 @@ export class HseController {
 
   @Post('vigilante/acceso')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.VIGILANTE_HSE)
-  async registrarAccesoVigilante(@Request() req: any, @Body() dto: RegistrarAccesoDto) {
+  async registrarAccesoVigilante(
+    @Request() req: any,
+    @Body() dto: RegistrarAccesoDto,
+  ) {
     return this.accesoService.registrarAcceso(dto, req.user?.id);
   }
 
@@ -425,7 +617,7 @@ export class HseController {
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE)
   async listarCumplimientos(
     @Query('sede_id') sedeIdStr: string,
-    @Query('estado') estado?: string
+    @Query('estado') estado?: string,
   ) {
     const sedeId = sedeIdStr ? parseInt(sedeIdStr, 10) : 0;
     return this.cumplimientoService.listarCumplimientos(sedeId, estado);
@@ -433,19 +625,38 @@ export class HseController {
 
   @Post('cumplimiento')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE)
-  async iniciarCumplimiento(@Request() req: any, @Body() dto: CumplimientoIniciarDto) {
-    return this.cumplimientoService.iniciarCumplimiento(dto.contratistaId, req.user?.id, dto.sedeId, undefined);
+  async iniciarCumplimiento(
+    @Request() req: any,
+    @Body() dto: CumplimientoIniciarDto,
+  ) {
+    return this.cumplimientoService.iniciarCumplimiento(
+      dto.contratistaId,
+      req.user?.id,
+      dto.sedeId,
+      undefined,
+    );
   }
 
   @Post('cumplimiento/iniciar')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE)
-  async iniciarCumplimientoFrontend(@Request() req: any, @Body() dto: CumplimientoIniciarDto) {
-    return this.cumplimientoService.iniciarCumplimiento(dto.contratistaId, req.user?.id, dto.sedeId, undefined);
+  async iniciarCumplimientoFrontend(
+    @Request() req: any,
+    @Body() dto: CumplimientoIniciarDto,
+  ) {
+    return this.cumplimientoService.iniciarCumplimiento(
+      dto.contratistaId,
+      req.user?.id,
+      dto.sedeId,
+      undefined,
+    );
   }
 
   @Put('cumplimiento/:id')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE)
-  async actualizarCumplimiento(@Param('id', ParseIntPipe) id: number, @Body() dto: CumplimientoActualizarDto) {
+  async actualizarCumplimiento(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: CumplimientoActualizarDto,
+  ) {
     return this.cumplimientoService.actualizarCumplimiento(id, dto);
   }
 
@@ -456,13 +667,25 @@ export class HseController {
     @Param('itemId', ParseIntPipe) itemId: number,
     @Body() dto: MarcarItemCumplimientoDto,
   ) {
-    return this.cumplimientoService.marcarItem(id, itemId, dto.cumple, dto.observacion);
+    return this.cumplimientoService.marcarItem(
+      id,
+      itemId,
+      dto.cumple,
+      dto.observacion,
+    );
   }
 
   @Post('cumplimiento/:id/cerrar')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE)
-  async cerrarCumplimiento(@Param('id', ParseIntPipe) id: number, @Body() dto: CumplimientoCerrarDto) {
-    return this.cumplimientoService.cerrarCumplimiento(id, dto.firmaDigital, dto.observacionGeneral);
+  async cerrarCumplimiento(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: CumplimientoCerrarDto,
+  ) {
+    return this.cumplimientoService.cerrarCumplimiento(
+      id,
+      dto.firmaDigital,
+      dto.observacionGeneral,
+    );
   }
 
   // --- Excepciones ---
@@ -474,7 +697,10 @@ export class HseController {
 
   @Post('excepciones/lote')
   @Roles(RolNombre.ADMIN_HSE)
-  async crearExcepcionLote(@Request() req: any, @Body() dto: CreateExcepcionLoteDto) {
+  async crearExcepcionLote(
+    @Request() req: any,
+    @Body() dto: CreateExcepcionLoteDto,
+  ) {
     return this.excepcionService.crearExcepcionLote(req.user?.id, dto);
   }
 
@@ -482,50 +708,81 @@ export class HseController {
   // para que Express no la intercepte como sede_id='activas'
   @Get('excepciones/activas/:persona_id')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VIGILANTE_HSE)
-  async getExcepcionesActivas(@Param('persona_id', ParseIntPipe) personaId: number) {
+  async getExcepcionesActivas(
+    @Param('persona_id', ParseIntPipe) personaId: number,
+  ) {
     return this.excepcionService.getExcepcionesActivas(personaId);
   }
 
   @Get('excepciones/detalle/:id')
-  @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VIGILANTE_HSE, RolNombre.VISUALIZADOR)
+  @Roles(
+    RolNombre.ADMIN_HSE,
+    RolNombre.GESTION_HSE,
+    RolNombre.VIGILANTE_HSE,
+    RolNombre.VISUALIZADOR,
+  )
   async getExcepcionDetalle(@Param('id', ParseIntPipe) id: number) {
     return this.excepcionService.obtenerDetalle(id);
   }
 
   @Get('excepciones/sede/:sede_id')
-  @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VIGILANTE_HSE, RolNombre.VISUALIZADOR)
+  @Roles(
+    RolNombre.ADMIN_HSE,
+    RolNombre.GESTION_HSE,
+    RolNombre.VIGILANTE_HSE,
+    RolNombre.VISUALIZADOR,
+  )
   async getExcepcionesSede(@Param('sede_id', ParseIntPipe) sedeId: number) {
     return this.excepcionService.listarExcepciones(sedeId);
   }
 
   // Alias para la UI frontend que consulta /hse/excepciones/:sede_id en GET
   @Get('excepciones/:sede_id')
-  @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VIGILANTE_HSE, RolNombre.VISUALIZADOR)
-  async getExcepcionesPorSedeAlias(@Param('sede_id', ParseIntPipe) sedeId: number) {
+  @Roles(
+    RolNombre.ADMIN_HSE,
+    RolNombre.GESTION_HSE,
+    RolNombre.VIGILANTE_HSE,
+    RolNombre.VISUALIZADOR,
+  )
+  async getExcepcionesPorSedeAlias(
+    @Param('sede_id', ParseIntPipe) sedeId: number,
+  ) {
     return this.excepcionService.listarExcepciones(sedeId);
   }
 
   @Put('excepciones/:id/anular')
   @Roles(RolNombre.ADMIN_HSE)
-  async anularExcepcion(@Param('id', ParseIntPipe) id: number, @Request() req: any) {
+  async anularExcepcion(
+    @Param('id', ParseIntPipe) id: number,
+    @Request() req: any,
+  ) {
     return this.excepcionService.anularExcepcion(id, req.user?.id);
   }
 
   @Post('excepciones/:id/desactivar')
   @Roles(RolNombre.ADMIN_HSE)
-  async desactivarExcepcion(@Param('id', ParseIntPipe) id: number, @Request() req: any) {
+  async desactivarExcepcion(
+    @Param('id', ParseIntPipe) id: number,
+    @Request() req: any,
+  ) {
     return this.excepcionService.anularExcepcion(id, req.user?.id);
   }
 
   @Post('excepciones/:id/activar')
   @Roles(RolNombre.ADMIN_HSE)
-  async activarExcepcion(@Param('id', ParseIntPipe) id: number, @Request() req: any) {
+  async activarExcepcion(
+    @Param('id', ParseIntPipe) id: number,
+    @Request() req: any,
+  ) {
     return this.excepcionService.activarExcepcion(id, req.user?.id);
   }
 
   @Put('excepciones/:id')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE)
-  async actualizarExcepcion(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateExcepcionDto) {
+  async actualizarExcepcion(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateExcepcionDto,
+  ) {
     return this.excepcionService.actualizarExcepcion(id, dto);
   }
 
@@ -550,22 +807,85 @@ export class HseController {
 
   @Get('reportes/vencimientos')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VISUALIZADOR)
-  async getReporteVencimientos() {
-    return this.reportesService.getReporteVencimientos();
+  async getReporteVencimientos(@Query('sede_id') sedeIdStr?: string) {
+    const sedeId = sedeIdStr ? parseInt(sedeIdStr, 10) : undefined;
+    return this.reportesService.getReporteVencimientos(sedeId);
+  }
+
+  @Get('reportes/charts')
+  @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VISUALIZADOR)
+  async getChartData(@Query('sede_id', ParseIntPipe) sedeId: number) {
+    return this.reportesService.getChartData(sedeId);
+  }
+
+  @Get('reportes/autorizaciones')
+  @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VISUALIZADOR)
+  async getReporteAutorizaciones(
+    @Query() query: ReporteAutorizacionesQueryDto,
+  ) {
+    return this.reportesService.getReporteAutorizaciones(query);
+  }
+
+  @Get('reportes/contratistas')
+  @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VISUALIZADOR)
+  async getReporteContratistas(@Query() query: ReporteContratistasQueryDto) {
+    return this.reportesService.getReporteContratistas(query);
+  }
+
+  // --- Archivado ---
+  @Get('archivado/cola')
+  @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.ADMIN_GLOBAL)
+  async getColaArchivado() {
+    return this.archivadoService.obtenerCola();
+  }
+
+  @Post('archivado/:contratistaId/aprobar')
+  @Roles(RolNombre.ADMIN_HSE, RolNombre.ADMIN_GLOBAL)
+  async aprobarArchivado(
+    @Param('contratistaId', ParseIntPipe) contratistaId: number,
+    @Body() dto: AprobarArchivadoDto,
+    @Request() req: any,
+  ) {
+    return this.archivadoService.aprobarArchivado(
+      contratistaId,
+      req.user?.id,
+      dto.motivo,
+      dto.firmaDigital,
+    );
+  }
+
+  @Post('archivado/:contratistaId/rechazar')
+  @Roles(RolNombre.ADMIN_HSE, RolNombre.ADMIN_GLOBAL)
+  async rechazarArchivado(
+    @Param('contratistaId', ParseIntPipe) contratistaId: number,
+    @Body() dto: RechazarArchivadoDto,
+    @Request() req: any,
+  ) {
+    return this.archivadoService.rechazarArchivado(
+      contratistaId,
+      req.user?.id,
+      dto.motivo,
+    );
   }
 
   // --- Archivos ---
   @Get('archivos/*path')
-  @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VISUALIZADOR, RolNombre.ADMIN_GLOBAL)
+  @Roles(
+    RolNombre.ADMIN_HSE,
+    RolNombre.GESTION_HSE,
+    RolNombre.VISUALIZADOR,
+    RolNombre.ADMIN_GLOBAL,
+  )
   async servirArchivoHse(@Request() req: any, @Res() res: Response) {
     // req.originalUrl siempre contiene la URL completa sin modificar.
     // Extraemos todo lo que viene después de "/archivos/" para evitar
     // problemas con cómo NestJS 11 captura wildcards multi-segmento.
     const originalUrl: string = decodeURIComponent(req.originalUrl ?? '');
     const archivosIdx = originalUrl.indexOf('/archivos/');
-    const rawPath = archivosIdx >= 0
-      ? originalUrl.slice(archivosIdx + '/archivos/'.length).split('?')[0]
-      : '';
+    const rawPath =
+      archivosIdx >= 0
+        ? originalUrl.slice(archivosIdx + '/archivos/'.length).split('?')[0]
+        : '';
 
     if (!rawPath) {
       throw new NotFoundException('Archivo no encontrado');

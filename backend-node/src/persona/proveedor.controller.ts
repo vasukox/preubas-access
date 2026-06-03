@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, ParseIntPipe, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  Query,
+  ParseIntPipe,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -12,13 +23,23 @@ export class ProveedorController {
   constructor(private readonly proveedorService: ProveedorService) {}
 
   @Get()
-  @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VISUALIZADOR, RolNombre.ADMIN_GLOBAL)
+  @Roles(
+    RolNombre.ADMIN_HSE,
+    RolNombre.GESTION_HSE,
+    RolNombre.VISUALIZADOR,
+    RolNombre.ADMIN_GLOBAL,
+  )
   async getAll(@Query('search') search?: string) {
     return this.proveedorService.findAll(search);
   }
 
   @Get(':id')
-  @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.VISUALIZADOR, RolNombre.ADMIN_GLOBAL)
+  @Roles(
+    RolNombre.ADMIN_HSE,
+    RolNombre.GESTION_HSE,
+    RolNombre.VISUALIZADOR,
+    RolNombre.ADMIN_GLOBAL,
+  )
   async getOne(@Param('id', ParseIntPipe) id: number) {
     return this.proveedorService.findOne(id);
   }
@@ -31,7 +52,10 @@ export class ProveedorController {
 
   @Put(':id')
   @Roles(RolNombre.ADMIN_HSE, RolNombre.GESTION_HSE, RolNombre.ADMIN_GLOBAL)
-  async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateProveedorDto) {
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateProveedorDto,
+  ) {
     return this.proveedorService.update(id, dto);
   }
 

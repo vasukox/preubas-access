@@ -67,7 +67,11 @@ export class AuthController {
   async refresh(@Body() dto: RefreshTokenDto, @Req() req: Request) {
     const ipAddress = this.getClientIp(req);
     const userAgent = req.headers['user-agent'];
-    return this.authService.refreshTokens(dto.refresh_token, ipAddress, userAgent);
+    return this.authService.refreshTokens(
+      dto.refresh_token,
+      ipAddress,
+      userAgent,
+    );
   }
 
   // ── POST /auth/logout ──────────────────────────────────────────────────────
@@ -113,31 +117,53 @@ export class AuthController {
       activo: usuario.activo,
       debeCambiarPassword: usuario.debeCambiarPassword,
       ultimoLogin: usuario.ultimoLogin ?? null,
-      roles: usuario.roles.map((ur) => ({ id: ur.rolId, nombre: ur.rol?.nombre ?? 'UNKNOWN' })),
+      roles: usuario.roles.map((ur) => ({
+        id: ur.rolId,
+        nombre: ur.rol?.nombre ?? 'UNKNOWN',
+      })),
     };
-    
-    const roleNames = result.roles.map(r => r.nombre);
-    const isAdmin = roleNames.includes(RolNombre.ADMIN_GLOBAL) || roleNames.includes(RolNombre.ADMIN_HSE) || roleNames.includes(RolNombre.ADMIN_GH);
+
+    const roleNames = result.roles.map((r) => r.nombre);
+    const isAdmin =
+      roleNames.includes(RolNombre.ADMIN_GLOBAL) ||
+      roleNames.includes(RolNombre.ADMIN_HSE) ||
+      roleNames.includes(RolNombre.ADMIN_GH);
 
     const sedesAsignadas = isAdmin
       ? []
       : (usuario.sedesAsignadas ?? [])
           .filter((us) => us.sede)
-          .map((us) => ({ id: us.sede.id, nombre: us.sede.nombre, ciudad: us.sede.ciudad }));
+          .map((us) => ({
+            id: us.sede.id,
+            nombre: us.sede.nombre,
+            ciudad: us.sede.ciudad,
+          }));
 
-    const sedesFallback = !isAdmin && sedesAsignadas.length === 0 && usuario.sedeAsignada
-      ? [{ id: usuario.sedeAsignada.id, nombre: usuario.sedeAsignada.nombre, ciudad: usuario.sedeAsignada.ciudad }]
-      : [];
+    const sedesFallback =
+      !isAdmin && sedesAsignadas.length === 0 && usuario.sedeAsignada
+        ? [
+            {
+              id: usuario.sedeAsignada.id,
+              nombre: usuario.sedeAsignada.nombre,
+              ciudad: usuario.sedeAsignada.ciudad,
+            },
+          ]
+        : [];
 
-    const sedesFinales = sedesAsignadas.length > 0 ? sedesAsignadas : sedesFallback;
+    const sedesFinales =
+      sedesAsignadas.length > 0 ? sedesAsignadas : sedesFallback;
     const sedePrincipal = sedesFinales[0] ?? null;
 
     return {
       ...result,
-      sedeAsignadaId: isAdmin ? null : (usuario.sedeAsignadaId ?? sedePrincipal?.id ?? null),
-      sedeAsignada: isAdmin ? null : (sedePrincipal
-        ? { id: sedePrincipal.id, nombre: sedePrincipal.nombre }
-        : null),
+      sedeAsignadaId: isAdmin
+        ? null
+        : (usuario.sedeAsignadaId ?? sedePrincipal?.id ?? null),
+      sedeAsignada: isAdmin
+        ? null
+        : sedePrincipal
+          ? { id: sedePrincipal.id, nombre: sedePrincipal.nombre }
+          : null,
       sedesAsignadasIds: isAdmin ? [] : sedesFinales.map((s) => s.id),
       sedesAsignadas: isAdmin ? [] : sedesFinales,
       perfil: usuario.perfil
@@ -175,7 +201,9 @@ export class AuthController {
     @Req() req: Request & { user: { id: number } },
   ) {
     await this.authService.changePassword(req.user.id, dto);
-    return { message: 'Contraseña actualizada correctamente. Vuelve a iniciar sesión.' };
+    return {
+      message: 'Contraseña actualizada correctamente. Vuelve a iniciar sesión.',
+    };
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────

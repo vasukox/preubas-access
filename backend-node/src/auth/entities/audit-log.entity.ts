@@ -13,7 +13,12 @@ export class AuditLog extends BaseEntity {
   @Column({ name: 'actor_id', type: 'int', nullable: true })
   actorId: number;
 
-  @Column({ name: 'actor_nombre', type: 'varchar', length: 150, nullable: false })
+  @Column({
+    name: 'actor_nombre',
+    type: 'varchar',
+    length: 150,
+    nullable: false,
+  })
   actorNombre: string;
 
   @Column({ type: 'varchar', length: 50, nullable: false })

@@ -16,7 +16,12 @@ export class CatNormaSeguridad extends BaseEntity {
   @Column({ type: 'boolean', default: true, nullable: false })
   activa: boolean;
 
-  @Column({ name: 'sede_id', type: 'int', nullable: true, comment: 'NULL = aplica a todas las sedes' })
+  @Column({
+    name: 'sede_id',
+    type: 'int',
+    nullable: true,
+    comment: 'NULL = aplica a todas las sedes',
+  })
   sedeId: number;
 
   @ManyToOne(() => Sede, { onDelete: 'SET NULL', nullable: true })

@@ -1,8 +1,17 @@
-import { Injectable, BadRequestException, NotFoundException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+  Logger,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { HseExcepcion } from '../entities/hse-excepcion.entity';
-import { CreateExcepcionDto, CreateExcepcionLoteDto, UpdateExcepcionDto } from '../dto/excepcion.dto';
+import {
+  CreateExcepcionDto,
+  CreateExcepcionLoteDto,
+  UpdateExcepcionDto,
+} from '../dto/excepcion.dto';
 import { Persona } from '../../persona/entities/persona.entity';
 
 @Injectable()
@@ -25,7 +34,10 @@ export class ExcepcionService {
     this.validarBase(sedeId, fechaInicio, fechaFin, dto.motivo);
 
     const persona = personaId
-      ? await this.personaRepo.findOne({ where: { id: personaId }, relations: ['proveedor'] })
+      ? await this.personaRepo.findOne({
+          where: { id: personaId },
+          relations: ['proveedor'],
+        })
       : await this.buscarOCrearPersonaDesdeDocumento({
           tipoDocumento: dto.tipoDocumento,
           numeroDocumento: dto.numeroDocumento,
@@ -64,22 +76,27 @@ export class ExcepcionService {
     const excepciones: HseExcepcion[] = [];
 
     for (const personaId of dto.personasIds ?? []) {
-      const persona = await this.personaRepo.findOne({ where: { id: personaId } });
-      if (!persona) throw new NotFoundException(`Persona ${personaId} no encontrada`);
-      excepciones.push(this.excepcionRepo.create({
-        aprobadoPor,
-        personaId,
-        tipoDocumento: persona.tipoDocumento,
-        numeroDocumento: persona.numeroDocumento,
-        nombreCompleto: this.nombrePersona(persona),
-        proveedorId: dto.proveedorId ?? persona.proveedorId ?? null,
-        origenExcepcion: 'EMPRESA',
-        sedeId,
-        motivo: dto.motivo.trim(),
-        fechaInicio: this.toDateOnly(fechaInicio),
-        fechaFin: this.toDateOnly(fechaFin),
-        activa: true,
-      }));
+      const persona = await this.personaRepo.findOne({
+        where: { id: personaId },
+      });
+      if (!persona)
+        throw new NotFoundException(`Persona ${personaId} no encontrada`);
+      excepciones.push(
+        this.excepcionRepo.create({
+          aprobadoPor,
+          personaId,
+          tipoDocumento: persona.tipoDocumento,
+          numeroDocumento: persona.numeroDocumento,
+          nombreCompleto: this.nombrePersona(persona),
+          proveedorId: dto.proveedorId ?? persona.proveedorId ?? null,
+          origenExcepcion: 'EMPRESA',
+          sedeId,
+          motivo: dto.motivo.trim(),
+          fechaInicio: this.toDateOnly(fechaInicio),
+          fechaFin: this.toDateOnly(fechaFin),
+          activa: true,
+        }),
+      );
     }
 
     for (const contratista of dto.contratistas ?? []) {
@@ -90,24 +107,29 @@ export class ExcepcionService {
         proveedorId: dto.proveedorId,
       });
 
-      excepciones.push(this.excepcionRepo.create({
-        aprobadoPor,
-        personaId: persona?.id ?? null,
-        tipoDocumento: contratista.tipoDocumento ?? persona?.tipoDocumento ?? 'CC',
-        numeroDocumento: contratista.numeroDocumento,
-        nombreCompleto: contratista.nombreCompleto,
-        proveedorId: dto.proveedorId ?? persona?.proveedorId ?? null,
-        origenExcepcion: 'EMPRESA',
-        sedeId,
-        motivo: dto.motivo.trim(),
-        fechaInicio: this.toDateOnly(fechaInicio),
-        fechaFin: this.toDateOnly(fechaFin),
-        activa: true,
-      }));
+      excepciones.push(
+        this.excepcionRepo.create({
+          aprobadoPor,
+          personaId: persona?.id ?? null,
+          tipoDocumento:
+            contratista.tipoDocumento ?? persona?.tipoDocumento ?? 'CC',
+          numeroDocumento: contratista.numeroDocumento,
+          nombreCompleto: contratista.nombreCompleto,
+          proveedorId: dto.proveedorId ?? persona?.proveedorId ?? null,
+          origenExcepcion: 'EMPRESA',
+          sedeId,
+          motivo: dto.motivo.trim(),
+          fechaInicio: this.toDateOnly(fechaInicio),
+          fechaFin: this.toDateOnly(fechaFin),
+          activa: true,
+        }),
+      );
     }
 
     if (excepciones.length === 0) {
-      throw new BadRequestException('Debes enviar al menos una persona o contratista');
+      throw new BadRequestException(
+        'Debes enviar al menos una persona o contratista',
+      );
     }
 
     const saved = await this.excepcionRepo.save(excepciones);
@@ -119,7 +141,8 @@ export class ExcepcionService {
 
   async getExcepcionesActivas(personaId: number) {
     const hoy = this.fechaHoyLocal();
-    return this.excepcionRepo.createQueryBuilder('exc')
+    return this.excepcionRepo
+      .createQueryBuilder('exc')
       .leftJoinAndSelect('exc.aprobador', 'aprobador')
       .leftJoinAndSelect('exc.sede', 'sede')
       .where('exc.persona_id = :personaId', { personaId })
@@ -147,7 +170,7 @@ export class ExcepcionService {
       order: { created_at: 'DESC' },
     });
 
-    return excepciones.map(e => ({
+    return excepciones.map((e) => ({
       ...e,
       tipoDocumento: e.tipoDocumento ?? e.persona?.tipoDocumento,
       numeroDocumento: e.numeroDocumento ?? e.persona?.numeroDocumento,
@@ -162,9 +185,9 @@ export class ExcepcionService {
       where: { id },
       relations: ['persona', 'persona.proveedor', 'aprobador', 'sede'],
     });
-    
+
     if (!e) throw new BadRequestException('Excepción no encontrada');
-    
+
     return {
       ...e,
       tipoDocumento: e.tipoDocumento ?? e.persona?.tipoDocumento,
@@ -179,19 +202,22 @@ export class ExcepcionService {
     const excepcion = await this.excepcionRepo.findOne({ where: { id } });
     if (!excepcion) throw new BadRequestException('Excepcion no encontrada');
     const hoy = this.fechaHoyLocal();
-    const fechaFinStr = this.formatFecha(excepcion.fechaFin);
+    const fechaFinStr = this.formatFecha(excepcion.fechaFin).slice(0, 10);
     if (fechaFinStr < hoy) {
-      throw new BadRequestException('No se puede activar una excepcion vencida');
+      throw new BadRequestException(
+        'No se puede activar una excepcion vencida. Primero actualiza la fecha de vigencia.',
+      );
     }
-    excepcion.activa = true;
-    const saved = await this.excepcionRepo.save(excepcion);
+    await this.excepcionRepo.update(id, { activa: true });
     this.logger.log(
       `[AUDIT] Excepción activada — id=${id} usuarioId=${usuarioId ?? 'desconocido'}`,
     );
-    return saved;
+    return this.excepcionRepo.findOne({ where: { id } });
   }
 
-  async deleteExcepcion(id: number): Promise<{ success: boolean; message: string }> {
+  async deleteExcepcion(
+    id: number,
+  ): Promise<{ success: boolean; message: string }> {
     const excepcion = await this.excepcionRepo.findOne({ where: { id } });
     if (!excepcion) throw new BadRequestException('Excepción no encontrada');
     await this.excepcionRepo.softRemove(excepcion);
@@ -202,21 +228,52 @@ export class ExcepcionService {
     const excepcion = await this.excepcionRepo.findOne({ where: { id } });
     if (!excepcion) throw new BadRequestException('Excepcion no encontrada');
 
-    const fechaInicio = dto.fechaInicio ?? this.formatFecha(excepcion.fechaInicio);
-    const fechaFin = dto.fechaFin ?? this.formatFecha(excepcion.fechaFin);
-    this.validarBase(dto.sedeId ?? excepcion.sedeId, fechaInicio, fechaFin, dto.motivo ?? excepcion.motivo);
+    // Normalizar: tomar solo YYYY-MM-DD (el API devuelve ISO completo "2026-06-03T00:00:00.000Z")
+    const fechaInicio = (
+      dto.fechaInicio ?? this.formatFecha(excepcion.fechaInicio)
+    ).slice(0, 10);
+    const fechaFin = (
+      dto.fechaFin ?? this.formatFecha(excepcion.fechaFin)
+    ).slice(0, 10);
+    this.validarBase(
+      dto.sedeId ?? excepcion.sedeId,
+      fechaInicio,
+      fechaFin,
+      dto.motivo ?? excepcion.motivo,
+    );
 
-    if (dto.sedeId) excepcion.sedeId = dto.sedeId;
-    if (dto.motivo !== undefined) excepcion.motivo = dto.motivo.trim();
-    if (dto.fechaInicio) excepcion.fechaInicio = this.toDateOnly(fechaInicio);
-    if (dto.fechaFin) excepcion.fechaFin = this.toDateOnly(fechaFin);
-    if (dto.tipoDocumento !== undefined) excepcion.tipoDocumento = dto.tipoDocumento;
-    if (dto.numeroDocumento !== undefined) excepcion.numeroDocumento = dto.numeroDocumento;
-    if (dto.nombreCompleto !== undefined) excepcion.nombreCompleto = dto.nombreCompleto;
-    if (dto.proveedorId !== undefined) excepcion.proveedorId = dto.proveedorId;
-    if (dto.ubicacionId !== undefined) excepcion.ubicacionId = dto.ubicacionId;
+    const hoy = this.fechaHoyLocal();
 
-    return this.excepcionRepo.save(excepcion);
+    // Construir el set de campos a actualizar
+    const updates: Partial<HseExcepcion> = {};
+    if (dto.sedeId !== undefined) updates.sedeId = dto.sedeId;
+    if (dto.motivo !== undefined) updates.motivo = dto.motivo.trim();
+    if (dto.tipoDocumento !== undefined)
+      updates.tipoDocumento = dto.tipoDocumento;
+    if (dto.numeroDocumento !== undefined)
+      updates.numeroDocumento = dto.numeroDocumento;
+    if (dto.nombreCompleto !== undefined)
+      updates.nombreCompleto = dto.nombreCompleto;
+    if (dto.proveedorId !== undefined) updates.proveedorId = dto.proveedorId;
+    if (dto.ubicacionId !== undefined) updates.ubicacionId = dto.ubicacionId;
+
+    // Fechas — siempre actualizamos si vienen en el DTO
+    updates.fechaInicio = this.toDateOnly(fechaInicio);
+    updates.fechaFin = this.toDateOnly(fechaFin);
+
+    // Auto-reactivar si la nueva fecha fin es hoy o futura
+    if (fechaFin >= hoy) {
+      updates.activa = true;
+    }
+
+    // update() emite un UPDATE SQL directo, evitando problemas de estado de entidad
+    await this.excepcionRepo.update(id, updates);
+
+    this.logger.log(
+      `[AUDIT] Excepción actualizada — id=${id} fechaFin=${fechaFin} activa=${updates.activa ?? 'sin cambio'}`,
+    );
+
+    return this.excepcionRepo.findOne({ where: { id } });
   }
 
   private validarBase(
@@ -226,10 +283,14 @@ export class ExcepcionService {
     motivo: string | undefined,
   ) {
     if (!sedeId) throw new BadRequestException('La sede es obligatoria');
-    if (!motivo?.trim()) throw new BadRequestException('El motivo es obligatorio');
-    if (!fechaInicio || !fechaFin) throw new BadRequestException('Las fechas son obligatorias');
+    if (!motivo?.trim())
+      throw new BadRequestException('El motivo es obligatorio');
+    if (!fechaInicio || !fechaFin)
+      throw new BadRequestException('Las fechas son obligatorias');
     if (new Date(fechaFin) < new Date(fechaInicio)) {
-      throw new BadRequestException('La fecha fin no puede ser menor a la fecha inicio');
+      throw new BadRequestException(
+        'La fecha fin no puede ser menor a la fecha inicio',
+      );
     }
   }
 
@@ -268,12 +329,17 @@ export class ExcepcionService {
   }
 
   private fechaHoyLocal(): string {
-    return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota' }).format(new Date());
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Bogota',
+    }).format(new Date());
   }
 
   private toDateOnly(value: string): Date {
-    const [year, month, day] = value.split('-').map(Number);
-    return new Date(Date.UTC(year, month - 1, day));
+    const dateOnly = value.slice(0, 10);
+    const [year, month, day] = dateOnly.split('-').map(Number);
+    // Usar mediodía UTC (12:00) para evitar que el offset de Colombia (UTC-5)
+    // cruce la medianoche y almacene el día anterior en MySQL.
+    return new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
   }
 
   private formatFecha(fecha: Date | string): string {

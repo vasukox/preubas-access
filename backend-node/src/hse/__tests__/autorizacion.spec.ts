@@ -38,7 +38,9 @@ describe('AutorizacionService', () => {
         AutorizacionService,
         {
           provide: CodigoGeneratorService,
-          useValue: { generarCodigo: jest.fn().mockResolvedValue('HSE-2023-0001') },
+          useValue: {
+            generarCodigo: jest.fn().mockResolvedValue('HSE-2023-0001'),
+          },
         },
         {
           provide: getRepositoryToken(HseAutorizacion),
@@ -98,7 +100,15 @@ describe('AutorizacionService', () => {
         fecha_fin: '2023-12-31',
         tipo_contratista: 'NORMAL' as any,
         descripcion_actividad: 'Prueba',
-        contratistas: [{ nombres: 'Juan', apellidos: 'Perez', tipo_documento: 'CC' as any, numero_documento: '123', email: 'j@test.com' }],
+        contratistas: [
+          {
+            nombres: 'Juan',
+            apellidos: 'Perez',
+            tipo_documento: 'CC' as any,
+            numero_documento: '123',
+            email: 'j@test.com',
+          },
+        ],
       };
 
       qrMock.manager.save.mockResolvedValueOnce({ id: 1 }); // Save Aut
@@ -120,7 +130,15 @@ describe('AutorizacionService', () => {
         fecha_fin: '2023-12-31',
         tipo_contratista: 'NORMAL' as any,
         descripcion_actividad: 'Prueba',
-        contratistas: [{ nombres: 'Juan', apellidos: 'Perez', tipo_documento: 'CC' as any, numero_documento: '123', email: 'j@test.com' }],
+        contratistas: [
+          {
+            nombres: 'Juan',
+            apellidos: 'Perez',
+            tipo_documento: 'CC' as any,
+            numero_documento: '123',
+            email: 'j@test.com',
+          },
+        ],
       };
 
       qrMock.manager.save.mockRejectedValueOnce(new Error('DB Error'));

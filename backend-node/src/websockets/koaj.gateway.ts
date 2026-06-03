@@ -33,7 +33,12 @@ export interface WSEvent {
 }
 
 // Roles que tienen acceso a TODAS las sedes sin restricción de sede asignada
-const ROLES_MULTISEDE = new Set(['ADMIN_GLOBAL', 'ADMIN_HSE', 'GESTION_HSE', 'VISUALIZADOR']);
+const ROLES_MULTISEDE = new Set([
+  'ADMIN_GLOBAL',
+  'ADMIN_HSE',
+  'GESTION_HSE',
+  'VISUALIZADOR',
+]);
 
 /**
  * KoajGateway — WebSocket de tiempo real para KOAJ Access.
@@ -86,7 +91,7 @@ export class KoajGateway implements OnGatewayConnection, OnGatewayDisconnect {
     try {
       // URL del frontend: /ws?sede_id={sedeId}&token={JWT}
       const rawUrl = request.url ?? '/';
-      
+
       // Manejar tanto "/ws?..." como "/api/v1/ws?..."
       // Buscamos el "?" para obtener los params independientemente del path
       const queryString = rawUrl.includes('?') ? rawUrl.split('?')[1] : '';
@@ -138,7 +143,6 @@ export class KoajGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.on('message', (raw: Buffer) => {
         this.handleClientMessage(client, raw);
       });
-
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Error desconocido';
       this.logger.warn(`[WS] ❌ Token rechazado: ${message}`);
@@ -242,7 +246,9 @@ export class KoajGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
     });
 
-    this.logger.debug(`[WS] broadcastAll(${event.type}): ${enviados} cliente(s)`);
+    this.logger.debug(
+      `[WS] broadcastAll(${event.type}): ${enviados} cliente(s)`,
+    );
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -264,11 +270,17 @@ export class KoajGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   /** Snapshot de conexiones activas (para admin/debug) */
-  getConnectionsSnapshot(): Array<{ sedeId: number; email: string; roles: string[] }> {
-    return Array.from(this.clients.values()).map(({ sedeId, email, roles }) => ({
-      sedeId,
-      email,
-      roles,
-    }));
+  getConnectionsSnapshot(): Array<{
+    sedeId: number;
+    email: string;
+    roles: string[];
+  }> {
+    return Array.from(this.clients.values()).map(
+      ({ sedeId, email, roles }) => ({
+        sedeId,
+        email,
+        roles,
+      }),
+    );
   }
 }

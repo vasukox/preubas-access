@@ -24,7 +24,7 @@
 
 import { useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
-import { useAuthStore, useUIStore, useWSStore, useAlertsStore, useSedeStore } from '@/store'
+import { useAuthStore, useUIStore, useWSStore, useSedeStore, useNotificacionesStore } from '@/store'
 import { Sidebar, NAV_ITEMS } from './Sidebar'
 import { Topbar } from './Topbar'
 import { hseService } from '@/services/hse.service'
@@ -32,8 +32,9 @@ import { hseService } from '@/services/hse.service'
 export default function AppLayout() {
   const { usuario, hasAnyRole, clearSession }          = useAuthStore()
   const { sidebarCollapsed, toggleSidebar, themeMode, toggleTheme } = useUIStore()
-  const { noLeidas }                                   = useAlertsStore()
   const { sedeActiva, sedes, setSedes, setSedeActiva } = useSedeStore()
+  const notificacionesConteo = useNotificacionesStore(s => s.conteo)
+  const fetchConteo          = useNotificacionesStore(s => s.fetchConteo)
   const location                                       = useLocation()
 
   // Cargar sedes disponibles al montar el layout
@@ -71,6 +72,13 @@ export default function AppLayout() {
     }).catch((e) => { console.error('[AppLayout] Error al cargar sedes:', e) })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Polling de conteo de notificaciones cada 30 segundos
+  useEffect(() => {
+    void fetchConteo()
+    const interval = setInterval(() => { void fetchConteo() }, 30_000)
+    return () => clearInterval(interval)
+  }, [fetchConteo])
 
   // Fix code review: connect y disconnect como referencias estables del store
   const connect    = useWSStore((s) => s.connect)
@@ -117,7 +125,7 @@ export default function AppLayout() {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         <Topbar
           usuario={usuario}
-          noLeidas={noLeidas}
+          noLeidas={notificacionesConteo}
           paginaActual={paginaActual}
           onMenuClick={toggleSidebar}
           themeMode={themeMode}

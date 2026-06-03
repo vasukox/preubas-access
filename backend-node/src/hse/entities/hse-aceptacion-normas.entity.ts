@@ -13,7 +13,12 @@ export class HseAceptacionNormas extends BaseEntity {
   @Column({ name: 'acepto_datos', type: 'boolean', default: false })
   aceptoDatos: boolean;
 
-  @Column({ name: 'firma_digital', type: 'varchar', length: 200, nullable: true })
+  @Column({
+    name: 'firma_digital',
+    type: 'varchar',
+    length: 200,
+    nullable: true,
+  })
   firmaDigital: string;
 
   @Column({ name: 'fecha_aceptacion', type: 'datetime', nullable: true })
@@ -22,7 +27,11 @@ export class HseAceptacionNormas extends BaseEntity {
   @Column({ name: 'ip_address', type: 'varchar', length: 45, nullable: true })
   ipAddress: string;
 
-  @OneToOne(() => HseContratista, (contratista) => contratista.aceptacionNormas, { onDelete: 'CASCADE' })
+  @OneToOne(
+    () => HseContratista,
+    (contratista) => contratista.aceptacionNormas,
+    { onDelete: 'CASCADE' },
+  )
   @JoinColumn({ name: 'contratista_id' })
   contratista: HseContratista;
 }

@@ -14,10 +14,20 @@ export class HseSegSocial extends BaseEntity {
   @Column({ name: 'es_titular', type: 'boolean', default: true })
   esTitular: boolean;
 
-  @Column({ name: 'nombre_persona', type: 'varchar', length: 150, nullable: true })
+  @Column({
+    name: 'nombre_persona',
+    type: 'varchar',
+    length: 150,
+    nullable: true,
+  })
   nombrePersona: string;
 
-  @Column({ name: 'cedula_persona', type: 'varchar', length: 30, nullable: true })
+  @Column({
+    name: 'cedula_persona',
+    type: 'varchar',
+    length: 30,
+    nullable: true,
+  })
   cedulaPersona: string;
 
   @Column({ name: 'eps_id', type: 'int', nullable: true })
@@ -41,22 +51,46 @@ export class HseSegSocial extends BaseEntity {
   @Column({ name: 'pila_tipo', type: 'enum', enum: PilaTipo, nullable: true })
   pilaTipo: PilaTipo;
 
-  @Column({ name: 'pila_estado', type: 'enum', enum: PilaEstado, nullable: true })
+  @Column({
+    name: 'pila_estado',
+    type: 'enum',
+    enum: PilaEstado,
+    nullable: true,
+  })
   pilaEstado: PilaEstado;
 
-  @Column({ name: 'pila_archivo', type: 'varchar', length: 500, nullable: true })
+  @Column({
+    name: 'pila_archivo',
+    type: 'varchar',
+    length: 500,
+    nullable: true,
+  })
   pilaArchivo: string;
 
   @Column({ name: 'sst_tiene_vigente', type: 'boolean', default: false })
   sstTieneVigente: boolean;
 
-  @Column({ name: 'sst_responsable_nombre', type: 'varchar', length: 150, nullable: true })
+  @Column({
+    name: 'sst_responsable_nombre',
+    type: 'varchar',
+    length: 150,
+    nullable: true,
+  })
   sstResponsableNombre: string;
 
-  @Column({ name: 'sst_resolucion_registro', type: 'varchar', length: 100, nullable: true })
+  @Column({
+    name: 'sst_resolucion_registro',
+    type: 'varchar',
+    length: 100,
+    nullable: true,
+  })
   sstResolucionRegistro: string;
 
-  @ManyToOne(() => HseContratista, (contratista) => contratista.seguridadSocial, { onDelete: 'CASCADE' })
+  @ManyToOne(
+    () => HseContratista,
+    (contratista) => contratista.seguridadSocial,
+    { onDelete: 'CASCADE' },
+  )
   @JoinColumn({ name: 'contratista_id' })
   contratista: HseContratista;
 

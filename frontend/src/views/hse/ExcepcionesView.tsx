@@ -156,8 +156,8 @@ function ModalEditarExcepcion({
   const [nombreCompleto, setNombreCompleto] = useState(formatDisplayName(excepcion))
   const [proveedorId, setProveedorId] = useState<string>(excepcion.proveedor_id ? String(excepcion.proveedor_id) : '')
   const [motivo, setMotivo] = useState(excepcion.motivo || '')
-  const [fechaInicio, setFechaInicio] = useState(excepcion.fecha_inicio)
-  const [fechaFin, setFechaFin] = useState(excepcion.fecha_fin)
+  const [fechaInicio, setFechaInicio] = useState((excepcion.fecha_inicio ?? '').slice(0, 10))
+  const [fechaFin, setFechaFin] = useState((excepcion.fecha_fin ?? '').slice(0, 10))
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 

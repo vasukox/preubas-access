@@ -80,8 +80,9 @@ function ContratistaBadge({ estado }: { estado: EstadoContratista }) {
     EN_REVISION:             { color: '#5668B8',              bg: 'rgba(86,104,184,0.08)' },
     APROBADO:                { color: 'var(--success-400)',   bg: 'rgba(40,149,108,0.08)' },
     DENEGADO:                { color: 'var(--danger-400)',    bg: 'rgba(192,80,80,0.08)' },
+    ARCHIVADO:               { color: 'var(--text-muted)',    bg: 'var(--bg-raised)' },
   }
-  const { color, bg } = colores[estado]
+  const { color, bg } = colores[estado] ?? { color: 'var(--text-muted)', bg: 'var(--bg-raised)' }
   return (
     <span style={{
       padding:      '3px 8px',

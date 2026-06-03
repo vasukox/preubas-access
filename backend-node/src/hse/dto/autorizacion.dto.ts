@@ -1,6 +1,18 @@
-import { IsNotEmpty, IsInt, IsOptional, IsEnum, IsString, IsDateString, ValidateNested, IsArray } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsInt,
+  IsOptional,
+  IsEnum,
+  IsString,
+  IsDateString,
+  ValidateNested,
+  IsArray,
+} from 'class-validator';
 import { Type } from 'class-transformer';
-import { TipoContratista, EstadoAutorizacion } from '../../common/enums/hse.enum';
+import {
+  TipoContratista,
+  EstadoAutorizacion,
+} from '../../common/enums/hse.enum';
 import { CreateContratistaDto } from './contratista.dto';
 
 export class CreateAutorizacionDto {

@@ -32,7 +32,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       ) {
         message = exceptionResponse.message.join(', ');
         code = 'VALIDATION_ERROR';
-      } 
+      }
       // 2. Manejo si el error ya viene en el formato estándar de Koaj Access  { error: { code, message } }
       else if (
         typeof exceptionResponse === 'object' &&
@@ -50,7 +50,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       ) {
         message = exceptionResponse.message;
         code = exceptionResponse.code;
-      } 
+      }
       // 4. Fallback genérico para otros HttpException
       else {
         message = exceptionResponse.message || exception.message;

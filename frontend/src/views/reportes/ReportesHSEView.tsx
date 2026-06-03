@@ -4,6 +4,7 @@
  */
 
 import { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import {
   ShieldCheck, Download, Search,
@@ -42,19 +43,21 @@ function daysAgo(n: number) {
 }
 
 // ── Componentes pequeños ──────────────────────────────────────────
-function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
+function StatCard({ label, value, sub, color }: { label: string; value: string | number; sub?: string; color?: string }) {
   return (
     <div style={{
       background: 'var(--bg-surface)',
       border: '1px solid var(--border-subtle)',
+      borderTop: `3px solid ${color ?? 'var(--border-default)'}`,
       borderRadius: 'var(--radius-lg)',
       padding: '16px 20px',
       display: 'flex', flexDirection: 'column', gap: '4px',
+      boxShadow: 'var(--shadow-card)',
     }}>
       <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', letterSpacing: '0.08em', fontWeight: 600 }}>
         {label.toUpperCase()}
       </span>
-      <span style={{ fontSize: '1.6rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--text-primary)', lineHeight: 1 }}>
+      <span style={{ fontSize: '1.6rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: color ?? 'var(--text-primary)', lineHeight: 1 }}>
         {value}
       </span>
       {sub && (
@@ -70,12 +73,11 @@ function QuickDate({ label, days, current, onClick }: { label: string; days: num
     <button
       onClick={onClick}
       style={{
-        padding: '5px 11px', fontSize: '0.73rem', fontWeight: 600,
-        background: active ? 'var(--gradient-primary)' : 'var(--bg-elevated)',
-        border: `1px solid ${active ? 'transparent' : 'var(--border-default)'}`,
+        padding: '6px 10px', fontSize: '0.72rem', fontWeight: 600,
+        background: active ? 'rgba(86,104,184,0.15)' : 'var(--bg-elevated)',
+        border: `1px solid ${active ? 'var(--primary-400)' : 'var(--border-default)'}`,
         borderRadius: 'var(--radius-md)',
-        color: active ? '#fff' : 'var(--text-secondary)',
-        boxShadow: active ? '0 1px 3px rgba(59,130,246,0.18)' : 'none',
+        color: active ? 'var(--primary-400)' : 'var(--text-muted)',
         cursor: 'pointer', fontFamily: 'var(--font-mono)',
         transition: 'all 0.15s',
       }}
@@ -273,6 +275,7 @@ export default function ReportesHSEView() {
   }
 
   const totalPages = data?.pages ?? 1
+  const navigate = useNavigate()
 
   if (!sedeId) {
     return (
@@ -284,6 +287,16 @@ export default function ReportesHSEView() {
 
   return (
     <div style={{ padding: '28px 32px', maxWidth: '1200px' }}>
+
+      {/* ── Breadcrumb ── */}
+      <button
+        onClick={() => navigate('/reportes')}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: '0.78rem', fontFamily: 'var(--font-ui)', marginBottom: '16px', padding: '0' }}
+        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
+        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
+      >
+        <ChevronLeft size={14} /> Reportes
+      </button>
 
       {/* ── Header ── */}
       <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
@@ -303,34 +316,11 @@ export default function ReportesHSEView() {
         </div>
 
         <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-          <button
-            onClick={() => void refetch()}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '6px',
-              padding: '8px 12px', background: 'var(--bg-surface)',
-              border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)',
-              color: 'var(--text-secondary)', fontSize: '0.78rem', cursor: 'pointer',
-              fontFamily: 'var(--font-ui)',
-            }}
-          >
+          <button className="btn-ghost" onClick={() => void refetch()}>
             <RefreshCw size={13} style={{ animation: isFetching ? 'spin 1s linear infinite' : 'none' }} />
             {isFetching ? 'Actualizando…' : 'Actualizar'}
           </button>
-          <button
-            onClick={handleExport}
-            disabled={!rows.length}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '6px',
-              padding: '8px 14px',
-              background: rows.length ? 'var(--bg-surface)' : 'var(--bg-elevated)',
-              border: `1px solid ${rows.length ? 'var(--success-400)' : 'var(--border-subtle)'}`,
-              borderRadius: 'var(--radius-md)',
-              color: rows.length ? 'var(--success-400)' : 'var(--text-muted)',
-              fontSize: '0.78rem', fontWeight: 600,
-              cursor: rows.length ? 'pointer' : 'not-allowed',
-              fontFamily: 'var(--font-ui)',
-            }}
-          >
+          <button className="btn-ghost" onClick={handleExport} disabled={!rows.length}>
             <Download size={13} />
             Exportar Excel
           </button>
@@ -339,10 +329,10 @@ export default function ReportesHSEView() {
 
       {/* ── KPIs ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px', marginBottom: '20px' }}>
-        <StatCard label="Total registros" value={total} />
-        <StatCard label="Aprobadas" value={aprobadas} sub={total > 0 ? `${tasaAprobacion}% del período` : undefined} />
-        <StatCard label="No aprobadas" value={noAprobadas} />
-        <StatCard label="Período" value={quickDays ? `${quickDays}d` : 'Personalizado'} sub={`${fmtDate(fechaInicio)} – ${fmtDate(fechaFin)}`} />
+        <StatCard label="Total registros" value={total} color="var(--text-muted)" />
+        <StatCard label="Aprobadas"       value={aprobadas}   color="var(--success-400)" sub={total > 0 ? `${tasaAprobacion}% del período` : undefined} />
+        <StatCard label="No aprobadas"    value={noAprobadas} color="var(--danger-400)" />
+        <StatCard label="Período"         value={quickDays ? `${quickDays}d` : 'Custom'} color="var(--primary-400)" sub={`${fmtDate(fechaInicio)} – ${fmtDate(fechaFin)}`} />
       </div>
 
       {/* ── Filtros ── */}
@@ -380,18 +370,8 @@ export default function ReportesHSEView() {
           </div>
 
           {/* Toggle filtros avanzados */}
-          <button
-            onClick={() => setShowFiltros(v => !v)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '5px',
-              padding: '7px 11px', fontSize: '0.75rem',
-              background: showFiltros ? 'var(--bg-elevated)' : 'transparent',
-              border: '1px solid var(--border-default)',
-              borderRadius: 'var(--radius-md)',
-              color: 'var(--text-secondary)', cursor: 'pointer',
-              fontFamily: 'var(--font-ui)',
-            }}
-          >
+          <button className="btn-ghost" onClick={() => setShowFiltros(v => !v)}
+            style={{ background: showFiltros ? 'var(--bg-elevated)' : undefined }}>
             <SlidersHorizontal size={12} />
             Filtros
           </button>
@@ -414,7 +394,7 @@ export default function ReportesHSEView() {
                   padding: '7px 10px', fontSize: '0.8rem',
                   background: 'var(--bg-elevated)', border: '1px solid var(--border-default)',
                   borderRadius: 'var(--radius-md)', color: 'var(--text-primary)',
-                  fontFamily: 'var(--font-mono)',
+                  fontFamily: 'var(--font-mono)', colorScheme: 'dark',
                 }}
               />
             </div>
@@ -427,7 +407,7 @@ export default function ReportesHSEView() {
                   padding: '7px 10px', fontSize: '0.8rem',
                   background: 'var(--bg-elevated)', border: '1px solid var(--border-default)',
                   borderRadius: 'var(--radius-md)', color: 'var(--text-primary)',
-                  fontFamily: 'var(--font-mono)',
+                  fontFamily: 'var(--font-mono)', colorScheme: 'dark',
                 }}
               />
             </div>

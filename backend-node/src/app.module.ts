@@ -14,6 +14,7 @@ import { HerramientasModule } from './herramientas/herramientas.module';
 import { ParkingModule } from './parking/parking.module';
 import { NfcModule } from './nfc/nfc.module';
 import { WebsocketsModule } from './websockets/websockets.module';
+import { NotificacionesModule } from './notificaciones/notificaciones.module';
 import { HerramientasController } from './herramientas/herramientas.controller';
 import { ConfigKoajController } from './config-koaj/config-koaj.controller';
 import { ProveedorController } from './persona/proveedor.controller';
@@ -44,13 +45,14 @@ import { ProveedorController } from './persona/proveedor.controller';
     PersonaModule,
 
     // ── Módulos funcionales ───────────────────────────────────────
-    HseModule,            // Fase 4 — Health, Safety & Environment
-    ConfigKoajModule,     // Fase 2 — Configuración (sedes, catálogos)
-    HerramientasModule,   // Fase 3 — Usuarios, roles, auditoría
+    HseModule, // Fase 4 — Health, Safety & Environment
+    NotificacionesModule, // Notificaciones en tiempo real para usuarios internos
+    ConfigKoajModule, // Fase 2 — Configuración (sedes, catálogos)
+    HerramientasModule, // Fase 3 — Usuarios, roles, auditoría
 
     // ── Módulos futuros (placeholders) ───────────────────────────
-    ParkingModule,        // Pendiente — Control parqueadero + LPR
-    NfcModule,            // Pendiente — Activos NFC
+    ParkingModule, // Pendiente — Control parqueadero + LPR
+    NfcModule, // Pendiente — Activos NFC
 
     // ── WebSocket en tiempo real ──────────────────────────────────
     WebsocketsModule,

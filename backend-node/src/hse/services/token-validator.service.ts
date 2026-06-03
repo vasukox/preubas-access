@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { HseContratista } from '../entities/hse-contratista.entity';
@@ -21,7 +25,9 @@ export class TokenValidatorService {
     });
 
     if (!contratista) {
-      throw new NotFoundException('Token de autogestión inválido o no encontrado');
+      throw new NotFoundException(
+        'Token de autogestión inválido o no encontrado',
+      );
     }
 
     if (contratista.tokenExpiraEn && new Date() > contratista.tokenExpiraEn) {

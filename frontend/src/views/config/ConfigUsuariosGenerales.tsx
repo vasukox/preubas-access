@@ -574,8 +574,9 @@ function estadoColor(estado: EstadoContratista): { text: string; bg: string; bor
     AUTOGESTION_EN_PROGRESO: { text: 'var(--primary-400)', bg: 'rgba(86,104,184,0.10)', border: 'rgba(86,104,184,0.35)' },
     AUTOGESTION_COMPLETADA: { text: '#5668B8', bg: 'rgba(86,104,184,0.10)', border: 'rgba(86,104,184,0.35)' },
     EN_REVISION: { text: 'var(--warning-500)', bg: 'rgba(69,116,196,0.10)', border: 'rgba(69,116,196,0.35)' },
-    APROBADO: { text: 'var(--success-400)', bg: 'rgba(40,149,108,0.10)', border: 'rgba(40,149,108,0.35)' },
-    DENEGADO: { text: 'var(--danger-400)', bg: 'rgba(192,80,80,0.10)', border: 'rgba(192,80,80,0.35)' },
+    APROBADO:  { text: 'var(--success-400)', bg: 'rgba(40,149,108,0.10)', border: 'rgba(40,149,108,0.35)' },
+    DENEGADO:  { text: 'var(--danger-400)',  bg: 'rgba(192,80,80,0.10)',  border: 'rgba(192,80,80,0.35)' },
+    ARCHIVADO: { text: 'var(--text-muted)',  bg: 'var(--bg-raised)',      border: 'var(--border-subtle)' },
   }
   return map[estado]
 }

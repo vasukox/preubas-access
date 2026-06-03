@@ -14,7 +14,8 @@ export class AutogestionTokenGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const token = request.params.token || request.body.token || request.query.token;
+    const token =
+      request.params.token || request.body.token || request.query.token;
 
     if (!token) {
       throw new UnauthorizedException('Token de autogestion requerido');
@@ -25,10 +26,17 @@ export class AutogestionTokenGuard implements CanActivate {
       request.contratista = contratista;
       return true;
     } catch (error) {
-      if (error instanceof UnauthorizedException || error instanceof NotFoundException) {
-        throw new UnauthorizedException('Token de autogestion invalido o vencido');
+      if (
+        error instanceof UnauthorizedException ||
+        error instanceof NotFoundException
+      ) {
+        throw new UnauthorizedException(
+          'Token de autogestion invalido o vencido',
+        );
       }
-      throw new InternalServerErrorException('Error interno al validar el token de autogestion');
+      throw new InternalServerErrorException(
+        'Error interno al validar el token de autogestion',
+      );
     }
   }
 }

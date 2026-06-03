@@ -1,4 +1,17 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Query, ParseIntPipe, DefaultValuePipe, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  Query,
+  ParseIntPipe,
+  DefaultValuePipe,
+  Req,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { HerramientasService } from './herramientas.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -29,11 +42,18 @@ export class HerramientasController {
   @Post('usuarios')
   async crearUsuario(
     @Body() dto: CreateUsuarioDto,
-    @Req() req: Request & { user: { id: number; email: string; nombreCompleto?: string } },
+    @Req()
+    req: Request & {
+      user: { id: number; email: string; nombreCompleto?: string };
+    },
   ) {
     const currentUserName = req.user.nombreCompleto || req.user.email;
-    const usuarioCreado = await this.herramientasService.crearUsuario(dto, req.user.id, currentUserName);
-    
+    const usuarioCreado = await this.herramientasService.crearUsuario(
+      dto,
+      req.user.id,
+      currentUserName,
+    );
+
     // El frontend espera { success: true, data: usuario } gracias al interceptor
     return usuarioCreado;
   }
@@ -42,28 +62,50 @@ export class HerramientasController {
   async actualizarUsuario(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateUsuarioDto,
-    @Req() req: Request & { user: { id: number; email: string; nombreCompleto?: string } },
+    @Req()
+    req: Request & {
+      user: { id: number; email: string; nombreCompleto?: string };
+    },
   ) {
     const currentUserName = req.user.nombreCompleto || req.user.email;
-    return this.herramientasService.actualizarUsuario(id, dto, req.user.id, currentUserName);
+    return this.herramientasService.actualizarUsuario(
+      id,
+      dto,
+      req.user.id,
+      currentUserName,
+    );
   }
 
   @Post('usuarios/:id/desbloquear')
   async desbloquearUsuario(
     @Param('id', ParseIntPipe) id: number,
-    @Req() req: Request & { user: { id: number; email: string; nombreCompleto?: string } },
+    @Req()
+    req: Request & {
+      user: { id: number; email: string; nombreCompleto?: string };
+    },
   ) {
     const currentUserName = req.user.nombreCompleto || req.user.email;
-    return this.herramientasService.desbloquearUsuario(id, req.user.id, currentUserName);
+    return this.herramientasService.desbloquearUsuario(
+      id,
+      req.user.id,
+      currentUserName,
+    );
   }
 
   @Delete('usuarios/:id')
   async eliminarUsuario(
     @Param('id', ParseIntPipe) id: number,
-    @Req() req: Request & { user: { id: number; email: string; nombreCompleto?: string } },
+    @Req()
+    req: Request & {
+      user: { id: number; email: string; nombreCompleto?: string };
+    },
   ) {
     const currentUserName = req.user.nombreCompleto || req.user.email;
-    await this.herramientasService.eliminarUsuario(id, req.user.id, currentUserName);
+    await this.herramientasService.eliminarUsuario(
+      id,
+      req.user.id,
+      currentUserName,
+    );
     return { message: 'Usuario eliminado correctamente' };
   }
 
@@ -78,17 +120,28 @@ export class HerramientasController {
   async actualizarPermisos(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdatePermisosDto,
-    @Req() req: Request & { user: { id: number; email: string; nombreCompleto?: string } },
+    @Req()
+    req: Request & {
+      user: { id: number; email: string; nombreCompleto?: string };
+    },
   ) {
     const currentUserName = req.user.nombreCompleto || req.user.email;
-    return this.herramientasService.actualizarPermisos(id, dto, req.user.id, currentUserName);
+    return this.herramientasService.actualizarPermisos(
+      id,
+      dto,
+      req.user.id,
+      currentUserName,
+    );
   }
 
   @Post('usuarios/:id/roles')
   async asignarRol(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: AsignarRolDto,
-    @Req() req: Request & { user: { id: number; email: string; nombreCompleto?: string } },
+    @Req()
+    req: Request & {
+      user: { id: number; email: string; nombreCompleto?: string };
+    },
   ) {
     const currentUserName = req.user.nombreCompleto || req.user.email;
     return this.herramientasService.asignarRol(
@@ -105,9 +158,17 @@ export class HerramientasController {
   async quitarRol(
     @Param('id', ParseIntPipe) id: number,
     @Param('rolNombre') rolNombre: string,
-    @Req() req: Request & { user: { id: number; email: string; nombreCompleto?: string } },
+    @Req()
+    req: Request & {
+      user: { id: number; email: string; nombreCompleto?: string };
+    },
   ) {
     const currentUserName = req.user.nombreCompleto || req.user.email;
-    return this.herramientasService.quitarRol(id, rolNombre, req.user.id, currentUserName);
+    return this.herramientasService.quitarRol(
+      id,
+      rolNombre,
+      req.user.id,
+      currentUserName,
+    );
   }
 }

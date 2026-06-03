@@ -14,16 +14,30 @@ export class HseCertificaciones extends BaseEntity {
   @Column({ name: 'art_archivo', type: 'varchar', length: 500, nullable: true })
   artArchivo: string;
 
-  @Column({ name: 'permiso_tipo', type: 'enum', enum: PermisoTipo, nullable: true })
+  @Column({
+    name: 'permiso_tipo',
+    type: 'enum',
+    enum: PermisoTipo,
+    nullable: true,
+  })
   permisoTipo: PermisoTipo;
 
   @Column({ name: 'permiso_fecha', type: 'date', nullable: true })
   permisoFecha: Date;
 
-  @Column({ name: 'permiso_archivo', type: 'varchar', length: 500, nullable: true })
+  @Column({
+    name: 'permiso_archivo',
+    type: 'varchar',
+    length: 500,
+    nullable: true,
+  })
   permisoArchivo: string;
 
-  @OneToOne(() => HseContratista, (contratista) => contratista.certificaciones, { onDelete: 'CASCADE' })
+  @OneToOne(
+    () => HseContratista,
+    (contratista) => contratista.certificaciones,
+    { onDelete: 'CASCADE' },
+  )
   @JoinColumn({ name: 'contratista_id' })
   contratista: HseContratista;
 }

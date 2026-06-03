@@ -7,8 +7,17 @@
 import { get, post, put, del, upload, fetchBlob } from './api'
 import type { SedeBasica } from '@/types'
 import type {
+  // Archivado
+  SolicitudArchivadoResponse,
+  AprobarArchivadoRequest,
+  RechazarArchivadoRequest,
   // Reportes
   ReporteCumplimientoResponse,
+  ReporteAccesoRow,
+  ReporteVencimientoRow,
+  ReporteContratistasResponse,
+  ReporteAutorizacionesResponse,
+  ChartDataResponse,
   // Contratistas
   ContratistaEliminarRequest,
   ContratistaEliminarAdjuntoRequest,
@@ -124,16 +133,18 @@ export const hseService = {
 
   // ── Autorizaciones ─────────────────────────────────────────────
   listarAutorizaciones: (params: {
-    sede_id:   number
-    estado?:   string
-    page?:     number
-    per_page?: number
+    sede_id:              number
+    estado?:              string
+    page?:                number
+    per_page?:            number
+    incluir_excepciones?: boolean
   }) => {
     const query = new URLSearchParams()
     query.set('sede_id', String(params.sede_id))
-    if (params.estado)   query.set('estado',   params.estado)
-    if (params.page)     query.set('page',     String(params.page))
-    if (params.per_page) query.set('per_page', String(params.per_page))
+    if (params.estado)              query.set('estado',              params.estado)
+    if (params.page)                query.set('page',                String(params.page))
+    if (params.per_page)            query.set('per_page',            String(params.per_page))
+    if (params.incluir_excepciones) query.set('incluir_excepciones', 'true')
     return get<AutorizacionListResponse[]>(`/hse/autorizaciones?${query.toString()}`)
   },
 
@@ -299,6 +310,77 @@ export const hseService = {
     if (params.limit)        qs.set('limit',        String(params.limit))
     return get<ReporteCumplimientoResponse>(`/hse/reportes/cumplimiento?${qs.toString()}`)
   },
+
+  getReporteAccesos: (params: {
+    sede_id?:      number
+    contratista_id?: number
+    fecha_inicio?: string
+    fecha_fin?:    string
+  }) => {
+    const qs = new URLSearchParams()
+    if (params.sede_id)        qs.set('sede_id',        String(params.sede_id))
+    if (params.contratista_id) qs.set('contratista_id', String(params.contratista_id))
+    if (params.fecha_inicio)   qs.set('fecha_inicio',   params.fecha_inicio)
+    if (params.fecha_fin)      qs.set('fecha_fin',      params.fecha_fin)
+    return get<ReporteAccesoRow[]>(`/hse/reportes/accesos?${qs.toString()}`)
+  },
+
+  getReporteVencimientos: (params: { sede_id?: number }) => {
+    const qs = new URLSearchParams()
+    if (params.sede_id) qs.set('sede_id', String(params.sede_id))
+    return get<ReporteVencimientoRow[]>(`/hse/reportes/vencimientos?${qs.toString()}`)
+  },
+
+  getReporteContratistas: (params: {
+    sede_id?:      number
+    estado?:       string
+    fecha_inicio?: string
+    fecha_fin?:    string
+    page?:         number
+    limit?:        number
+  }) => {
+    const qs = new URLSearchParams()
+    if (params.sede_id)      qs.set('sede_id',      String(params.sede_id))
+    if (params.estado)       qs.set('estado',       params.estado)
+    if (params.fecha_inicio) qs.set('fecha_inicio', params.fecha_inicio)
+    if (params.fecha_fin)    qs.set('fecha_fin',    params.fecha_fin)
+    if (params.page)         qs.set('page',         String(params.page))
+    if (params.limit)        qs.set('limit',        String(params.limit))
+    return get<ReporteContratistasResponse>(`/hse/reportes/contratistas?${qs.toString()}`)
+  },
+
+  getReporteAutorizaciones: (params: {
+    sede_id?:         number
+    estado?:          string
+    tipo_contratista?: string
+    fecha_inicio?:    string
+    fecha_fin?:       string
+    page?:            number
+    limit?:           number
+  }) => {
+    const qs = new URLSearchParams()
+    if (params.sede_id)          qs.set('sede_id',          String(params.sede_id))
+    if (params.estado)           qs.set('estado',           params.estado)
+    if (params.tipo_contratista) qs.set('tipo_contratista', params.tipo_contratista)
+    if (params.fecha_inicio)     qs.set('fecha_inicio',     params.fecha_inicio)
+    if (params.fecha_fin)        qs.set('fecha_fin',        params.fecha_fin)
+    if (params.page)             qs.set('page',             String(params.page))
+    if (params.limit)            qs.set('limit',            String(params.limit))
+    return get<ReporteAutorizacionesResponse>(`/hse/reportes/autorizaciones?${qs.toString()}`)
+  },
+
+  getChartData: (sedeId: number) =>
+    get<ChartDataResponse>(`/hse/reportes/charts?sede_id=${sedeId}`),
+
+  // ── Archivado ──────────────────────────────────────────────────
+  getColaArchivado: () =>
+    get<SolicitudArchivadoResponse[]>('/hse/archivado/cola'),
+
+  aprobarArchivado: (contratistaId: number, data: AprobarArchivadoRequest) =>
+    post<SolicitudArchivadoResponse>(`/hse/archivado/${contratistaId}/aprobar`, data),
+
+  rechazarArchivado: (contratistaId: number, data: RechazarArchivadoRequest) =>
+    post<SolicitudArchivadoResponse>(`/hse/archivado/${contratistaId}/rechazar`, data),
 
   // ── Archivos de autogestión (admin) ───────────────────────────
   previsualizarArchivo: async (path: string): Promise<string> => {

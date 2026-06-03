@@ -11,10 +11,10 @@ import { Usuario } from '../entities/usuario.entity';
  * Payload del JWT — coincide con lo que crea AuthService al generar tokens.
  */
 interface JwtPayload {
-  sub: number;     // usuario_id
+  sub: number; // usuario_id
   email: string;
   roles: string[];
-  dcp: boolean;    // debe_cambiar_password
+  dcp: boolean; // debe_cambiar_password
   iat?: number;
   exp?: number;
 }

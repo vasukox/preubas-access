@@ -15,9 +15,10 @@ export interface ApiResponse<T> {
 }
 
 @Injectable()
-export class ApiResponseInterceptor<T>
-  implements NestInterceptor<T, ApiResponse<T>>
-{
+export class ApiResponseInterceptor<T> implements NestInterceptor<
+  T,
+  ApiResponse<T>
+> {
   constructor(private readonly reflector: Reflector) {}
 
   intercept(
@@ -28,7 +29,12 @@ export class ApiResponseInterceptor<T>
       map((res) => {
         // Si el controlador ya retornó el objeto con el formato (e.g. porque necesitaba pasar un 'message' custom),
         // lo dejamos tal cual.
-        if (res && typeof res === 'object' && 'success' in res && 'data' in res) {
+        if (
+          res &&
+          typeof res === 'object' &&
+          'success' in res &&
+          'data' in res
+        ) {
           return res;
         }
 

@@ -2,9 +2,9 @@ import { Entity, Column } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 
 export enum TipoContratistaConfig {
-  NORMAL      = 'NORMAL',
+  NORMAL = 'NORMAL',
   ALTO_RIESGO = 'ALTO_RIESGO',
-  EXCEPCION   = 'EXCEPCION',
+  EXCEPCION = 'EXCEPCION',
 }
 
 /**
@@ -40,6 +40,10 @@ export class ConfigTiemposContratista extends BaseEntity {
   requiereExamenMedico: boolean;
 
   /** Si este tipo de contratista debe adjuntar seguridad social. */
-  @Column({ name: 'requiere_seguridad_social', type: 'boolean', default: false })
+  @Column({
+    name: 'requiere_seguridad_social',
+    type: 'boolean',
+    default: false,
+  })
   requiereSeguridadSocial: boolean;
 }

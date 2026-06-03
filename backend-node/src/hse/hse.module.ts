@@ -1,6 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PersonaModule } from '../persona/persona.module';
+import { NotificacionesModule } from '../notificaciones/notificaciones.module';
+import { Usuario } from '../auth/entities/usuario.entity';
+import { UsuarioRol } from '../auth/entities/usuario-rol.entity';
+import { Rol } from '../auth/entities/rol.entity';
 
 // ── Entities comunes ────────────────────────────────────────────────────────
 import { Sede } from '../sede/entities/sede.entity';
@@ -30,6 +34,7 @@ import { HseCumplimiento } from './entities/hse-cumplimiento.entity';
 import { HseCumplimientoItem } from './entities/hse-cumplimiento-item.entity';
 import { HseExcepcion } from './entities/hse-excepcion.entity';
 import { HseHistorial } from './entities/hse-historial.entity';
+import { HseSolicitudArchivado } from './entities/hse-solicitud-archivado.entity';
 
 import { HseController } from './hse.controller';
 import { HseService } from './hse.service';
@@ -44,6 +49,8 @@ import { ValidacionService } from './services/validacion.service';
 import { ExcepcionService } from './services/excepcion.service';
 import { ReportesService } from './services/reportes.service';
 import { UploadSecurityService } from './services/upload-security.service';
+import { ArchivadoService } from './services/archivado.service';
+import { DepuracionCronService } from './services/depuracion-cron.service';
 
 /**
  * HseModule — registra todas las entidades del módulo HSE en TypeORM.
@@ -53,6 +60,7 @@ import { UploadSecurityService } from './services/upload-security.service';
 @Module({
   imports: [
     PersonaModule,
+    NotificacionesModule,
     TypeOrmModule.forFeature([
       Sede,
       ConfigTiemposContratista,
@@ -78,6 +86,12 @@ import { UploadSecurityService } from './services/upload-security.service';
       // Control
       HseExcepcion,
       HseHistorial,
+      // Archivado
+      HseSolicitudArchivado,
+      // Auth entities necesarias para el cron
+      Usuario,
+      UsuarioRol,
+      Rol,
     ]),
   ],
   controllers: [HseController],
@@ -94,6 +108,8 @@ import { UploadSecurityService } from './services/upload-security.service';
     ExcepcionService,
     ReportesService,
     UploadSecurityService,
+    ArchivadoService,
+    DepuracionCronService,
   ],
   exports: [TypeOrmModule],
 })

@@ -10,9 +10,7 @@ import { ConfigService } from './config.service';
  *   - timezone: UTC
  *   - synchronize: false (nunca modificar esquema en producción)
  */
-export function getDatabaseConfig(
-  config: ConfigService,
-): TypeOrmModuleOptions {
+export function getDatabaseConfig(config: ConfigService): TypeOrmModuleOptions {
   return {
     type: 'mysql',
     host: config.databaseHost,

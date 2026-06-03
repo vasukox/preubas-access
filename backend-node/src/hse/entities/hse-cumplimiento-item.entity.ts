@@ -22,7 +22,9 @@ export class HseCumplimientoItem extends BaseEntity {
   @Column({ type: 'int', nullable: false })
   orden: number;
 
-  @ManyToOne(() => HseCumplimiento, (cumplimiento) => cumplimiento.items, { onDelete: 'CASCADE' })
+  @ManyToOne(() => HseCumplimiento, (cumplimiento) => cumplimiento.items, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'cumplimiento_id' })
   cumplimiento: HseCumplimiento;
 }

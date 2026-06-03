@@ -34,8 +34,14 @@ describe('AutogestionService', () => {
         { provide: getRepositoryToken(HseSegSocial), useValue: mockRepo },
         { provide: getRepositoryToken(HseCertificaciones), useValue: mockRepo },
         { provide: getRepositoryToken(HseExamenMedico), useValue: mockRepo },
-        { provide: getRepositoryToken(HseContactoEmergencia), useValue: mockRepo },
-        { provide: getRepositoryToken(HseAceptacionNormas), useValue: mockRepo },
+        {
+          provide: getRepositoryToken(HseContactoEmergencia),
+          useValue: mockRepo,
+        },
+        {
+          provide: getRepositoryToken(HseAceptacionNormas),
+          useValue: mockRepo,
+        },
         { provide: getRepositoryToken(HseAutorizacion), useValue: mockRepo },
         { provide: getRepositoryToken(HseHistorial), useValue: mockRepo },
       ],
@@ -53,7 +59,7 @@ describe('AutogestionService', () => {
       mockRepo.update.mockResolvedValue(true);
       mockRepo.findOne.mockResolvedValue({ id: 1, contratistaId: 1 });
 
-      const result = await service.guardarClasificacion(1, {} as any);
+      const result = await service.guardarClasificacion(1, {});
       expect(mockRepo.update).toHaveBeenCalled();
       expect(result).toBeDefined();
     });
@@ -61,12 +67,18 @@ describe('AutogestionService', () => {
 
   describe('finalizarAutogestion', () => {
     it('should change contractor state to AUTOGESTION_COMPLETADA', async () => {
-      const contratista = { id: 1, estado: EstadoContratista.PENDIENTE_AUTOGESTION };
+      const contratista = {
+        id: 1,
+        estado: EstadoContratista.PENDIENTE_AUTOGESTION,
+      };
       mockRepo.findOne.mockResolvedValue(contratista);
-      mockRepo.save.mockResolvedValue({ ...contratista, estado: EstadoContratista.AUTOGESTION_COMPLETADA });
+      mockRepo.save.mockResolvedValue({
+        ...contratista,
+        estado: EstadoContratista.AUTOGESTION_COMPLETADA,
+      });
 
       const result = await service.finalizarAutogestion(1);
-      
+
       expect(mockRepo.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
       expect(mockRepo.save).toHaveBeenCalled();
       expect(contratista.estado).toBe(EstadoContratista.AUTOGESTION_COMPLETADA);
@@ -75,7 +87,9 @@ describe('AutogestionService', () => {
 
     it('should throw if contractor not found', async () => {
       mockRepo.findOne.mockResolvedValue(null);
-      await expect(service.finalizarAutogestion(999)).rejects.toThrow('Contratista no encontrado');
+      await expect(service.finalizarAutogestion(999)).rejects.toThrow(
+        'Contratista no encontrado',
+      );
     });
   });
 });

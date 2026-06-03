@@ -146,30 +146,61 @@ export class AuthService {
     });
 
     // 5. Generar tokens
-    const roleObjs = usuario.roles.map((ur) => ({ id: ur.rolId, nombre: ur.rol?.nombre ?? 'UNKNOWN' }));
+    const roleObjs = usuario.roles.map((ur) => ({
+      id: ur.rolId,
+      nombre: ur.rol?.nombre ?? 'UNKNOWN',
+    }));
     const roleNames = roleObjs.map((r) => r.nombre);
-    const tokens = await this.generarTokens(usuario, roleNames, ipAddress, userAgent);
+    const tokens = await this.generarTokens(
+      usuario,
+      roleNames,
+      ipAddress,
+      userAgent,
+    );
 
     // 6. Audit log
-    await this.registrarAudit(usuario.id, usuario.nombreCompleto, 'LOGIN', 'usuario', usuario.id);
+    await this.registrarAudit(
+      usuario.id,
+      usuario.nombreCompleto,
+      'LOGIN',
+      'usuario',
+      usuario.id,
+    );
 
-    this.logger.log(`Login exitoso: ${usuario.email} desde ${ipAddress ?? 'IP desconocida'}`);
+    this.logger.log(
+      `Login exitoso: ${usuario.email} desde ${ipAddress ?? 'IP desconocida'}`,
+    );
 
     // 7. Retornar estructura exacta que espera el frontend
     // Si es ADMIN, no enviamos la sede fija para que el frontend no lo bloquee en el selector
-    const isAdmin = roleNames.includes(RolNombre.ADMIN_GLOBAL) || roleNames.includes(RolNombre.ADMIN_HSE) || roleNames.includes(RolNombre.ADMIN_GH);
+    const isAdmin =
+      roleNames.includes(RolNombre.ADMIN_GLOBAL) ||
+      roleNames.includes(RolNombre.ADMIN_HSE) ||
+      roleNames.includes(RolNombre.ADMIN_GH);
 
     const sedesAsignadas = isAdmin
       ? []
       : (usuario.sedesAsignadas ?? [])
           .filter((us) => us.sede)
-          .map((us) => ({ id: us.sede.id, nombre: us.sede.nombre, ciudad: us.sede.ciudad }));
+          .map((us) => ({
+            id: us.sede.id,
+            nombre: us.sede.nombre,
+            ciudad: us.sede.ciudad,
+          }));
 
-    const sedesFallback = !isAdmin && sedesAsignadas.length === 0 && usuario.sedeAsignada
-      ? [{ id: usuario.sedeAsignada.id, nombre: usuario.sedeAsignada.nombre, ciudad: usuario.sedeAsignada.ciudad }]
-      : [];
+    const sedesFallback =
+      !isAdmin && sedesAsignadas.length === 0 && usuario.sedeAsignada
+        ? [
+            {
+              id: usuario.sedeAsignada.id,
+              nombre: usuario.sedeAsignada.nombre,
+              ciudad: usuario.sedeAsignada.ciudad,
+            },
+          ]
+        : [];
 
-    const sedesFinales = sedesAsignadas.length > 0 ? sedesAsignadas : sedesFallback;
+    const sedesFinales =
+      sedesAsignadas.length > 0 ? sedesAsignadas : sedesFallback;
     const sedePrincipal = sedesFinales[0] ?? null;
 
     return {
@@ -187,10 +218,14 @@ export class AuthService {
         debeCambiarPassword: usuario.debeCambiarPassword,
         ultimoLogin: usuario.ultimoLogin ?? null,
         roles: roleObjs,
-        sedeAsignadaId: isAdmin ? null : (usuario.sedeAsignadaId ?? sedePrincipal?.id ?? null),
-        sedeAsignada: isAdmin ? null : (sedePrincipal
-          ? { id: sedePrincipal.id, nombre: sedePrincipal.nombre }
-          : null),
+        sedeAsignadaId: isAdmin
+          ? null
+          : (usuario.sedeAsignadaId ?? sedePrincipal?.id ?? null),
+        sedeAsignada: isAdmin
+          ? null
+          : sedePrincipal
+            ? { id: sedePrincipal.id, nombre: sedePrincipal.nombre }
+            : null,
         sedesAsignadasIds: isAdmin ? [] : sedesFinales.map((s) => s.id),
         sedesAsignadas: isAdmin ? [] : sedesFinales,
       },
@@ -231,7 +266,12 @@ export class AuthService {
     // 2. Buscar el registro del refresh token en BD
     const tokenEntity = await this.refreshTokenRepo.findOne({
       where: { jti: payload.jti, revocado: false },
-      relations: ['usuario', 'usuario.roles', 'usuario.roles.rol', 'usuario.perfil'],
+      relations: [
+        'usuario',
+        'usuario.roles',
+        'usuario.roles.rol',
+        'usuario.perfil',
+      ],
     });
 
     if (!tokenEntity || tokenEntity.expiraEn < new Date()) {
@@ -300,11 +340,17 @@ export class AuthService {
     });
 
     if (!usuario) {
-      throw new UnauthorizedException({ code: 'USUARIO_NO_ENCONTRADO', message: 'Usuario no encontrado.' });
+      throw new UnauthorizedException({
+        code: 'USUARIO_NO_ENCONTRADO',
+        message: 'Usuario no encontrado.',
+      });
     }
 
     // Verificar contraseña actual
-    const esValida = await bcrypt.compare(dto.passwordActual, usuario.passwordHash);
+    const esValida = await bcrypt.compare(
+      dto.passwordActual,
+      usuario.passwordHash,
+    );
     if (!esValida) {
       throw new BadRequestException({
         code: 'PASSWORD_INCORRECTO',
@@ -313,7 +359,10 @@ export class AuthService {
     }
 
     // Verificar que la nueva no sea igual a la actual
-    const esIgual = await bcrypt.compare(dto.passwordNueva, usuario.passwordHash);
+    const esIgual = await bcrypt.compare(
+      dto.passwordNueva,
+      usuario.passwordHash,
+    );
     if (esIgual) {
       throw new BadRequestException({
         code: 'PASSWORD_IGUAL',
@@ -353,8 +402,7 @@ export class AuthService {
     ipAddress?: string,
     userAgent?: string,
   ): Promise<TokenPair> {
-    const accessExpireSeconds =
-      this.configService.jwtAccessExpireMinutes * 60;
+    const accessExpireSeconds = this.configService.jwtAccessExpireMinutes * 60;
     const refreshExpireDays = this.configService.jwtRefreshExpireDays;
 
     // Payload del access token
@@ -400,9 +448,21 @@ export class AuthService {
     };
   }
 
-  private async findUsuarioConRelaciones(where: FindOptionsWhere<Usuario>): Promise<Usuario | null> {
-    const relacionesBase = ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada'];
-    const relacionesConSedes = [...relacionesBase, 'sedesAsignadas', 'sedesAsignadas.sede'];
+  private async findUsuarioConRelaciones(
+    where: FindOptionsWhere<Usuario>,
+  ): Promise<Usuario | null> {
+    const relacionesBase = [
+      'roles',
+      'roles.rol',
+      'perfil',
+      'permisos',
+      'sedeAsignada',
+    ];
+    const relacionesConSedes = [
+      ...relacionesBase,
+      'sedesAsignadas',
+      'sedesAsignadas.sede',
+    ];
 
     try {
       return await this.usuarioRepo.findOne({

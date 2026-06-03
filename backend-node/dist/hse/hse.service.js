@@ -69,16 +69,35 @@ let HseService = class HseService {
         });
     }
     async getDashboard(sedeId) {
-        const total = await this.autorizacionRepo.count({ where: { sedeId } });
-        const activas = await this.autorizacionRepo.count({ where: { sedeId, estado: hse_enum_1.EstadoAutorizacion.APROBADO } });
-        const pendientes = await this.autorizacionRepo.count({ where: { sedeId, estado: hse_enum_1.EstadoAutorizacion.EN_REVISION } });
-        const vencidas = await this.autorizacionRepo.count({ where: { sedeId, estado: hse_enum_1.EstadoAutorizacion.VENCIDO } });
+        const baseQb = () => this.autorizacionRepo.createQueryBuilder('a')
+            .where('a.sede_id = :sedeId', { sedeId })
+            .andWhere('a.deleted_at IS NULL')
+            .andWhere(`(
+          NOT EXISTS (
+            SELECT 1 FROM hse_contratistas c_all
+            WHERE c_all.autorizacion_id = a.id
+              AND c_all.deleted_at IS NULL
+          )
+          OR EXISTS (
+            SELECT 1 FROM hse_contratistas c_act
+            WHERE c_act.autorizacion_id = a.id
+              AND c_act.deleted_at IS NULL
+              AND c_act.estado != 'ARCHIVADO'
+          )
+        )`);
+        const [total, activas, pendientes, vencidas] = await Promise.all([
+            baseQb().getCount(),
+            baseQb().andWhere('a.estado = :e', { e: hse_enum_1.EstadoAutorizacion.APROBADO }).getCount(),
+            baseQb().andWhere('a.estado = :e', { e: hse_enum_1.EstadoAutorizacion.EN_REVISION }).getCount(),
+            baseQb().andWhere('a.estado = :e', { e: hse_enum_1.EstadoAutorizacion.VENCIDO }).getCount(),
+        ]);
         const totalContratistas = await this.contratistaRepo
             .createQueryBuilder('contratista')
             .innerJoin('contratista.autorizacion', 'autorizacion')
             .where('autorizacion.sedeId = :sedeId', { sedeId })
             .andWhere('autorizacion.deleted_at IS NULL')
             .andWhere('contratista.deleted_at IS NULL')
+            .andWhere('contratista.estado != :archivado', { archivado: hse_enum_1.EstadoContratista.ARCHIVADO })
             .getCount();
         const contratistasActivos = await this.contratistaRepo
             .createQueryBuilder('contratista')

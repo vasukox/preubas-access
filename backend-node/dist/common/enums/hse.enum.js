@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ModalidadTrabajo = exports.RiesgoClasificacion = exports.CumplimientoEstado = exports.TipoAcceso = exports.MetodoAcceso = exports.RhSanguineo = exports.RelacionEmergencia = exports.ConceptoMedico = exports.PermisoTipo = exports.PilaEstado = exports.PilaTipo = exports.ElectricoMatricula = exports.ConfinadosRol = exports.AlturasNivel = exports.TipoDocumento = exports.EstadoContratista = exports.EstadoAutorizacion = exports.TipoContratista = void 0;
+exports.ModalidadTrabajo = exports.RiesgoClasificacion = exports.CumplimientoEstado = exports.TipoAcceso = exports.MetodoAcceso = exports.RhSanguineo = exports.RelacionEmergencia = exports.ConceptoMedico = exports.PermisoTipo = exports.PilaEstado = exports.PilaTipo = exports.ElectricoMatricula = exports.ConfinadosRol = exports.AlturasNivel = exports.TipoDocumento = exports.SolicitudArchivadoEstado = exports.EstadoContratista = exports.EstadoAutorizacion = exports.TipoContratista = void 0;
 var TipoContratista;
 (function (TipoContratista) {
     TipoContratista["ALTO_RIESGO"] = "ALTO_RIESGO";
@@ -23,7 +23,14 @@ var EstadoContratista;
     EstadoContratista["EN_REVISION"] = "EN_REVISION";
     EstadoContratista["APROBADO"] = "APROBADO";
     EstadoContratista["DENEGADO"] = "DENEGADO";
+    EstadoContratista["ARCHIVADO"] = "ARCHIVADO";
 })(EstadoContratista || (exports.EstadoContratista = EstadoContratista = {}));
+var SolicitudArchivadoEstado;
+(function (SolicitudArchivadoEstado) {
+    SolicitudArchivadoEstado["PENDIENTE"] = "PENDIENTE";
+    SolicitudArchivadoEstado["APROBADO"] = "APROBADO";
+    SolicitudArchivadoEstado["RECHAZADO"] = "RECHAZADO";
+})(SolicitudArchivadoEstado || (exports.SolicitudArchivadoEstado = SolicitudArchivadoEstado = {}));
 var TipoDocumento;
 (function (TipoDocumento) {
     TipoDocumento["CC"] = "CC";

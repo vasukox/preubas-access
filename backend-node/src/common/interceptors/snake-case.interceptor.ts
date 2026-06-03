@@ -38,7 +38,9 @@ export class SnakeCaseInterceptor implements NestInterceptor {
     if (typeof value === 'object' && value !== null) {
       const result: Record<string, unknown> = {};
 
-      for (const [key, val] of Object.entries(value as Record<string, unknown>)) {
+      for (const [key, val] of Object.entries(
+        value as Record<string, unknown>,
+      )) {
         const snakeKey = this.camelToSnake(key);
         result[snakeKey] = this.transformKeys(val);
       }

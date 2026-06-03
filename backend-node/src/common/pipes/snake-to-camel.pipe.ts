@@ -1,8 +1,4 @@
-import {
-  PipeTransform,
-  Injectable,
-  BadRequestException,
-} from '@nestjs/common';
+import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
 
 /**
  * SnakeToCamelPipe — transforma snake_case → camelCase en el body de requests.
@@ -39,7 +35,9 @@ export class SnakeToCamelPipe implements PipeTransform {
     if (typeof value === 'object' && value !== null) {
       const result: Record<string, unknown> = {};
 
-      for (const [key, val] of Object.entries(value as Record<string, unknown>)) {
+      for (const [key, val] of Object.entries(
+        value as Record<string, unknown>,
+      )) {
         const camelKey = this.snakeToCamel(key);
         result[camelKey] = this.transformKeys(val);
       }

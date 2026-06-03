@@ -10,6 +10,10 @@ exports.HseModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const persona_module_1 = require("../persona/persona.module");
+const notificaciones_module_1 = require("../notificaciones/notificaciones.module");
+const usuario_entity_1 = require("../auth/entities/usuario.entity");
+const usuario_rol_entity_1 = require("../auth/entities/usuario-rol.entity");
+const rol_entity_1 = require("../auth/entities/rol.entity");
 const sede_entity_1 = require("../sede/entities/sede.entity");
 const config_tiempos_contratista_entity_1 = require("../config-koaj/entities/config-tiempos-contratista.entity");
 const cat_eps_entity_1 = require("./entities/cat-eps.entity");
@@ -29,6 +33,7 @@ const hse_cumplimiento_entity_1 = require("./entities/hse-cumplimiento.entity");
 const hse_cumplimiento_item_entity_1 = require("./entities/hse-cumplimiento-item.entity");
 const hse_excepcion_entity_1 = require("./entities/hse-excepcion.entity");
 const hse_historial_entity_1 = require("./entities/hse-historial.entity");
+const hse_solicitud_archivado_entity_1 = require("./entities/hse-solicitud-archivado.entity");
 const hse_controller_1 = require("./hse.controller");
 const hse_service_1 = require("./hse.service");
 const autorizacion_service_1 = require("./services/autorizacion.service");
@@ -42,6 +47,8 @@ const validacion_service_1 = require("./services/validacion.service");
 const excepcion_service_1 = require("./services/excepcion.service");
 const reportes_service_1 = require("./services/reportes.service");
 const upload_security_service_1 = require("./services/upload-security.service");
+const archivado_service_1 = require("./services/archivado.service");
+const depuracion_cron_service_1 = require("./services/depuracion-cron.service");
 let HseModule = class HseModule {
 };
 exports.HseModule = HseModule;
@@ -49,6 +56,7 @@ exports.HseModule = HseModule = __decorate([
     (0, common_1.Module)({
         imports: [
             persona_module_1.PersonaModule,
+            notificaciones_module_1.NotificacionesModule,
             typeorm_1.TypeOrmModule.forFeature([
                 sede_entity_1.Sede,
                 config_tiempos_contratista_entity_1.ConfigTiemposContratista,
@@ -69,6 +77,10 @@ exports.HseModule = HseModule = __decorate([
                 hse_cumplimiento_item_entity_1.HseCumplimientoItem,
                 hse_excepcion_entity_1.HseExcepcion,
                 hse_historial_entity_1.HseHistorial,
+                hse_solicitud_archivado_entity_1.HseSolicitudArchivado,
+                usuario_entity_1.Usuario,
+                usuario_rol_entity_1.UsuarioRol,
+                rol_entity_1.Rol,
             ]),
         ],
         controllers: [hse_controller_1.HseController],
@@ -85,6 +97,8 @@ exports.HseModule = HseModule = __decorate([
             excepcion_service_1.ExcepcionService,
             reportes_service_1.ReportesService,
             upload_security_service_1.UploadSecurityService,
+            archivado_service_1.ArchivadoService,
+            depuracion_cron_service_1.DepuracionCronService,
         ],
         exports: [typeorm_1.TypeOrmModule],
     })

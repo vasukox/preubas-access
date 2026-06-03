@@ -1,4 +1,12 @@
-import { IsNotEmpty, IsOptional, IsEnum, IsString, IsEmail, IsBoolean, IsInt } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsEnum,
+  IsString,
+  IsEmail,
+  IsBoolean,
+  IsInt,
+} from 'class-validator';
 import { TipoDocumento } from '../../common/enums/hse.enum';
 
 export class CreateContratistaDto {

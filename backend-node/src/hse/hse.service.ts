@@ -11,7 +11,11 @@ import { HseAutorizacion } from './entities/hse-autorizacion.entity';
 import { HseContratista } from './entities/hse-contratista.entity';
 import { HseAcceso } from './entities/hse-acceso.entity';
 import { Usuario } from '../auth/entities/usuario.entity';
-import { EstadoAutorizacion, EstadoContratista, TipoContratista } from '../common/enums/hse.enum';
+import {
+  EstadoAutorizacion,
+  EstadoContratista,
+  TipoContratista,
+} from '../common/enums/hse.enum';
 import { AccesoService } from './services/acceso.service';
 
 @Injectable()
@@ -41,36 +45,77 @@ export class HseService {
     // El guard JwtAuthGuard salta el procesamiento en rutas @Public(), por lo que
     // req.user no se popula aunque el cliente envíe token. Filtrar por rol/sede
     // aquí no es posible, y tampoco es necesario para un catálogo de solo lectura.
-    return this.sedeRepo.find({ where: { activa: true }, order: { nombre: 'ASC' } });
+    return this.sedeRepo.find({
+      where: { activa: true },
+      order: { nombre: 'ASC' },
+    });
   }
 
   async getCatalogosEps(): Promise<CatEps[]> {
-    return this.epsRepo.find({ where: { activa: true }, order: { nombre: 'ASC' } });
+    return this.epsRepo.find({
+      where: { activa: true },
+      order: { nombre: 'ASC' },
+    });
   }
 
   async getCatalogosArl(): Promise<CatArl[]> {
-    return this.arlRepo.find({ where: { activa: true }, order: { nombre: 'ASC' } });
+    return this.arlRepo.find({
+      where: { activa: true },
+      order: { nombre: 'ASC' },
+    });
   }
 
   async getCatalogosAfp(): Promise<CatAfp[]> {
-    return this.afpRepo.find({ where: { activa: true }, order: { nombre: 'ASC' } });
+    return this.afpRepo.find({
+      where: { activa: true },
+      order: { nombre: 'ASC' },
+    });
   }
 
   async getCatalogosNormas(sedeId: number): Promise<CatNormaSeguridad[]> {
     return this.normaRepo.find({
       where: [
         { activa: true, sedeId: sedeId },
-        { activa: true, sedeId: IsNull() }
+        { activa: true, sedeId: IsNull() },
       ],
-      order: { numero: 'ASC' }
+      order: { numero: 'ASC' },
     });
   }
 
   async getDashboard(sedeId: number): Promise<any> {
-    const total = await this.autorizacionRepo.count({ where: { sedeId } });
-    const activas = await this.autorizacionRepo.count({ where: { sedeId, estado: EstadoAutorizacion.APROBADO } });
-    const pendientes = await this.autorizacionRepo.count({ where: { sedeId, estado: EstadoAutorizacion.EN_REVISION } });
-    const vencidas = await this.autorizacionRepo.count({ where: { sedeId, estado: EstadoAutorizacion.VENCIDO } });
+    // Base query para el dashboard: incluye TODAS las autorizaciones (incluidas excepciones)
+    // porque son contratistas reales en el sistema. Solo excluye las que tienen
+    // todos sus contratistas archivados (ya depurados).
+    const baseQb = () =>
+      this.autorizacionRepo
+        .createQueryBuilder('a')
+        .where('a.sede_id = :sedeId', { sedeId })
+        .andWhere('a.deleted_at IS NULL').andWhere(`(
+          NOT EXISTS (
+            SELECT 1 FROM hse_contratistas c_all
+            WHERE c_all.autorizacion_id = a.id
+              AND c_all.deleted_at IS NULL
+          )
+          OR EXISTS (
+            SELECT 1 FROM hse_contratistas c_act
+            WHERE c_act.autorizacion_id = a.id
+              AND c_act.deleted_at IS NULL
+              AND c_act.estado != 'ARCHIVADO'
+          )
+        )`);
+
+    const [total, activas, pendientes, vencidas] = await Promise.all([
+      baseQb().getCount(),
+      baseQb()
+        .andWhere('a.estado = :e', { e: EstadoAutorizacion.APROBADO })
+        .getCount(),
+      baseQb()
+        .andWhere('a.estado = :e', { e: EstadoAutorizacion.EN_REVISION })
+        .getCount(),
+      baseQb()
+        .andWhere('a.estado = :e', { e: EstadoAutorizacion.VENCIDO })
+        .getCount(),
+    ]);
 
     const totalContratistas = await this.contratistaRepo
       .createQueryBuilder('contratista')
@@ -78,6 +123,9 @@ export class HseService {
       .where('autorizacion.sedeId = :sedeId', { sedeId })
       .andWhere('autorizacion.deleted_at IS NULL')
       .andWhere('contratista.deleted_at IS NULL')
+      .andWhere('contratista.estado != :archivado', {
+        archivado: EstadoContratista.ARCHIVADO,
+      })
       .getCount();
 
     const contratistasActivos = await this.contratistaRepo
@@ -86,8 +134,13 @@ export class HseService {
       .where('autorizacion.sedeId = :sedeId', { sedeId })
       .andWhere('autorizacion.deleted_at IS NULL')
       .andWhere('contratista.deleted_at IS NULL')
-      .andWhere('contratista.estado = :estado', { estado: EstadoContratista.APROBADO })
-      .select(['contratista.id AS id', 'autorizacion.tipo_contratista AS tipoContratista'])
+      .andWhere('contratista.estado = :estado', {
+        estado: EstadoContratista.APROBADO,
+      })
+      .select([
+        'contratista.id AS id',
+        'autorizacion.tipo_contratista AS tipoContratista',
+      ])
       .getRawMany();
 
     const altoRiesgoActivos = contratistasActivos.filter(
@@ -99,7 +152,9 @@ export class HseService {
 
     const personasDentro = await this.accesoService.getPersonasDentro(sedeId);
     const dentroCount = personasDentro.length;
-    const alertasActivas = personasDentro.filter((persona) => persona.alertaTiempo).length;
+    const alertasActivas = personasDentro.filter(
+      (persona) => persona.alertaTiempo,
+    ).length;
 
     return {
       totalAutorizaciones: total,

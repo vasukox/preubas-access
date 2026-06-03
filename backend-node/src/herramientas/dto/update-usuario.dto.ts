@@ -1,4 +1,10 @@
-import { IsString, MinLength, MaxLength, IsOptional, IsBoolean } from 'class-validator';
+import {
+  IsString,
+  MinLength,
+  MaxLength,
+  IsOptional,
+  IsBoolean,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class UpdateUsuarioDto {

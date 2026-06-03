@@ -15,16 +15,36 @@ export class UsuarioPermiso extends BaseEntity {
   @Column({ name: 'usuario_id', type: 'int', unique: true, nullable: false })
   usuarioId: number;
 
-  @Column({ name: 'puede_ver', type: 'boolean', default: true, nullable: false })
+  @Column({
+    name: 'puede_ver',
+    type: 'boolean',
+    default: true,
+    nullable: false,
+  })
   puedeVer: boolean;
 
-  @Column({ name: 'puede_crear', type: 'boolean', default: false, nullable: false })
+  @Column({
+    name: 'puede_crear',
+    type: 'boolean',
+    default: false,
+    nullable: false,
+  })
   puedeCrear: boolean;
 
-  @Column({ name: 'puede_editar', type: 'boolean', default: false, nullable: false })
+  @Column({
+    name: 'puede_editar',
+    type: 'boolean',
+    default: false,
+    nullable: false,
+  })
   puedeEditar: boolean;
 
-  @Column({ name: 'puede_eliminar', type: 'boolean', default: false, nullable: false })
+  @Column({
+    name: 'puede_eliminar',
+    type: 'boolean',
+    default: false,
+    nullable: false,
+  })
   puedeEliminar: boolean;
 
   @Column({ name: 'asignado_por', type: 'int', nullable: true })

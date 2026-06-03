@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, ILike } from 'typeorm';
 import { Proveedor } from './entities/proveedor.entity';
@@ -40,9 +44,13 @@ export class ProveedorService {
   }
 
   async create(dto: CreateProveedorDto): Promise<Proveedor> {
-    const existe = await this.proveedorRepo.findOne({ where: { nitProveedor: dto.nitProveedor } });
+    const existe = await this.proveedorRepo.findOne({
+      where: { nitProveedor: dto.nitProveedor },
+    });
     if (existe) {
-      throw new ConflictException(`Ya existe un proveedor con NIT ${dto.nitProveedor}`);
+      throw new ConflictException(
+        `Ya existe un proveedor con NIT ${dto.nitProveedor}`,
+      );
     }
     const proveedor = this.proveedorRepo.create(dto);
     return this.proveedorRepo.save(proveedor);
@@ -52,9 +60,13 @@ export class ProveedorService {
     const proveedor = await this.findOne(id);
 
     if (dto.nitProveedor && dto.nitProveedor !== proveedor.nitProveedor) {
-      const existe = await this.proveedorRepo.findOne({ where: { nitProveedor: dto.nitProveedor } });
+      const existe = await this.proveedorRepo.findOne({
+        where: { nitProveedor: dto.nitProveedor },
+      });
       if (existe) {
-        throw new ConflictException(`Ya existe un proveedor con NIT ${dto.nitProveedor}`);
+        throw new ConflictException(
+          `Ya existe un proveedor con NIT ${dto.nitProveedor}`,
+        );
       }
     }
 

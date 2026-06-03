@@ -1,4 +1,11 @@
-import { Entity, Column, ManyToOne, OneToMany, OneToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  JoinColumn,
+} from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { Sede } from '../../sede/entities/sede.entity';
 import { UsuarioRol } from './usuario-rol.entity';
@@ -25,7 +32,12 @@ export class Usuario extends BaseEntity {
   @Column({ type: 'varchar', length: 150, unique: true, nullable: false })
   email: string;
 
-  @Column({ name: 'password_hash', type: 'varchar', length: 255, nullable: false })
+  @Column({
+    name: 'password_hash',
+    type: 'varchar',
+    length: 255,
+    nullable: false,
+  })
   passwordHash: string;
 
   @Column({
@@ -63,7 +75,6 @@ export class Usuario extends BaseEntity {
 
   @Column({ name: 'sede_asignada_id', type: 'int', nullable: true })
   sedeAsignadaId: number | null;
-
 
   // ── Relaciones ──────────────────────────────────────────────────
 

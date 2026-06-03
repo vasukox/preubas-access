@@ -1,4 +1,11 @@
-import { Entity, Column, ManyToOne, OneToOne, OneToMany, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  OneToOne,
+  OneToMany,
+  JoinColumn,
+} from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { HseAutorizacion } from './hse-autorizacion.entity';
 import { Persona } from '../../persona/entities/persona.entity';
@@ -20,13 +27,28 @@ export class HseContratista extends BaseEntity {
   @Column({ name: 'autorizacion_id', type: 'int', nullable: false })
   autorizacionId: number;
 
-  @Column({ name: 'persona_id', type: 'int', nullable: true, comment: 'Se vincula cuando la persona ya existe en BD' })
+  @Column({
+    name: 'persona_id',
+    type: 'int',
+    nullable: true,
+    comment: 'Se vincula cuando la persona ya existe en BD',
+  })
   personaId: number;
 
-  @Column({ name: 'tipo_documento', type: 'enum', enum: TipoDocumento, nullable: false })
+  @Column({
+    name: 'tipo_documento',
+    type: 'enum',
+    enum: TipoDocumento,
+    nullable: false,
+  })
   tipoDocumento: TipoDocumento;
 
-  @Column({ name: 'numero_documento', type: 'varchar', length: 30, nullable: false })
+  @Column({
+    name: 'numero_documento',
+    type: 'varchar',
+    length: 30,
+    nullable: false,
+  })
   numeroDocumento: string;
 
   @Column({ type: 'varchar', length: 100, nullable: false })
@@ -41,36 +63,75 @@ export class HseContratista extends BaseEntity {
   @Column({ type: 'varchar', length: 20, nullable: true })
   telefono: string;
 
-  @Column({ name: 'es_extranjero', type: 'boolean', default: false, nullable: false })
+  @Column({
+    name: 'es_extranjero',
+    type: 'boolean',
+    default: false,
+    nullable: false,
+  })
   esExtranjero: boolean;
 
-  @Column({ type: 'enum', enum: EstadoContratista, default: EstadoContratista.PENDIENTE_AUTOGESTION, nullable: false })
+  @Column({
+    type: 'enum',
+    enum: EstadoContratista,
+    default: EstadoContratista.PENDIENTE_AUTOGESTION,
+    nullable: false,
+  })
   estado: EstadoContratista;
 
   @Column({ name: 'motivo_denegacion', type: 'text', nullable: true })
   motivoDenegacion: string;
 
-  @Column({ name: 'token_autogestion', type: 'varchar', length: 64, unique: true, nullable: true })
+  @Column({
+    name: 'token_autogestion',
+    type: 'varchar',
+    length: 64,
+    unique: true,
+    nullable: true,
+  })
   tokenAutogestion: string;
 
   @Column({ name: 'token_expira_en', type: 'datetime', nullable: true })
   tokenExpiraEn: Date;
 
-  @Column({ name: 'token_duracion_horas', type: 'int', nullable: true, comment: '24, 48, 72 o personalizado' })
+  @Column({
+    name: 'token_duracion_horas',
+    type: 'int',
+    nullable: true,
+    comment: '24, 48, 72 o personalizado',
+  })
   tokenDuracionHoras: number;
 
-  @Column({ name: 'autogestion_completada_en', type: 'datetime', nullable: true })
+  @Column({
+    name: 'autogestion_completada_en',
+    type: 'datetime',
+    nullable: true,
+  })
   autogestionCompletadaEn: Date;
 
-  @Column({ name: 'sst_responsable_nombre', type: 'varchar', length: 150, nullable: true })
+  @Column({
+    name: 'sst_responsable_nombre',
+    type: 'varchar',
+    length: 150,
+    nullable: true,
+  })
   sstResponsableNombre: string;
 
-  @Column({ name: 'sst_responsable_telefono', type: 'varchar', length: 20, nullable: true })
+  @Column({
+    name: 'sst_responsable_telefono',
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+  })
   sstResponsableTelefono: string;
 
   // ── Relaciones ──────────────────────────────────────────────────
 
-  @ManyToOne(() => HseAutorizacion, (autorizacion) => autorizacion.contratistas, { onDelete: 'CASCADE' })
+  @ManyToOne(
+    () => HseAutorizacion,
+    (autorizacion) => autorizacion.contratistas,
+    { onDelete: 'CASCADE' },
+  )
   @JoinColumn({ name: 'autorizacion_id' })
   autorizacion: HseAutorizacion;
 
@@ -78,30 +139,50 @@ export class HseContratista extends BaseEntity {
   @JoinColumn({ name: 'persona_id' })
   persona: Persona;
 
-  @OneToOne(() => HseClasificacion, (clasificacion) => clasificacion.contratista, { cascade: true })
+  @OneToOne(
+    () => HseClasificacion,
+    (clasificacion) => clasificacion.contratista,
+    { cascade: true },
+  )
   clasificacion: HseClasificacion;
 
-  @OneToMany(() => HseSegSocial, (segSocial) => segSocial.contratista, { cascade: true })
+  @OneToMany(() => HseSegSocial, (segSocial) => segSocial.contratista, {
+    cascade: true,
+  })
   seguridadSocial: HseSegSocial[];
 
-  @OneToOne(() => HseCertificaciones, (cert) => cert.contratista, { cascade: true })
+  @OneToOne(() => HseCertificaciones, (cert) => cert.contratista, {
+    cascade: true,
+  })
   certificaciones: HseCertificaciones;
 
-  @OneToOne(() => HseExamenMedico, (examen) => examen.contratista, { cascade: true })
+  @OneToOne(() => HseExamenMedico, (examen) => examen.contratista, {
+    cascade: true,
+  })
   examenMedico: HseExamenMedico;
 
-  @OneToOne(() => HseContactoEmergencia, (contacto) => contacto.contratista, { cascade: true })
+  @OneToOne(() => HseContactoEmergencia, (contacto) => contacto.contratista, {
+    cascade: true,
+  })
   contactoEmergencia: HseContactoEmergencia;
 
-  @OneToOne(() => HseAceptacionNormas, (aceptacion) => aceptacion.contratista, { cascade: true })
+  @OneToOne(() => HseAceptacionNormas, (aceptacion) => aceptacion.contratista, {
+    cascade: true,
+  })
   aceptacionNormas: HseAceptacionNormas;
 
   @OneToMany(() => HseAcceso, (acceso) => acceso.contratista, { cascade: true })
   accesos: HseAcceso[];
 
-  @OneToMany(() => HseCumplimiento, (cumplimiento) => cumplimiento.contratista, { cascade: true })
+  @OneToMany(
+    () => HseCumplimiento,
+    (cumplimiento) => cumplimiento.contratista,
+    { cascade: true },
+  )
   cumplimientos: HseCumplimiento[];
 
-  @OneToMany(() => HseHistorial, (historial) => historial.contratista, { cascade: true })
+  @OneToMany(() => HseHistorial, (historial) => historial.contratista, {
+    cascade: true,
+  })
   historial: HseHistorial[];
 }

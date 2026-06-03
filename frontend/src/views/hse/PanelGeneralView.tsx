@@ -1647,9 +1647,21 @@ export default function PanelGeneralView() {
                         return next
                       })}
                       title={expandedRows.has(a.id) ? 'Ocultar contratistas' : 'Ver contratistas'}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary-400)', padding: 2, display: 'flex', flexShrink: 0 }}
+                      style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 4,
+                        padding: '2px 8px',
+                        background: expandedRows.has(a.id) ? 'rgba(69,116,196,0.18)' : 'rgba(69,116,196,0.08)',
+                        border: '1px solid rgba(69,116,196,0.25)',
+                        borderRadius: '20px',
+                        color: 'var(--primary-400)',
+                        fontSize: '0.68rem', fontWeight: 600,
+                        cursor: 'pointer', flexShrink: 0,
+                        transition: 'background var(--transition-fast)',
+                      }}
                     >
-                      <ChevronDown size={13} style={{ transform: expandedRows.has(a.id) ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
+                      <Users size={9} />
+                      {a.contratistas.length} contratista{a.contratistas.length !== 1 ? 's' : ''}
+                      <ChevronDown size={10} style={{ transform: expandedRows.has(a.id) ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
                     </button>
                   )}
                 </div>
@@ -1761,32 +1773,67 @@ export default function PanelGeneralView() {
               {/* Fila expandida — lista de contratistas de la empresa */}
               {a.proveedor_id && expandedRows.has(a.id) && (
                 <div style={{
-                  gridColumn:    '1 / -1',
-                  borderTop:     '1px dashed var(--border-subtle)',
-                  paddingTop:    10,
-                  paddingBottom: 4,
-                  display:       'flex',
-                  flexWrap:      'wrap',
-                  gap:           '6px 20px',
+                  gridColumn:      '1 / -1',
+                  borderTop:       '1px solid var(--border-subtle)',
+                  paddingTop:      12,
+                  paddingBottom:   10,
+                  paddingLeft:     4,
+                  paddingRight:    4,
+                  display:         'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))',
+                  gap:             '8px',
+                  background:      'var(--bg-elevated)',
+                  borderRadius:    '0 0 var(--radius-md) var(--radius-md)',
+                  marginLeft:      -12,
+                  marginRight:     -12,
+                  marginBottom:    -8,
                 }}>
                   {a.contratistas?.map(c => (
                     <div
                       key={c.id}
                       style={{
-                        display:    'flex',
-                        alignItems: 'center',
-                        gap:        6,
-                        fontSize:   '0.75rem',
-                        color:      'var(--text-secondary)',
+                        display:      'flex',
+                        alignItems:   'center',
+                        gap:          10,
+                        padding:      '8px 10px',
+                        background:   'var(--bg-surface)',
+                        border:       '1px solid var(--border-subtle)',
+                        borderRadius: 'var(--radius-md)',
+                        transition:   'border-color var(--transition-fast)',
                       }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-default)' }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-subtle)' }}
                     >
-                      <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--primary-400)', flexShrink: 0 }} />
-                      <span style={{ fontWeight: 500 }}>{`${c.nombres} ${c.apellidos}`.trim()}</span>
-                      <span style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: '0.68rem' }}>{c.numero_documento}</span>
+                      {/* Avatar iniciales */}
+                      <div style={{
+                        width: 30, height: 30, borderRadius: '50%',
+                        background: 'rgba(69,116,196,0.12)',
+                        border: '1px solid rgba(69,116,196,0.2)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: '0.65rem', fontWeight: 700, color: 'var(--primary-400)',
+                        flexShrink: 0, letterSpacing: '0.03em',
+                      }}>
+                        {(c.nombres?.[0] ?? '').toUpperCase()}{(c.apellidos?.[0] ?? '').toUpperCase()}
+                      </div>
+                      {/* Nombre y documento */}
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div style={{
+                          fontSize: '0.78rem', fontWeight: 600,
+                          color: 'var(--text-primary)',
+                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                        }}>
+                          {`${c.nombres} ${c.apellidos}`.trim()}
+                        </div>
+                        <div style={{ fontSize: '0.67rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginTop: 1 }}>
+                          {c.numero_documento}
+                        </div>
+                      </div>
+                      {/* Botón ver */}
                       <button
                         onClick={() => navigate(`/hse/gestion?contratista_id=${c.id}&autorizacion_id=${a.id}`)}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary-400)', padding: '0 2px', display: 'flex' }}
+                        className="btn-icon"
                         title="Ver en Gestión"
+                        style={{ width: 26, height: 26, flexShrink: 0 }}
                       >
                         <Eye size={11} />
                       </button>

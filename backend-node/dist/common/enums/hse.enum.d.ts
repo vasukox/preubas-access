@@ -16,7 +16,13 @@ export declare enum EstadoContratista {
     AUTOGESTION_COMPLETADA = "AUTOGESTION_COMPLETADA",
     EN_REVISION = "EN_REVISION",
     APROBADO = "APROBADO",
-    DENEGADO = "DENEGADO"
+    DENEGADO = "DENEGADO",
+    ARCHIVADO = "ARCHIVADO"
+}
+export declare enum SolicitudArchivadoEstado {
+    PENDIENTE = "PENDIENTE",
+    APROBADO = "APROBADO",
+    RECHAZADO = "RECHAZADO"
 }
 export declare enum TipoDocumento {
     CC = "CC",

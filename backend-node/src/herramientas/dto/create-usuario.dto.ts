@@ -1,4 +1,15 @@
-import { IsEmail, IsString, MinLength, MaxLength, IsOptional, IsArray, IsObject, IsInt, IsBoolean, ArrayMinSize } from 'class-validator';
+import {
+  IsEmail,
+  IsString,
+  MinLength,
+  MaxLength,
+  IsOptional,
+  IsArray,
+  IsObject,
+  IsInt,
+  IsBoolean,
+  ArrayMinSize,
+} from 'class-validator';
 
 export class PermisosDto {
   @IsOptional()

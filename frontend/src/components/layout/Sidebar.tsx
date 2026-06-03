@@ -18,7 +18,7 @@ import {
   Building2, Wifi, WifiOff, Loader2,
   ChevronDown,
   LayoutGrid, ClipboardList, Eye, AlertTriangle, ClipboardCheck,
-  Globe, BookOpen, ListChecks, Clock, FileBarChart2,
+  Globe, BookOpen, ListChecks, Clock, FileBarChart2, Archive,
 } from 'lucide-react'
 import { useWSStore } from '@/store'
 import type { RolNombre, UsuarioMe, SedeBasica } from '@/types'
@@ -116,6 +116,13 @@ export const NAV_ITEMS: NavItem[] = [
         icon:  <ClipboardCheck size={14} />,
         roles: ['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE'],
       },
+      {
+        id:    'hse-archivado',
+        label: 'Cola de depuración',
+        path:  '/hse/archivado',
+        icon:  <Archive size={14} />,
+        roles: ['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE'],
+      },
     ],
   },
   {
@@ -134,9 +141,37 @@ export const NAV_ITEMS: NavItem[] = [
     children: [
       {
         id:    'reportes-hse',
-        label: 'Reportes HSE',
+        label: 'Cumplimiento',
         path:  '/reportes/hse',
         icon:  <FileBarChart2 size={14} />,
+        roles: ['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE','VISUALIZADOR'],
+      },
+      {
+        id:    'reportes-autorizaciones',
+        label: 'Autorizaciones',
+        path:  '/reportes/autorizaciones',
+        icon:  <ClipboardList size={14} />,
+        roles: ['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE','VISUALIZADOR'],
+      },
+      {
+        id:    'reportes-contratistas',
+        label: 'Contratistas',
+        path:  '/reportes/contratistas',
+        icon:  <Users size={14} />,
+        roles: ['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE','VISUALIZADOR'],
+      },
+      {
+        id:    'reportes-accesos',
+        label: 'Accesos',
+        path:  '/reportes/accesos',
+        icon:  <Eye size={14} />,
+        roles: ['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE','VISUALIZADOR'],
+      },
+      {
+        id:    'reportes-vencimientos',
+        label: 'Vencimientos',
+        path:  '/reportes/vencimientos',
+        icon:  <AlertTriangle size={14} />,
         roles: ['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE','VISUALIZADOR'],
       },
     ],

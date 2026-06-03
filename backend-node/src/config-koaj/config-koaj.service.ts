@@ -14,7 +14,10 @@ import { CatEps } from '../hse/entities/cat-eps.entity';
 import { CatArl } from '../hse/entities/cat-arl.entity';
 import { CatAfp } from '../hse/entities/cat-afp.entity';
 import { CatNormaSeguridad } from '../hse/entities/cat-norma-seguridad.entity';
-import { ConfigTiemposContratista, TipoContratistaConfig } from './entities/config-tiempos-contratista.entity';
+import {
+  ConfigTiemposContratista,
+  TipoContratistaConfig,
+} from './entities/config-tiempos-contratista.entity';
 
 import {
   CreateSedeDto,
@@ -50,10 +53,31 @@ type TipoCatalogo = 'eps' | 'arl' | 'afp';
 export class ConfigKoajService {
   private readonly logger = new Logger(ConfigKoajService.name);
 
-  private static readonly TIEMPOS_DEFAULTS: Record<TipoContratistaConfig, Partial<ConfigTiemposContratista>> = {
-    [TipoContratistaConfig.NORMAL]:      { tokenDuracionHoras: 72, autorizacionDuracionDias: 30, alertaVencimientoDias: 3,  requiereExamenMedico: false, requiereSeguridadSocial: false },
-    [TipoContratistaConfig.ALTO_RIESGO]: { tokenDuracionHoras: 72, autorizacionDuracionDias: 15, alertaVencimientoDias: 5,  requiereExamenMedico: true,  requiereSeguridadSocial: true  },
-    [TipoContratistaConfig.EXCEPCION]:   { tokenDuracionHoras: 72, autorizacionDuracionDias: 7,  alertaVencimientoDias: 2,  requiereExamenMedico: false, requiereSeguridadSocial: false },
+  private static readonly TIEMPOS_DEFAULTS: Record<
+    TipoContratistaConfig,
+    Partial<ConfigTiemposContratista>
+  > = {
+    [TipoContratistaConfig.NORMAL]: {
+      tokenDuracionHoras: 72,
+      autorizacionDuracionDias: 30,
+      alertaVencimientoDias: 3,
+      requiereExamenMedico: false,
+      requiereSeguridadSocial: false,
+    },
+    [TipoContratistaConfig.ALTO_RIESGO]: {
+      tokenDuracionHoras: 72,
+      autorizacionDuracionDias: 15,
+      alertaVencimientoDias: 5,
+      requiereExamenMedico: true,
+      requiereSeguridadSocial: true,
+    },
+    [TipoContratistaConfig.EXCEPCION]: {
+      tokenDuracionHoras: 72,
+      autorizacionDuracionDias: 7,
+      alertaVencimientoDias: 2,
+      requiereExamenMedico: false,
+      requiereSeguridadSocial: false,
+    },
   };
 
   constructor(
@@ -106,7 +130,10 @@ export class ConfigKoajService {
 
     if (!sede) {
       throw new NotFoundException({
-        error: { code: 'SEDE_NO_ENCONTRADA', message: `Sede con id ${id} no encontrada.` },
+        error: {
+          code: 'SEDE_NO_ENCONTRADA',
+          message: `Sede con id ${id} no encontrada.`,
+        },
       });
     }
 
@@ -148,7 +175,9 @@ export class ConfigKoajService {
     });
 
     const saved = await this.sedeRepo.save(sede);
-    this.logger.log(`Sede creada: [${saved.codigo}] ${saved.nombre} (id=${saved.id})`);
+    this.logger.log(
+      `Sede creada: [${saved.codigo}] ${saved.nombre} (id=${saved.id})`,
+    );
     return saved;
   }
 
@@ -261,19 +290,27 @@ export class ConfigKoajService {
     });
 
     const saved = await this.ubicacionRepo.save(ubicacion);
-    this.logger.log(`Ubicación creada: '${saved.nombre}' en sede ${dto.sedeId} (id=${saved.id})`);
+    this.logger.log(
+      `Ubicación creada: '${saved.nombre}' en sede ${dto.sedeId} (id=${saved.id})`,
+    );
     return saved;
   }
 
   /**
    * Actualiza una ubicación.
    */
-  async actualizarUbicacion(id: number, dto: UpdateUbicacionDto): Promise<Ubicacion> {
+  async actualizarUbicacion(
+    id: number,
+    dto: UpdateUbicacionDto,
+  ): Promise<Ubicacion> {
     const ubicacion = await this.ubicacionRepo.findOne({ where: { id } });
 
     if (!ubicacion) {
       throw new NotFoundException({
-        error: { code: 'UBICACION_NO_ENCONTRADA', message: `Ubicación con id ${id} no encontrada.` },
+        error: {
+          code: 'UBICACION_NO_ENCONTRADA',
+          message: `Ubicación con id ${id} no encontrada.`,
+        },
       });
     }
 
@@ -291,7 +328,10 @@ export class ConfigKoajService {
 
     if (!ubicacion) {
       throw new NotFoundException({
-        error: { code: 'UBICACION_NO_ENCONTRADA', message: `Ubicación con id ${id} no encontrada.` },
+        error: {
+          code: 'UBICACION_NO_ENCONTRADA',
+          message: `Ubicación con id ${id} no encontrada.`,
+        },
       });
     }
 
@@ -309,11 +349,13 @@ export class ConfigKoajService {
    * Retorna el repositorio correcto según el tipo de catálogo.
    * Patrón: Strategy ligero sin sobrecarga de clases.
    */
-  private getCatalogoRepo(tipo: TipoCatalogo): Repository<CatEps | CatArl | CatAfp> {
+  private getCatalogoRepo(
+    tipo: TipoCatalogo,
+  ): Repository<CatEps | CatArl | CatAfp> {
     const repos: Record<TipoCatalogo, Repository<CatEps | CatArl | CatAfp>> = {
-      eps: this.epsRepo as Repository<CatEps | CatArl | CatAfp>,
-      arl: this.arlRepo as Repository<CatEps | CatArl | CatAfp>,
-      afp: this.afpRepo as Repository<CatEps | CatArl | CatAfp>,
+      eps: this.epsRepo,
+      arl: this.arlRepo,
+      afp: this.afpRepo,
     };
 
     const repo = repos[tipo];
@@ -333,7 +375,9 @@ export class ConfigKoajService {
    * Lista todos los items del catálogo indicado.
    * Equivalente a GET /config/catalogos/{tipo} en Python.
    */
-  async listarCatalogo(tipo: TipoCatalogo): Promise<(CatEps | CatArl | CatAfp)[]> {
+  async listarCatalogo(
+    tipo: TipoCatalogo,
+  ): Promise<(CatEps | CatArl | CatAfp)[]> {
     const repo = this.getCatalogoRepo(tipo);
     return repo.find({ order: { nombre: 'ASC' } as any });
   }
@@ -348,7 +392,9 @@ export class ConfigKoajService {
   ): Promise<CatEps | CatArl | CatAfp> {
     const repo = this.getCatalogoRepo(tipo);
 
-    const existente = await repo.findOne({ where: { codigo: dto.codigo } as any });
+    const existente = await repo.findOne({
+      where: { codigo: dto.codigo },
+    });
     if (existente) {
       throw new ConflictException({
         error: {
@@ -359,8 +405,10 @@ export class ConfigKoajService {
     }
 
     const item = repo.create({ ...dto, activa: dto.activa ?? true } as any);
-    const saved = await repo.save(item as any) as CatEps | CatArl | CatAfp;
-    this.logger.log(`Catálogo ${tipo.toUpperCase()} creado: [${dto.codigo}] ${dto.nombre}`);
+    const saved = (await repo.save(item as any)) as CatEps | CatArl | CatAfp;
+    this.logger.log(
+      `Catálogo ${tipo.toUpperCase()} creado: [${dto.codigo}] ${dto.nombre}`,
+    );
     return saved;
   }
 
@@ -373,7 +421,7 @@ export class ConfigKoajService {
     dto: UpdateCatalogoDto,
   ): Promise<CatEps | CatArl | CatAfp> {
     const repo = this.getCatalogoRepo(tipo);
-    const item = await repo.findOne({ where: { id } as any });
+    const item = await repo.findOne({ where: { id } });
 
     if (!item) {
       throw new NotFoundException({
@@ -385,7 +433,7 @@ export class ConfigKoajService {
     }
 
     Object.assign(item, dto);
-    const saved = await repo.save(item as any) as CatEps | CatArl | CatAfp;
+    const saved = (await repo.save(item as any)) as CatEps | CatArl | CatAfp;
     this.logger.log(`Catálogo ${tipo.toUpperCase()} actualizado: id=${id}`);
     return saved;
   }
@@ -395,7 +443,7 @@ export class ConfigKoajService {
    */
   async eliminarItemCatalogo(tipo: TipoCatalogo, id: number): Promise<void> {
     const repo = this.getCatalogoRepo(tipo);
-    const item = await repo.findOne({ where: { id } as any });
+    const item = await repo.findOne({ where: { id } });
 
     if (!item) {
       throw new NotFoundException({
@@ -407,7 +455,9 @@ export class ConfigKoajService {
     }
 
     await repo.softDelete(id);
-    this.logger.log(`Catálogo ${tipo.toUpperCase()} eliminado (soft): id=${id}`);
+    this.logger.log(
+      `Catálogo ${tipo.toUpperCase()} eliminado (soft): id=${id}`,
+    );
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -454,7 +504,9 @@ export class ConfigKoajService {
       sedeId: dto.sedeId ?? null,
     } as any);
 
-    const saved = await this.normaRepo.save(norma) as unknown as CatNormaSeguridad;
+    const saved = (await this.normaRepo.save(
+      norma,
+    )) as unknown as CatNormaSeguridad;
     const scope = dto.sedeId ? `sede ${dto.sedeId}` : 'global';
     this.logger.log(`Norma creada: #${dto.numero} '${dto.titulo}' (${scope})`);
     return saved;
@@ -463,7 +515,10 @@ export class ConfigKoajService {
   /**
    * Actualiza una norma de seguridad.
    */
-  async actualizarNorma(id: number, dto: UpdateNormaDto): Promise<CatNormaSeguridad> {
+  async actualizarNorma(
+    id: number,
+    dto: UpdateNormaDto,
+  ): Promise<CatNormaSeguridad> {
     const norma = await this.normaRepo.findOne({
       where: { id },
       relations: ['sede'],
@@ -471,7 +526,10 @@ export class ConfigKoajService {
 
     if (!norma) {
       throw new NotFoundException({
-        error: { code: 'NORMA_NO_ENCONTRADA', message: `Norma con id ${id} no encontrada.` },
+        error: {
+          code: 'NORMA_NO_ENCONTRADA',
+          message: `Norma con id ${id} no encontrada.`,
+        },
       });
     }
 
@@ -482,7 +540,10 @@ export class ConfigKoajService {
     Object.assign(norma, dto);
     const saved = await this.normaRepo.save(norma);
     this.logger.log(`Norma actualizada: id=${id}`);
-    return this.normaRepo.findOne({ where: { id: saved.id }, relations: ['sede'] }) as Promise<CatNormaSeguridad>;
+    return this.normaRepo.findOne({
+      where: { id: saved.id },
+      relations: ['sede'],
+    }) as Promise<CatNormaSeguridad>;
   }
 
   /**
@@ -493,7 +554,10 @@ export class ConfigKoajService {
 
     if (!norma) {
       throw new NotFoundException({
-        error: { code: 'NORMA_NO_ENCONTRADA', message: `Norma con id ${id} no encontrada.` },
+        error: {
+          code: 'NORMA_NO_ENCONTRADA',
+          message: `Norma con id ${id} no encontrada.`,
+        },
       });
     }
 
@@ -520,9 +584,13 @@ export class ConfigKoajService {
    * Retorna la configuración de un tipo específico de contratista.
    * Útil para consumo interno (p.ej. AutorizacionService).
    */
-  async getTiemposContratista(tipo: TipoContratistaConfig): Promise<ConfigTiemposContratista> {
+  async getTiemposContratista(
+    tipo: TipoContratistaConfig,
+  ): Promise<ConfigTiemposContratista> {
     await this.asegurarFilaDefecto(tipo);
-    const config = await this.tiemposRepo.findOne({ where: { tipoContratista: tipo } });
+    const config = await this.tiemposRepo.findOne({
+      where: { tipoContratista: tipo },
+    });
     return config!;
   }
 
@@ -535,12 +603,17 @@ export class ConfigKoajService {
   ): Promise<ConfigTiemposContratista> {
     if (!Object.values(TipoContratistaConfig).includes(tipo)) {
       throw new BadRequestException({
-        error: { code: 'TIPO_INVALIDO', message: `Tipo '${tipo}' no válido. Use: NORMAL, ALTO_RIESGO, EXCEPCION.` },
+        error: {
+          code: 'TIPO_INVALIDO',
+          message: `Tipo '${tipo}' no válido. Use: NORMAL, ALTO_RIESGO, EXCEPCION.`,
+        },
       });
     }
 
     await this.asegurarFilaDefecto(tipo);
-    const config = await this.tiemposRepo.findOne({ where: { tipoContratista: tipo } });
+    const config = await this.tiemposRepo.findOne({
+      where: { tipoContratista: tipo },
+    });
     Object.assign(config!, dto);
     const saved = await this.tiemposRepo.save(config!);
     this.logger.log(`Tiempos contratista ${tipo} actualizados`);
@@ -553,8 +626,12 @@ export class ConfigKoajService {
     }
   }
 
-  private async asegurarFilaDefecto(tipo: TipoContratistaConfig): Promise<void> {
-    const existe = await this.tiemposRepo.findOne({ where: { tipoContratista: tipo } });
+  private async asegurarFilaDefecto(
+    tipo: TipoContratistaConfig,
+  ): Promise<void> {
+    const existe = await this.tiemposRepo.findOne({
+      where: { tipoContratista: tipo },
+    });
     if (!existe) {
       const defaults = ConfigKoajService.TIEMPOS_DEFAULTS[tipo];
       await this.tiemposRepo.save(

@@ -62,6 +62,7 @@ const GestionHSEView         = lazy(() => import('@/views/hse/GestionHSEView'))
 const VigilanteView          = lazy(() => import('@/views/hse/VigilanteView'))
 const ExcepcionesView        = lazy(() => import('@/views/hse/ExcepcionesView'))
 const CumplimientoView       = lazy(() => import('@/views/hse/CumplimientoView'))
+const ColaArchivadoView      = lazy(() => import('@/views/hse/ColaArchivadoView'))
 const AutogestionView        = lazy(() => import('@/views/hse/AutogestionView'))
 
 // const HSEAutorizacionesView  = lazy(() => import('@/views/hse/HSEAutorizacionesView'))
@@ -76,8 +77,12 @@ const AutogestionView        = lazy(() => import('@/views/hse/AutogestionView'))
 // const NFCEventosView   = lazy(() => import('@/views/nfc/NFCEventosView'))
 
 // ⏳ Sprint 9 — Reportes + Config
-const ReportesView    = lazy(() => import('@/views/reportes/ReportesView'))
-const ReportesHSEView = lazy(() => import('@/views/reportes/ReportesHSEView'))
+const ReportesView                = lazy(() => import('@/views/reportes/ReportesView'))
+const ReportesHSEView             = lazy(() => import('@/views/reportes/ReportesHSEView'))
+const ReportesAutorizacionesView  = lazy(() => import('@/views/reportes/ReportesAutorizacionesView'))
+const ReportesAccesosView         = lazy(() => import('@/views/reportes/ReportesAccesosView'))
+const ReportesVencimientosView    = lazy(() => import('@/views/reportes/ReportesVencimientosView'))
+const ReportesContratistasView    = lazy(() => import('@/views/reportes/ReportesContratistasView'))
 const ConfigLayout      = lazy(() => import('@/views/config/ConfigLayout'))
 const ConfigSistema     = lazy(() => import('@/views/config/ConfigSistema'))
 const ConfigEstructura  = lazy(() => import('@/views/config/ConfigEstructura'))
@@ -217,6 +222,7 @@ export function AppRouter() {
           <Route path="hse/vigilante"     element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','VIGILANTE_HSE']}><VigilanteView /></RoleRoute>} />
           <Route path="hse/excepciones"   element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE']}><ExcepcionesView /></RoleRoute>} />
           <Route path="hse/cumplimiento"  element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE']}><CumplimientoView /></RoleRoute>} />
+          <Route path="hse/archivado"    element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE']}><ColaArchivadoView /></RoleRoute>} />
 
           {/* <Route path="hse" element={<RoleRoute roles={['ADMIN_HSE','COORD_HSE','VIGILANTE','VISUALIZADOR']}><HSEDashboardView /></RoleRoute>} /> */}
           {/* <Route path="hse/autorizaciones"    element={<RoleRoute roles={['ADMIN_HSE','COORD_HSE']}><HSEAutorizacionesView /></RoleRoute>} /> */}
@@ -230,8 +236,12 @@ export function AppRouter() {
           {/* <Route path="nfc/eventos" element={<RoleRoute roles={['ADMIN_NFC']}><NFCEventosView /></RoleRoute>} /> */}
 
           {/* ⏳ Sprint 9 — Reportes + Config */}
-          <Route path="reportes"     element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','VISUALIZADOR']}><ReportesView /></RoleRoute>} />
-          <Route path="reportes/hse" element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE','VISUALIZADOR']}><ReportesHSEView /></RoleRoute>} />
+          <Route path="reportes"                    element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','VISUALIZADOR']}><ReportesView /></RoleRoute>} />
+          <Route path="reportes/hse"              element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE','VISUALIZADOR']}><ReportesHSEView /></RoleRoute>} />
+          <Route path="reportes/autorizaciones"   element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE','VISUALIZADOR']}><ReportesAutorizacionesView /></RoleRoute>} />
+          <Route path="reportes/accesos"          element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE','VISUALIZADOR']}><ReportesAccesosView /></RoleRoute>} />
+          <Route path="reportes/vencimientos"     element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE','VISUALIZADOR']}><ReportesVencimientosView /></RoleRoute>} />
+          <Route path="reportes/contratistas"     element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE','VISUALIZADOR']}><ReportesContratistasView /></RoleRoute>} />
 
           {/* Config — sub-rutas por área */}
           <Route path="config" element={<RoleRoute roles={['ADMIN_GLOBAL']}><ConfigLayout /></RoleRoute>}>
