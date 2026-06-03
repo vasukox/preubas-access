@@ -1,4 +1,4 @@
-/**
+﻿/**
  * KOAJ Access v2.0 — Permoda S.A.S.
  * ------------------------------------
  * Vista de login.
@@ -136,7 +136,7 @@ export default function LoginView() {
           width:        '440px',
           height:       '440px',
           borderRadius: '50%',
-          border:       '1px solid rgba(59, 130, 246, 0.10)',
+          border:       '1px solid rgba(15, 23, 42, 0.10)',
           top:          '-110px',
           right:        '-140px',
           pointerEvents: 'none',
@@ -146,7 +146,7 @@ export default function LoginView() {
           width:        '280px',
           height:       '280px',
           borderRadius: '50%',
-          border:       '1px solid rgba(59, 130, 246, 0.07)',
+          border:       '1px solid rgba(15, 23, 42, 0.07)',
           bottom:       '-80px',
           left:         '-100px',
           pointerEvents: 'none',
@@ -156,7 +156,7 @@ export default function LoginView() {
           width:        '200px',
           height:       '200px',
           borderRadius: '50%',
-          background:   'radial-gradient(circle, rgba(59, 130, 246, 0.07) 0%, transparent 70%)',
+          background:   'radial-gradient(circle, rgba(15, 23, 42, 0.07) 0%, transparent 70%)',
           top:          '32%',
           right:        '6%',
           pointerEvents: 'none',
@@ -196,7 +196,7 @@ export default function LoginView() {
                 display:        'flex',
                 alignItems:     'center',
                 justifyContent: 'center',
-                boxShadow:      '0 4px 16px rgba(37, 99, 235, 0.35)',
+                boxShadow:      '0 4px 16px rgba(15, 23, 42, 0.35)',
               }}
             >
               <ShieldCheck size={24} color="#FFFFFF" strokeWidth={2.5} />
@@ -360,8 +360,8 @@ export default function LoginView() {
                 alignItems:   'flex-start',
                 gap:          '10px',
                 padding:      '12px 14px',
-                background:   'rgba(192,80,80,0.08)',
-                border:       '1px solid rgba(192,80,80,0.2)',
+                background:   'rgba(220, 38, 38,0.08)',
+                border:       '1px solid rgba(220, 38, 38,0.2)',
                 borderRadius: 'var(--radius-md)',
                 marginBottom: '24px',
                 animation:    'fadeUp 0.2s ease both',
@@ -509,20 +509,20 @@ export default function LoginView() {
                 justifyContent: 'center',
                 gap:            '8px',
                 transition:     'all var(--transition-fast)',
-                boxShadow:      isLoading ? 'none' : '0 2px 4px rgba(59,130,246,0.20), 0 8px 24px rgba(59,130,246,0.22)',
+                boxShadow:      isLoading ? 'none' : '0 2px 4px rgba(15, 23, 42,0.20), 0 8px 24px rgba(15, 23, 42,0.22)',
                 letterSpacing:  '0.02em',
               }}
               onMouseEnter={(e) => {
                 if (!isLoading) {
                   e.currentTarget.style.background = 'var(--gradient-brand)'
-                  e.currentTarget.style.boxShadow  = '0 2px 4px rgba(59,130,246,0.20), 0 10px 28px rgba(59,130,246,0.30)'
+                  e.currentTarget.style.boxShadow  = '0 2px 4px rgba(15, 23, 42,0.20), 0 10px 28px rgba(15, 23, 42,0.30)'
                   e.currentTarget.style.transform  = 'translateY(-1px)'
                 }
               }}
               onMouseLeave={(e) => {
                 if (!isLoading) {
                   e.currentTarget.style.background = 'var(--gradient-primary)'
-                  e.currentTarget.style.boxShadow  = '0 2px 4px rgba(59,130,246,0.20), 0 8px 24px rgba(59,130,246,0.22)'
+                  e.currentTarget.style.boxShadow  = '0 2px 4px rgba(15, 23, 42,0.20), 0 8px 24px rgba(15, 23, 42,0.22)'
                   e.currentTarget.style.transform  = 'translateY(0)'
                 }
               }}

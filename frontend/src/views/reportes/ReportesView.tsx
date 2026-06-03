@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+﻿import { useNavigate } from 'react-router-dom'
 import {
   BarChart3, ShieldCheck, ArrowRight, RefreshCw,
   FileBarChart2, ClipboardList, Users, Eye, AlertTriangle,
@@ -155,8 +155,8 @@ export default function ReportesView() {
 
       {/* Acceso rápido */}
       <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '24px' }} className="animate-fade-up">
-        <NavCard label="Cumplimiento"  sub="Historial · Excel"  icon={FileBarChart2} color="var(--success-400)" bg="rgba(40,149,108,0.1)"  path="/reportes/hse"            onClick={navigate} />
-        <NavCard label="Autorizaciones" sub="Filtros · Estados" icon={ClipboardList} color="var(--primary-400)" bg="rgba(86,104,184,0.1)"   path="/reportes/autorizaciones" onClick={navigate} />
+        <NavCard label="Cumplimiento"  sub="Historial · Excel"  icon={FileBarChart2} color="var(--success-400)" bg="rgba(22, 163, 74,0.1)"  path="/reportes/hse"            onClick={navigate} />
+        <NavCard label="Autorizaciones" sub="Filtros · Estados" icon={ClipboardList} color="var(--primary-400)" bg="rgba(29, 78, 216,0.1)"   path="/reportes/autorizaciones" onClick={navigate} />
         <NavCard label="Contratistas"  sub="Estado · Historial" icon={Users}         color="#8b5cf6"            bg="rgba(139,92,246,0.1)"   path="/reportes/contratistas"   onClick={navigate} />
         <NavCard label="Accesos"       sub="Entradas · Salidas" icon={Eye}           color="#0ea5e9"            bg="rgba(14,165,233,0.1)"   path="/reportes/accesos"        onClick={navigate} />
         <NavCard label="Vencimientos"  sub="Semáforo · Alertas" icon={AlertTriangle} color="var(--danger-400)" bg="rgba(239,68,68,0.1)"    path="/reportes/vencimientos"   onClick={navigate} />
@@ -188,8 +188,8 @@ export default function ReportesView() {
                   <AreaChart data={charts.tendencia_mensual} margin={{ top: 5, right: 10, bottom: 0, left: -20 }}>
                     <defs>
                       <linearGradient id="gA" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%"  stopColor="#5668B8" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#5668B8" stopOpacity={0.02} />
+                        <stop offset="5%"  stopColor="var(--info-400)" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="var(--info-400)" stopOpacity={0.02} />
                       </linearGradient>
                       <linearGradient id="gB" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%"  stopColor="#22c55e" stopOpacity={0.3} />
@@ -201,7 +201,7 @@ export default function ReportesView() {
                     <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} allowDecimals={false} />
                     <Tooltip content={<TT />} />
                     <Legend wrapperStyle={{ fontSize: '0.75rem' }} />
-                    <Area type="monotone" dataKey="autorizaciones" name="Autorizaciones" stroke="#5668B8" fill="url(#gA)" strokeWidth={2} dot={{ r: 3, fill: '#5668B8' }} />
+                    <Area type="monotone" dataKey="autorizaciones" name="Autorizaciones" stroke="var(--info-400)" fill="url(#gA)" strokeWidth={2} dot={{ r: 3, fill: 'var(--info-400)' }} />
                     <Area type="monotone" dataKey="aprobadas"      name="Aprobadas"      stroke="#22c55e" fill="url(#gB)" strokeWidth={2} dot={{ r: 3, fill: '#22c55e' }} />
                   </AreaChart>
                 </ResponsiveContainer>

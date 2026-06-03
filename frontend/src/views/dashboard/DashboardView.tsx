@@ -1,4 +1,4 @@
-/**
+﻿/**
  * KOAJ Access v2.0 — Permoda S.A.S.
  * Dashboard principal — vista post-login adaptativa por rol.
  */
@@ -50,8 +50,8 @@ function PersonasDentroList({ dentro, isLoading }: { dentro: PersonaDentroRespon
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{
                 width: '32px', height: '32px', borderRadius: '50%',
-                background: p.tipo_contratista === 'ALTO_RIESGO' ? 'rgba(192,80,80,0.1)' : 'rgba(40,149,108,0.1)',
-                border: `1px solid ${p.tipo_contratista === 'ALTO_RIESGO' ? 'rgba(192,80,80,0.2)' : 'rgba(40,149,108,0.2)'}`,
+                background: p.tipo_contratista === 'ALTO_RIESGO' ? 'rgba(220, 38, 38,0.1)' : 'rgba(22, 163, 74,0.1)',
+                border: `1px solid ${p.tipo_contratista === 'ALTO_RIESGO' ? 'rgba(220, 38, 38,0.2)' : 'rgba(22, 163, 74,0.2)'}`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: '0.75rem', fontWeight: 600,
                 color: p.tipo_contratista === 'ALTO_RIESGO' ? 'var(--danger-400)' : 'var(--success-400)',
@@ -118,15 +118,15 @@ function HSEFocusedDashboard({
       desc:  'Crear y gestionar autorizaciones',
       icon:  Eye,
       color: 'var(--primary-400)',
-      bg:    'rgba(69,116,196,0.08)',
+      bg:    'rgba(15, 23, 42,0.08)',
       path:  '/hse/panel-general',
     },
     canManage && {
       label: 'Gestión',
       desc:  'Revisar y aprobar solicitudes',
       icon:  ClipboardList,
-      color: '#5668B8',
-      bg:    'rgba(86,104,184,0.08)',
+      color: 'var(--info-400)',
+      bg:    'rgba(29, 78, 216,0.08)',
       path:  '/hse/gestion',
     },
     canSeeVigilante && {
@@ -134,7 +134,7 @@ function HSEFocusedDashboard({
       desc:  'Verificar acceso en portería',
       icon:  ShieldCheck,
       color: 'var(--success-400)',
-      bg:    'rgba(40,149,108,0.08)',
+      bg:    'rgba(22, 163, 74,0.08)',
       path:  '/hse/vigilante',
     },
     canManage && {
@@ -142,7 +142,7 @@ function HSEFocusedDashboard({
       desc:  'Pre-aprobados y casos especiales',
       icon:  AlertTriangle,
       color: 'var(--danger-400)',
-      bg:    'rgba(192,80,80,0.08)',
+      bg:    'rgba(220, 38, 38,0.08)',
       path:  '/hse/excepciones',
     },
     canManage && {
@@ -164,16 +164,16 @@ function HSEFocusedDashboard({
         className="animate-fade-up stagger-2"
       >
         {canManage && (
-          <MetricBox label="Activas" value={metrics?.autorizaciones_activas ?? '—'} color="var(--success-400)" bg="rgba(40,149,108,0.08)" icon={UserCheck} />
+          <MetricBox label="Activas" value={metrics?.autorizaciones_activas ?? '—'} color="var(--success-400)" bg="rgba(22, 163, 74,0.08)" icon={UserCheck} />
         )}
         {canManage && (
-          <MetricBox label="En revisión" value={metrics?.autorizaciones_pendientes ?? '—'} color="#5668B8" bg="rgba(86,104,184,0.08)" icon={Activity} />
+          <MetricBox label="En revisión" value={metrics?.autorizaciones_pendientes ?? '—'} color="var(--info-400)" bg="rgba(29, 78, 216,0.08)" icon={Activity} />
         )}
         <MetricBox
           label="Dentro ahora"
-          value={metrics?.contratistas_dentro_ahora ?? dentro.length ?? '—'}
+          value={isPendingDentro ? '—' : dentro.length}
           color="var(--primary-400)"
-          bg="rgba(69,116,196,0.08)"
+          bg="rgba(15, 23, 42,0.08)"
           icon={Users}
         />
         {canManage && metrics && metrics.autorizaciones_vencidas > 0 && (
@@ -181,13 +181,13 @@ function HSEFocusedDashboard({
             label="Vencidas"
             value={metrics.autorizaciones_vencidas}
             color="var(--danger-400)"
-            bg="rgba(192,80,80,0.08)"
+            bg="rgba(220, 38, 38,0.08)"
             icon={UserX}
             alert
           />
         )}
         {(metrics?.alertas_activas ?? 0) > 0 && (
-          <MetricBox label="Alertas" value={metrics!.alertas_activas} color="var(--danger-400)" bg="rgba(192,80,80,0.08)" icon={AlertTriangle} alert />
+          <MetricBox label="Alertas" value={metrics!.alertas_activas} color="var(--danger-400)" bg="rgba(220, 38, 38,0.08)" icon={AlertTriangle} alert />
         )}
       </div>
 
@@ -213,8 +213,8 @@ function HSEFocusedDashboard({
             </span>
             {dentro.length > 0 && (
               <span style={{
-                padding: '1px 8px', background: 'rgba(40,149,108,0.1)',
-                border: '1px solid rgba(40,149,108,0.2)', borderRadius: '20px',
+                padding: '1px 8px', background: 'rgba(22, 163, 74,0.1)',
+                border: '1px solid rgba(22, 163, 74,0.2)', borderRadius: '20px',
                 fontSize: '0.7rem', color: 'var(--success-400)', fontFamily: 'var(--font-mono)',
               }}>
                 {dentro.length}
@@ -338,9 +338,9 @@ function ParkingVigilanteDashboard() {
         </div>
         <div style={{ padding: '8px' }}>
           {[
-            { label: 'Registrar ingreso',  desc: 'Escanear placa o buscar vehículo para entrada', icon: ArrowRight,     color: 'var(--success-400)', bg: 'rgba(40,149,108,0.08)',  available: false },
+            { label: 'Registrar ingreso',  desc: 'Escanear placa o buscar vehículo para entrada', icon: ArrowRight,     color: 'var(--success-400)', bg: 'rgba(22, 163, 74,0.08)',  available: false },
             { label: 'Registrar salida',   desc: 'Marcar salida de vehículo del parqueadero',     icon: Car,           color: 'var(--primary-400)', bg: 'rgba(14,165,233,0.08)',  available: false },
-            { label: 'Consulta rápida',    desc: 'Verificar estado de un vehículo por placa',     icon: ClipboardCheck, color: '#5668B8',             bg: 'rgba(86,104,184,0.08)', available: false },
+            { label: 'Consulta rápida',    desc: 'Verificar estado de un vehículo por placa',     icon: ClipboardCheck, color: 'var(--info-400)',             bg: 'rgba(29, 78, 216,0.08)', available: false },
             { label: 'Parqueadero',        desc: 'Panel del módulo Parking',                       icon: Car,           color: '#f59e0b',             bg: 'rgba(245,158,11,0.08)', available: false },
           ].map((item) => (
             <div
@@ -519,8 +519,8 @@ export default function DashboardView() {
       label:       'HSE',
       descripcion: 'Autorizaciones y control de acceso',
       color:       'var(--success-400)',
-      bg:          'rgba(40,149,108,0.08)',
-      border:      'rgba(40,149,108,0.15)',
+      bg:          'rgba(22, 163, 74,0.08)',
+      border:      'rgba(22, 163, 74,0.15)',
       visible:     esAdminGlobal || hasAnyRole(['ADMIN_HSE','GESTION_HSE','VIGILANTE_HSE','VISUALIZADOR']),
       disponible:  true,
       path:        '/hse',
@@ -530,8 +530,8 @@ export default function DashboardView() {
       label:       'Parking',
       descripcion: 'Vehículos, LPR y autogestión',
       color:       'var(--primary-400)',
-      bg:          'rgba(69,116,196,0.08)',
-      border:      'rgba(69,116,196,0.15)',
+      bg:          'rgba(15, 23, 42,0.08)',
+      border:      'rgba(15, 23, 42,0.15)',
       visible:     esAdminGlobal || hasAnyRole(['ADMIN_PARKING','VIGILANTE_PARKING','VISUALIZADOR']),
       disponible:  false,
       path:        null,
@@ -540,9 +540,9 @@ export default function DashboardView() {
       icon:        Cpu,
       label:       'NFC',
       descripcion: 'Activos e inventario con chips',
-      color:       '#5668B8',
-      bg:          'rgba(86,104,184,0.08)',
-      border:      'rgba(86,104,184,0.15)',
+      color:       'var(--info-400)',
+      bg:          'rgba(29, 78, 216,0.08)',
+      border:      'rgba(29, 78, 216,0.15)',
       visible:     esAdminGlobal || hasAnyRole(['ADMIN_NFC','VISUALIZADOR']),
       disponible:  false,
       path:        null,
@@ -683,10 +683,10 @@ export default function DashboardView() {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', padding: '16px 20px', gap: '12px' }}>
             {[
-              { label: 'Activas',      value: hseMetrics?.autorizaciones_activas   ?? '—', icon: UserCheck,     color: 'var(--success-400)', bg: 'rgba(40,149,108,0.08)' },
-              { label: 'En revisión',  value: hseMetrics?.autorizaciones_pendientes ?? '—', icon: LayoutGrid,    color: '#5668B8',             bg: 'rgba(86,104,184,0.08)' },
-              { label: 'Dentro ahora', value: hseMetrics?.contratistas_dentro_ahora ?? '—', icon: Users,         color: 'var(--primary-400)',  bg: 'rgba(69,116,196,0.08)' },
-              { label: 'Alertas',      value: hseMetrics?.alertas_activas           ?? '—', icon: AlertTriangle, color: hseMetrics?.alertas_activas ? 'var(--danger-400)' : 'var(--text-muted)', bg: hseMetrics?.alertas_activas ? 'rgba(192,80,80,0.08)' : 'var(--bg-elevated)' },
+              { label: 'Activas',      value: hseMetrics?.autorizaciones_activas   ?? '—', icon: UserCheck,     color: 'var(--success-400)', bg: 'rgba(22, 163, 74,0.08)' },
+              { label: 'En revisión',  value: hseMetrics?.autorizaciones_pendientes ?? '—', icon: LayoutGrid,    color: 'var(--info-400)',             bg: 'rgba(29, 78, 216,0.08)' },
+              { label: 'Dentro ahora', value: hseMetrics?.contratistas_dentro_ahora ?? '—', icon: Users,         color: 'var(--primary-400)',  bg: 'rgba(15, 23, 42,0.08)' },
+              { label: 'Alertas',      value: hseMetrics?.alertas_activas           ?? '—', icon: AlertTriangle, color: hseMetrics?.alertas_activas ? 'var(--danger-400)' : 'var(--text-muted)', bg: hseMetrics?.alertas_activas ? 'rgba(220, 38, 38,0.08)' : 'var(--bg-elevated)' },
             ].map((stat) => (
               <div key={stat.label} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div style={{ width: '36px', height: '36px', background: stat.bg, borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -703,7 +703,7 @@ export default function DashboardView() {
           {hseMetrics && hseMetrics.autorizaciones_vencidas > 0 && (
             <div style={{
               margin: '0 20px 16px', padding: '10px 14px',
-              background: 'rgba(192,80,80,0.06)', border: '1px solid rgba(192,80,80,0.15)',
+              background: 'rgba(220, 38, 38,0.06)', border: '1px solid rgba(220, 38, 38,0.15)',
               borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', gap: '8px',
             }}>
               <UserX size={13} color="var(--danger-400)" />
@@ -726,7 +726,7 @@ export default function DashboardView() {
         style={{ marginTop: '20px', padding: '14px 18px', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xl)', boxShadow: 'var(--shadow-card)', display: 'flex', alignItems: 'center', gap: '12px' }}
         className="animate-fade-up stagger-6"
       >
-        <div style={{ width: '36px', height: '36px', background: 'var(--gradient-brand)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.875rem', fontWeight: 700, color: '#FFFFFF', flexShrink: 0, boxShadow: '0 2px 8px rgba(37,99,235,0.22)' }}>
+        <div style={{ width: '36px', height: '36px', background: 'var(--gradient-brand)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.875rem', fontWeight: 700, color: '#FFFFFF', flexShrink: 0, boxShadow: '0 2px 8px rgba(15, 23, 42,0.22)' }}>
           {usuario?.nombre_completo?.charAt(0) || 'U'}
         </div>
         <div>

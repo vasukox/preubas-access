@@ -1,4 +1,4 @@
-/**
+﻿/**
  * KOAJ Access v2.0 — Permoda S.A.S.
  * Panel General HSE — Gestión de autorizaciones
  */
@@ -109,7 +109,7 @@ function ModalCrearProveedor({
           <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>Nuevo proveedor</h3>
         </div>
         <div style={{ padding: '18px 22px', display: 'grid', gap: '12px' }}>
-          {error && <div style={{ padding: '10px 12px', borderRadius: 'var(--radius-md)', background: 'rgba(192,80,80,0.08)', border: '1px solid rgba(192,80,80,0.2)', color: 'var(--danger-400)', fontSize: '0.8rem' }}>{error}</div>}
+          {error && <div style={{ padding: '10px 12px', borderRadius: 'var(--radius-md)', background: 'rgba(220, 38, 38,0.08)', border: '1px solid rgba(220, 38, 38,0.2)', color: 'var(--danger-400)', fontSize: '0.8rem' }}>{error}</div>}
           <div>
             <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '5px' }}>NOMBRE / RAZÓN SOCIAL</label>
             <input type="text" value={nombre} onChange={e => setNombre(e.target.value)} placeholder="Ej: Servicios Técnicos S.A.S." style={inputStyle} />
@@ -178,7 +178,7 @@ function ModalEditarProveedor({
           </div>
         </div>
         <div style={{ padding: '18px 22px', display: 'grid', gap: '12px' }}>
-          {error && <div style={{ padding: '10px 12px', borderRadius: 'var(--radius-md)', background: 'rgba(192,80,80,0.08)', border: '1px solid rgba(192,80,80,0.2)', color: 'var(--danger-400)', fontSize: '0.8rem' }}>{error}</div>}
+          {error && <div style={{ padding: '10px 12px', borderRadius: 'var(--radius-md)', background: 'rgba(220, 38, 38,0.08)', border: '1px solid rgba(220, 38, 38,0.2)', color: 'var(--danger-400)', fontSize: '0.8rem' }}>{error}</div>}
           <div>
             <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '5px' }}>NOMBRE / RAZÓN SOCIAL</label>
             <input type="text" value={nombre} onChange={e => setNombre(e.target.value)} style={inputStyle} />
@@ -255,7 +255,7 @@ function ModalGestionProveedores({
         </div>
 
         <div style={{ padding: '16px 22px', overflowY: 'auto', flex: 1 }}>
-          {error && <div style={{ padding: '10px 12px', marginBottom: '12px', borderRadius: 'var(--radius-md)', background: 'rgba(192,80,80,0.08)', border: '1px solid rgba(192,80,80,0.2)', color: 'var(--danger-400)', fontSize: '0.8rem' }}>{error}</div>}
+          {error && <div style={{ padding: '10px 12px', marginBottom: '12px', borderRadius: 'var(--radius-md)', background: 'rgba(220, 38, 38,0.08)', border: '1px solid rgba(220, 38, 38,0.2)', color: 'var(--danger-400)', fontSize: '0.8rem' }}>{error}</div>}
 
           {proveedores.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)', fontSize: '0.83rem' }}>
@@ -284,7 +284,7 @@ function ModalGestionProveedores({
                       title="Eliminar"
                       disabled={eliminando === p.id}
                       onClick={() => setConfirmDeleteProviderId(p.id)}
-                      style={{ width: '28px', height: '28px', color: 'var(--danger-400)', borderColor: 'rgba(192,80,80,0.15)' }}
+                      style={{ width: '28px', height: '28px', color: 'var(--danger-400)', borderColor: 'rgba(220, 38, 38,0.15)' }}
                     >
                       <Trash2 size={12} />
                     </button>
@@ -618,8 +618,8 @@ function ModalCrear({
           {error && (
             <div style={{
               padding:      '10px 14px',
-              background:   'rgba(192,80,80,0.08)',
-              border:       '1px solid rgba(192,80,80,0.2)',
+              background:   'rgba(220, 38, 38,0.08)',
+              border:       '1px solid rgba(220, 38, 38,0.2)',
               borderRadius: 'var(--radius-md)',
               fontSize:     '0.8rem',
               color:        'var(--danger-400)',
@@ -677,8 +677,8 @@ function ModalCrear({
                          <div style={{
                            width: '100%',
                            padding: '8px 12px',
-                           background: 'rgba(192,80,80,0.08)',
-                           border: '1px solid rgba(192,80,80,0.2)',
+                           background: 'rgba(220, 38, 38,0.08)',
+                           border: '1px solid rgba(220, 38, 38,0.2)',
                            borderRadius: 'var(--radius-md)',
                            fontSize: '0.74rem',
                            color: 'var(--danger-400)',
@@ -728,10 +728,10 @@ function ModalCrear({
                         flex:         1,
                         padding:      '10px',
                         background:   form.tipo_contratista === tipo
-                          ? tipo === 'ALTO_RIESGO' ? 'rgba(192,80,80,0.1)' : 'rgba(40,149,108,0.1)'
+                          ? tipo === 'ALTO_RIESGO' ? 'rgba(220, 38, 38,0.1)' : 'rgba(22, 163, 74,0.1)'
                           : 'var(--bg-elevated)',
                         border:       `1px solid ${form.tipo_contratista === tipo
-                          ? tipo === 'ALTO_RIESGO' ? 'rgba(192,80,80,0.4)' : 'rgba(40,149,108,0.4)'
+                          ? tipo === 'ALTO_RIESGO' ? 'rgba(220, 38, 38,0.4)' : 'rgba(22, 163, 74,0.4)'
                           : 'var(--border-default)'}`,
                         borderRadius: 'var(--radius-md)',
                         color:        form.tipo_contratista === tipo
@@ -760,15 +760,15 @@ function ModalCrear({
                 padding:      '10px 14px',
                 borderRadius: 'var(--radius-md)',
                 background:   form.tipo_contratista === 'ALTO_RIESGO'
-                  ? 'rgba(69,116,196,0.06)'
-                  : 'rgba(86,104,184,0.06)',
+                  ? 'rgba(15, 23, 42,0.06)'
+                  : 'rgba(29, 78, 216,0.06)',
                 border: `1px solid ${form.tipo_contratista === 'ALTO_RIESGO'
-                  ? 'rgba(69,116,196,0.2)'
-                  : 'rgba(86,104,184,0.2)'}`,
+                  ? 'rgba(15, 23, 42,0.2)'
+                  : 'rgba(29, 78, 216,0.2)'}`,
                 fontSize:     '0.75rem',
                 color:        form.tipo_contratista === 'ALTO_RIESGO'
                   ? '#B45309'
-                  : '#5668B8',
+                  : 'var(--info-400)',
                 display:      'flex',
                 alignItems:   'center',
                 gap:          '8px',
@@ -856,8 +856,8 @@ function ModalCrear({
                       alignItems:   'center',
                       gap:          '4px',
                       padding:      '0 12px',
-                      background:   'rgba(69,116,196,0.08)',
-                      border:       '1px solid rgba(69,116,196,0.2)',
+                      background:   'rgba(15, 23, 42,0.08)',
+                      border:       '1px solid rgba(15, 23, 42,0.2)',
                       borderRadius: 'var(--radius-md)',
                       color:        'var(--primary-400)',
                       fontSize:     '0.75rem',
@@ -885,8 +885,8 @@ function ModalCrear({
                   gap:          '10px',
                   padding:      '10px 14px',
                   marginBottom: '16px',
-                  background:   'rgba(86,104,184,0.08)',
-                  border:       '1px solid rgba(86,104,184,0.2)',
+                  background:   'rgba(29, 78, 216,0.08)',
+                  border:       '1px solid rgba(29, 78, 216,0.2)',
                   borderRadius: 'var(--radius-md)',
                 }}>
                   <Building2 size={15} color="#7080CC" style={{ flexShrink: 0 }} />
@@ -931,8 +931,8 @@ function ModalCrear({
                     alignItems:   'center',
                     gap:          '4px',
                     padding:      '6px 12px',
-                    background:   'rgba(69,116,196,0.1)',
-                    border:       '1px solid rgba(69,116,196,0.2)',
+                    background:   'rgba(15, 23, 42,0.1)',
+                    border:       '1px solid rgba(15, 23, 42,0.2)',
                     borderRadius: 'var(--radius-md)',
                     color:        'var(--primary-400)',
                     fontSize:     '0.75rem',
@@ -1367,9 +1367,9 @@ export default function PanelGeneralView() {
           padding: '10px 12px',
           fontSize: '0.78rem',
           color: 'var(--primary-400)',
-          border: '1px solid rgba(69,116,196,0.25)',
+          border: '1px solid rgba(15, 23, 42,0.25)',
           borderRadius: 'var(--radius-md)',
-          background: 'rgba(69,116,196,0.06)',
+          background: 'rgba(15, 23, 42,0.06)',
         }}>
           Selecciona una sede en el topbar para ver autorizaciones. Para crear, puedes elegir la sede dentro del modal.
         </div>
@@ -1535,8 +1535,8 @@ export default function PanelGeneralView() {
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                   <span style={{
                     display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 8px', borderRadius: '20px',
-                    border: `1px solid ${a.tipo_contratista === 'ALTO_RIESGO' ? 'rgba(192,80,80,0.2)' : 'rgba(40,149,108,0.2)'}`,
-                    background: a.tipo_contratista === 'ALTO_RIESGO' ? 'rgba(192,80,80,0.08)' : 'rgba(40,149,108,0.08)',
+                    border: `1px solid ${a.tipo_contratista === 'ALTO_RIESGO' ? 'rgba(220, 38, 38,0.2)' : 'rgba(22, 163, 74,0.2)'}`,
+                    background: a.tipo_contratista === 'ALTO_RIESGO' ? 'rgba(220, 38, 38,0.08)' : 'rgba(22, 163, 74,0.08)',
                     color: a.tipo_contratista === 'ALTO_RIESGO' ? 'var(--danger-400)' : 'var(--success-400)',
                     fontSize: '0.7rem',
                   }}>
@@ -1574,7 +1574,7 @@ export default function PanelGeneralView() {
                   <button
                     onClick={() => setAutorizacionAEliminar(a.id)}
                     className="btn-ghost"
-                    style={{ flex: 1, justifyContent: 'center', color: 'var(--danger-400)', borderColor: 'rgba(192,80,80,0.15)' }}
+                    style={{ flex: 1, justifyContent: 'center', color: 'var(--danger-400)', borderColor: 'rgba(220, 38, 38,0.15)' }}
                   >
                     <Trash2 size={13} /> Eliminar
                   </button>
@@ -1650,8 +1650,8 @@ export default function PanelGeneralView() {
                       style={{
                         display: 'inline-flex', alignItems: 'center', gap: 4,
                         padding: '2px 8px',
-                        background: expandedRows.has(a.id) ? 'rgba(69,116,196,0.18)' : 'rgba(69,116,196,0.08)',
-                        border: '1px solid rgba(69,116,196,0.25)',
+                        background: expandedRows.has(a.id) ? 'rgba(15, 23, 42,0.18)' : 'rgba(15, 23, 42,0.08)',
+                        border: '1px solid rgba(15, 23, 42,0.25)',
                         borderRadius: '20px',
                         color: 'var(--primary-400)',
                         fontSize: '0.68rem', fontWeight: 600,
@@ -1690,9 +1690,9 @@ export default function PanelGeneralView() {
                   gap:          '4px',
                   padding:      '3px 8px',
                   background:   a.tipo_contratista === 'ALTO_RIESGO'
-                    ? 'rgba(192,80,80,0.08)' : 'rgba(40,149,108,0.08)',
+                    ? 'rgba(220, 38, 38,0.08)' : 'rgba(22, 163, 74,0.08)',
                   border:       `1px solid ${a.tipo_contratista === 'ALTO_RIESGO'
-                    ? 'rgba(192,80,80,0.2)' : 'rgba(40,149,108,0.2)'}`,
+                    ? 'rgba(220, 38, 38,0.2)' : 'rgba(22, 163, 74,0.2)'}`,
                   borderRadius: '20px',
                   fontSize:     '0.7rem',
                   color:        a.tipo_contratista === 'ALTO_RIESGO'
@@ -1763,7 +1763,7 @@ export default function PanelGeneralView() {
                     width:       '30px',
                     height:      '30px',
                     color:       'var(--danger-400)',
-                    borderColor: 'rgba(192,80,80,0.15)',
+                    borderColor: 'rgba(220, 38, 38,0.15)',
                   }}
                 >
                   <Trash2 size={13} />
@@ -1807,8 +1807,8 @@ export default function PanelGeneralView() {
                       {/* Avatar iniciales */}
                       <div style={{
                         width: 30, height: 30, borderRadius: '50%',
-                        background: 'rgba(69,116,196,0.12)',
-                        border: '1px solid rgba(69,116,196,0.2)',
+                        background: 'rgba(15, 23, 42,0.12)',
+                        border: '1px solid rgba(15, 23, 42,0.2)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         fontSize: '0.65rem', fontWeight: 700, color: 'var(--primary-400)',
                         flexShrink: 0, letterSpacing: '0.03em',

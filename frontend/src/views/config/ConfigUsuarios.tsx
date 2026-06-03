@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ConfigUsuarios — gestión de usuarios y enrolamiento de roles.
  * Permite crear, editar, eliminar usuarios y asignar/quitar roles
  * desde una interfaz de tarjetas con toggle por rol.
@@ -83,7 +83,7 @@ function SedesVigilantePicker({
               display: 'flex', alignItems: 'center', gap: '10px',
               padding: '8px 10px', borderRadius: 'var(--radius-md)',
               border: `1px solid ${checked ? 'var(--primary-400)' : 'var(--border-subtle)'}`,
-              background: checked ? 'rgba(69,116,196,0.08)' : 'var(--bg-raised)',
+              background: checked ? 'rgba(15, 23, 42,0.08)' : 'var(--bg-raised)',
               cursor: 'pointer', fontSize: '0.78rem',
             }}
           >
@@ -428,8 +428,8 @@ function RolesModal({
             <div style={{
               padding: '12px 14px',
               borderRadius: 'var(--radius-lg)',
-              border: '1px solid rgba(69,116,196,0.4)',
-              background: 'rgba(69,116,196,0.04)',
+              border: '1px solid rgba(15, 23, 42,0.4)',
+              background: 'rgba(15, 23, 42,0.04)',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                 <Lock size={13} color="var(--primary-400)" />
@@ -663,8 +663,8 @@ function CrearModal({ roles, onClose }: { roles: RolSistema[]; onClose: () => vo
             {esVigilante && (
               <div style={{
                 padding: '12px 14px', borderRadius: 'var(--radius-lg)',
-                border: '1px solid rgba(69,116,196,0.4)',
-                background: 'rgba(69,116,196,0.04)',
+                border: '1px solid rgba(15, 23, 42,0.4)',
+                background: 'rgba(15, 23, 42,0.04)',
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                   <Lock size={13} color="var(--primary-400)" />
@@ -712,7 +712,7 @@ function CrearModal({ roles, onClose }: { roles: RolSistema[]; onClose: () => vo
                 fontSize: '0.82rem', fontWeight: 600,
                 fontFamily: 'var(--font-ui)', cursor: crearMut.isPending ? 'wait' : 'pointer',
                 opacity: crearMut.isPending ? 0.7 : 1,
-                boxShadow: '0 1px 3px rgba(59,130,246,0.18)',
+                boxShadow: '0 1px 3px rgba(15, 23, 42,0.18)',
               }}
             >
               {crearMut.isPending
@@ -815,7 +815,7 @@ function EditarModal({ usuario, onClose }: { usuario: UsuarioSistema; onClose: (
               color: '#fff', fontSize: '0.82rem', fontWeight: 600,
               fontFamily: 'var(--font-ui)', cursor: editarMut.isPending ? 'wait' : 'pointer',
               opacity: editarMut.isPending ? 0.7 : 1,
-              boxShadow: '0 1px 3px rgba(59,130,246,0.18)',
+              boxShadow: '0 1px 3px rgba(15, 23, 42,0.18)',
             }}>
               {editarMut.isPending ? <Loader2 size={13} style={{ animation: 'spin 0.8s linear infinite' }} /> : <Check size={13} />}
               Guardar
@@ -911,7 +911,7 @@ export default function ConfigUsuarios() {
             border: 'none', background: 'var(--gradient-primary)',
             color: '#fff', fontSize: '0.82rem', fontWeight: 600,
             fontFamily: 'var(--font-ui)', cursor: 'pointer', whiteSpace: 'nowrap',
-            boxShadow: '0 2px 4px rgba(59,130,246,0.20), 0 6px 16px rgba(59,130,246,0.16)',
+            boxShadow: '0 2px 4px rgba(15, 23, 42,0.20), 0 6px 16px rgba(15, 23, 42,0.16)',
           }}
         >
           <UserPlus size={14} />

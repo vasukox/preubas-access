@@ -44,7 +44,9 @@ __decorate([
     __metadata("design:type", String)
 ], HseExamenMedico.prototype, "archivo", void 0);
 __decorate([
-    (0, typeorm_1.OneToOne)(() => hse_contratista_entity_1.HseContratista, (contratista) => contratista.examenMedico, { onDelete: 'CASCADE' }),
+    (0, typeorm_1.OneToOne)(() => hse_contratista_entity_1.HseContratista, (contratista) => contratista.examenMedico, {
+        onDelete: 'CASCADE',
+    }),
     (0, typeorm_1.JoinColumn)({ name: 'contratista_id' }),
     __metadata("design:type", hse_contratista_entity_1.HseContratista)
 ], HseExamenMedico.prototype, "contratista", void 0);

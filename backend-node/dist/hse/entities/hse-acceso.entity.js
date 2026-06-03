@@ -45,11 +45,23 @@ __decorate([
     __metadata("design:type", Number)
 ], HseAcceso.prototype, "registradoPor", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'tipo', type: 'varchar', length: 20, nullable: false, comment: 'ENTRADA / SALIDA' }),
+    (0, typeorm_1.Column)({
+        name: 'tipo',
+        type: 'varchar',
+        length: 20,
+        nullable: false,
+        comment: 'ENTRADA / SALIDA',
+    }),
     __metadata("design:type", String)
 ], HseAcceso.prototype, "tipoAcceso", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'metodo', type: 'enum', enum: hse_enum_1.MetodoAcceso, nullable: false, default: hse_enum_1.MetodoAcceso.CEDULA_MANUAL }),
+    (0, typeorm_1.Column)({
+        name: 'metodo',
+        type: 'enum',
+        enum: hse_enum_1.MetodoAcceso,
+        nullable: false,
+        default: hse_enum_1.MetodoAcceso.CEDULA_MANUAL,
+    }),
     __metadata("design:type", String)
 ], HseAcceso.prototype, "metodo", void 0);
 __decorate([
@@ -65,7 +77,9 @@ __decorate([
     __metadata("design:type", Date)
 ], HseAcceso.prototype, "fechaHora", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => hse_contratista_entity_1.HseContratista, (contratista) => contratista.accesos, { onDelete: 'CASCADE' }),
+    (0, typeorm_1.ManyToOne)(() => hse_contratista_entity_1.HseContratista, (contratista) => contratista.accesos, {
+        onDelete: 'CASCADE',
+    }),
     (0, typeorm_1.JoinColumn)({ name: 'contratista_id' }),
     __metadata("design:type", hse_contratista_entity_1.HseContratista)
 ], HseAcceso.prototype, "contratista", void 0);

@@ -15,7 +15,12 @@ const websockets_1 = require("@nestjs/websockets");
 const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
 const ws_1 = require("ws");
-const ROLES_MULTISEDE = new Set(['ADMIN_GLOBAL', 'ADMIN_HSE', 'GESTION_HSE', 'VISUALIZADOR']);
+const ROLES_MULTISEDE = new Set([
+    'ADMIN_GLOBAL',
+    'ADMIN_HSE',
+    'GESTION_HSE',
+    'VISUALIZADOR',
+]);
 let KoajGateway = KoajGateway_1 = class KoajGateway {
     jwtService;
     server;

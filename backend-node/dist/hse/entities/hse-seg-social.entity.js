@@ -49,11 +49,21 @@ __decorate([
     __metadata("design:type", Boolean)
 ], HseSegSocial.prototype, "esTitular", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'nombre_persona', type: 'varchar', length: 150, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'nombre_persona',
+        type: 'varchar',
+        length: 150,
+        nullable: true,
+    }),
     __metadata("design:type", String)
 ], HseSegSocial.prototype, "nombrePersona", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'cedula_persona', type: 'varchar', length: 30, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'cedula_persona',
+        type: 'varchar',
+        length: 30,
+        nullable: true,
+    }),
     __metadata("design:type", String)
 ], HseSegSocial.prototype, "cedulaPersona", void 0);
 __decorate([
@@ -85,11 +95,21 @@ __decorate([
     __metadata("design:type", String)
 ], HseSegSocial.prototype, "pilaTipo", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'pila_estado', type: 'enum', enum: hse_enum_1.PilaEstado, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'pila_estado',
+        type: 'enum',
+        enum: hse_enum_1.PilaEstado,
+        nullable: true,
+    }),
     __metadata("design:type", String)
 ], HseSegSocial.prototype, "pilaEstado", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'pila_archivo', type: 'varchar', length: 500, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'pila_archivo',
+        type: 'varchar',
+        length: 500,
+        nullable: true,
+    }),
     __metadata("design:type", String)
 ], HseSegSocial.prototype, "pilaArchivo", void 0);
 __decorate([
@@ -97,11 +117,21 @@ __decorate([
     __metadata("design:type", Boolean)
 ], HseSegSocial.prototype, "sstTieneVigente", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'sst_responsable_nombre', type: 'varchar', length: 150, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'sst_responsable_nombre',
+        type: 'varchar',
+        length: 150,
+        nullable: true,
+    }),
     __metadata("design:type", String)
 ], HseSegSocial.prototype, "sstResponsableNombre", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'sst_resolucion_registro', type: 'varchar', length: 100, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'sst_resolucion_registro',
+        type: 'varchar',
+        length: 100,
+        nullable: true,
+    }),
     __metadata("design:type", String)
 ], HseSegSocial.prototype, "sstResolucionRegistro", void 0);
 __decorate([

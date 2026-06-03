@@ -36,7 +36,12 @@ __decorate([
     __metadata("design:type", Boolean)
 ], HseAceptacionNormas.prototype, "aceptoDatos", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'firma_digital', type: 'varchar', length: 200, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'firma_digital',
+        type: 'varchar',
+        length: 200,
+        nullable: true,
+    }),
     __metadata("design:type", String)
 ], HseAceptacionNormas.prototype, "firmaDigital", void 0);
 __decorate([

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * KOAJ Access v2.0 — Permoda S.A.S.
  * Reporte de Autorizaciones HSE — Paginado con filtros y exportación Excel.
  */
@@ -46,7 +46,7 @@ function estadoBadgeStyle(estado: string): React.CSSProperties {
     case 'APROBADO':
       return { ...base, background: 'rgba(34,197,94,0.1)', color: 'var(--success-400)' }
     case 'EN_REVISION':
-      return { ...base, background: 'rgba(86,104,184,0.12)', color: '#5668B8' }
+      return { ...base, background: 'rgba(29, 78, 216,0.12)', color: 'var(--info-400)' }
     case 'VENCIDO':
     case 'DENEGADO':
       return { ...base, background: 'rgba(220,38,38,0.1)', color: 'var(--danger-400)' }
@@ -245,7 +245,7 @@ export default function ReportesAutorizacionesView() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px', marginBottom: '20px' }}>
         <KpiCard label="Total" value={total} color="var(--text-muted)" />
         <KpiCard label="Aprobadas" value={aprobados} color="var(--success-400)" />
-        <KpiCard label="En Revisión" value={enRevision} color="#5668B8" />
+        <KpiCard label="En Revisión" value={enRevision} color="var(--info-400)" />
         <KpiCard label="Vencidas" value={vencidos} color="var(--danger-400)" />
       </div>
 
@@ -372,7 +372,7 @@ export default function ReportesAutorizacionesView() {
                           display: 'inline-flex', alignItems: 'center',
                           padding: '2px 8px', borderRadius: 'var(--radius-sm)',
                           fontSize: '0.7rem', fontWeight: 700,
-                          background: row.tipo_contratista === 'ALTO_RIESGO' ? 'rgba(245,158,11,0.1)' : 'rgba(86,104,184,0.1)',
+                          background: row.tipo_contratista === 'ALTO_RIESGO' ? 'rgba(245,158,11,0.1)' : 'rgba(29, 78, 216,0.1)',
                           color: row.tipo_contratista === 'ALTO_RIESGO' ? '#f59e0b' : 'var(--primary-400)',
                         }}>
                           {row.tipo_contratista === 'ALTO_RIESGO' ? 'Alto Riesgo' : 'Normal'}

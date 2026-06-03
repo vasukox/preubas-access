@@ -1,4 +1,4 @@
-/**
+﻿/**
  * KOAJ Access v2.0 — Permoda S.A.S.
  * Reportes HSE — Historial y trazabilidad de cumplimientos.
  */
@@ -74,7 +74,7 @@ function QuickDate({ label, days, current, onClick }: { label: string; days: num
       onClick={onClick}
       style={{
         padding: '6px 10px', fontSize: '0.72rem', fontWeight: 600,
-        background: active ? 'rgba(86,104,184,0.15)' : 'var(--bg-elevated)',
+        background: active ? 'rgba(29, 78, 216,0.15)' : 'var(--bg-elevated)',
         border: `1px solid ${active ? 'var(--primary-400)' : 'var(--border-default)'}`,
         borderRadius: 'var(--radius-md)',
         color: active ? 'var(--primary-400)' : 'var(--text-muted)',

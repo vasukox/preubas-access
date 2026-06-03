@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+﻿import { useQuery } from '@tanstack/react-query'
 import { Lock } from 'lucide-react'
 import { configService } from '@/services/config.service'
 
@@ -41,12 +41,12 @@ export default function ConfigSistema() {
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
-      <Param accent="#5668B8" label="Entorno"              value={params.environment} />
-      <Param accent="#5668B8" label="Debug"                value={params.debug ? 'Activo' : 'Desactivado'} />
-      <Param accent="#5668B8" label="Access token (min)"   value={String(params.access_token_expire_minutes)} />
-      <Param accent="#5668B8" label="Refresh token (días)" value={String(params.refresh_token_expire_days)} />
-      <Param accent="#5668B8" label="Upload máx. (MB)"     value={String(params.max_upload_size_mb)} />
-      <Param accent="#5668B8" label="Orígenes CORS"        value={params.allowed_origins.join(', ')} />
+      <Param accent="var(--info-400)" label="Entorno"              value={params.environment} />
+      <Param accent="var(--info-400)" label="Debug"                value={params.debug ? 'Activo' : 'Desactivado'} />
+      <Param accent="var(--info-400)" label="Access token (min)"   value={String(params.access_token_expire_minutes)} />
+      <Param accent="var(--info-400)" label="Refresh token (días)" value={String(params.refresh_token_expire_days)} />
+      <Param accent="var(--info-400)" label="Upload máx. (MB)"     value={String(params.max_upload_size_mb)} />
+      <Param accent="var(--info-400)" label="Orígenes CORS"        value={params.allowed_origins.join(', ')} />
     </div>
   )
 }

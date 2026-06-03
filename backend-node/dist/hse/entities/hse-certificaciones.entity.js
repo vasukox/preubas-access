@@ -37,7 +37,12 @@ __decorate([
     __metadata("design:type", String)
 ], HseCertificaciones.prototype, "artArchivo", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'permiso_tipo', type: 'enum', enum: hse_enum_1.PermisoTipo, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'permiso_tipo',
+        type: 'enum',
+        enum: hse_enum_1.PermisoTipo,
+        nullable: true,
+    }),
     __metadata("design:type", String)
 ], HseCertificaciones.prototype, "permisoTipo", void 0);
 __decorate([
@@ -45,7 +50,12 @@ __decorate([
     __metadata("design:type", Date)
 ], HseCertificaciones.prototype, "permisoFecha", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'permiso_archivo', type: 'varchar', length: 500, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'permiso_archivo',
+        type: 'varchar',
+        length: 500,
+        nullable: true,
+    }),
     __metadata("design:type", String)
 ], HseCertificaciones.prototype, "permisoArchivo", void 0);
 __decorate([

@@ -34,11 +34,21 @@ __decorate([
     __metadata("design:type", Object)
 ], HseHistorial.prototype, "usuarioId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'estado_anterior', type: 'varchar', length: 50, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'estado_anterior',
+        type: 'varchar',
+        length: 50,
+        nullable: true,
+    }),
     __metadata("design:type", Object)
 ], HseHistorial.prototype, "estadoAnterior", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'estado_nuevo', type: 'varchar', length: 50, nullable: false }),
+    (0, typeorm_1.Column)({
+        name: 'estado_nuevo',
+        type: 'varchar',
+        length: 50,
+        nullable: false,
+    }),
     __metadata("design:type", String)
 ], HseHistorial.prototype, "estadoNuevo", void 0);
 __decorate([
@@ -50,7 +60,9 @@ __decorate([
     __metadata("design:type", Object)
 ], HseHistorial.prototype, "metadataExtra", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => hse_contratista_entity_1.HseContratista, (contratista) => contratista.historial, { onDelete: 'CASCADE' }),
+    (0, typeorm_1.ManyToOne)(() => hse_contratista_entity_1.HseContratista, (contratista) => contratista.historial, {
+        onDelete: 'CASCADE',
+    }),
     (0, typeorm_1.JoinColumn)({ name: 'contratista_id' }),
     __metadata("design:type", hse_contratista_entity_1.HseContratista)
 ], HseHistorial.prototype, "contratista", void 0);

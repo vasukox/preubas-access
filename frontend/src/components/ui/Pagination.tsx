@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+﻿import type { CSSProperties } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface PaginationProps {
@@ -100,7 +100,7 @@ export function Pagination({ currentPage, totalPages, onNext, onPrev, onGoTo, to
               fontWeight:   p === currentPage ? 700 : 400,
               cursor:       'pointer',
               transition:   'all var(--transition-fast)',
-              boxShadow:    p === currentPage ? '0 1px 4px rgba(59,130,246,0.25)' : 'none',
+              boxShadow:    p === currentPage ? '0 1px 4px rgba(15, 23, 42,0.25)' : 'none',
               fontFamily:   'var(--font-ui)',
             }}
             onMouseEnter={e => { if (p !== currentPage) { (e.currentTarget as HTMLElement).style.background = 'var(--bg-surface)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' } }}

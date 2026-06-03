@@ -1,4 +1,4 @@
-/**
+﻿/**
  * KOAJ Access v2.0 — Permoda S.A.S.
  * Excepciones HSE — Pre-aprobados especiales
  */
@@ -252,8 +252,8 @@ function ModalEditarExcepcion({
             <div style={{
               padding: '10px 12px',
               borderRadius: 'var(--radius-md)',
-              background: 'rgba(192,80,80,0.08)',
-              border: '1px solid rgba(192,80,80,0.2)',
+              background: 'rgba(220, 38, 38,0.08)',
+              border: '1px solid rgba(220, 38, 38,0.2)',
               color: 'var(--danger-400)',
               fontSize: '0.8rem',
             }}>
@@ -410,8 +410,8 @@ function ModalCrearProveedor({
             <div style={{
               padding: '10px 12px',
               borderRadius: 'var(--radius-md)',
-              background: 'rgba(192,80,80,0.08)',
-              border: '1px solid rgba(192,80,80,0.2)',
+              background: 'rgba(220, 38, 38,0.08)',
+              border: '1px solid rgba(220, 38, 38,0.2)',
               color: 'var(--danger-400)',
               fontSize: '0.8rem',
             }}>
@@ -640,8 +640,8 @@ function ModalCrear({
             <div style={{
               width:          '34px',
               height:         '34px',
-              background:     'rgba(192,80,80,0.08)',
-              border:         '1px solid rgba(192,80,80,0.2)',
+              background:     'rgba(220, 38, 38,0.08)',
+              border:         '1px solid rgba(220, 38, 38,0.2)',
               borderRadius:   'var(--radius-md)',
               display:        'flex',
               alignItems:     'center',
@@ -672,8 +672,8 @@ function ModalCrear({
           {/* Aviso */}
           <div style={{
             padding:      '10px 14px',
-            background:   'rgba(192,80,80,0.06)',
-            border:       '1px solid rgba(192,80,80,0.15)',
+            background:   'rgba(220, 38, 38,0.06)',
+            border:       '1px solid rgba(220, 38, 38,0.15)',
             borderRadius: 'var(--radius-md)',
             fontSize:     '0.78rem',
             color:        'var(--danger-400)',
@@ -685,8 +685,8 @@ function ModalCrear({
           {error && (
             <div style={{
               padding:      '10px 14px',
-              background:   'rgba(192,80,80,0.08)',
-              border:       '1px solid rgba(192,80,80,0.2)',
+              background:   'rgba(220, 38, 38,0.08)',
+              border:       '1px solid rgba(220, 38, 38,0.2)',
               borderRadius: 'var(--radius-md)',
               fontSize:     '0.8rem',
               color:        'var(--danger-400)',
@@ -1166,13 +1166,13 @@ export default function ExcepcionesView() {
             label: 'Activas vigentes',
             value: activas.filter(e => e.fecha_fin >= hoy && e.fecha_inicio <= hoy).length,
             color: 'var(--success-400)',
-            bg:    'rgba(40,149,108,0.08)',
+            bg:    'rgba(22, 163, 74,0.08)',
           },
           {
             label: 'Vencidas activas',
             value: activas.filter(e => e.fecha_fin < hoy).length,
             color: 'var(--danger-400)',
-            bg:    'rgba(192,80,80,0.08)',
+            bg:    'rgba(220, 38, 38,0.08)',
           },
           {
             label: 'Total registradas',
@@ -1184,7 +1184,7 @@ export default function ExcepcionesView() {
             label: 'Origen empresa',
             value: excepciones.filter(e => e.origen_excepcion === 'EMPRESA').length,
             color: '#7080CC',
-            bg:    'rgba(86,104,184,0.10)',
+            bg:    'rgba(29, 78, 216,0.10)',
           },
         ].map(stat => (
         <div key={stat.label}
@@ -1274,7 +1274,7 @@ export default function ExcepcionesView() {
                   style={{
                     background:   'var(--bg-surface)',
                     border:       '1px solid var(--border-subtle)',
-                    borderLeft:   group.isEmpresa ? '4px solid rgba(86,104,184,0.5)' : '4px solid rgba(148,163,184,0.55)',
+                    borderLeft:   group.isEmpresa ? '4px solid rgba(29, 78, 216,0.5)' : '4px solid rgba(148,163,184,0.55)',
                     borderRadius: 'var(--radius-xl)',
                     overflow:     'hidden',
                     boxShadow:    'var(--shadow-card)',
@@ -1287,7 +1287,7 @@ export default function ExcepcionesView() {
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     padding: '12px 16px',
-                    background: group.isEmpresa ? 'rgba(86,104,184,0.08)' : 'var(--bg-elevated)',
+                    background: group.isEmpresa ? 'rgba(29, 78, 216,0.08)' : 'var(--bg-elevated)',
                     borderBottom: '1px solid var(--border-subtle)',
                   }}
                 >
@@ -1342,7 +1342,7 @@ export default function ExcepcionesView() {
                           padding: '4px 8px',
                           background: 'transparent',
                           color: 'var(--danger-400)',
-                          border: '1px solid rgba(192,80,80,0.25)',
+                          border: '1px solid rgba(220, 38, 38,0.25)',
                           borderRadius: 'var(--radius-md)',
                           fontSize: '0.7rem',
                           fontWeight: 600,
@@ -1491,7 +1491,7 @@ export default function ExcepcionesView() {
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '4px',
-                                boxShadow: '0 1px 3px rgba(59,130,246,0.18)',
+                                boxShadow: '0 1px 3px rgba(15, 23, 42,0.18)',
                               }}
                             >
                               {accionando === e.id ? '...' : 'Activar'}
@@ -1506,7 +1506,7 @@ export default function ExcepcionesView() {
                                 padding: '6px 10px',
                                 background: 'transparent',
                                 color: 'var(--danger-400)',
-                                border: '1px solid rgba(192,80,80,0.25)',
+                                border: '1px solid rgba(220, 38, 38,0.25)',
                                 borderRadius: 'var(--radius-md)',
                                 fontSize: '0.74rem',
                                 fontWeight: 600,

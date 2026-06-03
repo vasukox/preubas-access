@@ -37,7 +37,13 @@ let HseAutorizacion = class HseAutorizacion extends base_entity_1.BaseEntity {
 };
 exports.HseAutorizacion = HseAutorizacion;
 __decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 20, unique: true, nullable: false, comment: 'HSE-2026-XXXX — generado automáticamente' }),
+    (0, typeorm_1.Column)({
+        type: 'varchar',
+        length: 20,
+        unique: true,
+        nullable: false,
+        comment: 'HSE-2026-XXXX — generado automáticamente',
+    }),
     __metadata("design:type", String)
 ], HseAutorizacion.prototype, "codigo", void 0);
 __decorate([
@@ -57,7 +63,12 @@ __decorate([
     __metadata("design:type", Number)
 ], HseAutorizacion.prototype, "responsableInternoId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'tipo_contratista', type: 'enum', enum: hse_enum_1.TipoContratista, nullable: false }),
+    (0, typeorm_1.Column)({
+        name: 'tipo_contratista',
+        type: 'enum',
+        enum: hse_enum_1.TipoContratista,
+        nullable: false,
+    }),
     __metadata("design:type", String)
 ], HseAutorizacion.prototype, "tipoContratista", void 0);
 __decorate([
@@ -73,7 +84,12 @@ __decorate([
     __metadata("design:type", Date)
 ], HseAutorizacion.prototype, "fechaFin", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'enum', enum: hse_enum_1.EstadoAutorizacion, default: hse_enum_1.EstadoAutorizacion.BORRADOR, nullable: false }),
+    (0, typeorm_1.Column)({
+        type: 'enum',
+        enum: hse_enum_1.EstadoAutorizacion,
+        default: hse_enum_1.EstadoAutorizacion.BORRADOR,
+        nullable: false,
+    }),
     __metadata("design:type", String)
 ], HseAutorizacion.prototype, "estado", void 0);
 __decorate([
@@ -101,7 +117,9 @@ __decorate([
     __metadata("design:type", usuario_entity_1.Usuario)
 ], HseAutorizacion.prototype, "responsableInterno", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => hse_contratista_entity_1.HseContratista, (contratista) => contratista.autorizacion, { cascade: true }),
+    (0, typeorm_1.OneToMany)(() => hse_contratista_entity_1.HseContratista, (contratista) => contratista.autorizacion, {
+        cascade: true,
+    }),
     __metadata("design:type", Array)
 ], HseAutorizacion.prototype, "contratistas", void 0);
 exports.HseAutorizacion = HseAutorizacion = __decorate([

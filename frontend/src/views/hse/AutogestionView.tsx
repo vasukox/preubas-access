@@ -1,4 +1,4 @@
-/**
+﻿/**
  * KOAJ Access v2.0 — Permoda S.A.S.
  * Portal Autogestión HSE — Wizard premium / carrusel
  */
@@ -28,7 +28,7 @@ const PASO_META: Record<PasoKey, { label: string; icon: React.ElementType; accen
   actividad:           { label: 'Actividad',   icon: Clipboard,   accent: '#E6922E' },
   seg_social:          { label: 'Seg. Social', icon: Heart,       accent: '#28956C' },
   certificaciones:     { label: 'Certifs.',    icon: FileText,    accent: '#28956C' },
-  medico:              { label: 'Médico',      icon: Activity,    accent: '#5668B8' },
+  medico:              { label: 'Médico',      icon: Activity,    accent: 'var(--info-400)' },
   emergencia_contacto: { label: 'Contacto',    icon: Phone,       accent: '#E6922E' },
   emergencia_medico:   { label: 'Info Médica', icon: Heart,       accent: '#C05050' },
   emergencia:          { label: 'Emergencia',  icon: Heart,       accent: '#C05050' },
@@ -71,9 +71,9 @@ function estadoVig(f?: string): 'vencido'|'proximo'|'vigente'|null {
 function VigenciaBadge({ fecha }: { fecha?: string }) {
   const e = estadoVig(fecha); if (!e) return null
   const cfg = {
-    vencido:{ c:'var(--danger-400)',  bg:'rgba(192,80,80,.09)',  t:'⚠ Vencido' },
-    proximo:{ c:'#4574C4',            bg:'rgba(69,116,196,.09)', t:'⚠ Vence pronto (< 30 días)' },
-    vigente:{ c:'var(--success-400)', bg:'rgba(40,149,108,.09)', t:'✓ Vigente' },
+    vencido:{ c:'var(--danger-400)',  bg:'rgba(220, 38, 38,.09)',  t:'⚠ Vencido' },
+    proximo:{ c:'#4574C4',            bg:'rgba(15, 23, 42,.09)', t:'⚠ Vence pronto (< 30 días)' },
+    vigente:{ c:'var(--success-400)', bg:'rgba(22, 163, 74,.09)', t:'✓ Vigente' },
   }[e]
   return <div style={{marginTop:4,padding:'3px 8px',borderRadius:6,fontSize:'.68rem',color:cfg.c,background:cfg.bg,fontWeight:600}}>{cfg.t}</div>
 }
@@ -89,10 +89,10 @@ function BloodPicker({ value, onChange }: { value?:string; onChange:(v:string)=>
           <button key={t.v} type="button" onClick={()=>onChange(t.v)} style={{
             padding:'9px 4px', borderRadius:10, cursor:'pointer', fontFamily:'var(--font-mono)',
             fontSize:'.9rem', fontWeight: on?700:500, textAlign:'center',
-            background: on?'rgba(192,80,80,.14)':'rgba(255,255,255,.04)',
-            border:`1.5px solid ${on?'rgba(192,80,80,.5)':'rgba(255,255,255,.1)'}`,
+            background: on?'rgba(220, 38, 38,.14)':'rgba(255,255,255,.04)',
+            border:`1.5px solid ${on?'rgba(220, 38, 38,.5)':'rgba(255,255,255,.1)'}`,
             color: on?'#E05050':'var(--text-muted)',
-            boxShadow: on?'0 0 10px rgba(192,80,80,.2)':'none',
+            boxShadow: on?'0 0 10px rgba(220, 38, 38,.2)':'none',
             transition:'all .18s ease',
           }}>{t.l}</button>
         )
@@ -120,7 +120,7 @@ function PdfUploadZone({ label, value, required=false, uploading=false, progress
 
       {uploading ? (
         <div style={{display:'flex',alignItems:'center',gap:14,padding:'14px 18px',
-          background:'rgba(69,116,196,.07)',border:'1.5px solid rgba(69,116,196,.3)',borderRadius:12}}>
+          background:'rgba(15, 23, 42,.07)',border:'1.5px solid rgba(15, 23, 42,.3)',borderRadius:12}}>
           <svg width={56} height={56} style={{flexShrink:0}}>
             <circle cx={28} cy={28} r={r} fill="none" stroke="rgba(255,255,255,.08)" strokeWidth={3}/>
             <circle cx={28} cy={28} r={r} fill="none" stroke="#4574C4" strokeWidth={3}
@@ -139,8 +139,8 @@ function PdfUploadZone({ label, value, required=false, uploading=false, progress
         </div>
       ) : value ? (
         <div style={{display:'flex',alignItems:'center',gap:10,padding:'10px 16px',
-          background:'rgba(40,149,108,.07)',border:'1.5px solid rgba(40,149,108,.3)',borderRadius:12}}>
-          <div style={{width:34,height:34,borderRadius:'50%',background:'rgba(40,149,108,.15)',
+          background:'rgba(22, 163, 74,.07)',border:'1.5px solid rgba(22, 163, 74,.3)',borderRadius:12}}>
+          <div style={{width:34,height:34,borderRadius:'50%',background:'rgba(22, 163, 74,.15)',
             display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
             <CheckCircle2 size={18} color="var(--success-400)"/>
           </div>
@@ -161,8 +161,8 @@ function PdfUploadZone({ label, value, required=false, uploading=false, progress
           onDragLeave={()=>setDrag(false)}
           onDrop={e=>{e.preventDefault();setDrag(false);pick(e.dataTransfer.files?.[0])}}
           style={{padding:'22px 20px',borderRadius:12,cursor:'pointer',textAlign:'center',
-            border:`1.5px dashed ${drag?'rgba(69,116,196,.7)':'rgba(255,255,255,.15)'}`,
-            background: drag?'rgba(69,116,196,.08)':'rgba(255,255,255,.02)',
+            border:`1.5px dashed ${drag?'rgba(15, 23, 42,.7)':'rgba(255,255,255,.15)'}`,
+            background: drag?'rgba(15, 23, 42,.08)':'rgba(255,255,255,.02)',
             transition:'all .2s'}}>
           <Upload size={26} color="rgba(100,130,200,.7)" style={{marginBottom:8,display:'block',margin:'0 auto 8px'}}/>
           <div style={{fontSize:'.78rem',color:'var(--text-muted)',marginBottom:4}}>
@@ -217,9 +217,9 @@ function Paso1Sede({ data }: { data: AutogestionTokenResponse }) {
   return (
     <div style={{textAlign:'center'}}>
       <div style={{width:68,height:68,borderRadius:'50%',margin:'0 auto 20px',
-        background:'rgba(69,116,196,.12)',border:'2px solid rgba(69,116,196,.3)',
+        background:'rgba(15, 23, 42,.12)',border:'2px solid rgba(15, 23, 42,.3)',
         display:'flex',alignItems:'center',justifyContent:'center',
-        boxShadow:'0 0 28px rgba(69,116,196,.2)'}}>
+        boxShadow:'0 0 28px rgba(15, 23, 42,.2)'}}>
         <ShieldCheck size={30} color="#6A95E0"/>
       </div>
       <h2 style={{fontSize:'1.3rem',fontWeight:700,color:'var(--text-primary)',marginBottom:8}}>
@@ -230,8 +230,8 @@ function Paso1Sede({ data }: { data: AutogestionTokenResponse }) {
       </p>
       {data.empresa_proveedor && (
         <div style={{display:'flex',alignItems:'center',gap:12,padding:'12px 16px',marginBottom:14,
-          background:'rgba(86,104,184,.1)',border:'1px solid rgba(86,104,184,.25)',borderRadius:12,textAlign:'left'}}>
-          <div style={{width:36,height:36,borderRadius:9,background:'rgba(86,104,184,.15)',
+          background:'rgba(29, 78, 216,.1)',border:'1px solid rgba(29, 78, 216,.25)',borderRadius:12,textAlign:'left'}}>
+          <div style={{width:36,height:36,borderRadius:9,background:'rgba(29, 78, 216,.15)',
             display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
             <svg width={17} height={17} viewBox="0 0 24 24" fill="none" stroke="#7080CC" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
@@ -251,8 +251,8 @@ function Paso1Sede({ data }: { data: AutogestionTokenResponse }) {
         <div style={{padding:'12px 14px',background:'rgba(255,255,255,.04)',border:'1px solid rgba(255,255,255,.08)',borderRadius:12,textAlign:'left'}}>
           <div style={{fontSize:'.6rem',color:'var(--text-muted)',letterSpacing:'.07em',marginBottom:5}}>TIPO</div>
           <span style={{padding:'2px 10px',borderRadius:20,fontSize:'.7rem',fontWeight:700,
-            background: ar?'rgba(192,80,80,.12)':'rgba(40,149,108,.12)',
-            border:`1px solid ${ar?'rgba(192,80,80,.35)':'rgba(40,149,108,.35)'}`,
+            background: ar?'rgba(220, 38, 38,.12)':'rgba(22, 163, 74,.12)',
+            border:`1px solid ${ar?'rgba(220, 38, 38,.35)':'rgba(22, 163, 74,.35)'}`,
             color: ar?'var(--danger-400)':'var(--success-400)'}}>
             {ar?'⚠ Alto Riesgo':'✓ Normal'}
           </span>
@@ -283,7 +283,7 @@ function Paso2Datos({ form, setForm, empresa, tipologia, formClasif, setFormClas
       <p style={{fontSize:'.8rem',color:'var(--text-muted)',marginBottom:20}}>Confirma y completa tu información de contacto.</p>
       {empresa && (
         <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:14,padding:'8px 12px',
-          borderRadius:10,background:'rgba(86,104,184,.08)',border:'1px solid rgba(86,104,184,.2)',
+          borderRadius:10,background:'rgba(29, 78, 216,.08)',border:'1px solid rgba(29, 78, 216,.2)',
           fontSize:'.75rem',color:'var(--text-secondary)'}}>
           <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="#7080CC" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}>
             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
@@ -306,7 +306,7 @@ function Paso2Datos({ form, setForm, empresa, tipologia, formClasif, setFormClas
         </div>
       </div>
       {ext && (
-        <div style={{marginBottom:14,padding:16,background:'rgba(40,149,108,.05)',border:'1px solid rgba(40,149,108,.2)',borderRadius:12}}>
+        <div style={{marginBottom:14,padding:16,background:'rgba(22, 163, 74,.05)',border:'1px solid rgba(22, 163, 74,.2)',borderRadius:12}}>
           <div style={{fontSize:'.68rem',color:'var(--success-400)',fontWeight:700,letterSpacing:'.06em',marginBottom:12}}>
             PÓLIZA DE SEGURO — COBERTURA COLOMBIA
             <span style={{fontSize:'.62rem',fontWeight:400,color:'var(--text-muted)',marginLeft:8}}>Obligatoria para CE / PASAPORTE</span>
@@ -355,7 +355,7 @@ function Paso2Datos({ form, setForm, empresa, tipologia, formClasif, setFormClas
           <input type="text" value={form.telefono??''} style={inp} placeholder="3001234567" onChange={e=>setForm((f:any)=>({...f,telefono:e.target.value}))}/>
         </div>
       </div>
-      <div style={{padding:'14px 16px',background:'rgba(69,116,196,.05)',border:'1px solid rgba(69,116,196,.15)',borderRadius:12,marginBottom:12}}>
+      <div style={{padding:'14px 16px',background:'rgba(15, 23, 42,.05)',border:'1px solid rgba(15, 23, 42,.15)',borderRadius:12,marginBottom:12}}>
         <div style={{fontSize:'.66rem',color:'#6A95E0',fontWeight:700,letterSpacing:'.06em',marginBottom:10}}>RESPONSABLE SST</div>
         <div style={grid2}>
           <div>
@@ -431,7 +431,7 @@ function Paso3Clasif({ form, setForm, esAR, onUpload, uploadingCampo, uploadProg
   const requisitos = (key:string) => {
     if(!form[key]) return null
     const boxStyle:React.CSSProperties={marginTop:8,padding:14,borderRadius:10,
-      background:'rgba(192,80,80,.05)',border:'1px solid rgba(192,80,80,.2)'}
+      background:'rgba(220, 38, 38,.05)',border:'1px solid rgba(220, 38, 38,.2)'}
     if(key==='trabajo_alturas') return (
       <div style={boxStyle}>
         <div style={{fontSize:'.78rem',color:'var(--danger-400)',fontWeight:600,marginBottom:10}}>Requisitos — Alturas</div>
@@ -561,7 +561,7 @@ function Paso3Clasif({ form, setForm, esAR, onUpload, uploadingCampo, uploadProg
       </div>
     )
     if(key==='personal_extranjero') return (
-      <div style={{...boxStyle,background:'rgba(40,149,108,.05)',border:'1px solid rgba(40,149,108,.2)'}}>
+      <div style={{...boxStyle,background:'rgba(22, 163, 74,.05)',border:'1px solid rgba(22, 163, 74,.2)'}}>
         <div style={{fontSize:'.78rem',color:'var(--success-400)',fontWeight:600,marginBottom:10}}>Requisitos — Personal extranjero</div>
         <div style={grid2}>
           <div>
@@ -587,7 +587,7 @@ function Paso3Clasif({ form, setForm, esAR, onUpload, uploadingCampo, uploadProg
       </div>
     )
     if(key==='genera_residuos') return (
-      <div style={{...boxStyle,background:'rgba(40,149,108,.05)',border:'1px solid rgba(40,149,108,.2)'}}>
+      <div style={{...boxStyle,background:'rgba(22, 163, 74,.05)',border:'1px solid rgba(22, 163, 74,.2)'}}>
         <div style={{fontSize:'.78rem',color:'var(--success-400)',fontWeight:600,marginBottom:10}}>Requisitos — Generación de residuos</div>
         <div style={{marginBottom:10}}>
           <label style={lbl}>TIPO DE RESIDUOS{reqStar}</label>
@@ -599,7 +599,7 @@ function Paso3Clasif({ form, setForm, esAR, onUpload, uploadingCampo, uploadProg
       </div>
     )
     if(key==='visita_sin_riesgo') return (
-      <div style={{...boxStyle,background:'rgba(40,149,108,.08)',border:'1px solid rgba(40,149,108,.3)',
+      <div style={{...boxStyle,background:'rgba(22, 163, 74,.08)',border:'1px solid rgba(22, 163, 74,.3)',
         color:'var(--success-400)',fontSize:'.78rem',marginTop:8}}>
         ✓ Visita sin riesgo: no se requieren documentos adicionales en esta sección.
       </div>
@@ -620,8 +620,8 @@ function Paso3Clasif({ form, setForm, esAR, onUpload, uploadingCampo, uploadProg
               width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',
               padding:'12px 16px',borderRadius:10,cursor:'pointer',textAlign:'left',
               fontFamily:'var(--font-ui)',transition:'all .2s ease',
-              background: form[p.key] ? (p.riesgo?'rgba(192,80,80,.08)':'rgba(40,149,108,.08)') : 'rgba(255,255,255,.03)',
-              border: `1px solid ${form[p.key] ? (p.riesgo?'rgba(192,80,80,.3)':'rgba(40,149,108,.3)') : 'rgba(255,255,255,.08)'}`,
+              background: form[p.key] ? (p.riesgo?'rgba(220, 38, 38,.08)':'rgba(22, 163, 74,.08)') : 'rgba(255,255,255,.03)',
+              border: `1px solid ${form[p.key] ? (p.riesgo?'rgba(220, 38, 38,.3)':'rgba(22, 163, 74,.3)') : 'rgba(255,255,255,.08)'}`,
             }}>
               <div style={{display:'flex',alignItems:'center',gap:10}}>
                 {p.riesgo
@@ -662,7 +662,7 @@ function Paso4SegSocial({ form, setForm, cuadrilla, setCuadrilla, eps, arl, afp,
 
   const segCard=(title:string,idKey:string,vigKey:string,catalog:any[],colorVenc:boolean)=>(
     <div style={{padding:'14px 16px',marginBottom:10,background:'rgba(255,255,255,.03)',
-      border:`1px solid ${colorVenc&&estadoVig(form[vigKey])==='vencido'?'rgba(192,80,80,.35)':'rgba(255,255,255,.08)'}`,borderRadius:10}}>
+      border:`1px solid ${colorVenc&&estadoVig(form[vigKey])==='vencido'?'rgba(220, 38, 38,.35)':'rgba(255,255,255,.08)'}`,borderRadius:10}}>
       <div style={grid2}>
         <div>
           <label style={lbl}>{title}</label>
@@ -674,7 +674,7 @@ function Paso4SegSocial({ form, setForm, cuadrilla, setCuadrilla, eps, arl, afp,
         </div>
         <div>
           <label style={lbl}>VIGENCIA {title}</label>
-          <input type="date" value={form[vigKey]??''} style={{...inp,borderColor:colorVenc&&estadoVig(form[vigKey])==='vencido'?'rgba(192,80,80,.5)':undefined}}
+          <input type="date" value={form[vigKey]??''} style={{...inp,borderColor:colorVenc&&estadoVig(form[vigKey])==='vencido'?'rgba(220, 38, 38,.5)':undefined}}
             onChange={e=>setForm((f:any)=>({...f,[vigKey]:e.target.value||undefined}))}/>
           <VigenciaBadge fecha={form[vigKey]}/>
         </div>
@@ -687,8 +687,8 @@ function Paso4SegSocial({ form, setForm, cuadrilla, setCuadrilla, eps, arl, afp,
       <h2 style={{fontSize:'1.1rem',fontWeight:700,color:'var(--text-primary)',marginBottom:4}}>Seguridad social</h2>
       <p style={{fontSize:'.8rem',color:'var(--text-muted)',marginBottom:16}}>Registra tu afiliación vigente para validación HSE.</p>
       {hayVencido && (
-        <div style={{marginBottom:14,padding:'10px 14px',background:'rgba(192,80,80,.08)',
-          border:'1px solid rgba(192,80,80,.25)',borderRadius:10,fontSize:'.78rem',color:'var(--danger-400)'}}>
+        <div style={{marginBottom:14,padding:'10px 14px',background:'rgba(220, 38, 38,.08)',
+          border:'1px solid rgba(220, 38, 38,.25)',borderRadius:10,fontSize:'.78rem',color:'var(--danger-400)'}}>
           ⚠ Tienes documentos vencidos. Con documentos vencidos no podrás ser autorizado para ingresar.
         </div>
       )}
@@ -707,7 +707,7 @@ function Paso4SegSocial({ form, setForm, cuadrilla, setCuadrilla, eps, arl, afp,
           <label style={lbl}>ESTADO PILA{reqStar}</label>
           <select value={form.pila_estado??''} style={{...sel,
             color:form.pila_estado==='VENCIDA'?'var(--danger-400)':form.pila_estado==='PAGADA'?'var(--success-400)':undefined,
-            borderColor:form.pila_estado==='VENCIDA'?'rgba(192,80,80,.5)':undefined}}
+            borderColor:form.pila_estado==='VENCIDA'?'rgba(220, 38, 38,.5)':undefined}}
             onChange={e=>setForm((f:any)=>({...f,pila_estado:e.target.value||undefined}))}>
             <option value="">Seleccionar…</option>
             <option value="PENDIENTE">Pendiente</option>
@@ -733,7 +733,7 @@ function Paso4SegSocial({ form, setForm, cuadrilla, setCuadrilla, eps, arl, afp,
           {!draftOpen&&(
             <button type="button" onClick={()=>setDraftOpen(true)}
               style={{padding:'6px 14px',fontSize:'.74rem',fontWeight:600,
-                background:'rgba(86,104,184,.12)',border:'1px solid rgba(86,104,184,.3)',
+                background:'rgba(29, 78, 216,.12)',border:'1px solid rgba(29, 78, 216,.3)',
                 borderRadius:8,color:'#7080CC',cursor:'pointer',whiteSpace:'nowrap'}}>
               + Agregar persona
             </button>
@@ -759,7 +759,7 @@ function Paso4SegSocial({ form, setForm, cuadrilla, setCuadrilla, eps, arl, afp,
           </div>
         )}
         {draftOpen&&(
-          <div style={{padding:14,background:'rgba(86,104,184,.04)',border:'1px solid rgba(86,104,184,.2)',borderRadius:10}}>
+          <div style={{padding:14,background:'rgba(29, 78, 216,.04)',border:'1px solid rgba(29, 78, 216,.2)',borderRadius:10}}>
             <div style={{fontSize:'.68rem',color:'#7080CC',fontWeight:600,letterSpacing:'.06em',marginBottom:10}}>NUEVA PERSONA</div>
             <div style={grid2}>
               <div>
@@ -796,7 +796,7 @@ function Paso4SegSocial({ form, setForm, cuadrilla, setCuadrilla, eps, arl, afp,
               </button>
               <button type="button" onClick={addP} disabled={!draft.nombre_persona?.trim()||!draft.cedula_persona?.trim()}
                 style={{padding:'7px 16px',fontSize:'.78rem',fontWeight:600,border:'none',borderRadius:8,color:'#fff',cursor:'pointer',
-                  background:(!draft.nombre_persona?.trim()||!draft.cedula_persona?.trim())?'rgba(86,104,184,.3)':'rgba(86,104,184,.8)'}}>
+                  background:(!draft.nombre_persona?.trim()||!draft.cedula_persona?.trim())?'rgba(29, 78, 216,.3)':'rgba(29, 78, 216,.8)'}}>
                 Agregar
               </button>
             </div>
@@ -817,7 +817,7 @@ function Paso5Cert({ form, setForm, onUpload, uploadingCampo, uploadProgress }:{
     <div>
       <h2 style={{fontSize:'1.1rem',fontWeight:700,color:'var(--text-primary)',marginBottom:4}}>Certificaciones</h2>
       <p style={{fontSize:'.8rem',color:'var(--text-muted)',marginBottom:20}}>Para contratistas de alto riesgo se exige la ART diligenciada.</p>
-      <div style={{marginBottom:18,padding:16,background:'rgba(69,116,196,.05)',border:'1px solid rgba(69,116,196,.2)',borderRadius:12}}>
+      <div style={{marginBottom:18,padding:16,background:'rgba(15, 23, 42,.05)',border:'1px solid rgba(15, 23, 42,.2)',borderRadius:12}}>
         <label style={{...lbl,marginBottom:8}}>DESCRIPCIÓN DE TAREA — ART{reqStar}</label>
         <textarea value={form.art_descripcion_tarea??''} rows={3}
           style={{...inp,resize:'vertical' as any,lineHeight:1.5}}
@@ -830,7 +830,7 @@ function Paso5Cert({ form, setForm, onUpload, uploadingCampo, uploadProgress }:{
             onSelect={f=>void onUpload('certificaciones','art_archivo',f).then(p=>setForm((x:any)=>({...x,art_archivo:p})))}/>
         </div>
       </div>
-      <div style={{padding:16,background:'rgba(86,104,184,.04)',border:'1px solid rgba(86,104,184,.15)',borderRadius:12}}>
+      <div style={{padding:16,background:'rgba(29, 78, 216,.04)',border:'1px solid rgba(29, 78, 216,.15)',borderRadius:12}}>
         <div style={{fontSize:'.68rem',color:'#7080CC',fontWeight:700,letterSpacing:'.06em',marginBottom:12}}>
           PERMISO DE TRABAJO <span style={{fontSize:'.62rem',fontWeight:400,color:'var(--text-muted)',marginLeft:6}}>OPCIONAL</span>
         </div>
@@ -947,7 +947,7 @@ function PasoEmergenciaMedico({ form, setForm }:{ form:any; setForm:(f:any)=>voi
   return (
     <div>
       <div style={{width:52,height:52,borderRadius:'50%',margin:'0 0 16px',
-        background:'rgba(192,80,80,.1)',border:'2px solid rgba(192,80,80,.3)',
+        background:'rgba(220, 38, 38,.1)',border:'2px solid rgba(220, 38, 38,.3)',
         display:'flex',alignItems:'center',justifyContent:'center'}}>
         <Heart size={22} color="#C05050"/>
       </div>
@@ -1412,8 +1412,8 @@ export default function AutogestionView() {
   if(loading) return (
     <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',
       background:'var(--bg-base)',flexDirection:'column',gap:16}}>
-      <div style={{width:56,height:56,borderRadius:'50%',background:'rgba(69,116,196,.12)',
-        border:'2px solid rgba(69,116,196,.3)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+      <div style={{width:56,height:56,borderRadius:'50%',background:'rgba(15, 23, 42,.12)',
+        border:'2px solid rgba(15, 23, 42,.3)',display:'flex',alignItems:'center',justifyContent:'center'}}>
         <Loader size={24} color="#6A95E0" style={{animation:'spin 1s linear infinite'}}/>
       </div>
       <p style={{color:'var(--text-muted)',fontSize:'.875rem'}}>Validando tu enlace de autogestión…</p>
@@ -1427,8 +1427,8 @@ export default function AutogestionView() {
       <div style={{maxWidth:400,textAlign:'center',padding:'40px 32px',
         background:'var(--bg-surface)',borderRadius:'var(--radius-xl)',
         border:'1px solid var(--border-subtle)'}}>
-        <div style={{width:64,height:64,borderRadius:'50%',background:'rgba(192,80,80,.1)',
-          border:'2px solid rgba(192,80,80,.3)',display:'flex',alignItems:'center',
+        <div style={{width:64,height:64,borderRadius:'50%',background:'rgba(220, 38, 38,.1)',
+          border:'2px solid rgba(220, 38, 38,.3)',display:'flex',alignItems:'center',
           justifyContent:'center',margin:'0 auto 20px'}}>
           <AlertTriangle size={28} color="var(--danger-400)"/>
         </div>
@@ -1448,12 +1448,12 @@ export default function AutogestionView() {
       background:'var(--bg-base)',padding:24}}>
       <div style={{maxWidth:440,width:'100%',textAlign:'center',padding:'48px 36px',
         background:'var(--bg-surface)',borderRadius:'var(--radius-xl)',
-        border:'1px solid rgba(40,149,108,.25)',
-        boxShadow:'0 0 40px rgba(40,149,108,.1)'}}>
-        <div style={{width:80,height:80,borderRadius:'50%',background:'rgba(40,149,108,.12)',
-          border:'2px solid rgba(40,149,108,.35)',display:'flex',alignItems:'center',
+        border:'1px solid rgba(22, 163, 74,.25)',
+        boxShadow:'0 0 40px rgba(22, 163, 74,.1)'}}>
+        <div style={{width:80,height:80,borderRadius:'50%',background:'rgba(22, 163, 74,.12)',
+          border:'2px solid rgba(22, 163, 74,.35)',display:'flex',alignItems:'center',
           justifyContent:'center',margin:'0 auto 24px',
-          boxShadow:'0 0 32px rgba(40,149,108,.25)'}}>
+          boxShadow:'0 0 32px rgba(22, 163, 74,.25)'}}>
           <CheckCircle2 size={38} color="var(--success-400)"/>
         </div>
         <h2 style={{fontSize:'1.5rem',fontWeight:700,color:'var(--text-primary)',marginBottom:10}}>
@@ -1462,8 +1462,8 @@ export default function AutogestionView() {
         <p style={{fontSize:'.875rem',color:'var(--text-muted)',lineHeight:1.7,marginBottom:24}}>
           Tu documentación fue enviada correctamente. El equipo HSE revisará tu información y recibirás confirmación de tu autorización.
         </p>
-        <div style={{padding:'14px 18px',background:'rgba(40,149,108,.07)',
-          border:'1px solid rgba(40,149,108,.2)',borderRadius:12,
+        <div style={{padding:'14px 18px',background:'rgba(22, 163, 74,.07)',
+          border:'1px solid rgba(22, 163, 74,.2)',borderRadius:12,
           fontSize:'.8rem',color:'var(--success-400)',fontWeight:500}}>
           Puedes cerrar esta ventana con seguridad.
         </div>
@@ -1490,7 +1490,7 @@ export default function AutogestionView() {
           <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:28,justifyContent:'center'}}>
             <div style={{width:36,height:36,background:'var(--gradient-brand)',borderRadius:8,
               display:'flex',alignItems:'center',justifyContent:'center',
-              boxShadow:'0 2px 10px rgba(37,99,235,.35)'}}>
+              boxShadow:'0 2px 10px rgba(15, 23, 42,.35)'}}>
               <ShieldCheck size={20} color="white" strokeWidth={2.5}/>
             </div>
             <div>
@@ -1541,7 +1541,7 @@ export default function AutogestionView() {
             {/* Error */}
             {error&&(
               <div style={{margin:'0 clamp(16px,3vw,32px) 16px',padding:'10px 14px',
-                background:'rgba(192,80,80,.08)',border:'1px solid rgba(192,80,80,.25)',
+                background:'rgba(220, 38, 38,.08)',border:'1px solid rgba(220, 38, 38,.25)',
                 borderRadius:8,fontSize:'.8rem',color:'#f87171',
                 display:'flex',alignItems:'center',gap:8,justifyContent:'space-between'}}>
                 <div style={{display:'flex',alignItems:'center',gap:8}}>

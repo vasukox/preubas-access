@@ -1,4 +1,4 @@
-/**
+﻿/**
  * KOAJ Access v2.0 — Layout de Configuración
  * Wrapper general que contiene la cabecera dinámica
  * y el renderizado interno administrado por React-Router con <Outlet>.
@@ -8,7 +8,7 @@ import { useLocation, Outlet } from 'react-router-dom'
 type ConfigRoute = 'sistema' | 'estructura' | 'catalogos' | 'normas' | 'tiempos' | 'usuarios' | 'auditoria' | 'proveedores'
 
 const ROUTE_META: Record<ConfigRoute, { title: string; subtitle: string; accent: string; area: string }> = {
-  sistema:      { title: 'Parámetros globales',             subtitle: 'Variables de entorno y seguridad del sistema (solo lectura).',             accent: '#5668B8', area: 'INFRAESTRUCTURA' },
+  sistema:      { title: 'Parámetros globales',             subtitle: 'Variables de entorno y seguridad del sistema (solo lectura).',             accent: 'var(--info-400)', area: 'INFRAESTRUCTURA' },
   estructura:   { title: 'Sedes y Ubicaciones',             subtitle: 'Gestiona la jerarquía física: sedes operativas y sus zonas internas.',      accent: '#28956C', area: 'INFRAESTRUCTURA' },
   catalogos:    { title: 'Catálogos HSE',                   subtitle: 'Administra las entidades base: EPS, ARL y AFP vinculadas a autorizaciones.', accent: '#4574C4', area: 'REGLAS HSE' },
   normas:       { title: 'Normas de seguridad',             subtitle: 'Configura las normas HSE del flujo de autorización.',                       accent: '#4574C4', area: 'REGLAS HSE' },

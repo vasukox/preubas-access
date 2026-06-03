@@ -48,31 +48,43 @@ let HseService = class HseService {
         this.accesoService = accesoService;
     }
     async getCatalogosSedes(usuario) {
-        return this.sedeRepo.find({ where: { activa: true }, order: { nombre: 'ASC' } });
+        return this.sedeRepo.find({
+            where: { activa: true },
+            order: { nombre: 'ASC' },
+        });
     }
     async getCatalogosEps() {
-        return this.epsRepo.find({ where: { activa: true }, order: { nombre: 'ASC' } });
+        return this.epsRepo.find({
+            where: { activa: true },
+            order: { nombre: 'ASC' },
+        });
     }
     async getCatalogosArl() {
-        return this.arlRepo.find({ where: { activa: true }, order: { nombre: 'ASC' } });
+        return this.arlRepo.find({
+            where: { activa: true },
+            order: { nombre: 'ASC' },
+        });
     }
     async getCatalogosAfp() {
-        return this.afpRepo.find({ where: { activa: true }, order: { nombre: 'ASC' } });
+        return this.afpRepo.find({
+            where: { activa: true },
+            order: { nombre: 'ASC' },
+        });
     }
     async getCatalogosNormas(sedeId) {
         return this.normaRepo.find({
             where: [
                 { activa: true, sedeId: sedeId },
-                { activa: true, sedeId: (0, typeorm_2.IsNull)() }
+                { activa: true, sedeId: (0, typeorm_2.IsNull)() },
             ],
-            order: { numero: 'ASC' }
+            order: { numero: 'ASC' },
         });
     }
     async getDashboard(sedeId) {
-        const baseQb = () => this.autorizacionRepo.createQueryBuilder('a')
+        const baseQb = () => this.autorizacionRepo
+            .createQueryBuilder('a')
             .where('a.sede_id = :sedeId', { sedeId })
-            .andWhere('a.deleted_at IS NULL')
-            .andWhere(`(
+            .andWhere('a.deleted_at IS NULL').andWhere(`(
           NOT EXISTS (
             SELECT 1 FROM hse_contratistas c_all
             WHERE c_all.autorizacion_id = a.id
@@ -87,9 +99,15 @@ let HseService = class HseService {
         )`);
         const [total, activas, pendientes, vencidas] = await Promise.all([
             baseQb().getCount(),
-            baseQb().andWhere('a.estado = :e', { e: hse_enum_1.EstadoAutorizacion.APROBADO }).getCount(),
-            baseQb().andWhere('a.estado = :e', { e: hse_enum_1.EstadoAutorizacion.EN_REVISION }).getCount(),
-            baseQb().andWhere('a.estado = :e', { e: hse_enum_1.EstadoAutorizacion.VENCIDO }).getCount(),
+            baseQb()
+                .andWhere('a.estado = :e', { e: hse_enum_1.EstadoAutorizacion.APROBADO })
+                .getCount(),
+            baseQb()
+                .andWhere('a.estado = :e', { e: hse_enum_1.EstadoAutorizacion.EN_REVISION })
+                .getCount(),
+            baseQb()
+                .andWhere('a.estado = :e', { e: hse_enum_1.EstadoAutorizacion.VENCIDO })
+                .getCount(),
         ]);
         const totalContratistas = await this.contratistaRepo
             .createQueryBuilder('contratista')
@@ -97,7 +115,9 @@ let HseService = class HseService {
             .where('autorizacion.sedeId = :sedeId', { sedeId })
             .andWhere('autorizacion.deleted_at IS NULL')
             .andWhere('contratista.deleted_at IS NULL')
-            .andWhere('contratista.estado != :archivado', { archivado: hse_enum_1.EstadoContratista.ARCHIVADO })
+            .andWhere('contratista.estado != :archivado', {
+            archivado: hse_enum_1.EstadoContratista.ARCHIVADO,
+        })
             .getCount();
         const contratistasActivos = await this.contratistaRepo
             .createQueryBuilder('contratista')
@@ -105,8 +125,13 @@ let HseService = class HseService {
             .where('autorizacion.sedeId = :sedeId', { sedeId })
             .andWhere('autorizacion.deleted_at IS NULL')
             .andWhere('contratista.deleted_at IS NULL')
-            .andWhere('contratista.estado = :estado', { estado: hse_enum_1.EstadoContratista.APROBADO })
-            .select(['contratista.id AS id', 'autorizacion.tipo_contratista AS tipoContratista'])
+            .andWhere('contratista.estado = :estado', {
+            estado: hse_enum_1.EstadoContratista.APROBADO,
+        })
+            .select([
+            'contratista.id AS id',
+            'autorizacion.tipo_contratista AS tipoContratista',
+        ])
             .getRawMany();
         const altoRiesgoActivos = contratistasActivos.filter((row) => row.tipoContratista === hse_enum_1.TipoContratista.ALTO_RIESGO).length;
         const normalActivos = contratistasActivos.filter((row) => row.tipoContratista === hse_enum_1.TipoContratista.NORMAL).length;

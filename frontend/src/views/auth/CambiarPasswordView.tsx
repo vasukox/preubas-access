@@ -1,4 +1,4 @@
-/**
+﻿/**
  * KOAJ Access v2.0 — Permoda S.A.S.
  * ------------------------------------
  * Vista de cambio de contraseña obligatorio.
@@ -120,9 +120,9 @@ export default function CambiarPasswordView() {
         <div className="bg-grid" style={{ position: 'absolute', inset: 0, opacity: 0.35, pointerEvents: 'none' }} />
 
         {/* Formas geométricas decorativas */}
-        <div style={{ position: 'absolute', width: '440px', height: '440px', borderRadius: '50%', border: '1px solid rgba(59,130,246,0.10)', top: '-110px', right: '-140px', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', width: '280px', height: '280px', borderRadius: '50%', border: '1px solid rgba(59,130,246,0.07)', bottom: '-80px', left: '-100px', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', width: '200px', height: '200px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.07) 0%, transparent 70%)', top: '32%', right: '6%', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', width: '440px', height: '440px', borderRadius: '50%', border: '1px solid rgba(15, 23, 42,0.10)', top: '-110px', right: '-140px', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', width: '280px', height: '280px', borderRadius: '50%', border: '1px solid rgba(15, 23, 42,0.07)', bottom: '-80px', left: '-100px', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', width: '200px', height: '200px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(15, 23, 42,0.07) 0%, transparent 70%)', top: '32%', right: '6%', pointerEvents: 'none' }} />
 
         <div style={{
           position: 'absolute', right: 0, top: 0, bottom: 0, width: '1px',
@@ -136,7 +136,7 @@ export default function CambiarPasswordView() {
             <div style={{
               width: '44px', height: '44px', background: 'var(--gradient-brand)',
               borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center',
-              justifyContent: 'center', boxShadow: '0 4px 16px rgba(37,99,235,0.35)',
+              justifyContent: 'center', boxShadow: '0 4px 16px rgba(15, 23, 42,0.35)',
             }}>
               <ShieldCheck size={24} color="#FFFFFF" strokeWidth={2.5} />
             </div>
@@ -241,7 +241,7 @@ export default function CambiarPasswordView() {
             <div style={{
               display: 'flex', alignItems: 'flex-start', gap: '10px',
               padding: '12px 14px', marginBottom: '20px',
-              background: 'rgba(192,80,80,0.08)', border: '1px solid rgba(192,80,80,0.2)',
+              background: 'rgba(220, 38, 38,0.08)', border: '1px solid rgba(220, 38, 38,0.2)',
               borderRadius: 'var(--radius-md)', animation: 'fadeUp 0.2s ease both',
             }}>
               <AlertCircle size={16} color="var(--danger-400)" style={{ flexShrink: 0, marginTop: '1px' }} />
@@ -268,12 +268,12 @@ export default function CambiarPasswordView() {
                 fontFamily: 'var(--font-ui)', cursor: isLoading ? 'not-allowed' : 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                 transition: 'transform var(--transition-fast), box-shadow var(--transition-fast)',
-                boxShadow: '0 2px 4px rgba(59,130,246,0.20), 0 8px 24px rgba(59,130,246,0.22)',
+                boxShadow: '0 2px 4px rgba(15, 23, 42,0.20), 0 8px 24px rgba(15, 23, 42,0.22)',
                 letterSpacing: '0.02em',
                 opacity: isLoading ? 0.8 : 1,
               }}
-              onMouseEnter={(e) => { if (!isLoading) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 4px 8px rgba(59,130,246,0.28), 0 12px 32px rgba(59,130,246,0.30)' } }}
-              onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 4px rgba(59,130,246,0.20), 0 8px 24px rgba(59,130,246,0.22)' }}
+              onMouseEnter={(e) => { if (!isLoading) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 4px 8px rgba(15, 23, 42,0.28), 0 12px 32px rgba(15, 23, 42,0.30)' } }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 4px rgba(15, 23, 42,0.20), 0 8px 24px rgba(15, 23, 42,0.22)' }}
             >
               {isLoading ? (
                 <>

@@ -41,7 +41,12 @@ __decorate([
     __metadata("design:type", String)
 ], Usuario.prototype, "email", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'password_hash', type: 'varchar', length: 255, nullable: false }),
+    (0, typeorm_1.Column)({
+        name: 'password_hash',
+        type: 'varchar',
+        length: 255,
+        nullable: false,
+    }),
     __metadata("design:type", String)
 ], Usuario.prototype, "passwordHash", void 0);
 __decorate([

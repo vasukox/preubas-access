@@ -35,9 +35,27 @@ let ConfigKoajService = class ConfigKoajService {
     tiemposRepo;
     logger = new common_1.Logger(ConfigKoajService_1.name);
     static TIEMPOS_DEFAULTS = {
-        [config_tiempos_contratista_entity_1.TipoContratistaConfig.NORMAL]: { tokenDuracionHoras: 72, autorizacionDuracionDias: 30, alertaVencimientoDias: 3, requiereExamenMedico: false, requiereSeguridadSocial: false },
-        [config_tiempos_contratista_entity_1.TipoContratistaConfig.ALTO_RIESGO]: { tokenDuracionHoras: 72, autorizacionDuracionDias: 15, alertaVencimientoDias: 5, requiereExamenMedico: true, requiereSeguridadSocial: true },
-        [config_tiempos_contratista_entity_1.TipoContratistaConfig.EXCEPCION]: { tokenDuracionHoras: 72, autorizacionDuracionDias: 7, alertaVencimientoDias: 2, requiereExamenMedico: false, requiereSeguridadSocial: false },
+        [config_tiempos_contratista_entity_1.TipoContratistaConfig.NORMAL]: {
+            tokenDuracionHoras: 72,
+            autorizacionDuracionDias: 30,
+            alertaVencimientoDias: 3,
+            requiereExamenMedico: false,
+            requiereSeguridadSocial: false,
+        },
+        [config_tiempos_contratista_entity_1.TipoContratistaConfig.ALTO_RIESGO]: {
+            tokenDuracionHoras: 72,
+            autorizacionDuracionDias: 15,
+            alertaVencimientoDias: 5,
+            requiereExamenMedico: true,
+            requiereSeguridadSocial: true,
+        },
+        [config_tiempos_contratista_entity_1.TipoContratistaConfig.EXCEPCION]: {
+            tokenDuracionHoras: 72,
+            autorizacionDuracionDias: 7,
+            alertaVencimientoDias: 2,
+            requiereExamenMedico: false,
+            requiereSeguridadSocial: false,
+        },
     };
     constructor(sedeRepo, ubicacionRepo, epsRepo, arlRepo, afpRepo, normaRepo, tiemposRepo) {
         this.sedeRepo = sedeRepo;
@@ -61,7 +79,10 @@ let ConfigKoajService = class ConfigKoajService {
         });
         if (!sede) {
             throw new common_1.NotFoundException({
-                error: { code: 'SEDE_NO_ENCONTRADA', message: `Sede con id ${id} no encontrada.` },
+                error: {
+                    code: 'SEDE_NO_ENCONTRADA',
+                    message: `Sede con id ${id} no encontrada.`,
+                },
             });
         }
         return sede;
@@ -181,7 +202,10 @@ let ConfigKoajService = class ConfigKoajService {
         const ubicacion = await this.ubicacionRepo.findOne({ where: { id } });
         if (!ubicacion) {
             throw new common_1.NotFoundException({
-                error: { code: 'UBICACION_NO_ENCONTRADA', message: `Ubicación con id ${id} no encontrada.` },
+                error: {
+                    code: 'UBICACION_NO_ENCONTRADA',
+                    message: `Ubicación con id ${id} no encontrada.`,
+                },
             });
         }
         Object.assign(ubicacion, dto);
@@ -193,7 +217,10 @@ let ConfigKoajService = class ConfigKoajService {
         const ubicacion = await this.ubicacionRepo.findOne({ where: { id } });
         if (!ubicacion) {
             throw new common_1.NotFoundException({
-                error: { code: 'UBICACION_NO_ENCONTRADA', message: `Ubicación con id ${id} no encontrada.` },
+                error: {
+                    code: 'UBICACION_NO_ENCONTRADA',
+                    message: `Ubicación con id ${id} no encontrada.`,
+                },
             });
         }
         await this.ubicacionRepo.softDelete(id);
@@ -222,7 +249,9 @@ let ConfigKoajService = class ConfigKoajService {
     }
     async crearItemCatalogo(tipo, dto) {
         const repo = this.getCatalogoRepo(tipo);
-        const existente = await repo.findOne({ where: { codigo: dto.codigo } });
+        const existente = await repo.findOne({
+            where: { codigo: dto.codigo },
+        });
         if (existente) {
             throw new common_1.ConflictException({
                 error: {
@@ -232,7 +261,7 @@ let ConfigKoajService = class ConfigKoajService {
             });
         }
         const item = repo.create({ ...dto, activa: dto.activa ?? true });
-        const saved = await repo.save(item);
+        const saved = (await repo.save(item));
         this.logger.log(`Catálogo ${tipo.toUpperCase()} creado: [${dto.codigo}] ${dto.nombre}`);
         return saved;
     }
@@ -248,7 +277,7 @@ let ConfigKoajService = class ConfigKoajService {
             });
         }
         Object.assign(item, dto);
-        const saved = await repo.save(item);
+        const saved = (await repo.save(item));
         this.logger.log(`Catálogo ${tipo.toUpperCase()} actualizado: id=${id}`);
         return saved;
     }
@@ -289,7 +318,7 @@ let ConfigKoajService = class ConfigKoajService {
             activa: dto.activa ?? true,
             sedeId: dto.sedeId ?? null,
         });
-        const saved = await this.normaRepo.save(norma);
+        const saved = (await this.normaRepo.save(norma));
         const scope = dto.sedeId ? `sede ${dto.sedeId}` : 'global';
         this.logger.log(`Norma creada: #${dto.numero} '${dto.titulo}' (${scope})`);
         return saved;
@@ -301,7 +330,10 @@ let ConfigKoajService = class ConfigKoajService {
         });
         if (!norma) {
             throw new common_1.NotFoundException({
-                error: { code: 'NORMA_NO_ENCONTRADA', message: `Norma con id ${id} no encontrada.` },
+                error: {
+                    code: 'NORMA_NO_ENCONTRADA',
+                    message: `Norma con id ${id} no encontrada.`,
+                },
             });
         }
         if (dto.sedeId !== undefined && dto.sedeId !== null) {
@@ -310,13 +342,19 @@ let ConfigKoajService = class ConfigKoajService {
         Object.assign(norma, dto);
         const saved = await this.normaRepo.save(norma);
         this.logger.log(`Norma actualizada: id=${id}`);
-        return this.normaRepo.findOne({ where: { id: saved.id }, relations: ['sede'] });
+        return this.normaRepo.findOne({
+            where: { id: saved.id },
+            relations: ['sede'],
+        });
     }
     async eliminarNorma(id) {
         const norma = await this.normaRepo.findOne({ where: { id } });
         if (!norma) {
             throw new common_1.NotFoundException({
-                error: { code: 'NORMA_NO_ENCONTRADA', message: `Norma con id ${id} no encontrada.` },
+                error: {
+                    code: 'NORMA_NO_ENCONTRADA',
+                    message: `Norma con id ${id} no encontrada.`,
+                },
             });
         }
         await this.normaRepo.softDelete(id);
@@ -330,17 +368,24 @@ let ConfigKoajService = class ConfigKoajService {
     }
     async getTiemposContratista(tipo) {
         await this.asegurarFilaDefecto(tipo);
-        const config = await this.tiemposRepo.findOne({ where: { tipoContratista: tipo } });
+        const config = await this.tiemposRepo.findOne({
+            where: { tipoContratista: tipo },
+        });
         return config;
     }
     async actualizarTiemposContratista(tipo, dto) {
         if (!Object.values(config_tiempos_contratista_entity_1.TipoContratistaConfig).includes(tipo)) {
             throw new common_1.BadRequestException({
-                error: { code: 'TIPO_INVALIDO', message: `Tipo '${tipo}' no válido. Use: NORMAL, ALTO_RIESGO, EXCEPCION.` },
+                error: {
+                    code: 'TIPO_INVALIDO',
+                    message: `Tipo '${tipo}' no válido. Use: NORMAL, ALTO_RIESGO, EXCEPCION.`,
+                },
             });
         }
         await this.asegurarFilaDefecto(tipo);
-        const config = await this.tiemposRepo.findOne({ where: { tipoContratista: tipo } });
+        const config = await this.tiemposRepo.findOne({
+            where: { tipoContratista: tipo },
+        });
         Object.assign(config, dto);
         const saved = await this.tiemposRepo.save(config);
         this.logger.log(`Tiempos contratista ${tipo} actualizados`);
@@ -352,7 +397,9 @@ let ConfigKoajService = class ConfigKoajService {
         }
     }
     async asegurarFilaDefecto(tipo) {
-        const existe = await this.tiemposRepo.findOne({ where: { tipoContratista: tipo } });
+        const existe = await this.tiemposRepo.findOne({
+            where: { tipoContratista: tipo },
+        });
         if (!existe) {
             const defaults = ConfigKoajService_1.TIEMPOS_DEFAULTS[tipo];
             await this.tiemposRepo.save(this.tiemposRepo.create({ tipoContratista: tipo, ...defaults }));

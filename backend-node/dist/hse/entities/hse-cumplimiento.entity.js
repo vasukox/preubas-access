@@ -46,7 +46,12 @@ __decorate([
     __metadata("design:type", Number)
 ], HseCumplimiento.prototype, "encargadoId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'enum', enum: hse_enum_1.CumplimientoEstado, default: hse_enum_1.CumplimientoEstado.EN_PROGRESO, nullable: false }),
+    (0, typeorm_1.Column)({
+        type: 'enum',
+        enum: hse_enum_1.CumplimientoEstado,
+        default: hse_enum_1.CumplimientoEstado.EN_PROGRESO,
+        nullable: false,
+    }),
     __metadata("design:type", String)
 ], HseCumplimiento.prototype, "estado", void 0);
 __decorate([
@@ -62,11 +67,18 @@ __decorate([
     __metadata("design:type", Date)
 ], HseCumplimiento.prototype, "fechaCierre", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'firma_digital', type: 'varchar', length: 200, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'firma_digital',
+        type: 'varchar',
+        length: 200,
+        nullable: true,
+    }),
     __metadata("design:type", String)
 ], HseCumplimiento.prototype, "firmaDigital", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => hse_contratista_entity_1.HseContratista, (contratista) => contratista.cumplimientos, { onDelete: 'CASCADE' }),
+    (0, typeorm_1.ManyToOne)(() => hse_contratista_entity_1.HseContratista, (contratista) => contratista.cumplimientos, {
+        onDelete: 'CASCADE',
+    }),
     (0, typeorm_1.JoinColumn)({ name: 'contratista_id' }),
     __metadata("design:type", hse_contratista_entity_1.HseContratista)
 ], HseCumplimiento.prototype, "contratista", void 0);
@@ -85,7 +97,9 @@ __decorate([
     __metadata("design:type", Boolean)
 ], HseCumplimiento.prototype, "archivado", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => hse_cumplimiento_item_entity_1.HseCumplimientoItem, (item) => item.cumplimiento, { cascade: true }),
+    (0, typeorm_1.OneToMany)(() => hse_cumplimiento_item_entity_1.HseCumplimientoItem, (item) => item.cumplimiento, {
+        cascade: true,
+    }),
     __metadata("design:type", Array)
 ], HseCumplimiento.prototype, "items", void 0);
 exports.HseCumplimiento = HseCumplimiento = __decorate([

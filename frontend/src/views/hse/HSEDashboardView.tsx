@@ -1,4 +1,4 @@
-/**
+﻿/**
  * KOAJ Access v2.0 — Permoda S.A.S.
  * HSE Dashboard — métricas en tiempo real del módulo HSE
  */
@@ -172,16 +172,16 @@ export default function HSEDashboardView() {
   )
 
   const estadoData = [
-    { label: 'Aprobadas',     value: metrics?.autorizaciones_activas    ?? 0, color: 'var(--success-400)', bg: 'rgba(40,149,108,0.12)' },
-    { label: 'En revisión',   value: metrics?.autorizaciones_pendientes  ?? 0, color: '#5668B8',            bg: 'rgba(86,104,184,0.12)' },
-    { label: 'Vencidas',      value: metrics?.autorizaciones_vencidas    ?? 0, color: 'var(--danger-400)',  bg: 'rgba(192,80,80,0.12)' },
+    { label: 'Aprobadas',     value: metrics?.autorizaciones_activas    ?? 0, color: 'var(--success-400)', bg: 'rgba(22, 163, 74,0.12)' },
+    { label: 'En revisión',   value: metrics?.autorizaciones_pendientes  ?? 0, color: 'var(--info-400)',            bg: 'rgba(29, 78, 216,0.12)' },
+    { label: 'Vencidas',      value: metrics?.autorizaciones_vencidas    ?? 0, color: 'var(--danger-400)',  bg: 'rgba(220, 38, 38,0.12)' },
     { label: 'Otros estados', value: otrosEstados,                             color: 'var(--text-muted)',  bg: 'var(--bg-elevated)' },
   ]
 
   const riesgoData = [
-    { label: 'Alto riesgo activos',    value: metrics?.alto_riesgo_activos ?? 0, color: 'var(--danger-400)',  bg: 'rgba(192,80,80,0.12)' },
-    { label: 'Normal activos',         value: metrics?.normal_activos      ?? 0, color: 'var(--success-400)', bg: 'rgba(40,149,108,0.12)' },
-    { label: 'Dentro con alerta > 8h', value: metrics?.alertas_activas     ?? 0, color: 'var(--warning-400)', bg: 'rgba(69,116,196,0.12)' },
+    { label: 'Alto riesgo activos',    value: metrics?.alto_riesgo_activos ?? 0, color: 'var(--danger-400)',  bg: 'rgba(220, 38, 38,0.12)' },
+    { label: 'Normal activos',         value: metrics?.normal_activos      ?? 0, color: 'var(--success-400)', bg: 'rgba(22, 163, 74,0.12)' },
+    { label: 'Dentro con alerta > 8h', value: metrics?.alertas_activas     ?? 0, color: 'var(--warning-400)', bg: 'rgba(15, 23, 42,0.12)' },
   ]
 
   const totalAutorizaciones = metrics?.total_autorizaciones ?? 0
@@ -250,7 +250,7 @@ export default function HSEDashboardView() {
                 fontWeight:   600,
                 cursor:       'pointer',
                 fontFamily:   'var(--font-ui)',
-                boxShadow:    '0 2px 4px rgba(59,130,246,0.20), 0 6px 16px rgba(59,130,246,0.18)',
+                boxShadow:    '0 2px 4px rgba(15, 23, 42,0.20), 0 6px 16px rgba(15, 23, 42,0.18)',
               }}
             >
               <Plus size={14} />
@@ -272,7 +272,7 @@ export default function HSEDashboardView() {
                 fontWeight:   600,
                 cursor:       'pointer',
                 fontFamily:   'var(--font-ui)',
-                boxShadow:    '0 2px 4px rgba(59,130,246,0.20), 0 6px 16px rgba(59,130,246,0.18)',
+                boxShadow:    '0 2px 4px rgba(15, 23, 42,0.20), 0 6px 16px rgba(15, 23, 42,0.18)',
               }}
             >
               <ShieldCheck size={14} />
@@ -292,19 +292,19 @@ export default function HSEDashboardView() {
         ) : (
           <>
             {canManage && (
-              <MetricCard label="Total autorizaciones" value={metrics?.total_autorizaciones ?? 0} icon={ShieldCheck} color="var(--primary-400)" bg="rgba(69,116,196,0.08)" border="rgba(69,116,196,0.15)" onClick={() => navigate('/hse/panel-general')} />
+              <MetricCard label="Total autorizaciones" value={metrics?.total_autorizaciones ?? 0} icon={ShieldCheck} color="var(--primary-400)" bg="rgba(15, 23, 42,0.08)" border="rgba(15, 23, 42,0.15)" onClick={() => navigate('/hse/panel-general')} />
             )}
             {canManage && (
-              <MetricCard label="Activas aprobadas" value={metrics?.autorizaciones_activas ?? 0} icon={UserCheck} color="var(--success-400)" bg="rgba(40,149,108,0.08)" border="rgba(40,149,108,0.15)" badge="APROBADO" />
+              <MetricCard label="Activas aprobadas" value={metrics?.autorizaciones_activas ?? 0} icon={UserCheck} color="var(--success-400)" bg="rgba(22, 163, 74,0.08)" border="rgba(22, 163, 74,0.15)" badge="APROBADO" />
             )}
             {canManage && (
-              <MetricCard label="En revisión" value={metrics?.autorizaciones_pendientes ?? 0} icon={Clock} color="#5668B8" bg="rgba(86,104,184,0.08)" border="rgba(86,104,184,0.15)" onClick={() => navigate('/hse/gestion')} badge="PENDIENTE" />
+              <MetricCard label="En revisión" value={metrics?.autorizaciones_pendientes ?? 0} icon={Clock} color="var(--info-400)" bg="rgba(29, 78, 216,0.08)" border="rgba(29, 78, 216,0.15)" onClick={() => navigate('/hse/gestion')} badge="PENDIENTE" />
             )}
             {canManage && (
-              <MetricCard label="Vencidas" value={metrics?.autorizaciones_vencidas ?? 0} icon={UserX} color="var(--danger-400)" bg="rgba(192,80,80,0.08)" border="rgba(192,80,80,0.15)" badge="VENCIDO" />
+              <MetricCard label="Vencidas" value={metrics?.autorizaciones_vencidas ?? 0} icon={UserX} color="var(--danger-400)" bg="rgba(220, 38, 38,0.08)" border="rgba(220, 38, 38,0.15)" badge="VENCIDO" />
             )}
-            <MetricCard label="Dentro ahora" value={metrics?.contratistas_dentro_ahora ?? dentro.length} icon={Activity} color="var(--success-400)" bg="rgba(40,149,108,0.08)" border="rgba(40,149,108,0.15)" onClick={() => navigate('/hse/vigilante')} />
-            <MetricCard label="Alertas activas" value={metrics?.alertas_activas ?? 0} icon={AlertTriangle} color={metrics?.alertas_activas ? 'var(--danger-400)' : 'var(--text-muted)'} bg={metrics?.alertas_activas ? 'rgba(192,80,80,0.08)' : 'var(--bg-elevated)'} border={metrics?.alertas_activas ? 'rgba(192,80,80,0.2)' : 'var(--border-subtle)'} />
+            <MetricCard label="Dentro ahora" value={dentro.length} icon={Activity} color="var(--success-400)" bg="rgba(22, 163, 74,0.08)" border="rgba(22, 163, 74,0.15)" onClick={() => navigate('/hse/vigilante')} />
+            <MetricCard label="Alertas activas" value={metrics?.alertas_activas ?? 0} icon={AlertTriangle} color={metrics?.alertas_activas ? 'var(--danger-400)' : 'var(--text-muted)'} bg={metrics?.alertas_activas ? 'rgba(220, 38, 38,0.08)' : 'var(--bg-elevated)'} border={metrics?.alertas_activas ? 'rgba(220, 38, 38,0.2)' : 'var(--border-subtle)'} />
           </>
         )}
       </div>
@@ -409,7 +409,7 @@ export default function HSEDashboardView() {
               <Activity size={14} color="var(--success-400)" />
               <span style={{ fontSize: '0.83rem', fontWeight: 600, color: 'var(--text-primary)' }}>Personas dentro ahora</span>
               {dentro.length > 0 && (
-                <span style={{ padding: '1px 8px', background: 'rgba(40,149,108,0.1)', border: '1px solid rgba(40,149,108,0.2)', borderRadius: '20px', fontSize: '0.7rem', color: 'var(--success-400)', fontFamily: 'var(--font-mono)' }}>
+                <span style={{ padding: '1px 8px', background: 'rgba(22, 163, 74,0.1)', border: '1px solid rgba(22, 163, 74,0.2)', borderRadius: '20px', fontSize: '0.7rem', color: 'var(--success-400)', fontFamily: 'var(--font-mono)' }}>
                   {dentro.length}
                 </span>
               )}
@@ -451,8 +451,8 @@ export default function HSEDashboardView() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <div style={{
                       width: '32px', height: '32px', borderRadius: '50%',
-                      background:   p.tipo_contratista === 'ALTO_RIESGO' ? 'rgba(192,80,80,0.1)' : 'rgba(40,149,108,0.1)',
-                      border:       `1px solid ${p.tipo_contratista === 'ALTO_RIESGO' ? 'rgba(192,80,80,0.2)' : 'rgba(40,149,108,0.2)'}`,
+                      background:   p.tipo_contratista === 'ALTO_RIESGO' ? 'rgba(220, 38, 38,0.1)' : 'rgba(22, 163, 74,0.1)',
+                      border:       `1px solid ${p.tipo_contratista === 'ALTO_RIESGO' ? 'rgba(220, 38, 38,0.2)' : 'rgba(22, 163, 74,0.2)'}`,
                       display:        'flex',
                       alignItems:     'center',
                       justifyContent: 'center',
@@ -493,10 +493,10 @@ export default function HSEDashboardView() {
 
           <div style={{ padding: '12px' }}>
             {[
-              { label: 'Panel General',     desc: 'Crear y gestionar autorizaciones',   icon: ShieldCheck,   color: 'var(--primary-400)', bg: 'rgba(69,116,196,0.08)',  path: '/hse/panel-general' },
-              { label: 'Gestión HSE',       desc: 'Revisar y aprobar solicitudes',       icon: UserCheck,     color: '#5668B8',             bg: 'rgba(86,104,184,0.08)', path: '/hse/gestion' },
-              { label: 'Portal Vigilante',  desc: 'Verificar acceso en portería',        icon: Users,         color: 'var(--success-400)', bg: 'rgba(40,149,108,0.08)', path: '/hse/vigilante' },
-              { label: 'Excepciones',       desc: 'Gestionar pre-aprobados especiales',  icon: AlertTriangle, color: 'var(--danger-400)',  bg: 'rgba(192,80,80,0.08)',  path: '/hse/excepciones' },
+              { label: 'Panel General',     desc: 'Crear y gestionar autorizaciones',   icon: ShieldCheck,   color: 'var(--primary-400)', bg: 'rgba(15, 23, 42,0.08)',  path: '/hse/panel-general' },
+              { label: 'Gestión HSE',       desc: 'Revisar y aprobar solicitudes',       icon: UserCheck,     color: 'var(--info-400)',             bg: 'rgba(29, 78, 216,0.08)', path: '/hse/gestion' },
+              { label: 'Portal Vigilante',  desc: 'Verificar acceso en portería',        icon: Users,         color: 'var(--success-400)', bg: 'rgba(22, 163, 74,0.08)', path: '/hse/vigilante' },
+              { label: 'Excepciones',       desc: 'Gestionar pre-aprobados especiales',  icon: AlertTriangle, color: 'var(--danger-400)',  bg: 'rgba(220, 38, 38,0.08)',  path: '/hse/excepciones' },
             ].map((item) => (
               <button
                 key={item.path}

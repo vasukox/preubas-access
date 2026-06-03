@@ -419,18 +419,18 @@ export class ValidacionService {
     const n = (nombres ?? '').trim();
     const a = (apellidos ?? '').trim();
     if (n || a) {
-      return [n || 'Sin nombre', a || 'N/A'];
+      return [n || 'Sin nombre', a];
     }
 
-    const partes = (fallback ?? 'Excepcion HSE')
+    const partes = (fallback ?? '')
       .trim()
       .split(/\s+/)
       .filter(Boolean);
     if (partes.length === 0) {
-      return ['Excepcion', 'HSE'];
+      return ['Sin nombre', ''];
     }
     if (partes.length === 1) {
-      return [partes[0], 'HSE'];
+      return [partes[0], ''];
     }
     return [partes.slice(0, -1).join(' '), partes[partes.length - 1]];
   }

@@ -29,11 +29,21 @@ let HseContactoEmergencia = class HseContactoEmergencia extends base_entity_1.Ba
 };
 exports.HseContactoEmergencia = HseContactoEmergencia;
 __decorate([
-    (0, typeorm_1.Column)({ name: 'contratista_id', type: 'int', unique: true, nullable: false }),
+    (0, typeorm_1.Column)({
+        name: 'contratista_id',
+        type: 'int',
+        unique: true,
+        nullable: false,
+    }),
     __metadata("design:type", Number)
 ], HseContactoEmergencia.prototype, "contratistaId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'nombre_completo', type: 'varchar', length: 150, nullable: false }),
+    (0, typeorm_1.Column)({
+        name: 'nombre_completo',
+        type: 'varchar',
+        length: 150,
+        nullable: false,
+    }),
     __metadata("design:type", String)
 ], HseContactoEmergencia.prototype, "nombreCompleto", void 0);
 __decorate([
@@ -41,19 +51,39 @@ __decorate([
     __metadata("design:type", String)
 ], HseContactoEmergencia.prototype, "relacion", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'relacion_otro', type: 'varchar', length: 80, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'relacion_otro',
+        type: 'varchar',
+        length: 80,
+        nullable: true,
+    }),
     __metadata("design:type", String)
 ], HseContactoEmergencia.prototype, "relacionOtro", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'telefono_celular', type: 'varchar', length: 20, nullable: false }),
+    (0, typeorm_1.Column)({
+        name: 'telefono_celular',
+        type: 'varchar',
+        length: 20,
+        nullable: false,
+    }),
     __metadata("design:type", String)
 ], HseContactoEmergencia.prototype, "telefonoCelular", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'telefono_fijo', type: 'varchar', length: 20, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'telefono_fijo',
+        type: 'varchar',
+        length: 20,
+        nullable: true,
+    }),
     __metadata("design:type", String)
 ], HseContactoEmergencia.prototype, "telefonoFijo", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'rh_sanguineo', type: 'enum', enum: hse_enum_1.RhSanguineo, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'rh_sanguineo',
+        type: 'enum',
+        enum: hse_enum_1.RhSanguineo,
+        nullable: true,
+    }),
     __metadata("design:type", String)
 ], HseContactoEmergencia.prototype, "rhSanguineo", void 0);
 __decorate([
@@ -65,7 +95,12 @@ __decorate([
     __metadata("design:type", String)
 ], HseContactoEmergencia.prototype, "condicionMedica", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'eps_contratista', type: 'varchar', length: 100, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'eps_contratista',
+        type: 'varchar',
+        length: 100,
+        nullable: true,
+    }),
     __metadata("design:type", String)
 ], HseContactoEmergencia.prototype, "epsContratista", void 0);
 __decorate([

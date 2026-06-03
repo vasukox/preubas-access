@@ -48,7 +48,9 @@ __decorate([
     __metadata("design:type", Number)
 ], HseCumplimientoItem.prototype, "orden", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => hse_cumplimiento_entity_1.HseCumplimiento, (cumplimiento) => cumplimiento.items, { onDelete: 'CASCADE' }),
+    (0, typeorm_1.ManyToOne)(() => hse_cumplimiento_entity_1.HseCumplimiento, (cumplimiento) => cumplimiento.items, {
+        onDelete: 'CASCADE',
+    }),
     (0, typeorm_1.JoinColumn)({ name: 'cumplimiento_id' }),
     __metadata("design:type", hse_cumplimiento_entity_1.HseCumplimiento)
 ], HseCumplimientoItem.prototype, "cumplimiento", void 0);

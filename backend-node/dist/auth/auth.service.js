@@ -104,19 +104,34 @@ let AuthService = AuthService_1 = class AuthService {
             bloqueadoHasta: null,
             ultimoLogin: new Date(),
         });
-        const roleObjs = usuario.roles.map((ur) => ({ id: ur.rolId, nombre: ur.rol?.nombre ?? 'UNKNOWN' }));
+        const roleObjs = usuario.roles.map((ur) => ({
+            id: ur.rolId,
+            nombre: ur.rol?.nombre ?? 'UNKNOWN',
+        }));
         const roleNames = roleObjs.map((r) => r.nombre);
         const tokens = await this.generarTokens(usuario, roleNames, ipAddress, userAgent);
         await this.registrarAudit(usuario.id, usuario.nombreCompleto, 'LOGIN', 'usuario', usuario.id);
         this.logger.log(`Login exitoso: ${usuario.email} desde ${ipAddress ?? 'IP desconocida'}`);
-        const isAdmin = roleNames.includes(rol_enum_1.RolNombre.ADMIN_GLOBAL) || roleNames.includes(rol_enum_1.RolNombre.ADMIN_HSE) || roleNames.includes(rol_enum_1.RolNombre.ADMIN_GH);
+        const isAdmin = roleNames.includes(rol_enum_1.RolNombre.ADMIN_GLOBAL) ||
+            roleNames.includes(rol_enum_1.RolNombre.ADMIN_HSE) ||
+            roleNames.includes(rol_enum_1.RolNombre.ADMIN_GH);
         const sedesAsignadas = isAdmin
             ? []
             : (usuario.sedesAsignadas ?? [])
                 .filter((us) => us.sede)
-                .map((us) => ({ id: us.sede.id, nombre: us.sede.nombre, ciudad: us.sede.ciudad }));
+                .map((us) => ({
+                id: us.sede.id,
+                nombre: us.sede.nombre,
+                ciudad: us.sede.ciudad,
+            }));
         const sedesFallback = !isAdmin && sedesAsignadas.length === 0 && usuario.sedeAsignada
-            ? [{ id: usuario.sedeAsignada.id, nombre: usuario.sedeAsignada.nombre, ciudad: usuario.sedeAsignada.ciudad }]
+            ? [
+                {
+                    id: usuario.sedeAsignada.id,
+                    nombre: usuario.sedeAsignada.nombre,
+                    ciudad: usuario.sedeAsignada.ciudad,
+                },
+            ]
             : [];
         const sedesFinales = sedesAsignadas.length > 0 ? sedesAsignadas : sedesFallback;
         const sedePrincipal = sedesFinales[0] ?? null;
@@ -135,10 +150,14 @@ let AuthService = AuthService_1 = class AuthService {
                 debeCambiarPassword: usuario.debeCambiarPassword,
                 ultimoLogin: usuario.ultimoLogin ?? null,
                 roles: roleObjs,
-                sedeAsignadaId: isAdmin ? null : (usuario.sedeAsignadaId ?? sedePrincipal?.id ?? null),
-                sedeAsignada: isAdmin ? null : (sedePrincipal
-                    ? { id: sedePrincipal.id, nombre: sedePrincipal.nombre }
-                    : null),
+                sedeAsignadaId: isAdmin
+                    ? null
+                    : (usuario.sedeAsignadaId ?? sedePrincipal?.id ?? null),
+                sedeAsignada: isAdmin
+                    ? null
+                    : sedePrincipal
+                        ? { id: sedePrincipal.id, nombre: sedePrincipal.nombre }
+                        : null,
                 sedesAsignadasIds: isAdmin ? [] : sedesFinales.map((s) => s.id),
                 sedesAsignadas: isAdmin ? [] : sedesFinales,
             },
@@ -165,7 +184,12 @@ let AuthService = AuthService_1 = class AuthService {
         }
         const tokenEntity = await this.refreshTokenRepo.findOne({
             where: { jti: payload.jti, revocado: false },
-            relations: ['usuario', 'usuario.roles', 'usuario.roles.rol', 'usuario.perfil'],
+            relations: [
+                'usuario',
+                'usuario.roles',
+                'usuario.roles.rol',
+                'usuario.perfil',
+            ],
         });
         if (!tokenEntity || tokenEntity.expiraEn < new Date()) {
             throw new common_1.UnauthorizedException({
@@ -201,7 +225,10 @@ let AuthService = AuthService_1 = class AuthService {
             where: { id: usuarioId },
         });
         if (!usuario) {
-            throw new common_1.UnauthorizedException({ code: 'USUARIO_NO_ENCONTRADO', message: 'Usuario no encontrado.' });
+            throw new common_1.UnauthorizedException({
+                code: 'USUARIO_NO_ENCONTRADO',
+                message: 'Usuario no encontrado.',
+            });
         }
         const esValida = await bcrypt.compare(dto.passwordActual, usuario.passwordHash);
         if (!esValida) {
@@ -258,8 +285,18 @@ let AuthService = AuthService_1 = class AuthService {
         };
     }
     async findUsuarioConRelaciones(where) {
-        const relacionesBase = ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada'];
-        const relacionesConSedes = [...relacionesBase, 'sedesAsignadas', 'sedesAsignadas.sede'];
+        const relacionesBase = [
+            'roles',
+            'roles.rol',
+            'perfil',
+            'permisos',
+            'sedeAsignada',
+        ];
+        const relacionesConSedes = [
+            ...relacionesBase,
+            'sedesAsignadas',
+            'sedesAsignadas.sede',
+        ];
         try {
             return await this.usuarioRepo.findOne({
                 where,

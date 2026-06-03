@@ -1,4 +1,4 @@
-/**
+﻿/**
  * KOAJ Access v2.0 — Permoda S.A.S.
  * Portal Vigilante HSE — Verificación de acceso en portería
  */
@@ -31,10 +31,10 @@ function ResultadoCard({ resultado }: { resultado: VerificarAccesoResponse }) {
   const config: Record<EstadoAccesoVigilante, {
     bg: string; border: string; icon: React.ComponentType<{ size?: number; color?: string }>; iconColor: string; title: string
   }> = {
-    AUTORIZADO:    { bg: 'rgba(40,149,108,0.06)',  border: 'rgba(40,149,108,0.3)',  icon: UserCheck,    iconColor: 'var(--success-400)', title: 'AUTORIZADO' },
-    NO_AUTORIZADO: { bg: 'rgba(192,80,80,0.06)',   border: 'rgba(192,80,80,0.3)',   icon: UserX,        iconColor: 'var(--danger-400)',  title: 'NO AUTORIZADO' },
+    AUTORIZADO:    { bg: 'rgba(22, 163, 74,0.06)',  border: 'rgba(22, 163, 74,0.3)',  icon: UserCheck,    iconColor: 'var(--success-400)', title: 'AUTORIZADO' },
+    NO_AUTORIZADO: { bg: 'rgba(220, 38, 38,0.06)',   border: 'rgba(220, 38, 38,0.3)',   icon: UserX,        iconColor: 'var(--danger-400)',  title: 'NO AUTORIZADO' },
     NO_REGISTRADO: { bg: 'rgba(100,116,139,0.06)', border: 'rgba(100,116,139,0.3)', icon: User,         iconColor: 'var(--text-muted)',  title: 'NO REGISTRADO' },
-    EXCEPCION:     { bg: 'rgba(86,104,184,0.06)',  border: 'rgba(86,104,184,0.3)',  icon: ShieldCheck,  iconColor: '#5668B8',            title: 'EXCEPCIÓN' },
+    EXCEPCION:     { bg: 'rgba(29, 78, 216,0.06)',  border: 'rgba(29, 78, 216,0.3)',  icon: ShieldCheck,  iconColor: 'var(--info-400)',            title: 'EXCEPCIÓN' },
   }
 
   const { bg, border, icon: Icon, iconColor, title } = config[resultado.estado]
@@ -113,8 +113,8 @@ function ResultadoCard({ resultado }: { resultado: VerificarAccesoResponse }) {
       {resultado.problemas.length > 0 && (
         <div style={{
           padding:      '10px 14px',
-          background:   'rgba(192,80,80,0.06)',
-          border:       '1px solid rgba(192,80,80,0.15)',
+          background:   'rgba(220, 38, 38,0.06)',
+          border:       '1px solid rgba(220, 38, 38,0.15)',
           borderRadius: 'var(--radius-md)',
         }}>
           {resultado.problemas.map((p, i) => (
@@ -376,8 +376,8 @@ export default function VigilanteView() {
               alignItems:   'center',
               gap:          '10px',
               padding:      '14px 18px',
-              background:   'rgba(40,149,108,0.08)',
-              border:       '1px solid rgba(40,149,108,0.3)',
+              background:   'rgba(22, 163, 74,0.08)',
+              border:       '1px solid rgba(22, 163, 74,0.3)',
               borderRadius: 'var(--radius-lg)',
               marginBottom: '16px',
               animation:    'fadeUp 0.3s ease both',
@@ -396,8 +396,8 @@ export default function VigilanteView() {
               alignItems:   'center',
               gap:          '10px',
               padding:      '12px 16px',
-              background:   'rgba(192,80,80,0.08)',
-              border:       '1px solid rgba(192,80,80,0.2)',
+              background:   'rgba(220, 38, 38,0.08)',
+              border:       '1px solid rgba(220, 38, 38,0.2)',
               borderRadius: 'var(--radius-lg)',
               marginBottom: '16px',
             }}>
@@ -429,9 +429,9 @@ export default function VigilanteView() {
                       gap:          '8px',
                       padding:      '14px',
                       background:   resultado.dentro_actualmente
-                        ? 'var(--bg-elevated)' : 'rgba(40,149,108,0.1)',
+                        ? 'var(--bg-elevated)' : 'rgba(22, 163, 74,0.1)',
                       border:       `2px solid ${resultado.dentro_actualmente
-                        ? 'var(--border-subtle)' : 'rgba(40,149,108,0.4)'}`,
+                        ? 'var(--border-subtle)' : 'rgba(22, 163, 74,0.4)'}`,
                       borderRadius: 'var(--radius-lg)',
                       color:        resultado.dentro_actualmente
                         ? 'var(--text-muted)' : 'var(--success-400)',
@@ -455,9 +455,9 @@ export default function VigilanteView() {
                       gap:          '8px',
                       padding:      '14px',
                       background:   !resultado.dentro_actualmente
-                        ? 'var(--bg-elevated)' : 'rgba(69,116,196,0.1)',
+                        ? 'var(--bg-elevated)' : 'rgba(15, 23, 42,0.1)',
                       border:       `2px solid ${!resultado.dentro_actualmente
-                        ? 'var(--border-subtle)' : 'rgba(69,116,196,0.4)'}`,
+                        ? 'var(--border-subtle)' : 'rgba(15, 23, 42,0.4)'}`,
                       borderRadius: 'var(--radius-lg)',
                       color:        !resultado.dentro_actualmente
                         ? 'var(--text-muted)' : 'var(--primary-400)',
@@ -478,11 +478,11 @@ export default function VigilanteView() {
                 <div style={{
                   marginTop: '12px',
                   padding: '10px 12px',
-                  background: 'rgba(86,104,184,0.08)',
-                  border: '1px solid rgba(86,104,184,0.25)',
+                  background: 'rgba(29, 78, 216,0.08)',
+                  border: '1px solid rgba(29, 78, 216,0.25)',
                   borderRadius: 'var(--radius-md)',
                   fontSize: '0.78rem',
-                  color: '#5668B8',
+                  color: 'var(--info-400)',
                 }}>
                   Excepción válida encontrada, pero la persona no tiene contratista HSE asociado para registrar trazabilidad de entrada/salida.
                 </div>
@@ -536,8 +536,8 @@ export default function VigilanteView() {
               </span>
               <span style={{
                 padding:      '1px 7px',
-                background:   'rgba(40,149,108,0.1)',
-                border:       '1px solid rgba(40,149,108,0.2)',
+                background:   'rgba(22, 163, 74,0.1)',
+                border:       '1px solid rgba(22, 163, 74,0.2)',
                 borderRadius: '20px',
                 fontSize:     '0.68rem',
                 color:        'var(--success-400)',
@@ -588,7 +588,7 @@ export default function VigilanteView() {
                       height:         '28px',
                       borderRadius:   '50%',
                       background:     p.tipo_contratista === 'ALTO_RIESGO'
-                        ? 'rgba(192,80,80,0.1)' : 'rgba(40,149,108,0.1)',
+                        ? 'rgba(220, 38, 38,0.1)' : 'rgba(22, 163, 74,0.1)',
                       display:        'flex',
                       alignItems:     'center',
                       justifyContent: 'center',

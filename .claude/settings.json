@@ -52,7 +52,9 @@
       "Bash(Select-Object -First 30)",
       "PowerShell(New-Item -ItemType Directory -Force -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\\\\src\\\\notificaciones\\\\entities\")",
       "PowerShell(\\(Get-Content \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\\\\src\\\\hse\\\\hse.service.ts\" | Measure-Object -Line\\).Lines)",
-      "PowerShell(\\(Get-Content \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\\\\src\\\\hse\\\\services\\\\reportes.service.ts\" | Measure-Object -Line\\).Lines)"
+      "PowerShell(\\(Get-Content \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\backend-node\\\\src\\\\hse\\\\services\\\\reportes.service.ts\" | Measure-Object -Line\\).Lines)",
+      "PowerShell(grep -E \"\\\\.controller|\\\\.ts$\")",
+      "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\andresdb\\\\OneDrive - PERMODA LTDA\\\\Escritorio\\\\Koaj_access\\\\frontend\\\\src\" -Recurse -File | Where-Object { $_.Name -match '\\(theme|token|variable|style\\)' } | Select-Object FullName)"
     ],
     "additionalDirectories": [
       "c:\\Users\\andresdb\\.claude\\projects\\c--Users-andresdb-OneDrive---PERMODA-LTDA-Escritorio-Koaj-access\\memory"

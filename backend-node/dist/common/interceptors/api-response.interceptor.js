@@ -20,7 +20,10 @@ let ApiResponseInterceptor = class ApiResponseInterceptor {
     }
     intercept(context, next) {
         return next.handle().pipe((0, operators_1.map)((res) => {
-            if (res && typeof res === 'object' && 'success' in res && 'data' in res) {
+            if (res &&
+                typeof res === 'object' &&
+                'success' in res &&
+                'data' in res) {
                 return res;
             }
             return {

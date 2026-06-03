@@ -39,15 +39,30 @@ __decorate([
     __metadata("design:type", Object)
 ], HseExcepcion.prototype, "personaId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'tipo_documento', type: 'varchar', length: 20, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'tipo_documento',
+        type: 'varchar',
+        length: 20,
+        nullable: true,
+    }),
     __metadata("design:type", Object)
 ], HseExcepcion.prototype, "tipoDocumento", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'numero_documento', type: 'varchar', length: 30, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'numero_documento',
+        type: 'varchar',
+        length: 30,
+        nullable: true,
+    }),
     __metadata("design:type", Object)
 ], HseExcepcion.prototype, "numeroDocumento", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'nombre_completo', type: 'varchar', length: 200, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'nombre_completo',
+        type: 'varchar',
+        length: 200,
+        nullable: true,
+    }),
     __metadata("design:type", Object)
 ], HseExcepcion.prototype, "nombreCompleto", void 0);
 __decorate([
@@ -55,7 +70,12 @@ __decorate([
     __metadata("design:type", Object)
 ], HseExcepcion.prototype, "proveedorId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'origen_excepcion', type: 'varchar', length: 20, default: 'INDIVIDUAL' }),
+    (0, typeorm_1.Column)({
+        name: 'origen_excepcion',
+        type: 'varchar',
+        length: 20,
+        default: 'INDIVIDUAL',
+    }),
     __metadata("design:type", String)
 ], HseExcepcion.prototype, "origenExcepcion", void 0);
 __decorate([

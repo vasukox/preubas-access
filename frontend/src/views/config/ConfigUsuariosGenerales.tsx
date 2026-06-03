@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Building2, Filter, Search, Users, UserX } from 'lucide-react'
 import { toast } from 'react-hot-toast'
@@ -571,11 +571,11 @@ type ContratistaRow = {
 function estadoColor(estado: EstadoContratista): { text: string; bg: string; border: string } {
   const map: Record<EstadoContratista, { text: string; bg: string; border: string }> = {
     PENDIENTE_AUTOGESTION: { text: 'var(--text-muted)', bg: 'rgba(148,163,184,0.12)', border: 'rgba(148,163,184,0.35)' },
-    AUTOGESTION_EN_PROGRESO: { text: 'var(--primary-400)', bg: 'rgba(86,104,184,0.10)', border: 'rgba(86,104,184,0.35)' },
-    AUTOGESTION_COMPLETADA: { text: '#5668B8', bg: 'rgba(86,104,184,0.10)', border: 'rgba(86,104,184,0.35)' },
-    EN_REVISION: { text: 'var(--warning-500)', bg: 'rgba(69,116,196,0.10)', border: 'rgba(69,116,196,0.35)' },
-    APROBADO:  { text: 'var(--success-400)', bg: 'rgba(40,149,108,0.10)', border: 'rgba(40,149,108,0.35)' },
-    DENEGADO:  { text: 'var(--danger-400)',  bg: 'rgba(192,80,80,0.10)',  border: 'rgba(192,80,80,0.35)' },
+    AUTOGESTION_EN_PROGRESO: { text: 'var(--primary-400)', bg: 'rgba(29, 78, 216,0.10)', border: 'rgba(29, 78, 216,0.35)' },
+    AUTOGESTION_COMPLETADA: { text: 'var(--info-400)', bg: 'rgba(29, 78, 216,0.10)', border: 'rgba(29, 78, 216,0.35)' },
+    EN_REVISION: { text: 'var(--warning-500)', bg: 'rgba(15, 23, 42,0.10)', border: 'rgba(15, 23, 42,0.35)' },
+    APROBADO:  { text: 'var(--success-400)', bg: 'rgba(22, 163, 74,0.10)', border: 'rgba(22, 163, 74,0.35)' },
+    DENEGADO:  { text: 'var(--danger-400)',  bg: 'rgba(220, 38, 38,0.10)',  border: 'rgba(220, 38, 38,0.35)' },
     ARCHIVADO: { text: 'var(--text-muted)',  bg: 'var(--bg-raised)',      border: 'var(--border-subtle)' },
   }
   return map[estado]

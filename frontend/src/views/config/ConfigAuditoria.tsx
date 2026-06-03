@@ -224,9 +224,9 @@ export default function ConfigAuditoria() {
                     <span style={{
                       display: 'inline-block', fontSize: '0.7rem', fontWeight: 700,
                       letterSpacing: '0.05em', padding: '2px 8px', borderRadius: '999px',
-                      background: 'var(--primary-500, #5668B8)22',
-                      color: 'var(--primary-400, #7888cc)',
-                      border: '1px solid var(--primary-500, #5668B8)44',
+                      background: 'var(--primary-500, #0F172A)22',
+                      color: 'var(--primary-400)',
+                      border: '1px solid var(--primary-500, #0F172A)44',
                     }}>
                       {l.accion}
                     </span>

@@ -26,7 +26,12 @@ __decorate([
     __metadata("design:type", Number)
 ], AuditLog.prototype, "actorId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'actor_nombre', type: 'varchar', length: 150, nullable: false }),
+    (0, typeorm_1.Column)({
+        name: 'actor_nombre',
+        type: 'varchar',
+        length: 150,
+        nullable: false,
+    }),
     __metadata("design:type", String)
 ], AuditLog.prototype, "actorNombre", void 0);
 __decorate([

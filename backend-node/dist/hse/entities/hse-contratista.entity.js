@@ -60,15 +60,30 @@ __decorate([
     __metadata("design:type", Number)
 ], HseContratista.prototype, "autorizacionId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'persona_id', type: 'int', nullable: true, comment: 'Se vincula cuando la persona ya existe en BD' }),
+    (0, typeorm_1.Column)({
+        name: 'persona_id',
+        type: 'int',
+        nullable: true,
+        comment: 'Se vincula cuando la persona ya existe en BD',
+    }),
     __metadata("design:type", Number)
 ], HseContratista.prototype, "personaId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'tipo_documento', type: 'enum', enum: hse_enum_1.TipoDocumento, nullable: false }),
+    (0, typeorm_1.Column)({
+        name: 'tipo_documento',
+        type: 'enum',
+        enum: hse_enum_1.TipoDocumento,
+        nullable: false,
+    }),
     __metadata("design:type", String)
 ], HseContratista.prototype, "tipoDocumento", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'numero_documento', type: 'varchar', length: 30, nullable: false }),
+    (0, typeorm_1.Column)({
+        name: 'numero_documento',
+        type: 'varchar',
+        length: 30,
+        nullable: false,
+    }),
     __metadata("design:type", String)
 ], HseContratista.prototype, "numeroDocumento", void 0);
 __decorate([
@@ -88,11 +103,21 @@ __decorate([
     __metadata("design:type", String)
 ], HseContratista.prototype, "telefono", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'es_extranjero', type: 'boolean', default: false, nullable: false }),
+    (0, typeorm_1.Column)({
+        name: 'es_extranjero',
+        type: 'boolean',
+        default: false,
+        nullable: false,
+    }),
     __metadata("design:type", Boolean)
 ], HseContratista.prototype, "esExtranjero", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'enum', enum: hse_enum_1.EstadoContratista, default: hse_enum_1.EstadoContratista.PENDIENTE_AUTOGESTION, nullable: false }),
+    (0, typeorm_1.Column)({
+        type: 'enum',
+        enum: hse_enum_1.EstadoContratista,
+        default: hse_enum_1.EstadoContratista.PENDIENTE_AUTOGESTION,
+        nullable: false,
+    }),
     __metadata("design:type", String)
 ], HseContratista.prototype, "estado", void 0);
 __decorate([
@@ -100,7 +125,13 @@ __decorate([
     __metadata("design:type", String)
 ], HseContratista.prototype, "motivoDenegacion", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'token_autogestion', type: 'varchar', length: 64, unique: true, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'token_autogestion',
+        type: 'varchar',
+        length: 64,
+        unique: true,
+        nullable: true,
+    }),
     __metadata("design:type", String)
 ], HseContratista.prototype, "tokenAutogestion", void 0);
 __decorate([
@@ -108,19 +139,38 @@ __decorate([
     __metadata("design:type", Date)
 ], HseContratista.prototype, "tokenExpiraEn", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'token_duracion_horas', type: 'int', nullable: true, comment: '24, 48, 72 o personalizado' }),
+    (0, typeorm_1.Column)({
+        name: 'token_duracion_horas',
+        type: 'int',
+        nullable: true,
+        comment: '24, 48, 72 o personalizado',
+    }),
     __metadata("design:type", Number)
 ], HseContratista.prototype, "tokenDuracionHoras", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'autogestion_completada_en', type: 'datetime', nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'autogestion_completada_en',
+        type: 'datetime',
+        nullable: true,
+    }),
     __metadata("design:type", Date)
 ], HseContratista.prototype, "autogestionCompletadaEn", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'sst_responsable_nombre', type: 'varchar', length: 150, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'sst_responsable_nombre',
+        type: 'varchar',
+        length: 150,
+        nullable: true,
+    }),
     __metadata("design:type", String)
 ], HseContratista.prototype, "sstResponsableNombre", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'sst_responsable_telefono', type: 'varchar', length: 20, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'sst_responsable_telefono',
+        type: 'varchar',
+        length: 20,
+        nullable: true,
+    }),
     __metadata("design:type", String)
 ], HseContratista.prototype, "sstResponsableTelefono", void 0);
 __decorate([
@@ -138,23 +188,33 @@ __decorate([
     __metadata("design:type", hse_clasificacion_entity_1.HseClasificacion)
 ], HseContratista.prototype, "clasificacion", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => hse_seg_social_entity_1.HseSegSocial, (segSocial) => segSocial.contratista, { cascade: true }),
+    (0, typeorm_1.OneToMany)(() => hse_seg_social_entity_1.HseSegSocial, (segSocial) => segSocial.contratista, {
+        cascade: true,
+    }),
     __metadata("design:type", Array)
 ], HseContratista.prototype, "seguridadSocial", void 0);
 __decorate([
-    (0, typeorm_1.OneToOne)(() => hse_certificaciones_entity_1.HseCertificaciones, (cert) => cert.contratista, { cascade: true }),
+    (0, typeorm_1.OneToOne)(() => hse_certificaciones_entity_1.HseCertificaciones, (cert) => cert.contratista, {
+        cascade: true,
+    }),
     __metadata("design:type", hse_certificaciones_entity_1.HseCertificaciones)
 ], HseContratista.prototype, "certificaciones", void 0);
 __decorate([
-    (0, typeorm_1.OneToOne)(() => hse_examen_medico_entity_1.HseExamenMedico, (examen) => examen.contratista, { cascade: true }),
+    (0, typeorm_1.OneToOne)(() => hse_examen_medico_entity_1.HseExamenMedico, (examen) => examen.contratista, {
+        cascade: true,
+    }),
     __metadata("design:type", hse_examen_medico_entity_1.HseExamenMedico)
 ], HseContratista.prototype, "examenMedico", void 0);
 __decorate([
-    (0, typeorm_1.OneToOne)(() => hse_contacto_emergencia_entity_1.HseContactoEmergencia, (contacto) => contacto.contratista, { cascade: true }),
+    (0, typeorm_1.OneToOne)(() => hse_contacto_emergencia_entity_1.HseContactoEmergencia, (contacto) => contacto.contratista, {
+        cascade: true,
+    }),
     __metadata("design:type", hse_contacto_emergencia_entity_1.HseContactoEmergencia)
 ], HseContratista.prototype, "contactoEmergencia", void 0);
 __decorate([
-    (0, typeorm_1.OneToOne)(() => hse_aceptacion_normas_entity_1.HseAceptacionNormas, (aceptacion) => aceptacion.contratista, { cascade: true }),
+    (0, typeorm_1.OneToOne)(() => hse_aceptacion_normas_entity_1.HseAceptacionNormas, (aceptacion) => aceptacion.contratista, {
+        cascade: true,
+    }),
     __metadata("design:type", hse_aceptacion_normas_entity_1.HseAceptacionNormas)
 ], HseContratista.prototype, "aceptacionNormas", void 0);
 __decorate([
@@ -166,7 +226,9 @@ __decorate([
     __metadata("design:type", Array)
 ], HseContratista.prototype, "cumplimientos", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => hse_historial_entity_1.HseHistorial, (historial) => historial.contratista, { cascade: true }),
+    (0, typeorm_1.OneToMany)(() => hse_historial_entity_1.HseHistorial, (historial) => historial.contratista, {
+        cascade: true,
+    }),
     __metadata("design:type", Array)
 ], HseContratista.prototype, "historial", void 0);
 exports.HseContratista = HseContratista = __decorate([

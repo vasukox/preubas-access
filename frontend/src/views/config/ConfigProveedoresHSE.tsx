@@ -1,4 +1,4 @@
-/**
+﻿/**
  * KOAJ Access v2.0 — Configuración › Proveedores HSE
  * CRUD completo de empresas/proveedores contratistas.
  */
@@ -126,7 +126,7 @@ function ModalCrear({ onClose, onDone }: { onClose: () => void; onDone: () => vo
         <form onSubmit={handleSubmit}>
           <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
             {error && (
-              <div style={{ padding: '9px 12px', background: 'rgba(192,80,80,0.07)', border: '1px solid rgba(192,80,80,0.2)', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', color: 'var(--danger-400)' }}>
+              <div style={{ padding: '9px 12px', background: 'rgba(220, 38, 38,0.07)', border: '1px solid rgba(220, 38, 38,0.2)', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', color: 'var(--danger-400)' }}>
                 {error}
               </div>
             )}
@@ -137,7 +137,7 @@ function ModalCrear({ onClose, onDone }: { onClose: () => void; onDone: () => vo
             <button type="button" onClick={onClose} style={{ padding: '8px 16px', background: 'transparent', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-md)', color: 'var(--text-secondary)', fontSize: '0.82rem', cursor: 'pointer', fontFamily: 'var(--font-ui)' }}>
               Cancelar
             </button>
-            <button type="submit" disabled={loading} style={{ padding: '8px 18px', background: 'var(--gradient-primary)', border: 'none', borderRadius: 'var(--radius-md)', color: '#fff', fontSize: '0.82rem', fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-ui)', display: 'flex', alignItems: 'center', gap: '6px', opacity: loading ? 0.7 : 1, boxShadow: '0 1px 3px rgba(59,130,246,0.18)'}}>
+            <button type="submit" disabled={loading} style={{ padding: '8px 18px', background: 'var(--gradient-primary)', border: 'none', borderRadius: 'var(--radius-md)', color: '#fff', fontSize: '0.82rem', fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-ui)', display: 'flex', alignItems: 'center', gap: '6px', opacity: loading ? 0.7 : 1, boxShadow: '0 1px 3px rgba(15, 23, 42,0.18)'}}>
               {loading && <Loader2 size={13} style={{ animation: 'spin 0.8s linear infinite' }} />}
               Crear proveedor
             </button>
@@ -192,7 +192,7 @@ function ModalEditar({ proveedor, onClose, onDone }: { proveedor: ProveedorHSEOp
         <form onSubmit={handleSubmit}>
           <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
             {error && (
-              <div style={{ padding: '9px 12px', background: 'rgba(192,80,80,0.07)', border: '1px solid rgba(192,80,80,0.2)', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', color: 'var(--danger-400)' }}>
+              <div style={{ padding: '9px 12px', background: 'rgba(220, 38, 38,0.07)', border: '1px solid rgba(220, 38, 38,0.2)', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', color: 'var(--danger-400)' }}>
                 {error}
               </div>
             )}
@@ -232,7 +232,7 @@ function ModalEditar({ proveedor, onClose, onDone }: { proveedor: ProveedorHSEOp
             <button type="button" onClick={onClose} style={{ padding: '8px 16px', background: 'transparent', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-md)', color: 'var(--text-secondary)', fontSize: '0.82rem', cursor: 'pointer', fontFamily: 'var(--font-ui)' }}>
               Cancelar
             </button>
-            <button type="submit" disabled={loading} style={{ padding: '8px 18px', background: 'var(--gradient-primary)', border: 'none', borderRadius: 'var(--radius-md)', color: '#fff', fontSize: '0.82rem', fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-ui)', display: 'flex', alignItems: 'center', gap: '6px', opacity: loading ? 0.7 : 1, boxShadow: '0 1px 3px rgba(59,130,246,0.18)'}}>
+            <button type="submit" disabled={loading} style={{ padding: '8px 18px', background: 'var(--gradient-primary)', border: 'none', borderRadius: 'var(--radius-md)', color: '#fff', fontSize: '0.82rem', fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-ui)', display: 'flex', alignItems: 'center', gap: '6px', opacity: loading ? 0.7 : 1, boxShadow: '0 1px 3px rgba(15, 23, 42,0.18)'}}>
               {loading && <Loader2 size={13} style={{ animation: 'spin 0.8s linear infinite' }} />}
               Guardar cambios
             </button>
@@ -362,7 +362,7 @@ export default function ConfigProveedoresHSE() {
               border: 'none', borderRadius: 'var(--radius-md)',
               color: '#fff', fontSize: '0.82rem', fontWeight: 600,
               cursor: 'pointer', fontFamily: 'var(--font-ui)',
-              boxShadow: '0 1px 3px rgba(59,130,246,0.18)',
+              boxShadow: '0 1px 3px rgba(15, 23, 42,0.18)',
             }}
           >
             <Plus size={14} />

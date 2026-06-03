@@ -307,9 +307,9 @@ export class ExcepcionService {
     });
     if (existente) return existente;
 
-    const partes = (dto.nombreCompleto ?? 'Excepcion HSE').trim().split(/\s+/);
-    const nombres = partes.slice(0, Math.max(1, partes.length - 1)).join(' ');
-    const apellidos = partes.length > 1 ? partes.slice(-1).join(' ') : 'HSE';
+    const partes = (dto.nombreCompleto ?? '').trim().split(/\s+/).filter(Boolean);
+    const nombres = partes.slice(0, Math.max(1, partes.length - 1)).join(' ') || 'Sin nombre';
+    const apellidos = partes.length > 1 ? partes.slice(-1).join(' ') : '';
 
     const persona: Persona = this.personaRepo.create({
       tipoDocumento: dto.tipoDocumento ?? 'CC',

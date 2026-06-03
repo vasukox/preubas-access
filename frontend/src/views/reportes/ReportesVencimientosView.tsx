@@ -1,4 +1,4 @@
-/**
+﻿/**
  * KOAJ Access v2.0 — Permoda S.A.S.
  * Reporte de Vencimientos HSE — Semáforo de autorizaciones por fecha de vencimiento.
  */
@@ -60,7 +60,7 @@ function estadoBadgeStyle(estado: string): React.CSSProperties {
     case 'APROBADO':
       return { ...base, background: 'rgba(34,197,94,0.1)', color: 'var(--success-400)' }
     case 'EN_REVISION':
-      return { ...base, background: 'rgba(86,104,184,0.12)', color: '#5668B8' }
+      return { ...base, background: 'rgba(29, 78, 216,0.12)', color: 'var(--info-400)' }
     case 'DENEGADO':
     case 'VENCIDO':
       return { ...base, background: 'rgba(220,38,38,0.1)', color: 'var(--danger-400)' }
@@ -336,7 +336,7 @@ export default function ReportesVencimientosView() {
                           display: 'inline-flex', alignItems: 'center',
                           padding: '2px 7px', borderRadius: 'var(--radius-sm)',
                           fontSize: '0.68rem', fontWeight: 700,
-                          background: row.tipo_contratista === 'ALTO_RIESGO' ? 'rgba(245,158,11,0.1)' : 'rgba(86,104,184,0.08)',
+                          background: row.tipo_contratista === 'ALTO_RIESGO' ? 'rgba(245,158,11,0.1)' : 'rgba(29, 78, 216,0.08)',
                           color: row.tipo_contratista === 'ALTO_RIESGO' ? '#f59e0b' : 'var(--primary-400)',
                         }}>
                           {row.tipo_contratista === 'ALTO_RIESGO' ? 'Alto Riesgo' : 'Normal'}

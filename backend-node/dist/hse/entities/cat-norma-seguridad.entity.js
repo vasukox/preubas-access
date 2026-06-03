@@ -39,7 +39,12 @@ __decorate([
     __metadata("design:type", Boolean)
 ], CatNormaSeguridad.prototype, "activa", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'sede_id', type: 'int', nullable: true, comment: 'NULL = aplica a todas las sedes' }),
+    (0, typeorm_1.Column)({
+        name: 'sede_id',
+        type: 'int',
+        nullable: true,
+        comment: 'NULL = aplica a todas las sedes',
+    }),
     __metadata("design:type", Number)
 ], CatNormaSeguridad.prototype, "sedeId", void 0);
 __decorate([

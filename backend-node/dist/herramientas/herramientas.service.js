@@ -94,7 +94,9 @@ let HerramientasService = class HerramientasService {
     }
     resolverIdsSedes(input) {
         const fromArray = input.sedesAsignadasIds?.length
-            ? [...new Set(input.sedesAsignadasIds.filter((id) => Number.isInteger(id) && id > 0))]
+            ? [
+                ...new Set(input.sedesAsignadasIds.filter((id) => Number.isInteger(id) && id > 0)),
+            ]
             : [];
         if (fromArray.length > 0)
             return fromArray;
@@ -113,11 +115,13 @@ let HerramientasService = class HerramientasService {
         if (fromPivot.length > 0)
             return fromPivot;
         if (usuario.sedeAsignada) {
-            return [{
+            return [
+                {
                     id: usuario.sedeAsignada.id,
                     nombre: usuario.sedeAsignada.nombre,
                     ciudad: usuario.sedeAsignada.ciudad,
-                }];
+                },
+            ];
         }
         return [];
     }
@@ -129,7 +133,12 @@ let HerramientasService = class HerramientasService {
                 puedeEditar: u.permisos.puedeEditar,
                 puedeEliminar: u.permisos.puedeEliminar,
             }
-            : { puedeVer: true, puedeCrear: false, puedeEditar: false, puedeEliminar: false };
+            : {
+                puedeVer: true,
+                puedeCrear: false,
+                puedeEditar: false,
+                puedeEliminar: false,
+            };
         const sedesAsignadas = this.mapSedesAsignadas(u);
         const sedePrincipal = sedesAsignadas[0] ?? null;
         const ahora = new Date();
@@ -149,7 +158,11 @@ let HerramientasService = class HerramientasService {
             permisos,
             sedeAsignadaId: u.sedeAsignadaId ?? sedePrincipal?.id ?? null,
             sedeAsignada: u.sedeAsignada
-                ? { id: u.sedeAsignada.id, nombre: u.sedeAsignada.nombre, ciudad: u.sedeAsignada.ciudad }
+                ? {
+                    id: u.sedeAsignada.id,
+                    nombre: u.sedeAsignada.nombre,
+                    ciudad: u.sedeAsignada.ciudad,
+                }
                 : sedePrincipal,
             sedesAsignadasIds: sedesAsignadas.map((s) => s.id),
             sedesAsignadas,
@@ -227,7 +240,15 @@ let HerramientasService = class HerramientasService {
     }
     async listarUsuarios() {
         const usuarios = await this.usuarioRepo.find({
-            relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada', 'sedesAsignadas', 'sedesAsignadas.sede'],
+            relations: [
+                'roles',
+                'roles.rol',
+                'perfil',
+                'permisos',
+                'sedeAsignada',
+                'sedesAsignadas',
+                'sedesAsignadas.sede',
+            ],
             order: { nombreCompleto: 'ASC' },
         });
         return usuarios.map((u) => this.mapUsuarioResponse(u));
@@ -242,17 +263,29 @@ let HerramientasService = class HerramientasService {
     async crearUsuario(dto, currentUserId, currentUserName) {
         const passwordError = this.validarPasswordFuerte(dto.password);
         if (passwordError) {
-            throw new common_1.BadRequestException({ code: 'PASSWORD_DEBIL', message: passwordError });
+            throw new common_1.BadRequestException({
+                code: 'PASSWORD_DEBIL',
+                message: passwordError,
+            });
         }
         if (dto.password !== dto.passwordConfirmacion) {
-            throw new common_1.BadRequestException({ code: 'PASSWORD_NO_COINCIDE', message: 'La confirmación de contraseña no coincide.' });
+            throw new common_1.BadRequestException({
+                code: 'PASSWORD_NO_COINCIDE',
+                message: 'La confirmación de contraseña no coincide.',
+            });
         }
         const firma = (dto.firmaCreador || currentUserName).trim();
         if (firma.length < 3) {
-            throw new common_1.BadRequestException({ code: 'FIRMA_INVALIDA', message: 'La firma digital debe tener al menos 3 caracteres.' });
+            throw new common_1.BadRequestException({
+                code: 'FIRMA_INVALIDA',
+                message: 'La firma digital debe tener al menos 3 caracteres.',
+            });
         }
         if (this.normalizarFirma(firma) === '') {
-            throw new common_1.BadRequestException({ code: 'FIRMA_INVALIDA', message: 'La firma digital ingresada no es válida.' });
+            throw new common_1.BadRequestException({
+                code: 'FIRMA_INVALIDA',
+                message: 'La firma digital ingresada no es válida.',
+            });
         }
         const emailNormalizado = await this.assertEmailDisponible(dto.email);
         const rolesSolicitados = Array.from(new Set([
@@ -260,15 +293,24 @@ let HerramientasService = class HerramientasService {
             ...(dto.rolNombre ? [dto.rolNombre] : []),
         ]));
         if (rolesSolicitados.length === 0) {
-            throw new common_1.BadRequestException({ code: 'ROL_REQUERIDO', message: 'Debes asignar al menos un rol al usuario.' });
+            throw new common_1.BadRequestException({
+                code: 'ROL_REQUERIDO',
+                message: 'Debes asignar al menos un rol al usuario.',
+            });
         }
-        const rolesValidos = await this.rolRepo.find({ where: { nombre: (0, typeorm_2.In)(rolesSolicitados), activo: true } });
-        const rolesValidosMap = new Map(rolesValidos.map(r => [r.nombre, r]));
-        const rolesNoEncontrados = rolesSolicitados.filter(r => !rolesValidosMap.has(r));
+        const rolesValidos = await this.rolRepo.find({
+            where: { nombre: (0, typeorm_2.In)(rolesSolicitados), activo: true },
+        });
+        const rolesValidosMap = new Map(rolesValidos.map((r) => [r.nombre, r]));
+        const rolesNoEncontrados = rolesSolicitados.filter((r) => !rolesValidosMap.has(r));
         if (rolesNoEncontrados.length > 0) {
-            throw new common_1.NotFoundException({ code: 'ROL_NO_ENCONTRADO', message: `Los roles ${rolesNoEncontrados.join(', ')} no existen o están inactivos` });
+            throw new common_1.NotFoundException({
+                code: 'ROL_NO_ENCONTRADO',
+                message: `Los roles ${rolesNoEncontrados.join(', ')} no existen o están inactivos`,
+            });
         }
-        const esVigilante = rolesSolicitados.includes(rol_enum_1.RolNombre.VIGILANTE_HSE) || rolesSolicitados.includes(rol_enum_1.RolNombre.VIGILANTE_PARKING);
+        const esVigilante = rolesSolicitados.includes(rol_enum_1.RolNombre.VIGILANTE_HSE) ||
+            rolesSolicitados.includes(rol_enum_1.RolNombre.VIGILANTE_PARKING);
         const sedesIds = this.resolverIdsSedes(dto);
         if (esVigilante && sedesIds.length === 0) {
             throw new common_1.BadRequestException({
@@ -292,7 +334,9 @@ let HerramientasService = class HerramientasService {
                 if (sedesIds.length > 0) {
                     await this.sincronizarSedesUsuario(manager, usuarioGuardado.id, sedesIds);
                 }
-                const perfilCreador = await manager.findOne(perfil_entity_1.Perfil, { where: { usuarioId: currentUserId } });
+                const perfilCreador = await manager.findOne(perfil_entity_1.Perfil, {
+                    where: { usuarioId: currentUserId },
+                });
                 const sedeDefaultHeredada = perfilCreador?.sedeDefaultId ?? null;
                 const trazaCreacion = {
                     creado_por_id: currentUserId,
@@ -320,7 +364,7 @@ let HerramientasService = class HerramientasService {
                     asignadoPor: currentUserId,
                 });
                 await manager.save(permiso);
-                const usuarioRoles = rolesSolicitados.map(rolNombre => {
+                const usuarioRoles = rolesSolicitados.map((rolNombre) => {
                     return manager.create(usuario_rol_entity_1.UsuarioRol, {
                         usuarioId: usuarioGuardado.id,
                         rolId: rolesValidosMap.get(rolNombre).id,
@@ -339,13 +383,22 @@ let HerramientasService = class HerramientasService {
                 await manager.save(auditLog);
                 const usuarioCompleto = await manager.findOne(usuario_entity_1.Usuario, {
                     where: { id: usuarioGuardado.id },
-                    relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada', 'sedesAsignadas', 'sedesAsignadas.sede'],
+                    relations: [
+                        'roles',
+                        'roles.rol',
+                        'perfil',
+                        'permisos',
+                        'sedeAsignada',
+                        'sedesAsignadas',
+                        'sedesAsignadas.sede',
+                    ],
                 });
                 return this.mapUsuarioResponse(usuarioCompleto);
             });
         }
         catch (err) {
-            if (err instanceof typeorm_2.QueryFailedError && err.code === 'ER_DUP_ENTRY') {
+            if (err instanceof typeorm_2.QueryFailedError &&
+                err.code === 'ER_DUP_ENTRY') {
                 throw new common_1.ConflictException({
                     code: 'EMAIL_DUPLICADO',
                     message: `Ya existe un usuario con el email ${emailNormalizado}`,
@@ -355,23 +408,36 @@ let HerramientasService = class HerramientasService {
         }
     }
     async actualizarUsuario(id, dto, currentUserId, currentUserName) {
-        const usuario = await this.usuarioRepo.findOne({ where: { id }, relations: ['roles', 'roles.rol', 'perfil'] });
+        const usuario = await this.usuarioRepo.findOne({
+            where: { id },
+            relations: ['roles', 'roles.rol', 'perfil'],
+        });
         if (!usuario) {
-            throw new common_1.NotFoundException({ code: 'USUARIO_NO_ENCONTRADO', message: 'El usuario no existe' });
+            throw new common_1.NotFoundException({
+                code: 'USUARIO_NO_ENCONTRADO',
+                message: 'El usuario no existe',
+            });
         }
         if (dto.activo === false && usuario.id === currentUserId) {
-            throw new common_1.ForbiddenException({ code: 'ACCION_NO_PERMITIDA', message: 'No puedes desactivar tu propia cuenta' });
+            throw new common_1.ForbiddenException({
+                code: 'ACCION_NO_PERMITIDA',
+                message: 'No puedes desactivar tu propia cuenta',
+            });
         }
-        if (dto.activo === false && usuario.roles.some(ur => ur.rol.nombre === rol_enum_1.RolNombre.ADMIN_GLOBAL)) {
+        if (dto.activo === false &&
+            usuario.roles.some((ur) => ur.rol.nombre === rol_enum_1.RolNombre.ADMIN_GLOBAL)) {
             const otrosAdminsCount = await this.usuarioRolRepo.count({
                 where: {
                     rol: { nombre: rol_enum_1.RolNombre.ADMIN_GLOBAL },
-                    usuario: { id: (0, typeorm_2.Not)(id), activo: true }
+                    usuario: { id: (0, typeorm_2.Not)(id), activo: true },
                 },
-                relations: ['rol', 'usuario']
+                relations: ['rol', 'usuario'],
             });
             if (otrosAdminsCount === 0) {
-                throw new common_1.ForbiddenException({ code: 'ACCION_NO_PERMITIDA', message: 'Debe existir al menos un ADMIN_GLOBAL activo' });
+                throw new common_1.ForbiddenException({
+                    code: 'ACCION_NO_PERMITIDA',
+                    message: 'Debe existir al menos un ADMIN_GLOBAL activo',
+                });
             }
         }
         const cambios = [];
@@ -406,29 +472,49 @@ let HerramientasService = class HerramientasService {
             }));
             const usuarioActualizado = await manager.findOne(usuario_entity_1.Usuario, {
                 where: { id },
-                relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada', 'sedesAsignadas', 'sedesAsignadas.sede'],
+                relations: [
+                    'roles',
+                    'roles.rol',
+                    'perfil',
+                    'permisos',
+                    'sedeAsignada',
+                    'sedesAsignadas',
+                    'sedesAsignadas.sede',
+                ],
             });
             return this.mapUsuarioResponse(usuarioActualizado);
         });
     }
     async eliminarUsuario(id, currentUserId, currentUserName) {
-        const usuario = await this.usuarioRepo.findOne({ where: { id }, relations: ['roles', 'roles.rol'] });
+        const usuario = await this.usuarioRepo.findOne({
+            where: { id },
+            relations: ['roles', 'roles.rol'],
+        });
         if (!usuario) {
-            throw new common_1.NotFoundException({ code: 'USUARIO_NO_ENCONTRADO', message: 'El usuario no existe' });
+            throw new common_1.NotFoundException({
+                code: 'USUARIO_NO_ENCONTRADO',
+                message: 'El usuario no existe',
+            });
         }
         if (usuario.id === currentUserId) {
-            throw new common_1.ForbiddenException({ code: 'ACCION_NO_PERMITIDA', message: 'No puedes eliminar tu propia cuenta' });
+            throw new common_1.ForbiddenException({
+                code: 'ACCION_NO_PERMITIDA',
+                message: 'No puedes eliminar tu propia cuenta',
+            });
         }
-        if (usuario.roles.some(ur => ur.rol.nombre === rol_enum_1.RolNombre.ADMIN_GLOBAL)) {
+        if (usuario.roles.some((ur) => ur.rol.nombre === rol_enum_1.RolNombre.ADMIN_GLOBAL)) {
             const otrosAdminsCount = await this.usuarioRolRepo.count({
                 where: {
                     rol: { nombre: rol_enum_1.RolNombre.ADMIN_GLOBAL },
-                    usuario: { id: (0, typeorm_2.Not)(id), activo: true }
+                    usuario: { id: (0, typeorm_2.Not)(id), activo: true },
                 },
-                relations: ['rol', 'usuario']
+                relations: ['rol', 'usuario'],
             });
             if (otrosAdminsCount === 0) {
-                throw new common_1.ForbiddenException({ code: 'ACCION_NO_PERMITIDA', message: 'Debe existir al menos un ADMIN_GLOBAL activo' });
+                throw new common_1.ForbiddenException({
+                    code: 'ACCION_NO_PERMITIDA',
+                    message: 'Debe existir al menos un ADMIN_GLOBAL activo',
+                });
             }
         }
         return this.usuarioRepo.manager.transaction(async (manager) => {
@@ -450,12 +536,21 @@ let HerramientasService = class HerramientasService {
         });
     }
     async actualizarPermisos(id, dto, currentUserId, currentUserName) {
-        const usuario = await this.usuarioRepo.findOne({ where: { id }, relations: ['roles', 'roles.rol', 'permisos'] });
+        const usuario = await this.usuarioRepo.findOne({
+            where: { id },
+            relations: ['roles', 'roles.rol', 'permisos'],
+        });
         if (!usuario) {
-            throw new common_1.NotFoundException({ code: 'USUARIO_NO_ENCONTRADO', message: 'El usuario no existe' });
+            throw new common_1.NotFoundException({
+                code: 'USUARIO_NO_ENCONTRADO',
+                message: 'El usuario no existe',
+            });
         }
-        if (usuario.roles.some(ur => ur.rol.nombre === rol_enum_1.RolNombre.ADMIN_GLOBAL)) {
-            throw new common_1.ForbiddenException({ code: 'ACCION_NO_PERMITIDA', message: 'Los permisos del ADMIN_GLOBAL no se pueden modificar' });
+        if (usuario.roles.some((ur) => ur.rol.nombre === rol_enum_1.RolNombre.ADMIN_GLOBAL)) {
+            throw new common_1.ForbiddenException({
+                code: 'ACCION_NO_PERMITIDA',
+                message: 'Los permisos del ADMIN_GLOBAL no se pueden modificar',
+            });
         }
         return this.usuarioRepo.manager.transaction(async (manager) => {
             let permiso = usuario.permisos;
@@ -498,7 +593,10 @@ let HerramientasService = class HerramientasService {
     async desbloquearUsuario(id, currentUserId, currentUserName) {
         const usuario = await this.usuarioRepo.findOne({ where: { id } });
         if (!usuario) {
-            throw new common_1.NotFoundException({ code: 'USUARIO_NO_ENCONTRADO', message: 'El usuario no existe' });
+            throw new common_1.NotFoundException({
+                code: 'USUARIO_NO_ENCONTRADO',
+                message: 'El usuario no existe',
+            });
         }
         await this.usuarioRepo.update(id, {
             intentosFallidos: 0,
@@ -514,7 +612,15 @@ let HerramientasService = class HerramientasService {
         }));
         const actualizado = await this.usuarioRepo.findOne({
             where: { id },
-            relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada', 'sedesAsignadas', 'sedesAsignadas.sede'],
+            relations: [
+                'roles',
+                'roles.rol',
+                'perfil',
+                'permisos',
+                'sedeAsignada',
+                'sedesAsignadas',
+                'sedesAsignadas.sede',
+            ],
         });
         return this.mapUsuarioResponse(actualizado);
     }
@@ -524,17 +630,32 @@ let HerramientasService = class HerramientasService {
             relations: ['roles', 'roles.rol', 'sedesAsignadas'],
         });
         if (!usuario) {
-            throw new common_1.NotFoundException({ code: 'USUARIO_NO_ENCONTRADO', message: 'El usuario no existe' });
+            throw new common_1.NotFoundException({
+                code: 'USUARIO_NO_ENCONTRADO',
+                message: 'El usuario no existe',
+            });
         }
-        const rol = await this.rolRepo.findOne({ where: { nombre: rolNombre, activo: true } });
+        const rol = await this.rolRepo.findOne({
+            where: { nombre: rolNombre, activo: true },
+        });
         if (!rol) {
-            throw new common_1.NotFoundException({ code: 'ROL_NO_ENCONTRADO', message: `El rol '${rolNombre}' no existe o está inactivo` });
+            throw new common_1.NotFoundException({
+                code: 'ROL_NO_ENCONTRADO',
+                message: `El rol '${rolNombre}' no existe o está inactivo`,
+            });
         }
-        if (usuario.roles.some(ur => ur.rol.nombre === rolNombre)) {
-            throw new common_1.ConflictException({ code: 'ROL_DUPLICADO', message: `El usuario ya tiene el rol '${rolNombre}'` });
+        if (usuario.roles.some((ur) => ur.rol.nombre === rolNombre)) {
+            throw new common_1.ConflictException({
+                code: 'ROL_DUPLICADO',
+                message: `El usuario ya tiene el rol '${rolNombre}'`,
+            });
         }
-        const esRolVigilante = rolNombre === rol_enum_1.RolNombre.VIGILANTE_HSE || rolNombre === rol_enum_1.RolNombre.VIGILANTE_PARKING;
-        const sedesNuevas = this.resolverIdsSedes({ sedeAsignadaId, sedesAsignadasIds });
+        const esRolVigilante = rolNombre === rol_enum_1.RolNombre.VIGILANTE_HSE ||
+            rolNombre === rol_enum_1.RolNombre.VIGILANTE_PARKING;
+        const sedesNuevas = this.resolverIdsSedes({
+            sedeAsignadaId,
+            sedesAsignadasIds,
+        });
         const tieneSedesPrevias = !!usuario.sedeAsignadaId || (usuario.sedesAsignadas?.length ?? 0) > 0;
         if (esRolVigilante && !tieneSedesPrevias && sedesNuevas.length === 0) {
             throw new common_1.BadRequestException({
@@ -578,31 +699,51 @@ let HerramientasService = class HerramientasService {
             }));
             const usuarioActualizado = await manager.findOne(usuario_entity_1.Usuario, {
                 where: { id },
-                relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada', 'sedesAsignadas', 'sedesAsignadas.sede'],
+                relations: [
+                    'roles',
+                    'roles.rol',
+                    'perfil',
+                    'permisos',
+                    'sedeAsignada',
+                    'sedesAsignadas',
+                    'sedesAsignadas.sede',
+                ],
             });
             return this.mapUsuarioResponse(usuarioActualizado);
         });
     }
     async quitarRol(id, rolNombre, currentUserId, currentUserName) {
-        const usuario = await this.usuarioRepo.findOne({ where: { id }, relations: ['roles', 'roles.rol'] });
+        const usuario = await this.usuarioRepo.findOne({
+            where: { id },
+            relations: ['roles', 'roles.rol'],
+        });
         if (!usuario) {
-            throw new common_1.NotFoundException({ code: 'USUARIO_NO_ENCONTRADO', message: 'El usuario no existe' });
+            throw new common_1.NotFoundException({
+                code: 'USUARIO_NO_ENCONTRADO',
+                message: 'El usuario no existe',
+            });
         }
         if (rolNombre === rol_enum_1.RolNombre.ADMIN_GLOBAL) {
             const otrosAdminsCount = await this.usuarioRolRepo.count({
                 where: {
                     rol: { nombre: rol_enum_1.RolNombre.ADMIN_GLOBAL },
-                    usuario: { activo: true }
+                    usuario: { activo: true },
                 },
-                relations: ['rol', 'usuario']
+                relations: ['rol', 'usuario'],
             });
             if (otrosAdminsCount <= 1) {
-                throw new common_1.ForbiddenException({ code: 'ACCION_NO_PERMITIDA', message: 'Debe existir al menos un ADMIN_GLOBAL activo en el sistema' });
+                throw new common_1.ForbiddenException({
+                    code: 'ACCION_NO_PERMITIDA',
+                    message: 'Debe existir al menos un ADMIN_GLOBAL activo en el sistema',
+                });
             }
         }
-        const ur = usuario.roles.find(ur => ur.rol.nombre === rolNombre);
+        const ur = usuario.roles.find((ur) => ur.rol.nombre === rolNombre);
         if (!ur) {
-            throw new common_1.NotFoundException({ code: 'ROL_NO_ASIGNADO', message: `El usuario no tiene el rol '${rolNombre}'` });
+            throw new common_1.NotFoundException({
+                code: 'ROL_NO_ASIGNADO',
+                message: `El usuario no tiene el rol '${rolNombre}'`,
+            });
         }
         return this.usuarioRepo.manager.transaction(async (manager) => {
             await manager.delete(usuario_rol_entity_1.UsuarioRol, { id: ur.id });
@@ -616,7 +757,15 @@ let HerramientasService = class HerramientasService {
             }));
             const usuarioActualizado = await manager.findOne(usuario_entity_1.Usuario, {
                 where: { id },
-                relations: ['roles', 'roles.rol', 'perfil', 'permisos', 'sedeAsignada', 'sedesAsignadas', 'sedesAsignadas.sede'],
+                relations: [
+                    'roles',
+                    'roles.rol',
+                    'perfil',
+                    'permisos',
+                    'sedeAsignada',
+                    'sedesAsignadas',
+                    'sedesAsignadas.sede',
+                ],
             });
             return this.mapUsuarioResponse(usuarioActualizado);
         });

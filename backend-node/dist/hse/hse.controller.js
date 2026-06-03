@@ -149,7 +149,12 @@ let HseController = class HseController {
     }
     async getProveedores() {
         const proveedores = await this.proveedorService.findActivos();
-        return proveedores.map(p => ({ id: p.id, nombre: p.nomProveedor, nit: p.nitProveedor ?? '', activo: p.estadoProv }));
+        return proveedores.map((p) => ({
+            id: p.id,
+            nombre: p.nomProveedor,
+            nit: p.nitProveedor ?? '',
+            activo: p.estadoProv,
+        }));
     }
     async crearProveedor(body) {
         const p = await this.proveedorService.create({
@@ -239,7 +244,7 @@ let HseController = class HseController {
         return this.autogestionService.guardarClasificacion(req.contratista.id, dto);
     }
     async guardarSeguridadSocial(req, payload) {
-        const dto = Array.isArray(payload) ? payload : (payload?.personas || []);
+        const dto = Array.isArray(payload) ? payload : payload?.personas || [];
         return this.autogestionService.guardarSeguridadSocial(req.contratista.id, dto);
     }
     async guardarCertificaciones(req, dto) {

@@ -28,19 +28,39 @@ __decorate([
     __metadata("design:type", Number)
 ], UsuarioPermiso.prototype, "usuarioId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'puede_ver', type: 'boolean', default: true, nullable: false }),
+    (0, typeorm_1.Column)({
+        name: 'puede_ver',
+        type: 'boolean',
+        default: true,
+        nullable: false,
+    }),
     __metadata("design:type", Boolean)
 ], UsuarioPermiso.prototype, "puedeVer", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'puede_crear', type: 'boolean', default: false, nullable: false }),
+    (0, typeorm_1.Column)({
+        name: 'puede_crear',
+        type: 'boolean',
+        default: false,
+        nullable: false,
+    }),
     __metadata("design:type", Boolean)
 ], UsuarioPermiso.prototype, "puedeCrear", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'puede_editar', type: 'boolean', default: false, nullable: false }),
+    (0, typeorm_1.Column)({
+        name: 'puede_editar',
+        type: 'boolean',
+        default: false,
+        nullable: false,
+    }),
     __metadata("design:type", Boolean)
 ], UsuarioPermiso.prototype, "puedeEditar", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'puede_eliminar', type: 'boolean', default: false, nullable: false }),
+    (0, typeorm_1.Column)({
+        name: 'puede_eliminar',
+        type: 'boolean',
+        default: false,
+        nullable: false,
+    }),
     __metadata("design:type", Boolean)
 ], UsuarioPermiso.prototype, "puedeEliminar", void 0);
 __decorate([

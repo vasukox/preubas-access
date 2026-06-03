@@ -1,4 +1,4 @@
-/**
+﻿/**
  * KOAJ Access v2.0 — Permoda S.A.S.
  * Gestión HSE — Revisión y aprobación de contratistas
  */
@@ -75,11 +75,11 @@ function TokenTimer({ expiraEn }: { expiraEn: string | null }) {
 function ContratistaBadge({ estado }: { estado: EstadoContratista }) {
   const colores: Record<EstadoContratista, { color: string; bg: string }> = {
     PENDIENTE_AUTOGESTION:   { color: 'var(--text-muted)',    bg: 'var(--bg-elevated)' },
-    AUTOGESTION_EN_PROGRESO: { color: 'var(--primary-400)',   bg: 'rgba(69,116,196,0.08)' },
-    AUTOGESTION_COMPLETADA:  { color: '#5668B8',              bg: 'rgba(86,104,184,0.08)' },
-    EN_REVISION:             { color: '#5668B8',              bg: 'rgba(86,104,184,0.08)' },
-    APROBADO:                { color: 'var(--success-400)',   bg: 'rgba(40,149,108,0.08)' },
-    DENEGADO:                { color: 'var(--danger-400)',    bg: 'rgba(192,80,80,0.08)' },
+    AUTOGESTION_EN_PROGRESO: { color: 'var(--primary-400)',   bg: 'rgba(15, 23, 42,0.08)' },
+    AUTOGESTION_COMPLETADA:  { color: 'var(--info-400)',              bg: 'rgba(29, 78, 216,0.08)' },
+    EN_REVISION:             { color: 'var(--info-400)',              bg: 'rgba(29, 78, 216,0.08)' },
+    APROBADO:                { color: 'var(--success-400)',   bg: 'rgba(22, 163, 74,0.08)' },
+    DENEGADO:                { color: 'var(--danger-400)',    bg: 'rgba(220, 38, 38,0.08)' },
     ARCHIVADO:               { color: 'var(--text-muted)',    bg: 'var(--bg-raised)' },
   }
   const { color, bg } = colores[estado] ?? { color: 'var(--text-muted)', bg: 'var(--bg-raised)' }
@@ -158,8 +158,8 @@ function DocLink({
     alignItems:     'center',
     justifyContent: 'space-between',
     padding:        '8px 12px',
-    background:     path ? 'rgba(86,104,184,0.05)' : 'var(--bg-elevated)',
-    border:         `1px solid ${path ? 'rgba(86,104,184,0.15)' : 'var(--border-subtle)'}`,
+    background:     path ? 'rgba(29, 78, 216,0.05)' : 'var(--bg-elevated)',
+    border:         `1px solid ${path ? 'rgba(29, 78, 216,0.15)' : 'var(--border-subtle)'}`,
     borderRadius:   '8px',
     gap:            '10px',
   }
@@ -186,7 +186,7 @@ function DocLink({
           {label}
         </span>
         {path ? (
-          <span style={{ fontSize: '0.72rem', color: '#5668B8', fontFamily: 'var(--font-mono)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <span style={{ fontSize: '0.72rem', color: 'var(--info-400)', fontFamily: 'var(--font-mono)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             <FileIcon size={11} style={{ display: 'inline', marginRight: '4px' }} />
             {nombreArchivo}
           </span>
@@ -204,7 +204,7 @@ function DocLink({
           <button
             onClick={handleVer}
             disabled={!!cargando}
-            style={{ ...btnStyle(!!cargando), background: 'rgba(86,104,184,0.12)', color: '#5668B8' }}
+            style={{ ...btnStyle(!!cargando), background: 'rgba(29, 78, 216,0.12)', color: 'var(--info-400)' }}
           >
             <Eye size={11} />
             {cargando === 'ver' ? '...' : 'Ver'}
@@ -223,7 +223,7 @@ function DocLink({
               disabled={!!cargando || removing}
               style={{
                 ...btnStyle(!!cargando || removing),
-                background: 'rgba(192,80,80,0.12)',
+                background: 'rgba(220, 38, 38,0.12)',
                 color: 'var(--danger-400)',
               }}
               title="Eliminar adjunto"
@@ -453,14 +453,14 @@ function ModalDetalle({
             <div style={{
               width:          '36px',
               height:         '36px',
-              background:     'rgba(86,104,184,0.1)',
-              border:         '1px solid rgba(86,104,184,0.2)',
+              background:     'rgba(29, 78, 216,0.1)',
+              border:         '1px solid rgba(29, 78, 216,0.2)',
               borderRadius:   '50%',
               display:        'flex',
               alignItems:     'center',
               justifyContent: 'center',
             }}>
-              <User size={16} color="#5668B8" />
+              <User size={16} color="var(--info-400)" />
             </div>
             <div>
               <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
@@ -630,8 +630,8 @@ function ModalDetalle({
                           key={key}
                           style={{
                             padding:      '4px 10px',
-                            background:   activo ? 'rgba(192,80,80,0.08)' : 'var(--bg-elevated)',
-                            border:       `1px solid ${activo ? 'rgba(192,80,80,0.2)' : 'var(--border-subtle)'}`,
+                            background:   activo ? 'rgba(220, 38, 38,0.08)' : 'var(--bg-elevated)',
+                            border:       `1px solid ${activo ? 'rgba(220, 38, 38,0.2)' : 'var(--border-subtle)'}`,
                             borderRadius: '20px',
                             fontSize:     '0.72rem',
                             color:        activo ? 'var(--danger-400)' : 'var(--text-muted)',
@@ -728,7 +728,7 @@ function ModalDetalle({
                     estadoVig(ss.afp_vigencia) === 'vencido' ||
                     ss.pila_estado === 'VENCIDA'
                   ) && (
-                    <div style={{ padding: '10px 14px', borderRadius: '10px', background: 'rgba(192,80,80,0.08)', border: '1px solid rgba(192,80,80,0.25)', fontSize: '0.78rem', color: 'var(--danger-400)' }}>
+                    <div style={{ padding: '10px 14px', borderRadius: '10px', background: 'rgba(220, 38, 38,0.08)', border: '1px solid rgba(220, 38, 38,0.25)', fontSize: '0.78rem', color: 'var(--danger-400)' }}>
                       ⚠ Este contratista tiene documentos vencidos. Considera denegar y solicitar actualización.
                     </div>
                   )}
@@ -785,7 +785,7 @@ function ModalDetalle({
                           <div key={label} style={{
                             padding: '10px 12px', background: 'var(--bg-surface)',
                             borderRadius: '8px',
-                            border: `1px solid ${estadoVig(vigencia) === 'vencido' ? 'rgba(192,80,80,0.3)' : estadoVig(vigencia) === 'proximo' ? 'rgba(69,116,196,0.3)' : 'var(--border-subtle)'}`,
+                            border: `1px solid ${estadoVig(vigencia) === 'vencido' ? 'rgba(220, 38, 38,0.3)' : estadoVig(vigencia) === 'proximo' ? 'rgba(15, 23, 42,0.3)' : 'var(--border-subtle)'}`,
                           }}>
                             <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginBottom: '3px', letterSpacing: '0.06em' }}>{label}</div>
                             <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>{nombre}</div>
@@ -818,7 +818,7 @@ function ModalDetalle({
                       <h3 style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.08em', marginBottom: '10px' }}>CERTIFICACIONES</h3>
                       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
                         {data.certificaciones.permiso_tipo && (
-                          <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 600, background: 'rgba(86,104,184,0.1)', color: '#5668B8' }}>
+                          <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 600, background: 'rgba(29, 78, 216,0.1)', color: 'var(--info-400)' }}>
                             Permiso: {data.certificaciones.permiso_tipo}
                           </span>
                         )}
@@ -860,7 +860,7 @@ function ModalDetalle({
                       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '8px' }}>
                         <span style={{
                           padding: '4px 10px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600,
-                          background: data.examen_medico.concepto === 'APTO' ? 'rgba(40,149,108,0.1)' : data.examen_medico.concepto === 'NO_APTO' ? 'rgba(192,80,80,0.1)' : 'rgba(69,116,196,0.1)',
+                          background: data.examen_medico.concepto === 'APTO' ? 'rgba(22, 163, 74,0.1)' : data.examen_medico.concepto === 'NO_APTO' ? 'rgba(220, 38, 38,0.1)' : 'rgba(15, 23, 42,0.1)',
                           color: data.examen_medico.concepto === 'APTO' ? 'var(--success-400)' : data.examen_medico.concepto === 'NO_APTO' ? 'var(--danger-400)' : '#4574C4',
                         }}>
                           {data.examen_medico.concepto ?? '—'}
@@ -935,8 +935,8 @@ function ModalDetalle({
                                 justifyContent: 'space-between',
                                 padding: '7px 9px',
                                 borderRadius: '8px',
-                                background: activo ? 'rgba(192,80,80,0.08)' : 'var(--bg-surface)',
-                                border: `1px solid ${activo ? 'rgba(192,80,80,0.2)' : 'var(--border-subtle)'}`,
+                                background: activo ? 'rgba(220, 38, 38,0.08)' : 'var(--bg-surface)',
+                                border: `1px solid ${activo ? 'rgba(220, 38, 38,0.2)' : 'var(--border-subtle)'}`,
                                 fontSize: '0.74rem',
                               }}>
                                 <span style={{ color: 'var(--text-secondary)' }}>{label}</span>
@@ -991,7 +991,7 @@ function ModalDetalle({
                 gap:          '6px',
                 padding:      '8px 16px',
                 background:   'transparent',
-                border:       '1px solid rgba(192,80,80,0.3)',
+                border:       '1px solid rgba(220, 38, 38,0.3)',
                 borderRadius: 'var(--radius-md)',
                 color:        'var(--danger-400)',
                 fontSize:     '0.8rem',
@@ -1018,8 +1018,8 @@ function ModalDetalle({
                       alignItems:   'center',
                       gap:          '6px',
                       padding:      '9px 18px',
-                      background:   'rgba(192,80,80,0.08)',
-                      border:       '1px solid rgba(192,80,80,0.2)',
+                      background:   'rgba(220, 38, 38,0.08)',
+                      border:       '1px solid rgba(220, 38, 38,0.2)',
                       borderRadius: 'var(--radius-md)',
                       color:        'var(--danger-400)',
                       fontSize:     '0.83rem',
@@ -1097,8 +1097,8 @@ function ModalDetalle({
             {error && (
               <div style={{
                 padding:      '8px 12px',
-                background:   'rgba(192,80,80,0.08)',
-                border:       '1px solid rgba(192,80,80,0.2)',
+                background:   'rgba(220, 38, 38,0.08)',
+                border:       '1px solid rgba(220, 38, 38,0.2)',
                 borderRadius: 'var(--radius-md)',
                 fontSize:     '0.78rem',
                 color:        'var(--danger-400)',
@@ -1186,8 +1186,8 @@ function ModalDetalle({
               alignItems:   'flex-start',
               gap:          '10px',
               padding:      '10px 14px',
-              background:   'rgba(192,80,80,0.06)',
-              border:       '1px solid rgba(192,80,80,0.2)',
+              background:   'rgba(220, 38, 38,0.06)',
+              border:       '1px solid rgba(220, 38, 38,0.2)',
               borderRadius: 'var(--radius-md)',
               marginBottom: '12px',
             }}>
@@ -1201,8 +1201,8 @@ function ModalDetalle({
             {error && (
               <div style={{
                 padding:      '8px 12px',
-                background:   'rgba(192,80,80,0.08)',
-                border:       '1px solid rgba(192,80,80,0.2)',
+                background:   'rgba(220, 38, 38,0.08)',
+                border:       '1px solid rgba(220, 38, 38,0.2)',
                 borderRadius: 'var(--radius-md)',
                 fontSize:     '0.78rem',
                 color:        'var(--danger-400)',
@@ -1427,8 +1427,8 @@ export default function GestionHSEView() {
       .map(g => ({ title: `${prefixTitle} · ${g.label}`, items: g.items, tone: g.tone }))
       .filter(s => s.items.length > 0)
 
-  const seccionesNormales   = buildGrupos(autorizacionesNormales,   () => 'rgba(86,104,184,0.05)', 'Flujo estándar')
-  const seccionesAltoRiesgo = buildGrupos(autorizacionesAltoRiesgo, () => 'rgba(192,80,80,0.04)',  'Alto Riesgo')
+  const seccionesNormales   = buildGrupos(autorizacionesNormales,   () => 'rgba(29, 78, 216,0.05)', 'Flujo estándar')
+  const seccionesAltoRiesgo = buildGrupos(autorizacionesAltoRiesgo, () => 'rgba(220, 38, 38,0.04)',  'Alto Riesgo')
 
   const seccionesRender    = paginaActiva === 'normales' ? seccionesNormales : seccionesAltoRiesgo
   const totalPaginaActiva  = paginaActiva === 'normales' ? autorizacionesNormales.length : autorizacionesAltoRiesgo.length
@@ -1493,11 +1493,11 @@ export default function GestionHSEView() {
       >
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-            <ShieldCheck size={14} color="#5668B8" />
+            <ShieldCheck size={14} color="var(--info-400)" />
             <span style={{
               fontFamily:    'var(--font-mono)',
               fontSize:      '0.68rem',
-              color:         '#5668B8',
+              color:         'var(--info-400)',
               letterSpacing: '0.12em',
             }}>
               HSE / GESTIÓN
@@ -1612,19 +1612,19 @@ export default function GestionHSEView() {
             style={{
               display: 'flex', alignItems: 'center', gap: '8px', padding: '9px 14px',
               borderRadius: 'var(--radius-lg)',
-              border:      `1px solid ${paginaActiva === 'normales' ? 'rgba(86,104,184,0.35)' : 'transparent'}`,
-              background:  paginaActiva === 'normales' ? 'rgba(86,104,184,0.12)' : 'transparent',
-              color:       paginaActiva === 'normales' ? '#5668B8' : 'var(--text-secondary)',
+              border:      `1px solid ${paginaActiva === 'normales' ? 'rgba(29, 78, 216,0.35)' : 'transparent'}`,
+              background:  paginaActiva === 'normales' ? 'rgba(29, 78, 216,0.12)' : 'transparent',
+              color:       paginaActiva === 'normales' ? 'var(--info-400)' : 'var(--text-secondary)',
               fontSize: '0.79rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-ui)',
               transition: 'all var(--transition-fast)',
-              boxShadow: paginaActiva === 'normales' ? '0 8px 18px rgba(86,104,184,0.16)' : 'none',
+              boxShadow: paginaActiva === 'normales' ? '0 8px 18px rgba(29, 78, 216,0.16)' : 'none',
             }}
           >
             <FileIcon size={13} />
             Flujo Estándar
             <span style={{
               padding: '1px 8px', borderRadius: '999px',
-              background: paginaActiva === 'normales' ? 'rgba(86,104,184,0.18)' : 'var(--bg-elevated)',
+              background: paginaActiva === 'normales' ? 'rgba(29, 78, 216,0.18)' : 'var(--bg-elevated)',
               color: 'inherit', fontSize: '0.7rem', fontFamily: 'var(--font-mono)',
             }}>
               {totalNormales}
@@ -1637,19 +1637,19 @@ export default function GestionHSEView() {
             style={{
               display: 'flex', alignItems: 'center', gap: '8px', padding: '9px 14px',
               borderRadius: 'var(--radius-lg)',
-              border:      `1px solid ${paginaActiva === 'alto_riesgo' ? 'rgba(192,80,80,0.4)' : 'transparent'}`,
-              background:  paginaActiva === 'alto_riesgo' ? 'rgba(192,80,80,0.1)' : 'transparent',
+              border:      `1px solid ${paginaActiva === 'alto_riesgo' ? 'rgba(220, 38, 38,0.4)' : 'transparent'}`,
+              background:  paginaActiva === 'alto_riesgo' ? 'rgba(220, 38, 38,0.1)' : 'transparent',
               color:       paginaActiva === 'alto_riesgo' ? 'var(--danger-400)' : 'var(--text-secondary)',
               fontSize: '0.79rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-ui)',
               transition: 'all var(--transition-fast)',
-              boxShadow: paginaActiva === 'alto_riesgo' ? '0 8px 18px rgba(192,80,80,0.18)' : 'none',
+              boxShadow: paginaActiva === 'alto_riesgo' ? '0 8px 18px rgba(220, 38, 38,0.18)' : 'none',
             }}
           >
             <AlertTriangle size={13} />
             Alto Riesgo
             <span style={{
               padding: '1px 8px', borderRadius: '999px',
-              background: paginaActiva === 'alto_riesgo' ? 'rgba(192,80,80,0.15)' : 'var(--bg-elevated)',
+              background: paginaActiva === 'alto_riesgo' ? 'rgba(220, 38, 38,0.15)' : 'var(--bg-elevated)',
               color: 'inherit', fontSize: '0.7rem', fontFamily: 'var(--font-mono)',
             }}>
               {totalAltoRiesgo}
@@ -1744,9 +1744,9 @@ export default function GestionHSEView() {
                   background: 'var(--bg-surface)',
                   border: '1px solid var(--border-subtle)',
                   borderLeft:
-                    paginaActiva === 'normales'    ? '4px solid rgba(86,104,184,0.5)'  :
-                    paginaActiva === 'alto_riesgo' ? '4px solid rgba(192,80,80,0.5)'   :
-                    '4px solid rgba(69,116,196,0.5)',
+                    paginaActiva === 'normales'    ? '4px solid rgba(29, 78, 216,0.5)'  :
+                    paginaActiva === 'alto_riesgo' ? '4px solid rgba(220, 38, 38,0.5)'   :
+                    '4px solid rgba(15, 23, 42,0.5)',
                   borderRadius: 'var(--radius-lg)',
                   overflow: 'hidden',
                 }}
@@ -1806,7 +1806,7 @@ export default function GestionHSEView() {
                   </span>
                   <span style={{
                     padding: '2px 8px', borderRadius: '20px', fontSize: '0.68rem',
-                    background: a.tipo_contratista === 'ALTO_RIESGO' ? 'rgba(192,80,80,0.08)' : 'rgba(40,149,108,0.08)',
+                    background: a.tipo_contratista === 'ALTO_RIESGO' ? 'rgba(220, 38, 38,0.08)' : 'rgba(22, 163, 74,0.08)',
                     color: a.tipo_contratista === 'ALTO_RIESGO' ? 'var(--danger-400)' : 'var(--success-400)',
                   }}>
                     {a.tipo_contratista === 'ALTO_RIESGO' ? '⚠ Alto Riesgo' : 'Normal'}
@@ -1847,14 +1847,14 @@ export default function GestionHSEView() {
                               width:          '32px',
                               height:         '32px',
                               borderRadius:   '50%',
-                              background:     'rgba(86,104,184,0.1)',
-                              border:         '1px solid rgba(86,104,184,0.2)',
+                              background:     'rgba(29, 78, 216,0.1)',
+                              border:         '1px solid rgba(29, 78, 216,0.2)',
                               display:        'flex',
                               alignItems:     'center',
                               justifyContent: 'center',
                               fontSize:       '0.78rem',
                               fontWeight:     600,
-                              color:          '#5668B8',
+                              color:          'var(--info-400)',
                               flexShrink:     0,
                             }}>
                               {formatNombreCompleto(c.nombres, c.apellidos).charAt(0).toUpperCase()}
@@ -1927,8 +1927,8 @@ export default function GestionHSEView() {
                                     alignItems: 'center',
                                     gap: '6px',
                                     padding: '6px 10px',
-                                    background: 'rgba(40,149,108,0.12)',
-                                    border: '1px solid rgba(40,149,108,0.3)',
+                                    background: 'rgba(22, 163, 74,0.12)',
+                                    border: '1px solid rgba(22, 163, 74,0.3)',
                                     borderRadius: 'var(--radius-md)',
                                     color: 'var(--success-400)',
                                     animation: 'fadeUp 220ms ease both',
@@ -1960,10 +1960,10 @@ export default function GestionHSEView() {
                                 alignItems:   'center',
                                 gap:          '4px',
                                 padding:      '6px 12px',
-                                background:   'rgba(86,104,184,0.08)',
-                                border:       '1px solid rgba(86,104,184,0.2)',
+                                background:   'rgba(29, 78, 216,0.08)',
+                                border:       '1px solid rgba(29, 78, 216,0.2)',
                                 borderRadius: 'var(--radius-md)',
-                                color:        '#5668B8',
+                                color:        'var(--info-400)',
                                 fontSize:     '0.75rem',
                                 fontWeight:   600,
                                 cursor:       'pointer',

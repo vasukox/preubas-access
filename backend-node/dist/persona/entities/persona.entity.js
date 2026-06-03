@@ -33,11 +33,21 @@ let Persona = class Persona extends base_entity_1.BaseEntity {
 };
 exports.Persona = Persona;
 __decorate([
-    (0, typeorm_1.Column)({ name: 'tipo_documento', type: 'enum', enum: ['CC', 'CE', 'PASAPORTE', 'TI', 'NIT'], nullable: false }),
+    (0, typeorm_1.Column)({
+        name: 'tipo_documento',
+        type: 'enum',
+        enum: ['CC', 'CE', 'PASAPORTE', 'TI', 'NIT'],
+        nullable: false,
+    }),
     __metadata("design:type", String)
 ], Persona.prototype, "tipoDocumento", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'numero_documento', type: 'varchar', length: 30, nullable: false }),
+    (0, typeorm_1.Column)({
+        name: 'numero_documento',
+        type: 'varchar',
+        length: 30,
+        nullable: false,
+    }),
     __metadata("design:type", String)
 ], Persona.prototype, "numeroDocumento", void 0);
 __decorate([
@@ -53,19 +63,39 @@ __decorate([
     __metadata("design:type", String)
 ], Persona.prototype, "email", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'telefono_celular', type: 'varchar', length: 20, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'telefono_celular',
+        type: 'varchar',
+        length: 20,
+        nullable: true,
+    }),
     __metadata("design:type", String)
 ], Persona.prototype, "telefonoCelular", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'ciudad_operacion', type: 'varchar', length: 80, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'ciudad_operacion',
+        type: 'varchar',
+        length: 80,
+        nullable: true,
+    }),
     __metadata("design:type", String)
 ], Persona.prototype, "ciudadOperacion", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'direccion_domicilio', type: 'varchar', length: 200, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'direccion_domicilio',
+        type: 'varchar',
+        length: 200,
+        nullable: true,
+    }),
     __metadata("design:type", String)
 ], Persona.prototype, "direccionDomicilio", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'es_extranjero', type: 'boolean', default: false, nullable: false }),
+    (0, typeorm_1.Column)({
+        name: 'es_extranjero',
+        type: 'boolean',
+        default: false,
+        nullable: false,
+    }),
     __metadata("design:type", Boolean)
 ], Persona.prototype, "esExtranjero", void 0);
 __decorate([
@@ -73,7 +103,12 @@ __decorate([
     __metadata("design:type", Date)
 ], Persona.prototype, "fechaNacimiento", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'tratamiento_datos', type: 'boolean', default: false, nullable: false }),
+    (0, typeorm_1.Column)({
+        name: 'tratamiento_datos',
+        type: 'boolean',
+        default: false,
+        nullable: false,
+    }),
     __metadata("design:type", Boolean)
 ], Persona.prototype, "tratamientoDatos", void 0);
 __decorate([
@@ -81,7 +116,18 @@ __decorate([
     __metadata("design:type", Object)
 ], Persona.prototype, "proveedorId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'tipologia_hse', type: 'enum', enum: ['CONTRATISTA_EMPRESA', 'TECNICO_INDEPENDIENTE', 'PROVEEDOR_SERVICIOS', 'INSPECTOR_AUDITOR', 'FUNCIONARIO_PUBLICO'], nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'tipologia_hse',
+        type: 'enum',
+        enum: [
+            'CONTRATISTA_EMPRESA',
+            'TECNICO_INDEPENDIENTE',
+            'PROVEEDOR_SERVICIOS',
+            'INSPECTOR_AUDITOR',
+            'FUNCIONARIO_PUBLICO',
+        ],
+        nullable: true,
+    }),
     __metadata("design:type", String)
 ], Persona.prototype, "tipologiaHse", void 0);
 __decorate([

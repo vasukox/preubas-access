@@ -28,31 +28,67 @@ let Proveedor = class Proveedor extends base_entity_1.BaseEntity {
 };
 exports.Proveedor = Proveedor;
 __decorate([
-    (0, typeorm_1.Column)({ name: 'nom_proveedor', type: 'varchar', length: 200, nullable: false }),
+    (0, typeorm_1.Column)({
+        name: 'nom_proveedor',
+        type: 'varchar',
+        length: 200,
+        nullable: false,
+    }),
     __metadata("design:type", String)
 ], Proveedor.prototype, "nomProveedor", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'nit_proveedor', type: 'varchar', length: 20, unique: true, nullable: false }),
+    (0, typeorm_1.Column)({
+        name: 'nit_proveedor',
+        type: 'varchar',
+        length: 20,
+        unique: true,
+        nullable: false,
+    }),
     __metadata("design:type", String)
 ], Proveedor.prototype, "nitProveedor", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'tipo_identificacion_prov', type: 'enum', enum: ['NIT', 'CC', 'CE', 'PASAPORTE'], nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'tipo_identificacion_prov',
+        type: 'enum',
+        enum: ['NIT', 'CC', 'CE', 'PASAPORTE'],
+        nullable: true,
+    }),
     __metadata("design:type", String)
 ], Proveedor.prototype, "tipoIdentificacionProv", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'estado_prov', type: 'boolean', default: true, nullable: false }),
+    (0, typeorm_1.Column)({
+        name: 'estado_prov',
+        type: 'boolean',
+        default: true,
+        nullable: false,
+    }),
     __metadata("design:type", Boolean)
 ], Proveedor.prototype, "estadoProv", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'direccion_prov', type: 'varchar', length: 200, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'direccion_prov',
+        type: 'varchar',
+        length: 200,
+        nullable: true,
+    }),
     __metadata("design:type", String)
 ], Proveedor.prototype, "direccionProv", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'telefono_prov', type: 'varchar', length: 20, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'telefono_prov',
+        type: 'varchar',
+        length: 20,
+        nullable: true,
+    }),
     __metadata("design:type", String)
 ], Proveedor.prototype, "telefonoProv", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'email_contacto', type: 'varchar', length: 150, nullable: true }),
+    (0, typeorm_1.Column)({
+        name: 'email_contacto',
+        type: 'varchar',
+        length: 150,
+        nullable: true,
+    }),
     __metadata("design:type", String)
 ], Proveedor.prototype, "emailContacto", void 0);
 __decorate([
@@ -60,7 +96,12 @@ __decorate([
     __metadata("design:type", String)
 ], Proveedor.prototype, "ciudad", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'tratamiento_datos', type: 'boolean', default: false, nullable: false }),
+    (0, typeorm_1.Column)({
+        name: 'tratamiento_datos',
+        type: 'boolean',
+        default: false,
+        nullable: false,
+    }),
     __metadata("design:type", Boolean)
 ], Proveedor.prototype, "tratamientoDatos", void 0);
 __decorate([

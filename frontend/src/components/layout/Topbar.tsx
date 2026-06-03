@@ -1,4 +1,4 @@
-/**
+﻿/**
  * KOAJ Access v2.0 — Permoda S.A.S.
  * ------------------------------------
  * Topbar — barra superior del layout autenticado.
@@ -125,7 +125,7 @@ function NotificacionesBell() {
     return {
       Icon:   Bell,
       color:  'var(--primary-500)',
-      bg:     'rgba(59,130,246,0.1)',
+      bg:     'rgba(15, 23, 42,0.1)',
       accent: 'var(--primary-400)',
       label:  null as string | null,
     }
@@ -700,7 +700,7 @@ function UserMenuDropdown({
             fontWeight:     700,
             color:          '#FFFFFF',
             flexShrink:     0,
-            boxShadow:      '0 2px 8px rgba(37, 99, 235, 0.25)',
+            boxShadow:      '0 2px 8px rgba(15, 23, 42, 0.25)',
           }}
         >
           {usuario.nombre_completo.charAt(0).toUpperCase()}

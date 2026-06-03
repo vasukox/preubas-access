@@ -1,4 +1,4 @@
-/**
+﻿/**
  * KOAJ Access v2.0 — Permoda S.A.S.
  * ------------------------------------
  * Sidebar — navegación principal del sistema.
@@ -354,7 +354,7 @@ function NavGroup({
             height:       '65%',
             background:   'var(--gradient-primary)',
             borderRadius: '0 var(--radius-full) var(--radius-full) 0',
-            boxShadow:    '2px 0 8px rgba(59, 130, 246, 0.35)',
+            boxShadow:    '2px 0 8px rgba(15, 23, 42, 0.35)',
           }} />
         )}
         <span style={{ flexShrink: 0 }}>{item.icon}</span>
@@ -490,7 +490,7 @@ export function Sidebar({ collapsed, onToggle, usuario, sedeActiva, filteredNav 
                 alignItems:     'center',
                 justifyContent: 'center',
                 flexShrink:     0,
-                boxShadow:      '0 2px 8px rgba(37, 99, 235, 0.30)',
+                boxShadow:      '0 2px 8px rgba(15, 23, 42, 0.30)',
               }}
             >
               <ShieldCheck size={17} color="#FFFFFF" strokeWidth={2.5} />
@@ -640,7 +640,7 @@ export function Sidebar({ collapsed, onToggle, usuario, sedeActiva, filteredNav 
                       height:       '65%',
                       background:   'var(--gradient-primary)',
                       borderRadius: '0 var(--radius-full) var(--radius-full) 0',
-                      boxShadow:    '2px 0 8px rgba(59, 130, 246, 0.35)',
+                      boxShadow:    '2px 0 8px rgba(15, 23, 42, 0.35)',
                     }}
                   />
                 )}
@@ -690,7 +690,7 @@ export function Sidebar({ collapsed, onToggle, usuario, sedeActiva, filteredNav 
                   fontWeight:     700,
                   color:          '#FFFFFF',
                   flexShrink:     0,
-                  boxShadow:      '0 2px 8px rgba(37, 99, 235, 0.25)',
+                  boxShadow:      '0 2px 8px rgba(15, 23, 42, 0.25)',
                 }}
               >
                 {usuario.nombre_completo.charAt(0).toUpperCase()}

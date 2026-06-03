@@ -23,7 +23,9 @@ __decorate([
 ], ChangePasswordDto.prototype, "passwordActual", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.MinLength)(8, { message: 'La nueva contraseña debe tener al menos 8 caracteres.' }),
+    (0, class_validator_1.MinLength)(8, {
+        message: 'La nueva contraseña debe tener al menos 8 caracteres.',
+    }),
     (0, class_validator_1.MaxLength)(128),
     (0, class_validator_1.Matches)(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, {
         message: 'La contraseña debe contener al menos una mayúscula, una minúscula y un número.',
