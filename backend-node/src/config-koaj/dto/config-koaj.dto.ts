@@ -107,7 +107,7 @@ export class UpdateSedeDto {
   capacidadMotos?: number;
 
   @IsInt()
-  @IsOptional()
+  @IsOptional() 
   @Min(0)
   capacidadBicis?: number;
 

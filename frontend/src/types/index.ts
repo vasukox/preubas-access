@@ -104,6 +104,7 @@ export interface RolResponse {
 export type RolNombre =
   | 'ADMIN_GLOBAL'
   | 'ADMIN_PARKING'
+  | 'GESTION_PARKING'
   | 'ADMIN_HSE'
   | 'GESTION_HSE'
   | 'ADMIN_NFC'

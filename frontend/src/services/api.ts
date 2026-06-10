@@ -108,7 +108,7 @@ api.interceptors.request.use(
     }
     // Prevent browser disk cache from serving stale API responses
     if (config.method === 'get' || config.method === 'GET') {
-      config.params = { ...config.params, _t: Date.now() }
+      config.headers['Cache-Control'] = 'no-cache'
     }
     return config
   },

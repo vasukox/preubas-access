@@ -5,6 +5,7 @@ var RolNombre;
 (function (RolNombre) {
     RolNombre["ADMIN_GLOBAL"] = "ADMIN_GLOBAL";
     RolNombre["ADMIN_PARKING"] = "ADMIN_PARKING";
+    RolNombre["GESTION_PARKING"] = "GESTION_PARKING";
     RolNombre["ADMIN_HSE"] = "ADMIN_HSE";
     RolNombre["GESTION_HSE"] = "GESTION_HSE";
     RolNombre["ADMIN_NFC"] = "ADMIN_NFC";

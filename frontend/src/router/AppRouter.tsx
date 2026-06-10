@@ -48,12 +48,12 @@ const AppLayout = lazy(() => import('@/components/layout/AppLayout'))
 const DashboardView       = lazy(() => import('@/views/dashboard/DashboardView'))
 const CambiarPasswordView = lazy(() => import('@/views/auth/CambiarPasswordView'))
 
-// ⏳ Sprint 3-4 — Parking
-// const ParkingDashboardView   = lazy(() => import('@/views/parking/ParkingDashboardView'))
-// const ParkingSolicitudesView = lazy(() => import('@/views/parking/ParkingSolicitudesView'))
+// ✅ Sprint 3-4 — Parking Dashboard
+const ParkingDashboardView = lazy(() => import('@/views/parking/ParkingDashboardView'))
+const ParkingSolicitudesView = lazy(() => import('@/views/parking/ParkingSolicitudesView'))
 // const ParkingAdminView       = lazy(() => import('@/views/parking/ParkingAdminView'))
 // const ParkingLPRView         = lazy(() => import('@/views/parking/ParkingLPRView'))
-// const ParkingPortalView      = lazy(() => import('@/views/parking/ParkingPortalView'))
+const ParkingPortalView      = lazy(() => import('@/views/parking/ParkingPortalView'))
 
 // ⏳ Sprint 5-6 — HSE
 const HSEDashboardView       = lazy(() => import('@/views/hse/HSEDashboardView'))
@@ -181,7 +181,7 @@ export function AppRouter() {
         />
 
         {/* ── Portales públicos — Sprint 3, 5 y 8 ─────────────── */}
-        {/* <Route path="/portal/parking" element={<PortalRoute><ParkingPortalView /></PortalRoute>} /> */}
+        <Route path="/portal/parking/:token" element={<ParkingPortalView />} />
         <Route path="/portal/hse/:token" element={<AutogestionView />} />
 
         {/* ── Rutas privadas separadas (sin layout) ──────────── */}
@@ -209,11 +209,11 @@ export function AppRouter() {
           {/* ✅ Sprint 1 */}
           <Route path="dashboard" element={<DashboardView />} />
 
-          {/* ⏳ Sprint 3-4 — Parking */}
-          {/* <Route path="parking" element={<RoleRoute roles={['ADMIN_PARKING','VIGILANTE','VISUALIZADOR']}><ParkingDashboardView /></RoleRoute>} /> */}
-          {/* <Route path="parking/solicitudes" element={<RoleRoute roles={['ADMIN_PARKING','VIGILANTE']}><ParkingSolicitudesView /></RoleRoute>} /> */}
-          {/* <Route path="parking/admin" element={<RoleRoute roles={['ADMIN_PARKING']}><ParkingAdminView /></RoleRoute>} /> */}
-          {/* <Route path="parking/lpr"   element={<RoleRoute roles={['ADMIN_PARKING']}><ParkingLPRView /></RoleRoute>} /> */}
+          {/* ✅ Sprint 3-4 — Parking */}
+          <Route path="parking" element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_PARKING','GESTION_PARKING','VIGILANTE_PARKING','VISUALIZADOR']}><ParkingDashboardView /></RoleRoute>} />
+          <Route path="parking/solicitudes" element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_PARKING','GESTION_PARKING']}><ParkingSolicitudesView /></RoleRoute>} />
+          {/* <Route path="parking/admin" element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_PARKING']}><ParkingAdminView /></RoleRoute>} /> */}
+          {/* <Route path="parking/lpr"   element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_PARKING']}><ParkingLPRView /></RoleRoute>} /> */}
 
           {/* ⏳ Sprint 5-6 — HSE */}
           <Route path="hse"               element={<RoleRoute roles={['ADMIN_GLOBAL','ADMIN_HSE','GESTION_HSE','VIGILANTE_HSE','VISUALIZADOR']}><HSEDashboardView /></RoleRoute>} />

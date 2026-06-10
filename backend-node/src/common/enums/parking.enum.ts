@@ -1,0 +1,145 @@
+export enum EstadoSolicitudParking {
+  BORRADOR                = 'BORRADOR',
+  PENDIENTE_AUTOGESTION   = 'PENDIENTE_AUTOGESTION',
+  AUTOGESTION_EN_PROGRESO = 'AUTOGESTION_EN_PROGRESO',
+  AUTOGESTION_COMPLETADA  = 'AUTOGESTION_COMPLETADA',
+  EN_REVISION             = 'EN_REVISION',
+  APROBADO                = 'APROBADO',
+  DENEGADO                = 'DENEGADO',
+  VENCIDO                 = 'VENCIDO',
+  SUSPENDIDO              = 'SUSPENDIDO',
+  REVOCADO                = 'REVOCADO',
+}
+
+export enum TipoUsuarioParking {
+  COLABORADOR          = 'COLABORADOR',
+  DIRECTIVO            = 'DIRECTIVO',
+  VISITANTE_RECURRENTE = 'VISITANTE_RECURRENTE',
+  PROVEEDOR            = 'PROVEEDOR',
+  CONTRATISTA          = 'CONTRATISTA',
+  TRANSPORTE           = 'TRANSPORTE',
+  MENSAJERIA           = 'MENSAJERIA',
+  TEMPORAL             = 'TEMPORAL',
+}
+
+export enum TipoVehiculo {
+  CARRO           = 'CARRO',
+  MOTO            = 'MOTO',
+  BICICLETA       = 'BICICLETA',
+  CAMION          = 'CAMION',
+  VAN             = 'VAN',
+  TAXI_AUTORIZADO = 'TAXI_AUTORIZADO',
+  ELECTRICO       = 'ELECTRICO',
+}
+
+export enum TipoDocumentoVehiculo {
+  TARJETA_PROPIEDAD   = 'TARJETA_PROPIEDAD',
+  LICENCIA_CONDUCCION = 'LICENCIA_CONDUCCION',
+  SOAT                = 'SOAT',
+  TECNOMECANICA       = 'TECNOMECANICA',
+  OTRO                = 'OTRO',
+}
+
+export enum EstadoDocumentoParking {
+  PENDIENTE  = 'PENDIENTE',
+  VIGENTE    = 'VIGENTE',
+  POR_VENCER = 'POR_VENCER',
+  VENCIDO    = 'VENCIDO',
+}
+
+export enum EstadoCupo {
+  DISPONIBLE    = 'DISPONIBLE',
+  ASIGNADO      = 'ASIGNADO',
+  RESERVADO     = 'RESERVADO',
+  OCUPADO       = 'OCUPADO',
+  BLOQUEADO     = 'BLOQUEADO',
+  MANTENIMIENTO = 'MANTENIMIENTO',
+  INACTIVO      = 'INACTIVO',
+}
+
+export enum TipoCupo {
+  CARRO              = 'CARRO',
+  MOTO               = 'MOTO',
+  BICICLETA          = 'BICICLETA',
+  ELECTRICO          = 'ELECTRICO',
+  VISITANTE          = 'VISITANTE',
+  MOVILIDAD_REDUCIDA = 'MOVILIDAD_REDUCIDA',
+  CARGA_DESCARGA     = 'CARGA_DESCARGA',
+}
+
+export enum EstadoAutorizacionParking {
+  ACTIVA     = 'ACTIVA',
+  VENCIDA    = 'VENCIDA',
+  SUSPENDIDA = 'SUSPENDIDA',
+  REVOCADA   = 'REVOCADA',
+}
+
+export enum TipoAutorizacion {
+  SIN_CUPO_FIJO           = 'SIN_CUPO_FIJO',
+  CON_CUPO_FIJO           = 'CON_CUPO_FIJO',
+  POR_HORARIO             = 'POR_HORARIO',
+  DIAS_ESPECIFICOS        = 'DIAS_ESPECIFICOS',
+  TEMPORAL                = 'TEMPORAL',
+  INGRESO_SIN_PERMANENCIA = 'INGRESO_SIN_PERMANENCIA',
+  POR_EXCEPCION           = 'POR_EXCEPCION',
+}
+
+export enum MetodoAccesoParking {
+  PLACA_MANUAL = 'PLACA_MANUAL',
+  DOCUMENTO    = 'DOCUMENTO',
+  QR           = 'QR',
+  CONTINGENCIA = 'CONTINGENCIA',
+}
+
+export enum ResultadoVerificacion {
+  AUTORIZADO         = 'AUTORIZADO',
+  NO_AUTORIZADO      = 'NO_AUTORIZADO',
+  NO_REGISTRADO      = 'NO_REGISTRADO',
+  VENCIDO            = 'VENCIDO',
+  SUSPENDIDO         = 'SUSPENDIDO',
+  CUPO_NO_DISPONIBLE = 'CUPO_NO_DISPONIBLE',
+  EXCEPCION          = 'EXCEPCION',
+}
+
+export enum TipoNovedad {
+  VEHICULO_MAL_PARQUEADO      = 'VEHICULO_MAL_PARQUEADO',
+  CUPO_NO_ASIGNADO            = 'CUPO_NO_ASIGNADO',
+  BLOQUEO_SALIDA              = 'BLOQUEO_SALIDA',
+  INGRESO_SIN_AUTORIZACION    = 'INGRESO_SIN_AUTORIZACION',
+  PLACA_NO_COINCIDE           = 'PLACA_NO_COINCIDE',
+  DOCUMENTO_VENCIDO           = 'DOCUMENTO_VENCIDO',
+  DAÑO_INFRAESTRUCTURA        = 'DAÑO_INFRAESTRUCTURA',
+  INCIDENTE_SEGURIDAD         = 'INCIDENTE_SEGURIDAD',
+  PERMANENCIA_FUERA_HORARIO   = 'PERMANENCIA_FUERA_HORARIO',
+  USO_INDEBIDO_CUPO_RESERVADO = 'USO_INDEBIDO_CUPO_RESERVADO',
+  PERDIDA_TARJETA             = 'PERDIDA_TARJETA',
+}
+
+export enum EstadoNovedad {
+  ABIERTA     = 'ABIERTA',
+  EN_REVISION = 'EN_REVISION',
+  ESCALADA    = 'ESCALADA',
+  RESUELTA    = 'RESUELTA',
+  CERRADA     = 'CERRADA',
+  ANULADA     = 'ANULADA',
+}
+
+export enum TipoExcepcion {
+  VISITANTE_VIP           = 'VISITANTE_VIP',
+  PROVEEDOR_PUNTUAL       = 'PROVEEDOR_PUNTUAL',
+  MANTENIMIENTO           = 'MANTENIMIENTO',
+  EMERGENCIA              = 'EMERGENCIA',
+  CARGA_DESCARGA          = 'CARGA_DESCARGA',
+  EVENTO                  = 'EVENTO',
+  VEHICULO_REEMPLAZO      = 'VEHICULO_REEMPLAZO',
+  PLACA_TEMPORAL          = 'PLACA_TEMPORAL',
+  INGRESO_FUERA_HORARIO   = 'INGRESO_FUERA_HORARIO',
+  CUPO_ESPECIAL_MOVILIDAD = 'CUPO_ESPECIAL_MOVILIDAD',
+}
+
+export enum AlcanceExcepcion {
+  ENTRADA_UNICA = 'ENTRADA_UNICA',
+  RANGO_FECHAS  = 'RANGO_FECHAS',
+  HORARIO       = 'HORARIO',
+  ZONA          = 'ZONA',
+}

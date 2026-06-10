@@ -9,10 +9,12 @@ import {
   ShieldCheck, Car, Cpu, Users, Activity,
   UserCheck, AlertTriangle, ArrowRight, UserX,
   LayoutGrid, ClipboardList, Eye, ClipboardCheck,
+  FileText, Clock,
 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { useAuthStore, useSedeStore } from '@/store'
 import { hseService } from '@/services/hse.service'
+import { parkingService } from '@/services/parking.service'
 import type { DashboardHSEResponse, PersonaDentroResponse } from '@/types/hse'
 
 function formatMinutos(min: number): string {
@@ -320,15 +322,12 @@ function HSEFocusedDashboard({
 
 // ── Dashboard para VIGILANTE_PARKING ─────────────────────────────
 function ParkingVigilanteDashboard() {
+  const navigate = useNavigate()
+
   return (
     <div style={{ padding: '32px', maxWidth: '700px' }}>
       <div
-        style={{
-          background:   'var(--bg-surface)',
-          border:       '1px solid var(--border-subtle)',
-          borderRadius: 'var(--radius-xl)',
-          overflow:     'hidden',
-        }}
+        style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xl)', overflow: 'hidden' }}
         className="animate-fade-up stagger-2"
       >
         <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border-subtle)' }}>
@@ -338,57 +337,33 @@ function ParkingVigilanteDashboard() {
         </div>
         <div style={{ padding: '8px' }}>
           {[
-            { label: 'Registrar ingreso',  desc: 'Escanear placa o buscar vehículo para entrada', icon: ArrowRight,     color: 'var(--success-400)', bg: 'rgba(22, 163, 74,0.08)',  available: false },
-            { label: 'Registrar salida',   desc: 'Marcar salida de vehículo del parqueadero',     icon: Car,           color: 'var(--primary-400)', bg: 'rgba(14,165,233,0.08)',  available: false },
-            { label: 'Consulta rápida',    desc: 'Verificar estado de un vehículo por placa',     icon: ClipboardCheck, color: 'var(--info-400)',             bg: 'rgba(29, 78, 216,0.08)', available: false },
-            { label: 'Parqueadero',        desc: 'Panel del módulo Parking',                       icon: Car,           color: '#f59e0b',             bg: 'rgba(245,158,11,0.08)', available: false },
+            { label: 'Portal Vigilante',   desc: 'Verificar placa y registrar entrada/salida', icon: ShieldCheck,    color: 'var(--success-400)', bg: 'rgba(22,163,74,0.08)',   path: '/vigilante/parking' },
+            { label: 'Dashboard Parking',  desc: 'Ver métricas en tiempo real del parqueadero', icon: Car,           color: 'var(--primary-400)', bg: 'rgba(15,23,42,0.08)',   path: '/parking' },
+            { label: 'Novedades',          desc: 'Reportar incidentes o bloqueos',              icon: AlertTriangle, color: 'var(--danger-400)',  bg: 'rgba(220,38,38,0.08)',  path: '/parking/novedades' },
           ].map((item) => (
-            <div
-              key={item.label}
+            <button
+              key={item.path}
+              onClick={() => navigate(item.path)}
               style={{
-                width:        '100%',
-                display:      'flex',
-                alignItems:   'center',
-                gap:          '12px',
-                padding:      '12px',
-                opacity:      0.5,
-                cursor:       'default',
-                marginBottom: '4px',
+                width: '100%', display: 'flex', alignItems: 'center', gap: '12px',
+                padding: '12px', background: 'transparent', border: '1px solid transparent',
+                borderRadius: 'var(--radius-md)', cursor: 'pointer', textAlign: 'left',
+                marginBottom: '4px', transition: 'all var(--transition-fast)',
               }}
+              onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = item.bg; el.style.borderColor = 'var(--border-subtle)'; el.style.transform = 'translateX(3px)' }}
+              onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'transparent'; el.style.borderColor = 'transparent'; el.style.transform = 'translateX(0)' }}
             >
-              <div style={{
-                width: '36px', height: '36px', background: item.bg,
-                borderRadius: 'var(--radius-md)', display: 'flex',
-                alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-              }}>
+              <div style={{ width: '36px', height: '36px', background: item.bg, borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <item.icon size={16} color={item.color} />
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '0.83rem', fontWeight: 500, color: 'var(--text-primary)' }}>{item.label}</div>
                 <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '1px' }}>{item.desc}</div>
               </div>
-              <div style={{
-                display: 'inline-flex', alignItems: 'center',
-                padding: '3px 8px', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-sm)',
-                fontSize: '0.65rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', letterSpacing: '0.05em',
-              }}>
-                PRÓXIMAMENTE
-              </div>
-            </div>
+              <ArrowRight size={14} color="var(--text-muted)" />
+            </button>
           ))}
         </div>
-      </div>
-
-      <div
-        style={{
-          marginTop: '16px', padding: '12px 16px',
-          background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)',
-          borderRadius: 'var(--radius-md)', fontSize: '0.78rem', color: 'var(--text-muted)',
-        }}
-        className="animate-fade-up stagger-3"
-      >
-        <span style={{ color: '#f59e0b', fontWeight: 600 }}>Módulo Parking en desarrollo.</span>{' '}
-        La portería de parqueadero estará disponible en el próximo sprint. Contacta al administrador si necesitas acceso urgente.
       </div>
     </div>
   )
@@ -450,11 +425,18 @@ export default function DashboardView() {
   const esVigilanteHSE     = hasAnyRole(['VIGILANTE_HSE'])
   const esRolHSE           = esAdminHSE || esGestionHSE || esVigilanteHSE
   const esVigilanteParking = hasAnyRole(['VIGILANTE_PARKING'])
+  const esRolParking       = hasAnyRole(['ADMIN_PARKING', 'GESTION_PARKING', 'VIGILANTE_PARKING'])
 
   const { data: hseMetrics } = useQuery({
     queryKey: ['hse', 'dashboard', sedeActiva?.id],
     queryFn:  () => hseService.getDashboard(sedeActiva!.id),
     enabled:  Boolean(sedeActiva?.id),
+  })
+
+  const { data: parkingMetrics } = useQuery({
+    queryKey: ['parking', 'dashboard', sedeActiva?.id],
+    queryFn:  () => parkingService.getDashboard(sedeActiva!.id),
+    enabled:  Boolean(sedeActiva?.id) && (esAdminGlobal || esRolParking),
   })
 
   const primerNombre = usuario?.nombre_completo?.split(' ')[0] || 'Usuario'
@@ -528,13 +510,13 @@ export default function DashboardView() {
     {
       icon:        Car,
       label:       'Parking',
-      descripcion: 'Vehículos, LPR y autogestión',
+      descripcion: 'Vehículos, autorizaciones y control de acceso',
       color:       'var(--primary-400)',
       bg:          'rgba(15, 23, 42,0.08)',
       border:      'rgba(15, 23, 42,0.15)',
-      visible:     esAdminGlobal || hasAnyRole(['ADMIN_PARKING','VIGILANTE_PARKING','VISUALIZADOR']),
-      disponible:  false,
-      path:        null,
+      visible:     esAdminGlobal || hasAnyRole(['ADMIN_PARKING','GESTION_PARKING','VIGILANTE_PARKING','VISUALIZADOR']),
+      disponible:  true,
+      path:        '/parking',
     },
     {
       icon:        Cpu,
@@ -715,6 +697,59 @@ export default function DashboardView() {
                 style={{ marginLeft: 'auto', background: 'transparent', border: 'none', color: 'var(--danger-400)', fontSize: '0.73rem', cursor: 'pointer', fontFamily: 'var(--font-ui)', display: 'flex', alignItems: 'center', gap: '4px' }}
               >
                 Gestionar <ArrowRight size={11} />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Resumen Parking */}
+      {(esAdminGlobal || esRolParking) && (
+        <div
+          style={{ marginTop: '20px', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xl)', overflow: 'hidden', boxShadow: 'var(--shadow-card)' }}
+          className="animate-fade-up stagger-5"
+        >
+          <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Car size={14} color="var(--primary-400)" />
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--primary-400)', letterSpacing: '0.1em' }}>PARKING</span>
+              <span style={{ fontSize: '0.83rem', fontWeight: 600, color: 'var(--text-primary)' }}>Resumen operativo</span>
+            </div>
+            <button
+              onClick={() => navigate('/parking')}
+              style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'transparent', border: 'none', color: 'var(--primary-400)', fontSize: '0.75rem', fontWeight: 500, cursor: 'pointer', fontFamily: 'var(--font-ui)' }}
+            >
+              Ver dashboard <ArrowRight size={12} />
+            </button>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', padding: '16px 20px', gap: '12px' }}>
+            {[
+              { label: 'Vehículos dentro',    value: parkingMetrics?.vehiculos_dentro          ?? '—', icon: Car,           color: 'var(--primary-400)',  bg: 'rgba(15,23,42,0.08)' },
+              { label: 'Autorizaciones activas', value: parkingMetrics?.autorizaciones_activas ?? '—', icon: UserCheck,     color: 'var(--success-400)', bg: 'rgba(22,163,74,0.08)' },
+              { label: 'Pendientes',           value: parkingMetrics?.solicitudes_pendientes    ?? '—', icon: FileText,      color: 'var(--info-400)',     bg: 'rgba(29,78,216,0.08)' },
+              { label: 'Incidentes activos',   value: parkingMetrics?.novedades_activas         ?? '—', icon: AlertTriangle, color: parkingMetrics?.novedades_activas ? 'var(--danger-400)' : 'var(--text-muted)', bg: parkingMetrics?.novedades_activas ? 'rgba(220,38,38,0.08)' : 'var(--bg-elevated)' },
+            ].map((stat) => (
+              <div key={stat.label} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: '36px', height: '36px', background: stat.bg, borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <stat.icon size={16} color={stat.color} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', lineHeight: 1 }}>{stat.value}</div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '2px' }}>{stat.label}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {(parkingMetrics?.documentos_por_vencer ?? 0) > 0 && (
+            <div style={{ margin: '0 20px 16px', padding: '10px 14px', background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Clock size={13} color="#F59E0B" />
+              <span style={{ fontSize: '0.78rem', color: '#F59E0B', fontWeight: 500 }}>
+                {parkingMetrics!.documentos_por_vencer} documento{parkingMetrics!.documentos_por_vencer > 1 ? 's' : ''} por vencer en los próximos 30 días
+              </span>
+              <button onClick={() => navigate('/parking')} style={{ marginLeft: 'auto', background: 'transparent', border: 'none', color: '#F59E0B', fontSize: '0.73rem', cursor: 'pointer', fontFamily: 'var(--font-ui)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                Ver <ArrowRight size={11} />
               </button>
             </div>
           )}
